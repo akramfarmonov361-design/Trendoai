@@ -16,9 +16,9 @@ DEBUG = ENV == "development"
 # Render da SITE_URL env o'zgaruvchisini ishlatish
 SITE_URL = os.getenv("SITE_URL", "https://www.trendoai.uz")
 
-SITE_NAME = "TrendoAI"
-SITE_DESCRIPTION = "O'zbekistonda trending texnologiya yangiliklari va AI-powered blog"
-SITE_TAGLINE = "Trending texnologiyalar, sun'iy intellekt va biznes yangiliklari"
+SITE_NAME = "TrendoAI (Trendo AI)"
+SITE_DESCRIPTION = "TrendoAI (Trendo AI) - O'zbekistonda IT, sun'iy intellekt, Telegram botlar, Web saytlar yaratish va biznes avtomatlashtirish bo'yicha professional IT kompaniya hamda texnologiya blogi"
+SITE_TAGLINE = "Trendo AI - Sun'iy intellekt, Telegram botlar va Raqamli biznes yechimlari"
 
 # ========== MA'LUMOTLAR BAZASI ==========
 # ========== MA'LUMOTLAR BAZASI ==========

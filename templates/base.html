@@ -60,10 +60,9 @@
     {% endif %}
 
     <!-- SEO Meta Tags -->
-    <meta name="description"
-        content="{% block meta_description %}TrendoAI - O'zbekistonda trending texnologiya yangiliklari, sun'iy intellekt va dasturlash haqida professional blog.{% endblock %}">
+    <meta name="description" content="{% block meta_description %}{{ config.SITE_DESCRIPTION }}{% endblock %}">
     <meta name="keywords"
-        content="{% block meta_keywords %}trendoai, texnologiya, sun'iy intellekt, AI, dasturlash, IT yangiliklar, O'zbekiston{% endblock %}">
+        content="{% block meta_keywords %}trendoai, trendo ai, trendo.ai, trendo.uz, trendo uz, trendo sun'iy intellekt, o'zbekistonda ai, trendobot, texnologiya, sun'iy intellekt, AI yechimlar, dasturlash, telegram bot yaratish, IT yangiliklar{% endblock %}">
     <meta name="author" content="TrendoAI">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{% block canonical_url %}{{ config.SITE_URL }}{% endblock %}">
@@ -92,11 +91,13 @@
         "@context": "https://schema.org",
         "@type": "{% block schema_type %}WebSite{% endblock %}",
         "name": "TrendoAI",
+        "alternateName": ["Trendo AI", "Trendo.ai", "Trendo sun'iy intellekt", "Trendo.uz"],
         "url": "{{ config.SITE_URL }}",
-        "description": "O'zbekistonda trending texnologiya yangiliklari, sun'iy intellekt va dasturlash haqida professional blog",
+        "description": "TrendoAI - O'zbekistonda IT, sun'iy intellekt, Telegram botlar, Web saytlar yaratish bo'yicha professional kompaniya va texnologiya blogi",
         "publisher": {
             "@type": "Organization",
             "name": "TrendoAI",
+            "alternateName": ["Trendo AI", "Trendo.ai", "Trendo sun'iy intellekt", "Trendobot"],
             "logo": {
                 "@type": "ImageObject",
                 "url": "{{ config.SITE_URL }}/static/img/logo.png"
