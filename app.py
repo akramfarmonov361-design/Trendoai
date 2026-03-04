@@ -1602,6 +1602,67 @@ def admin_migrate_db():
     return redirect(url_for('admin_dashboard'))
 
 
+# ========== SEO ROUTES ==========
+
+@app.route('/robots.txt')
+def robots_txt():
+    """Qidiruv tizimlari botlari uchun ruxsatnoma"""
+    site_url = app.config.get('SITE_URL', 'https://trendoai.uz')
+    lines = [
+        "User-agent: *",
+        "Disallow: /admin/",
+        "Disallow: /api/",
+        f"Sitemap: {site_url}/sitemap.xml"
+    ]
+    return Response("\n".join(lines), mimetype="text/plain")
+
+
+@app.route('/sitemap.xml')
+def sitemap_xml():
+    """Saytning barcha sahifalari xaritasi (Google va Yandex uchun)"""
+    import xml.etree.ElementTree as ET
+    
+    urlset = ET.Element('urlset', xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
+    site_url = app.config.get('SITE_URL', 'https://trendoai.uz')
+    
+    # Static sahifalar
+    pages = [
+        {'url': f'{site_url}/', 'priority': '1.0', 'freq': 'daily'},
+        {'url': f'{site_url}/services', 'priority': '0.9', 'freq': 'weekly'},
+        {'url': f'{site_url}/blog', 'priority': '0.9', 'freq': 'daily'},
+        {'url': f'{site_url}/portfolio', 'priority': '0.8', 'freq': 'weekly'},
+        {'url': f'{site_url}/about', 'priority': '0.8', 'freq': 'monthly'}
+    ]
+    
+    for page in pages:
+        url_el = ET.SubElement(urlset, 'url')
+        ET.SubElement(url_el, 'loc').text = page['url']
+        ET.SubElement(url_el, 'changefreq').text = page['freq']
+        ET.SubElement(url_el, 'priority').text = page['priority']
+        
+    # Blog postlari
+    posts = Post.query.filter_by(is_published=True).order_by(Post.created_at.desc()).all()
+    for post in posts:
+        url_el = ET.SubElement(urlset, 'url')
+        ET.SubElement(url_el, 'loc').text = f'{site_url}/post/{post.slug or post.id}'
+        ET.SubElement(url_el, 'lastmod').text = post.created_at.strftime('%Y-%m-%d')
+        ET.SubElement(url_el, 'changefreq').text = 'weekly'
+        ET.SubElement(url_el, 'priority').text = '0.7'
+        
+    # Portfolio ishlari
+    portfolios = Portfolio.query.order_by(Portfolio.order.asc(), Portfolio.created_at.desc()).all()
+    for item in portfolios:
+        url_el = ET.SubElement(urlset, 'url')
+        ET.SubElement(url_el, 'loc').text = f'{site_url}/portfolio/{item.slug or item.id}'
+        if hasattr(item, 'created_at') and item.created_at:
+            ET.SubElement(url_el, 'lastmod').text = item.created_at.strftime('%Y-%m-%d')
+        ET.SubElement(url_el, 'changefreq').text = 'monthly'
+        ET.SubElement(url_el, 'priority').text = '0.7'
+        
+    xml_str = ET.tostring(urlset, encoding='utf8', method='xml')
+    return Response(xml_str, mimetype='application/xml')
+
+
 # ========== API ROUTES ==========
 
 @app.route('/api/health')
