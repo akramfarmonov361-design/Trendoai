@@ -1868,8 +1868,21 @@ def cron_generate_post():
 
 @app.route('/api/cron/keep-alive')
 def cron_keep_alive():
-    """Serverni uyg'oq saqlash uchun"""
-    return jsonify({'status': 'alive', 'time': datetime.now().isoformat()})
+    """Serverni uyg'oq saqlash va Cron Scheduler haqida ma'lumot berish"""
+    status_data = {
+        'status': 'alive', 
+        'time': datetime.now().isoformat()
+    }
+    
+    try:
+        from scheduler import get_scheduled_jobs
+        jobs = get_scheduled_jobs()
+        status_data['scheduler_status'] = 'running' if len(jobs) > 0 else 'stopped'
+        status_data['active_jobs_count'] = len(jobs)
+    except Exception as e:
+        status_data['scheduler_error'] = str(e)
+        
+    return jsonify(status_data)
 
 # Server ishga tushganda bajariladigan amallar (Gunicorn va Local)
 with app.app_context():

@@ -122,20 +122,20 @@ def send_photo_to_channel(photo_url, caption=""):
 
 
 
-def send_to_admin(message, parse_mode="Markdown"):
+def send_admin_alert(message, parse_mode="HTML"):
     """
-    Raqamli xizmat buyurtmasini Admin ga yuborish.
+    Tizimdagi krizis holatlar va xatoliklarni bevosita Adminga yuborish.
     """
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_ADMIN_ID:
         print("❌ Xato: Telegram token yoki Admin ID topilmadi.")
         return False
     
     # Xabarni qisqartirish
-    message = _truncate_message(message)
+    message = _truncate_message(str(message))
     
     payload = {
         'chat_id': TELEGRAM_ADMIN_ID,
-        'text': message,
+        'text': f"🚨 <b>TrendoAI Tizim Xabari</b>\n\n{message}",
         'parse_mode': parse_mode,
         'disable_web_page_preview': True
     }
@@ -144,14 +144,14 @@ def send_to_admin(message, parse_mode="Markdown"):
         response = requests.post(TELEGRAM_API_URL, data=payload, timeout=30)
         
         if response.status_code == 200:
-            print(f"✅ Xabar Adminga muvaffaqiyatli yuborildi.")
+            print(f"✅ Alert(ogohlantirish) Adminga muvaffaqiyatli yuborildi.")
             return True
         else:
-            print(f"❌ Adminga yuborishda xato: {response.text}")
+            print(f"❌ Adminga alert yuborishda xato: {response.text}")
             return False
             
     except Exception as e:
-        print(f"🔌 Tarmoq xatosi: {e}")
+        print(f"🔌 Alert yuborishda tarmoq xatosi: {e}")
         return False
 
 

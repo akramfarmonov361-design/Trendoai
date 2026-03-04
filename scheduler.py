@@ -208,10 +208,22 @@ def generate_and_publish_post(topic=None, category=None):
                     
                 return True
             else:
-                print("❌ Post generatsiya qilishda xatolik yuz berdi (AI javob bermadi).")
+                error_msg = f"❌ Post generatsiya qilishda xatolik yuz berdi (AI javob bermadi yoki xato qaytardi).\nMavzu: {selected_topic}"
+                print(error_msg)
+                try:
+                    from telegram_poster import send_admin_alert
+                    send_admin_alert(error_msg)
+                except:
+                    pass
                 return False
         except Exception as e:
-            print(f"❌ Xato yuz berdi: {str(e)}")
+            error_msg = f"❌ Scheduler (generate_post) xatosi yuz berdi:\n\n{str(e)}\n\nMavzu: {selected_topic}"
+            print(error_msg)
+            try:
+                from telegram_poster import send_admin_alert
+                send_admin_alert(error_msg)
+            except:
+                pass
             return False
     
     print(f"{'='*60}\n")
