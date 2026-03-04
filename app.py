@@ -2139,38 +2139,6 @@ def telegram_webhook():
         import traceback
         traceback.print_exc()
         return 'Error', 500
-
-
-@app.route('/robots.txt')
-def robots_txt():
-    """robots.txt - qidiruv robotlari uchun"""
-    robots_content = f"""User-agent: *
-Allow: /
-
-# Sitemap
-Sitemap: {SITE_URL}/sitemap.xml
-
-# Admin sahifalarni yopish
-Disallow: /admin/
-Disallow: /api/
-Disallow: /cron/
-
-# Static files
-Allow: /static/
-
-# Qidiruv botlari uchun
-User-agent: Googlebot
-Allow: /
-
-User-agent: Yandexbot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-"""
-    return Response(robots_content, mimetype='text/plain')
-
-
 @app.route('/google<verification_code>.html')
 def google_verification(verification_code):
     """Google Search Console verification"""
