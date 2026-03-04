@@ -79,7 +79,8 @@
                 <div class="post-category">{{ post.category or 'Texnologiya' }}</div>
                 <h3><a href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h3>
                 <div class="post-meta">
-                    <span class="post-date">📅 {{ post.created_at.strftime('%d.%m.%Y') }}</span>
+                    <span class="post-date">📅 {{ post.created_at.strftime('%d.%m.%Y') if post.created_at else ''
+                        }}</span>
                     <span class="post-reading-time">⏱️ {{ post.reading_time or 5 }} daqiqa</span>
                     <span class="post-views">👁️ {{ post.views or 0 }}</span>
                 </div>
