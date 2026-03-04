@@ -817,6 +817,28 @@
         }
     </style>
 
+    <!-- Lead Magnet Modal -->
+    <div class="lead-modal-overlay" id="leadModalOverlay">
+        <div class="lead-modal">
+            <button class="lead-modal-close" id="leadModalClose">✕</button>
+            <div class="lead-modal-content">
+                <div class="lead-icon">🎁</div>
+                <h3>Bepul PDF Qo'llanma!</h3>
+                <p>"AI orqali daromadni 3 baravarga oshirishning 5 ta siri" - biznes egalari va freylanserlar uchun
+                    maxsus.</p>
+                <form id="leadForm">
+                    <input type="text" id="leadName" placeholder="Ismingiz" required>
+                    <input type="text" id="leadContact" placeholder="Telegram yoki raqamingiz" required>
+                    <button type="submit" id="leadSubmit" class="btn btn-primary" style="width:100%">Hoziroq Yuklab
+                        Olish</button>
+                </form>
+                <p class="lead-success-msg" id="leadSuccessMsg"
+                    style="display:none; color:var(--primary); margin-top:10px; font-weight:bold;">Muvaffaqiyatli! PDF
+                    fayl yuklanmoqda...</p>
+            </div>
+        </div>
+    </div>
+
     <!-- AI Chatbot Widget -->
     <button class="chatbot-toggle" id="chatbotToggle" title="AI Yordamchi">
         <span>🤖</span>
@@ -1078,10 +1100,16 @@
             chatbotWindow.classList.remove('active');
         });
 
+        // AI Chatbot State
+        let chatHistory = [];
+
         // Send message function
         async function sendChatMessage() {
             const message = chatbotInput.value.trim();
             if (!message) return;
+
+            // Chat tarixiga qo'shish
+            chatHistory.push({ role: 'user', content: message });
 
             // Disable input
             chatbotInput.disabled = true;
@@ -1109,10 +1137,15 @@
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message })
+                    body: JSON.stringify({ messages: chatHistory })
                 });
 
                 const data = await response.json();
+
+                // Chat tarixiga bot javobini qo'shish
+                if (data.reply) {
+                    chatHistory.push({ role: 'assistant', content: data.reply });
+                }
 
                 // Remove typing indicator
                 typingDiv.remove();
@@ -1120,7 +1153,7 @@
                 // Add bot response
                 const botDiv = document.createElement('div');
                 botDiv.className = 'chat-message bot';
-                botDiv.textContent = data.response || data.error || 'Xatolik yuz berdi';
+                botDiv.textContent = data.reply || data.response || data.error || 'Xatolik yuz berdi';
                 chatbotMessages.appendChild(botDiv);
 
             } catch (error) {
@@ -1147,6 +1180,74 @@
         chatbotInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 sendChatMessage();
+            }
+        });
+
+        // ========== LEAD MAGNET LOGIC ==========
+        const leadModalOverlay = document.getElementById('leadModalOverlay');
+        const leadModalClose = document.getElementById('leadModalClose');
+        const leadForm = document.getElementById('leadForm');
+        const leadSubmit = document.getElementById('leadSubmit');
+        const leadSuccessMsg = document.getElementById('leadSuccessMsg');
+
+        // Show modal after 15 seconds if not closed before
+        if (!localStorage.getItem('lead_magnet_shown')) {
+            setTimeout(() => {
+                leadModalOverlay.classList.add('active');
+            }, 15000);
+        }
+
+        leadModalClose.addEventListener('click', () => {
+            leadModalOverlay.classList.remove('active');
+            localStorage.setItem('lead_magnet_shown', 'true');
+        });
+
+        // Close on overlay click
+        leadModalOverlay.addEventListener('click', (e) => {
+            if (e.target === leadModalOverlay) {
+                leadModalOverlay.classList.remove('active');
+                localStorage.setItem('lead_magnet_shown', 'true');
+            }
+        });
+
+        leadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('leadName').value.trim();
+            const contact = document.getElementById('leadContact').value.trim();
+
+            if (!name || !contact) return;
+
+            leadSubmit.disabled = true;
+            leadSubmit.textContent = 'Kuting...';
+
+            try {
+                const response = await fetch('/api/lead', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, contact, source: 'Lead Magnet (PDF)' })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    leadForm.style.display = 'none';
+                    leadSuccessMsg.style.display = 'block';
+                    // Faylni yuklab olish logikasi simulyatsiyasi (haqiqiy loyihada PDF manzil beriladi)
+                    setTimeout(() => {
+                        leadModalOverlay.classList.remove('active');
+                        localStorage.setItem('lead_magnet_shown', 'true');
+                        // Masalan: window.location.href = '/static/downloads/trendo_ai_guide.pdf';
+                    }, 3000);
+                } else {
+                    alert(data.message || 'Xatolik yuz berdi');
+                    leadSubmit.disabled = false;
+                    leadSubmit.textContent = 'Hoziroq Yuklab Olish';
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Tarmoq xatosi.');
+                leadSubmit.disabled = false;
+                leadSubmit.textContent = 'Hoziroq Yuklab Olish';
             }
         });
 

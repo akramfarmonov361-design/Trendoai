@@ -9,6 +9,9 @@ import markdown2
 from datetime import datetime
 from functools import wraps
 import threading
+import xml.etree.ElementTree as ET
+import time
+import google.generativeai as genai
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, Response
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
@@ -412,6 +415,24 @@ class PushSubscription(db.Model):
                 'p256dh': self.p256dh,
                 'auth': self.auth
             }
+        }
+
+
+class Lead(db.Model):
+    """Lead Magnet va Chatbot orqali yig'ilgan sovuq klientlar (bazamiz)"""
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    contact = db.Column(db.String(100), nullable=False) # tel yoki telegram username
+    source = db.Column(db.String(50), default='Lead Magnet') # Lead Magnet, AI Chat, etc
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'contact': self.contact,
+            'source': self.source,
+            'created_at': self.created_at.isoformat() if self.created_at else None
         }
 
 
@@ -1664,6 +1685,87 @@ def sitemap_xml():
 
 
 # ========== API ROUTES ==========
+
+@app.route('/api/lead', methods=['POST'])
+def submit_lead():
+    """Lead Magnet yoki Chatbot orqali kelgan ma'lumotni saqlash"""
+    data = request.json
+    if not data or not data.get('contact'):
+        return jsonify({'status': 'error', 'message': 'Iltimos, aloqa ma\'lumotini kiriting.'}), 400
+        
+    try:
+        new_lead = Lead(
+            name=data.get('name', 'Noma\'lum'),
+            contact=data['contact'],
+            source=data.get('source', 'Sayt Orqali')
+        )
+        db.session.add(new_lead)
+        db.session.commit()
+        
+        # Adminga xabar
+        from telegram_poster import send_admin_alert
+        msg = f"🎯 <b>YANGI MIJOZ (LEAD)!</b>\n\n👤 <b>Ismi:</b> {new_lead.name}\n📞 <b>Aloqa:</b> {new_lead.contact}\n📍 <b>Manba:</b> {new_lead.source}"
+        send_admin_alert(msg)
+        
+        return jsonify({'status': 'success', 'message': 'Ma\'lumot muvaffaqiyatli qabul qilindi!'})
+    except Exception as e:
+        print(f"Lead error: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/api/chat', methods=['POST'])
+def ai_chat():
+    """AI chatbot yordamchisi API (Mijozlar bilan saytda gaplashish uchun)"""
+    data = request.json
+    messages = data.get('messages', [])
+    
+    if not messages:
+        return jsonify({'reply': 'Qanday yordam bera olaman?'})
+        
+    try:
+        # Foydalanuvchi tanlagan aniq modelni o'rnatamiz
+        model_name = "gemini-2.5-flash-native-audio-preview-12-2025"
+        # API key ni configuratsiya faylidan olamiz
+        api_key = app.config.get('GEMINI_API_KEY') or os.getenv('GEMINI_API_KEY')
+        genai.configure(api_key=api_key)
+        
+        # Maxsus TrendoAI suhbatdosh promti
+        system_prompt = """Siz TrendoAI IT va Marketing xizmatlarining aqlli menedjerisiz (ismini o'zingiz o'ylab toping yoki TrendoAI deb tanishing). 
+Siz O'zbekistonda bot yaratish, website (sayt) tayyorlash, CRM ni joriy qilish va Sun'iy intellekt integratsiyasi boyicha savollarga javob berasiz. 
+Maqsadingiz: Mijozga yaxshi, ishonchli taassurot qoldirish. Agar mijoz xizmat buyurtma qilsa yoki qiziqsa, uning aloqa ma'lumoti (telefon yoki Telegram username) ni so'rang ("Mutaxassislarimiz tekin konsultatsiya berishi uchun raqamingizni qoldiring").
+QOIDALAR:
+1. Qisqa va do'stona o'zbek lotin tilida yozing. (Uzun dostonlar yo'q). 
+2. Keraksiz formatlar (masalan markdownda katta bold shriftlar) ni kam ishlating, oddiy chatdagidek gaplashing.
+"""
+        
+        model = genai.GenerativeModel(
+            model_name=model_name,
+            system_instruction=system_prompt
+        )
+        
+        # Chat tarixini shakllantirish (Faqat oxirgi 5 ta xabar kontekst uchun)
+        history = []
+        # messages formati backend va frontend ga moslashtiriladi:
+        # [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]
+        recent_messages = messages[-5:] 
+        
+        for msg in recent_messages[:-1]:
+            # Gemini faqat 'user' va 'model' rollarini qabul qiladi
+            role = 'user' if msg.get('role') == 'user' else 'model'
+            history.append({"role": role, "parts": [msg.get('content')]})
+            
+        chat = model.start_chat(history=history)
+        
+        # Foydalanuvchi jo'natgan eng so'nggi xabarni berish
+        last_user_msg = recent_messages[-1].get('content', '')
+        response = chat.send_message(last_user_msg)
+        
+        return jsonify({'reply': response.text})
+        
+    except Exception as e:
+        print(f"Chat error: {e}")
+        return jsonify({'reply': "Uzur, hozircha men javob qaytara olmayapman (Tarmoq yoki API xatosi). Iltimos, o'zingizning ismingiz va profilingiz yozing biz siz bilan bog'lanamiz!"})
+
 
 @app.route('/api/health')
 def api_health():
