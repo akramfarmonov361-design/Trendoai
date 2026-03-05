@@ -2000,35 +2000,69 @@ def cron_debug_generate():
     result = {'steps': [], 'success': False}
     
     try:
-        # 1. AI generatsiya
-        result['steps'].append('1. AI generatsiya boshlanmoqda...')
-        from ai_generator import generate_post_for_seo
-        import random
-        topic = request.args.get('topic') or random.choice(CATEGORIES)
-        result['topic'] = topic
+        # 0. Gemini API kalitni tekshirish
+        from config import GEMINI_API_KEY, GEMINI_MODEL
+        result['gemini_api_key_exists'] = bool(GEMINI_API_KEY)
+        result['gemini_api_key_preview'] = GEMINI_API_KEY[:10] + '...' if GEMINI_API_KEY else 'NONE'
+        result['gemini_model'] = GEMINI_MODEL
+        result['steps'].append(f'0. API kalit: {"BOR" if GEMINI_API_KEY else "YO\'Q"}, Model: {GEMINI_MODEL}')
         
-        post_data = generate_post_for_seo(topic)
-        if not post_data:
-            result['error'] = 'AI javob bermadi yoki JSON parse xatosi'
-            result['steps'].append('❌ AI generatsiya muvaffaqiyatsiz')
+        if not GEMINI_API_KEY:
+            result['error'] = 'GEMINI_API_KEY muhit o\'zgaruvchisi topilmadi!'
             return jsonify(result), 500
         
-        result['steps'].append(f'✅ AI generatsiya muvaffaqiyatli: {post_data.get("title", "?")}')
-        result['ai_title'] = post_data.get('title')
+        # 1. Gemini API oddiy test
+        result['steps'].append('1. Gemini API oddiy test...')
+        try:
+            import google.generativeai as test_genai
+            test_genai.configure(api_key=GEMINI_API_KEY)
+            test_model = test_genai.GenerativeModel(GEMINI_MODEL)
+            test_response = test_model.generate_content("Salom, 1+1 nechta?")
+            result['steps'].append(f'✅ Gemini API ishlaydi! Javob: {test_response.text[:100]}')
+            result['gemini_test'] = 'OK'
+        except Exception as gemini_err:
+            result['steps'].append(f'❌ Gemini API xatosi: {str(gemini_err)}')
+            result['gemini_error'] = str(gemini_err)
+            result['gemini_traceback'] = tb.format_exc()
+            return jsonify(result), 500
         
-        # 2. Rasm olish
-        result['steps'].append('2. Rasm olinmoqda...')
+        # 2. AI post generatsiya
+        result['steps'].append('2. AI post generatsiya boshlanmoqda...')
+        try:
+            from ai_generator import generate_post_for_seo
+            import random
+            from scheduler import TOPICS
+            topic = request.args.get('topic') or random.choice(TOPICS)
+            result['topic'] = topic
+            
+            post_data = generate_post_for_seo(topic)
+            if not post_data:
+                result['error'] = 'generate_post_for_seo None qaytardi (AI javob yoki JSON parse xatosi)'
+                result['steps'].append('❌ AI generatsiya muvaffaqiyatsiz')
+                return jsonify(result), 500
+            
+            result['steps'].append(f'✅ AI generatsiya muvaffaqiyatli: {post_data.get("title", "?")}')
+            result['ai_title'] = post_data.get('title')
+        except Exception as ai_err:
+            result['steps'].append(f'❌ AI generatsiya exception: {str(ai_err)}')
+            result['ai_error'] = str(ai_err)
+            result['ai_traceback'] = tb.format_exc()
+            return jsonify(result), 500
+        
+        # 3. Rasm olish
+        result['steps'].append('3. Rasm olinmoqda...')
+        image_url = None
         try:
             from image_fetcher import get_image_for_topic
             image_url = get_image_for_topic(topic)
             result['image_url'] = image_url
-            result['steps'].append(f'✅ Rasm topildi')
+            result['steps'].append('✅ Rasm topildi')
         except Exception as img_err:
             result['steps'].append(f'⚠️ Rasm xatosi (davom etiladi): {str(img_err)}')
-            image_url = None
         
-        # 3. Bazaga saqlash
-        result['steps'].append('3. Bazaga saqlanmoqda...')
+        # 4. Bazaga saqlash
+        result['steps'].append('4. Bazaga saqlanmoqda...')
+        import random
         new_post = Post(
             title=post_data['title'],
             content=post_data['content'],
@@ -2047,6 +2081,7 @@ def cron_debug_generate():
         
         result['steps'].append(f'✅ Bazaga saqlandi: ID={new_post.id}, slug={new_post.slug}')
         result['post_id'] = new_post.id
+        result['post_url'] = f'{SITE_URL}/blog/{new_post.slug}'
         result['success'] = True
         
         return jsonify(result)
