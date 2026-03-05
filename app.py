@@ -2092,6 +2092,55 @@ def cron_debug_generate():
         result['steps'].append(f'❌ Xatolik: {str(e)}')
         return jsonify(result), 500
 
+@app.route('/api/cron/test-ai')
+def cron_test_ai():
+    """Tezkor Gemini API test — retrylar yo'q, 10 soniya ichida javob"""
+    secret = request.args.get('secret') or request.headers.get('X-Cron-Secret')
+    if secret != app.config.get('CRON_SECRET'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    import traceback as tb
+    result = {}
+    
+    # 1. API kalit tekshirish
+    from config import GEMINI_API_KEY, GEMINI_MODEL
+    result['api_key_exists'] = bool(GEMINI_API_KEY)
+    result['api_key_preview'] = (GEMINI_API_KEY[:8] + '...') if GEMINI_API_KEY else 'NONE'
+    result['model'] = GEMINI_MODEL
+    
+    if not GEMINI_API_KEY:
+        result['error'] = 'GEMINI_API_KEY topilmadi'
+        return jsonify(result), 500
+    
+    # 2. Oddiy Gemini test (retrylar yo'q)
+    try:
+        import google.generativeai as test_genai
+        test_genai.configure(api_key=GEMINI_API_KEY)
+        test_model = test_genai.GenerativeModel(GEMINI_MODEL)
+        resp = test_model.generate_content("1+1=?")
+        result['gemini_status'] = 'OK'
+        result['gemini_response'] = resp.text[:200]
+    except Exception as e:
+        result['gemini_status'] = 'ERROR'
+        result['gemini_error'] = str(e)
+        result['gemini_traceback'] = tb.format_exc()
+    
+    # 3. DB test
+    try:
+        post_count = Post.query.count()
+        result['db_status'] = 'OK'
+        result['total_posts'] = post_count
+    except Exception as e:
+        result['db_status'] = 'ERROR'
+        result['db_error'] = str(e)
+    
+    # 4. Telegram token test
+    from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHANNEL_ID
+    result['telegram_token_exists'] = bool(TELEGRAM_BOT_TOKEN)
+    result['telegram_channel_exists'] = bool(TELEGRAM_CHANNEL_ID)
+    
+    return jsonify(result)
+
 # Server ishga tushganda bajariladigan amallar (Gunicorn va Local)
 with app.app_context():
     try:
