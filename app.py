@@ -5,6 +5,7 @@ Flask asosiy fayli.
 """
 import os
 import re
+import sys
 import markdown2
 from datetime import datetime
 from functools import wraps
@@ -18,6 +19,14 @@ from dotenv import load_dotenv
 
 # .env faylidagi o'zgaruvchilarni yuklash
 load_dotenv()
+
+# Windows kabi no-UTF8 terminallarda emoji/log sababli ilova qulamasligi uchun
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 app = Flask(__name__)
 
@@ -2005,7 +2014,8 @@ def cron_debug_generate():
         result['gemini_api_key_exists'] = bool(GEMINI_API_KEY)
         result['gemini_api_key_preview'] = GEMINI_API_KEY[:10] + '...' if GEMINI_API_KEY else 'NONE'
         result['gemini_model'] = GEMINI_MODEL
-        result['steps'].append(f'0. API kalit: {"BOR" if GEMINI_API_KEY else "YO\'Q"}, Model: {GEMINI_MODEL}')
+        key_state = "BOR" if GEMINI_API_KEY else "YO'Q"
+        result['steps'].append(f"0. API kalit: {key_state}, Model: {GEMINI_MODEL}")
         
         if not GEMINI_API_KEY:
             result['error'] = 'GEMINI_API_KEY muhit o\'zgaruvchisi topilmadi!'
@@ -2420,39 +2430,50 @@ def yandex_verification(verification_code):
 def init_database():
     """Bazani yangilash va yangi ustunlarni qo'shish"""
     with app.app_context():
+        from sqlalchemy import inspect, text
+
         try:
-            # 1. Yangi jadvallarni yaratish (Service va h.k.)
+            # 1. Yangi jadvallarni yaratish
             db.create_all()
-            
-            # 2. Raw connection orqali ustunlarni qo'shish (PostgreSQL safe)
-            from sqlalchemy import text
-            with db.engine.connect() as conn:
-                # Portfolio.price
-                try:
-                    conn.execute(text("ALTER TABLE portfolio ADD COLUMN IF NOT EXISTS price VARCHAR(100)"))
-                    conn.commit()
-                    print("✅ Portfolio.price ustuni tekshirildi/qo'shildi")
-                except Exception as e:
-                    print(f"⚠️ Portfolio.price migration focus: {e}")
-
-                # Service.price (ba'zan migrate_services da xatolik bo'lishi mumkin)
-                try:
-                    conn.execute(text("ALTER TABLE service ADD COLUMN IF NOT EXISTS price VARCHAR(100)"))
-                    conn.commit()
-                    print("✅ Service.price ustuni tekshirildi/qo'shildi")
-                except Exception as e:
-                    print(f"⚠️ Service.price migration focus: {e}")
-
-                # Portfolio.meta_description ni TEXT ga o'zgartirish (160 belgidan kotta bo'lishi uchun)
-                try:
-                    conn.execute(text("ALTER TABLE portfolio ALTER COLUMN meta_description TYPE TEXT"))
-                    conn.commit()
-                    print("✅ Portfolio.meta_description ustuni TEXT ga o'zgartirildi")
-                except Exception as e:
-                    print(f"⚠️ Portfolio.meta_description migration: {e}")
-            
         except Exception as e:
-            print(f"⚠️ Database init final error: {e}")
+            print(f"WARN: db.create_all failed: {e}")
+            return
+
+        try:
+            inspector = inspect(db.engine)
+            table_names = set(inspector.get_table_names())
+
+            def ensure_varchar_column(table_name, column_name):
+                if table_name not in table_names:
+                    print(f"INFO: {table_name} table not found; skip {column_name}.")
+                    return
+
+                existing_columns = {col["name"] for col in inspector.get_columns(table_name)}
+                if column_name in existing_columns:
+                    print(f"INFO: {table_name}.{column_name} already exists.")
+                    return
+
+                with db.engine.begin() as conn:
+                    conn.execute(
+                        text(f"ALTER TABLE {table_name} ADD COLUMN {column_name} VARCHAR(100)")
+                    )
+                print(f"OK: added {table_name}.{column_name}.")
+
+            ensure_varchar_column("portfolio", "price")
+            ensure_varchar_column("service", "price")
+
+            # PostgreSQL uchun meta_description ni TEXT ga o'zgartirish
+            if "portfolio" in table_names and db.engine.dialect.name == "postgresql":
+                portfolio_columns = {col["name"] for col in inspector.get_columns("portfolio")}
+                if "meta_description" in portfolio_columns:
+                    with db.engine.begin() as conn:
+                        conn.execute(
+                            text("ALTER TABLE portfolio ALTER COLUMN meta_description TYPE TEXT")
+                        )
+                    print("OK: portfolio.meta_description converted to TEXT.")
+        except Exception as e:
+            print(f"WARN: Database migration step failed: {e}")
+        return
 
 # Run database initialization
 init_database()
