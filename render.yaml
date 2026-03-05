@@ -6,7 +6,7 @@ services:
     name: trendoai
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --timeout 300 --graceful-timeout 300 app:app
+    startCommand: gunicorn app:app -c gunicorn.conf.py
     envVars:
       - key: DATABASE_URL
         fromDatabase:

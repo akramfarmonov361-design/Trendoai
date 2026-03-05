@@ -2302,23 +2302,32 @@ def init_database():
 # Run database initialization
 init_database()
 
-# Avtomatlashtirish va Botni ishga tushirish
+# ===== 1. Schedulerni ishga tushirish =====
 try:
     from scheduler import scheduler
-    from bot_service import setup_webhook, bot
-    
-    # Scheduler ishga tushirish
-    scheduler.start()
-    
-    
-    # Webhook rejimida bot (polling o'rniga)
-    setup_webhook(app)
-    
-    print("🚀 TrendoAI xizmatlari (Scheduler + Bot Webhook) ishga tushdi!")
+    if not scheduler.running:
+        scheduler.start()
+        jobs = scheduler.get_jobs()
+        print(f"✅ Scheduler ishga tushdi! Joblar soni: {len(jobs)}")
+        for job in jobs[:3]:
+            print(f"   📌 {job.name} → keyingi: {job.next_run_time}")
+        if len(jobs) > 3:
+            print(f"   ... va yana {len(jobs) - 3} ta job")
+    else:
+        print("ℹ️ Scheduler allaqachon ishlayapti.")
 except Exception as e:
-    print(f"Service startup error: {e}")
+    print(f"❌ Scheduler startup error: {e}")
     import traceback
     traceback.print_exc()
+
+# ===== 2. Bot webhookni ishga tushirish =====
+try:
+    from bot_service import setup_webhook, bot
+    setup_webhook(app)
+except Exception as e:
+    print(f"❌ Bot webhook error: {e}")
+
+print("🚀 TrendoAI xizmatlari ishga tushdi!")
 
 
 if __name__ == '__main__':

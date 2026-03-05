@@ -9,6 +9,8 @@ from ai_generator import generate_post_for_seo
 from telegram_poster import send_to_telegram_channel
 from config import SITE_URL, TIMEZONE, CATEGORIES
 import random
+import sys
+import traceback
 from datetime import datetime
 
 # 80/20 QOIDASI BO'YICHA MAVZULAR (2026-YIL UCHUN YANGILANDI)
@@ -110,10 +112,11 @@ def generate_and_publish_post(topic=None, category=None):
     topic: Agar berilsa, ushbu mavzuda yozadi. Aks holda random tanlaydi.
     category: Agar berilsa, ushbu kategoriyani qo'yadi. Aks holda random tanlaydi.
     """
-    current_time = datetime.now().strftime('%H:%M')
-    print(f"\n{'='*60}")
-    print(f"🚀 TrendoAI — Post generatsiyasi boshlandi... [{current_time}]")
-    print(f"{'='*60}")
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print(f"\n{'='*60}", flush=True)
+    print(f"🚀 TrendoAI — Post generatsiyasi boshlandi... [{current_time}]", flush=True)
+    print(f"{'='*60}", flush=True)
+    sys.stdout.flush()
     
     # Mavzu va kategoriya tanlash
     selected_topic = topic if topic else random.choice(TOPICS)
@@ -218,7 +221,9 @@ def generate_and_publish_post(topic=None, category=None):
                 return False
         except Exception as e:
             error_msg = f"❌ Scheduler (generate_post) xatosi yuz berdi:\n\n{str(e)}\n\nMavzu: {selected_topic}"
-            print(error_msg)
+            print(error_msg, flush=True)
+            traceback.print_exc()
+            sys.stdout.flush()
             try:
                 from telegram_poster import send_admin_alert
                 send_admin_alert(error_msg)
@@ -226,7 +231,7 @@ def generate_and_publish_post(topic=None, category=None):
                 pass
             return False
     
-    print(f"{'='*60}\n")
+    print(f"{'='*60}\n", flush=True)
 
 
 # Scheduler yaratish
