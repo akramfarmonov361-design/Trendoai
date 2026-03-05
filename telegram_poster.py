@@ -1,231 +1,291 @@
-# telegram_poster.py
 """
-Telegram kanaliga xabar yuborish moduli.
-TrendoAI uchun moslashtirilgan.
+Telegram channel posting helpers for TrendoAI.
 """
-import os
+
 import time
 import requests
+
 from config import (
-    TELEGRAM_BOT_TOKEN, 
-    TELEGRAM_CHANNEL_ID, 
+    TELEGRAM_BOT_TOKEN,
+    TELEGRAM_CHANNEL_ID,
     TELEGRAM_ADMIN_ID,
     TELEGRAM_MAX_MESSAGE_LENGTH,
-    TELEGRAM_RETRY_ATTEMPTS
+    TELEGRAM_RETRY_ATTEMPTS,
 )
 
-TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+
+def _clean_env_value(value):
+    """Strip whitespace and optional wrapping quotes from env values."""
+    if value is None:
+        return None
+
+    cleaned = str(value).strip()
+    if not cleaned:
+        return None
+
+    if len(cleaned) >= 2 and cleaned[0] == cleaned[-1] and cleaned[0] in ("'", '"'):
+        cleaned = cleaned[1:-1].strip()
+
+    return cleaned or None
+
+
+BOT_TOKEN = _clean_env_value(TELEGRAM_BOT_TOKEN)
+CHANNEL_ID = _clean_env_value(TELEGRAM_CHANNEL_ID)
+ADMIN_ID = _clean_env_value(TELEGRAM_ADMIN_ID)
+
+
+def _telegram_api_url(method):
+    return f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
+
+
+def _extract_error_description(response):
+    try:
+        data = response.json()
+        if isinstance(data, dict):
+            return data.get("description", "Unknown Telegram error")
+    except Exception:
+        pass
+    return response.text or "Unknown Telegram error"
 
 
 def _truncate_message(message, max_length=TELEGRAM_MAX_MESSAGE_LENGTH):
-    """Xabarni maksimal uzunlikka qisqartiradi."""
+    """Trim text to Telegram length limits with a readable suffix."""
+    message = str(message or "")
     if len(message) <= max_length:
         return message
-    
-    truncated = message[:max_length - 50]
-    last_space = truncated.rfind(' ')
+
+    suffix = "\n\n... (davomi saytda)"
+    truncated = message[: max_length - len(suffix)]
+    last_space = truncated.rfind(" ")
     if last_space > 0:
         truncated = truncated[:last_space]
-    
-    return truncated + "\n\n... (davomi saytda)"
+
+    return truncated + suffix
 
 
-def send_to_telegram_channel(message, parse_mode="Markdown"):
-    """
-    Telegram kanaliga xabar yuboradi.
-    
-    Args:
-        message: Yuboriladigan xabar matni
-        parse_mode: Formatlash turi ("Markdown" yoki "HTML")
-        
-    Returns:
-        bool: Muvaffaqiyatli yuborildi yoki yo'q
-    """
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHANNEL_ID:
-        print("❌ Xato: Telegram token yoki kanal ID'si topilmadi.")
-        print("   .env faylda TELEGRAM_BOT_TOKEN va TELEGRAM_CHANNEL_ID ni tekshiring.")
+def _is_parse_error(description):
+    text = (description or "").lower()
+    return "parse entities" in text or "can't parse" in text
+
+
+def _is_photo_url_error(description):
+    text = (description or "").lower()
+    indicators = [
+        "failed to get http url content",
+        "wrong file identifier/http url specified",
+        "webpage media empty",
+        "type of the web page content",
+        "file is too big",
+        "image_process_failed",
+        "photo_invalid_dimensions",
+    ]
+    return any(indicator in text for indicator in indicators)
+
+
+def _send_text(chat_id, message, parse_mode="Markdown", disable_web_page_preview=False, chat_label="chat"):
+    """Send a text message with retry and parse-mode fallback."""
+    if not BOT_TOKEN or not chat_id:
+        print(f"[telegram] Missing BOT_TOKEN or {chat_label} id.")
         return False
-    
-    message = _truncate_message(message)
-    
-    payload = {
-        'chat_id': TELEGRAM_CHANNEL_ID,
-        'text': message,
-        'parse_mode': parse_mode,
-        'disable_web_page_preview': False
+
+    payload_base = {
+        "chat_id": chat_id,
+        "text": _truncate_message(message),
+        "disable_web_page_preview": disable_web_page_preview,
     }
-    
+
+    parse_candidates = [parse_mode] if parse_mode else [None]
+    if parse_mode is not None:
+        parse_candidates.append(None)
+
     last_error = None
-    
-    for attempt in range(TELEGRAM_RETRY_ATTEMPTS):
-        try:
-            response = requests.post(TELEGRAM_API_URL, data=payload, timeout=30)
-            
-            if response.status_code == 200:
-                print(f"✅ Xabar TrendoAI kanalga muvaffaqiyatli yuborildi.")
-                return True
-            
-            error_data = response.json()
-            error_description = error_data.get('description', 'Noma\'lum xato')
-            
-            if 'parse entities' in error_description.lower():
-                print(f"⚠️ Markdown xatosi. Oddiy text sifatida yuborilmoqda...")
-                payload['parse_mode'] = None
-                continue
-            
-            print(f"❌ Telegram xatosi: {error_description}")
-            last_error = error_description
-            
-        except requests.exceptions.Timeout:
-            print(f"⏱️ Timeout xatosi (urinish {attempt + 1}/{TELEGRAM_RETRY_ATTEMPTS})")
-            last_error = "Timeout"
-            
-        except requests.exceptions.RequestException as e:
-            print(f"🔌 Tarmoq xatosi (urinish {attempt + 1}/{TELEGRAM_RETRY_ATTEMPTS}): {e}")
-            last_error = str(e)
-        
-        if attempt < TELEGRAM_RETRY_ATTEMPTS - 1:
-            wait_time = 2 * (attempt + 1)
-            print(f"   ⏳ {wait_time} soniya kutilmoqda...")
-            time.sleep(wait_time)
-    
-    print(f"❌ Barcha urinishlar muvaffaqiyatsiz. Oxirgi xato: {last_error}")
+
+    for candidate_parse_mode in parse_candidates:
+        payload = dict(payload_base)
+        if candidate_parse_mode:
+            payload["parse_mode"] = candidate_parse_mode
+
+        for attempt in range(TELEGRAM_RETRY_ATTEMPTS):
+            try:
+                response = requests.post(_telegram_api_url("sendMessage"), data=payload, timeout=30)
+            except requests.exceptions.Timeout:
+                last_error = "Timeout"
+                print(f"[telegram] Timeout sending to {chat_label} ({attempt + 1}/{TELEGRAM_RETRY_ATTEMPTS})")
+            except requests.exceptions.RequestException as exc:
+                last_error = str(exc)
+                print(f"[telegram] Network error sending to {chat_label} ({attempt + 1}/{TELEGRAM_RETRY_ATTEMPTS}): {exc}")
+            else:
+                if response.status_code == 200:
+                    print(f"[telegram] Message sent to {chat_label}.")
+                    return True
+
+                description = _extract_error_description(response)
+                last_error = description
+
+                if _is_parse_error(description) and candidate_parse_mode is not None:
+                    print("[telegram] Parse error detected, retrying without parse_mode.")
+                    break
+
+                print(f"[telegram] API error sending to {chat_label}: {description}")
+
+            if attempt < TELEGRAM_RETRY_ATTEMPTS - 1:
+                wait_time = 2 * (attempt + 1)
+                time.sleep(wait_time)
+
+    print(f"[telegram] Failed to send message to {chat_label}. Last error: {last_error}")
     return False
 
 
+def send_to_telegram_channel(message, parse_mode="Markdown"):
+    """Send text message to Telegram channel."""
+    return _send_text(
+        chat_id=CHANNEL_ID,
+        message=message,
+        parse_mode=parse_mode,
+        disable_web_page_preview=False,
+        chat_label="channel",
+    )
+
+
 def send_photo_to_channel(photo_url, caption=""):
-    """Telegram kanaliga rasm yuboradi."""
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHANNEL_ID:
-        print("❌ Xato: Telegram sozlamalari topilmadi.")
-        return False
-    
-    api_url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
-    
-    payload = {
-        'chat_id': TELEGRAM_CHANNEL_ID,
-        'photo': photo_url,
-        'caption': _truncate_message(caption, 1024),
-        'parse_mode': 'Markdown'
-    }
-    
-    try:
-        response = requests.post(api_url, data=payload, timeout=30)
-        if response.status_code == 200:
-            print("✅ Rasm TrendoAI kanalga muvaffaqiyatli yuborildi.")
-            return True
-        else:
-            print(f"❌ Rasm yuborishda xato: {response.text}")
-            return False
-    except Exception as e:
-        print(f"❌ Rasm yuborishda xato: {e}")
+    """Send photo + caption to Telegram channel with robust fallback behavior."""
+    if not BOT_TOKEN or not CHANNEL_ID:
+        print("[telegram] Missing BOT_TOKEN or CHANNEL_ID.")
         return False
 
+    if not photo_url:
+        print("[telegram] photo_url is empty, sending text only.")
+        return send_to_telegram_channel(caption)
+
+    caption = _truncate_message(caption, 1024)
+    last_error = None
+
+    parse_candidates = ["Markdown", None]
+    for candidate_parse_mode in parse_candidates:
+        payload = {
+            "chat_id": CHANNEL_ID,
+            "photo": photo_url,
+            "caption": caption,
+        }
+        if candidate_parse_mode:
+            payload["parse_mode"] = candidate_parse_mode
+
+        for attempt in range(TELEGRAM_RETRY_ATTEMPTS):
+            try:
+                response = requests.post(_telegram_api_url("sendPhoto"), data=payload, timeout=30)
+            except requests.exceptions.Timeout:
+                last_error = "Timeout"
+                print(f"[telegram] Photo send timeout ({attempt + 1}/{TELEGRAM_RETRY_ATTEMPTS})")
+            except requests.exceptions.RequestException as exc:
+                last_error = str(exc)
+                print(f"[telegram] Photo send network error ({attempt + 1}/{TELEGRAM_RETRY_ATTEMPTS}): {exc}")
+            else:
+                if response.status_code == 200:
+                    print("[telegram] Photo sent to channel.")
+                    return True
+
+                description = _extract_error_description(response)
+                last_error = description
+
+                if _is_parse_error(description) and candidate_parse_mode is not None:
+                    print("[telegram] Photo caption parse error, retrying without parse_mode.")
+                    break
+
+                if _is_photo_url_error(description):
+                    print("[telegram] Photo URL failed, falling back to text message.")
+                    return send_to_telegram_channel(caption)
+
+                print(f"[telegram] Photo send API error: {description}")
+
+            if attempt < TELEGRAM_RETRY_ATTEMPTS - 1:
+                wait_time = 2 * (attempt + 1)
+                time.sleep(wait_time)
+
+    print(f"[telegram] Failed to send photo. Last error: {last_error}")
+    print("[telegram] Falling back to text message.")
+    return send_to_telegram_channel(caption)
 
 
 def send_admin_alert(message, parse_mode="HTML"):
-    """
-    Tizimdagi krizis holatlar va xatoliklarni bevosita Adminga yuborish.
-    """
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_ADMIN_ID:
-        print("❌ Xato: Telegram token yoki Admin ID topilmadi.")
-        return False
-    
-    # Xabarni qisqartirish
-    message = _truncate_message(str(message))
-    
-    payload = {
-        'chat_id': TELEGRAM_ADMIN_ID,
-        'text': f"🚨 <b>TrendoAI Tizim Xabari</b>\n\n{message}",
-        'parse_mode': parse_mode,
-        'disable_web_page_preview': True
-    }
-    
-    try:
-        response = requests.post(TELEGRAM_API_URL, data=payload, timeout=30)
-        
-        if response.status_code == 200:
-            print(f"✅ Alert(ogohlantirish) Adminga muvaffaqiyatli yuborildi.")
-            return True
-        else:
-            print(f"❌ Adminga alert yuborishda xato: {response.text}")
-            return False
-            
-    except Exception as e:
-        print(f"🔌 Alert yuborishda tarmoq xatosi: {e}")
-        return False
+    """Send system alerts directly to admin chat."""
+    if parse_mode == "HTML":
+        prefixed_message = f"<b>TrendoAI tizim xabari</b>\n\n{message}"
+    else:
+        prefixed_message = f"TrendoAI tizim xabari\n\n{message}"
 
+    return _send_text(
+        chat_id=ADMIN_ID,
+        message=prefixed_message,
+        parse_mode=parse_mode,
+        disable_web_page_preview=True,
+        chat_label="admin",
+    )
+
+
+def send_to_admin(message, parse_mode="Markdown"):
+    """Backward-compatible helper used by app.py order flow."""
+    return _send_text(
+        chat_id=ADMIN_ID,
+        message=message,
+        parse_mode=parse_mode,
+        disable_web_page_preview=True,
+        chat_label="admin",
+    )
 
 
 def send_portfolio_to_channel(portfolio_item):
-    """
-    Portfolio loyihasini Telegram kanalga yuborish.
-    """
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHANNEL_ID:
-        print("❌ Xato: Telegram sozlamalari topilmadi.")
+    """Send portfolio item to Telegram channel."""
+    if not BOT_TOKEN or not CHANNEL_ID:
+        print("[telegram] Missing Telegram configuration for portfolio posting.")
         return False
 
-    # Formatlash
     emoji = portfolio_item.emoji or "🚀"
     title = portfolio_item.title
     description = portfolio_item.description
-    
-    # Texnologiyalar
+
     tech_tags = ""
     if portfolio_item.technologies:
-        tech_list = [t.strip() for t in portfolio_item.technologies.split(',')]
-        tech_tags = " | ".join([f"#{t.replace(' ', '')}" for t in tech_list])
+        tech_list = [item.strip() for item in portfolio_item.technologies.split(",") if item.strip()]
+        if tech_list:
+            tech_tags = " | ".join([f"#{item.replace(' ', '')}" for item in tech_list])
 
-    # Kategoriya (hashtag)
     category_tag = f"#{portfolio_item.category}" if portfolio_item.category else ""
-    
-    # Havola
+
     link_text = ""
     if portfolio_item.link:
         link_text = f"\n🔗 [Loyihani ko'rish]({portfolio_item.link})"
-    
-    # Saytdagi batafsil havola
-    site_link = f"https://trendoai.uz/portfolio/project/{portfolio_item.slug}" if portfolio_item.slug else "https://trendoai.uz/portfolio"
 
-    caption = f"""{emoji} *Yangi Loyiha: {title}*
+    site_link = (
+        f"https://trendoai.uz/portfolio/project/{portfolio_item.slug}"
+        if portfolio_item.slug
+        else "https://trendoai.uz/portfolio"
+    )
 
-{description}
+    caption = (
+        f"{emoji} *Yangi loyiha: {title}*\n\n"
+        f"{description}\n\n"
+        f"🛠 *Texnologiyalar:*\n"
+        f"{tech_tags or '-'}\n\n"
+        f"🏷 {category_tag} #TrendoAI\n\n"
+        f"👉 [Batafsil ma'lumot]({site_link}){link_text}"
+    )
 
-🛠 *Texnologiyalar:*
-{tech_tags}
-
-🏷 {category_tag} #TrendoAI
-
-👉 [Batafsil ma'lumot]({site_link}){link_text}"""
-
-    # Rasm bilan yuborish
     if portfolio_item.image_url:
         return send_photo_to_channel(portfolio_item.image_url, caption)
-    else:
-        return send_to_telegram_channel(caption)
+    return send_to_telegram_channel(caption)
 
 
-# Test uchun
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("=" * 60)
-    print("🔥 TrendoAI — Telegram Poster Test")
+    print("TrendoAI Telegram Poster Test")
     print("=" * 60)
-    
-    test_message = """
-🔥 *Salom Dunyo!*
 
-Bu `TrendoAI` dan test xabari.
+    test_message = (
+        "Salom!\\n\\n"
+        "Bu TrendoAI test xabari.\\n"
+        "#test #TrendoAI"
+    )
 
-✅ Retry mehanizmi ishlaydi
-✅ Xabar uzunligi tekshiriladi
-✅ Xatolar boshqariladi
-
-#test #TrendoAI
-"""
-    
-    print("\n📤 Test xabari yuborilmoqda...")
+    print("Testing send_to_telegram_channel...")
     result = send_to_telegram_channel(test_message)
-    
-    if result:
-        print("\n✅ Test muvaffaqiyatli!")
-    else:
-        print("\n❌ Test muvaffaqiyatsiz. .env faylni tekshiring.")
+    print("OK" if result else "FAILED")

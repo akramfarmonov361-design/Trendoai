@@ -1084,17 +1084,43 @@ def admin_new_post():
         post.slug = post.generate_slug()
         db.session.commit()
         
-        # Avtomatik Push Xabar yuborish
+        # Avtomatik Telegram + Push xabar yuborish
         if is_published:
             try:
-                post_url = url_for('post_detail', slug=post.slug, _external=True)
+                post_url = url_for('post_by_slug', slug=post.slug, _external=True)
+
+                # Telegram kanalga yuborish
+                from telegram_poster import send_photo_to_channel, send_to_telegram_channel
+
+                tg_message = f"""📝 *Yangi Maqola!*
+
+*{title}*
+
+🏷 Kategoriya: {category}
+⏱ O'qish uchun tayyor
+
+🔗 [Maqolani o'qish]({post_url})
+
+#TrendoAI #Texnologiya"""
+
+                telegram_sent = (
+                    send_photo_to_channel(image_url, tg_message)
+                    if image_url else
+                    send_to_telegram_channel(tg_message)
+                )
+
+                if telegram_sent:
+                    print(f"Telegramga post yuborildi: Post ID {post.id}")
+                else:
+                    print(f"Telegramga post yuborilmadi: Post ID {post.id}")
+
                 notify_all_subscribers(
                     title=f"🆕 Yangi Maqola: {title}",
                     message=f"{category} | {topic}\nO'qish uchun bosing!",
                     url=post_url
                 )
             except Exception as e:
-                print(f"Auto push error: {e}")
+                print(f"Auto push/telegram error: {e}")
         
         flash('Post muvaffaqiyatli yaratildi!', 'success')
         return redirect(url_for('admin_posts'))
