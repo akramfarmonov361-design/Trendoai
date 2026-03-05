@@ -21,10 +21,18 @@ SITE_DESCRIPTION = "TrendoAI (Trendo AI) - O'zbekistonda IT, sun'iy intellekt, T
 SITE_TAGLINE = "Trendo AI - Sun'iy intellekt, Telegram botlar va Raqamli biznes yechimlari"
 
 # ========== MA'LUMOTLAR BAZASI ==========
-# ========== MA'LUMOTLAR BAZASI ==========
-DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///blog.db")
+DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///blog.db").strip()
+
+# SQLAlchemy URL normalization
+# - postgres://  -> postgresql://
+# - mysql://     -> mysql+pymysql://
+# - mysql2://    -> mysql+pymysql://
 if DATABASE_URI.startswith("postgres://"):
     DATABASE_URI = DATABASE_URI.replace("postgres://", "postgresql://", 1)
+elif DATABASE_URI.startswith("mysql://"):
+    DATABASE_URI = DATABASE_URI.replace("mysql://", "mysql+pymysql://", 1)
+elif DATABASE_URI.startswith("mysql2://"):
+    DATABASE_URI = DATABASE_URI.replace("mysql2://", "mysql+pymysql://", 1)
 
 # ========== AI SOZLAMALARI ==========
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
