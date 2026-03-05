@@ -25,12 +25,15 @@ app = Flask(__name__)
 from config import (
     SITE_URL, SITE_NAME, SITE_DESCRIPTION, DATABASE_URI, SECRET_KEY,
     ADMIN_USERNAME, ADMIN_PASSWORD, POSTS_PER_PAGE, CATEGORIES,
-    GA4_ID, GOOGLE_ADS_ID, FACEBOOK_PIXEL_ID
+    GA4_ID, GOOGLE_ADS_ID, FACEBOOK_PIXEL_ID,
+    CRON_SECRET, GEMINI_API_KEY
 )
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = SECRET_KEY
+app.config['CRON_SECRET'] = CRON_SECRET
+app.config['GEMINI_API_KEY'] = GEMINI_API_KEY
 
 # PostgreSQL connection pool sozlamalari - ulanish uzilganda qayta ulanish
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
