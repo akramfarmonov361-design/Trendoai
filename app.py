@@ -1989,6 +1989,74 @@ def cron_keep_alive():
         
     return jsonify(status_data)
 
+@app.route('/api/cron/debug-generate')
+def cron_debug_generate():
+    """Sinxron debug endpoint — xatoliklarni aniq ko'rish uchun"""
+    secret = request.args.get('secret') or request.headers.get('X-Cron-Secret')
+    if secret != app.config.get('CRON_SECRET'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    import traceback as tb
+    result = {'steps': [], 'success': False}
+    
+    try:
+        # 1. AI generatsiya
+        result['steps'].append('1. AI generatsiya boshlanmoqda...')
+        from ai_generator import generate_post_for_seo
+        import random
+        topic = request.args.get('topic') or random.choice(CATEGORIES)
+        result['topic'] = topic
+        
+        post_data = generate_post_for_seo(topic)
+        if not post_data:
+            result['error'] = 'AI javob bermadi yoki JSON parse xatosi'
+            result['steps'].append('❌ AI generatsiya muvaffaqiyatsiz')
+            return jsonify(result), 500
+        
+        result['steps'].append(f'✅ AI generatsiya muvaffaqiyatli: {post_data.get("title", "?")}')
+        result['ai_title'] = post_data.get('title')
+        
+        # 2. Rasm olish
+        result['steps'].append('2. Rasm olinmoqda...')
+        try:
+            from image_fetcher import get_image_for_topic
+            image_url = get_image_for_topic(topic)
+            result['image_url'] = image_url
+            result['steps'].append(f'✅ Rasm topildi')
+        except Exception as img_err:
+            result['steps'].append(f'⚠️ Rasm xatosi (davom etiladi): {str(img_err)}')
+            image_url = None
+        
+        # 3. Bazaga saqlash
+        result['steps'].append('3. Bazaga saqlanmoqda...')
+        new_post = Post(
+            title=post_data['title'],
+            content=post_data['content'],
+            topic=topic,
+            category=random.choice(CATEGORIES),
+            keywords=post_data.get('keywords', ''),
+            image_url=image_url,
+            is_published=True
+        )
+        new_post.reading_time = new_post.calculate_reading_time()
+        db.session.add(new_post)
+        db.session.commit()
+        
+        new_post.slug = new_post.generate_slug()
+        db.session.commit()
+        
+        result['steps'].append(f'✅ Bazaga saqlandi: ID={new_post.id}, slug={new_post.slug}')
+        result['post_id'] = new_post.id
+        result['success'] = True
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        result['error'] = str(e)
+        result['traceback'] = tb.format_exc()
+        result['steps'].append(f'❌ Xatolik: {str(e)}')
+        return jsonify(result), 500
+
 # Server ishga tushganda bajariladigan amallar (Gunicorn va Local)
 with app.app_context():
     try:
