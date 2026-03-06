@@ -320,23 +320,6 @@ def _extract_grounding_sources(response):
 
 
 
-def _add_freshness_note(content, current_date_str):
-    note = (
-        f"_Ushbu maqola {current_date_str} holatiga ko'ra tayyorlandi. "
-        "Tez ozgaradigan versiya, narx va reliz malumotlari vaqt otishi bilan yangilanishi mumkin._"
-    )
-
-    body = (content or "").strip()
-    if not body:
-        return note
-
-    if note in body:
-        return body
-
-    return f"{note}\n\n{body}"
-
-
-
 def _append_sources_section(content, sources):
     if not sources:
         return content
@@ -483,7 +466,6 @@ def generate_post_for_seo(topic):
 
     result = generated.get("parsed")
     if result and all(key in result for key in ["title", "keywords", "content"]):
-        result["content"] = _add_freshness_note(result["content"], current_date_str)
         result["content"] = _append_sources_section(result["content"], generated.get("sources", []))
 
         if not generated.get("grounded") and _contains_unrequested_model_versions(topic, result["content"]):

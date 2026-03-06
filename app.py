@@ -2468,9 +2468,42 @@ def migrate_service_discount_dates():
         db.session.rollback()
         print(f"WARN: Service discount date migration failed: {e}")
 
+def migrate_remove_post_freshness_notes():
+    """Remove legacy fixed-date note from generated post content."""
+    pattern = re.compile(
+        r"^\s*_Ushbu maqola\s+\d{4}-\d{2}-\d{2}\s+holatiga ko'ra tayyorlandi\.\s*"
+        r"Tez ozgaradigan versiya, narx va reliz malumotlari vaqt otishi bilan yangilanishi mumkin\._\s*\n*",
+        re.IGNORECASE,
+    )
+
+    try:
+        posts = Post.query.filter(
+            Post.content.isnot(None),
+            Post.content.contains("_Ushbu maqola "),
+            Post.content.contains("holatiga ko'ra tayyorlandi"),
+        ).all()
+
+        updated_count = 0
+        for post in posts:
+            original = post.content or ""
+            cleaned = pattern.sub("", original, count=1).lstrip()
+            if cleaned != original:
+                post.content = cleaned
+                updated_count += 1
+
+        if updated_count:
+            db.session.commit()
+            print(f"OK: removed legacy freshness notes from {updated_count} post(s).")
+        else:
+            db.session.rollback()
+    except Exception as e:
+        db.session.rollback()
+        print(f"WARN: Freshness-note cleanup failed: {e}")
+
 # Run database initialization
 init_database()
 migrate_service_discount_dates()
+migrate_remove_post_freshness_notes()
 
 # ===== 1. Schedulerni ishga tushirish =====
 try:
