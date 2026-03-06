@@ -132,7 +132,18 @@ def generate_and_publish_post(topic=None, category=None):
             if post_data:
                 from image_fetcher import get_image_for_topic, build_image_prompt
 
-                image_url = get_image_for_topic(selected_topic)
+                existing_unsplash_urls = [
+                    row[0] for row in db.session.query(Post.image_url)
+                    .filter(
+                        Post.image_url.isnot(None),
+                        Post.image_url.contains("images.unsplash.com"),
+                    )
+                    .all()
+                ]
+                image_url = get_image_for_topic(
+                    selected_topic,
+                    exclude_image_urls=existing_unsplash_urls,
+                )
                 image_prompt = build_image_prompt(
                     topic=selected_topic,
                     title=post_data.get("title"),

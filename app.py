@@ -2010,7 +2010,15 @@ def cron_debug_generate():
         image_prompt = ''
         try:
             from image_fetcher import get_image_for_topic, build_image_prompt
-            image_url = get_image_for_topic(topic)
+            existing_unsplash_urls = [
+                row[0] for row in db.session.query(Post.image_url)
+                .filter(
+                    Post.image_url.isnot(None),
+                    Post.image_url.contains('images.unsplash.com'),
+                )
+                .all()
+            ]
+            image_url = get_image_for_topic(topic, exclude_image_urls=existing_unsplash_urls)
             image_prompt = build_image_prompt(topic=topic, title=post_data.get('title'), category=request.args.get('category'))
             result['image_url'] = image_url
             result['image_prompt'] = image_prompt
