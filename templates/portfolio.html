@@ -265,6 +265,72 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
             </div>
         </div>
     </article>
+
+    <!-- Project 9 -->
+    <article class="portfolio-card" data-category="web" onclick="openModal('manual-kfc')" style="cursor: pointer;">
+        <div class="card-image">
+            <span class="card-emoji">🍗</span>
+            <div class="card-overlay">
+                <div class="card-actions">
+                    <button class="view-btn" onclick="event.stopPropagation(); openModal('manual-kfc')">Modalda Ko'rish</button>
+                    <a href="https://restorankfc-frontend.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn"
+                        onclick="event.stopPropagation()">Saytni ochish ↗</a>
+                </div>
+            </div>
+        </div>
+        <div class="card-content">
+            <span class="card-category">Web Sayt</span>
+            <h3>Restoran KFC Frontend</h3>
+            <p>Fast food restoran uchun zamonaviy frontend. Menyu, promo bloklar va onlayn buyurtmaga yo'naltirilgan interfeys.</p>
+            <div class="card-tech">
+                <span>Frontend</span>
+                <span>Responsive UI</span>
+                <span>Vercel</span>
+            </div>
+            <div class="card-actions-bottom">
+                <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order" onclick="event.stopPropagation()">
+                    🚀 Buyurtma berish
+                </a>
+                <a href="https://restorankfc-frontend.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail"
+                    onclick="event.stopPropagation()">
+                    Loyihani ko'rish ↗
+                </a>
+            </div>
+        </div>
+    </article>
+
+    <!-- Project 10 -->
+    <article class="portfolio-card" data-category="web" onclick="openModal('manual-realnews')" style="cursor: pointer;">
+        <div class="card-image">
+            <span class="card-emoji">📰</span>
+            <div class="card-overlay">
+                <div class="card-actions">
+                    <button class="view-btn" onclick="event.stopPropagation(); openModal('manual-realnews')">Modalda Ko'rish</button>
+                    <a href="https://realnewsuz.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn"
+                        onclick="event.stopPropagation()">Saytni ochish ↗</a>
+                </div>
+            </div>
+        </div>
+        <div class="card-content">
+            <span class="card-category">Web Sayt</span>
+            <h3>RealNewsUZ</h3>
+            <p>Yangiliklar va media kontent uchun tayyorlangan zamonaviy web interfeys. Kontentni tez o'qish va ko'rishga qulay struktura bilan ishlab chiqilgan.</p>
+            <div class="card-tech">
+                <span>Frontend</span>
+                <span>News UI</span>
+                <span>Vercel</span>
+            </div>
+            <div class="card-actions-bottom">
+                <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order" onclick="event.stopPropagation()">
+                    🚀 Buyurtma berish
+                </a>
+                <a href="https://realnewsuz.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail"
+                    onclick="event.stopPropagation()">
+                    Loyihani ko'rish ↗
+                </a>
+            </div>
+        </div>
+    </article>
 </section>
 
 <!-- Testimonials -->
@@ -1148,7 +1214,41 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
 
 <script>
     const modal = document.getElementById('projectModal');
-    const portfoliosData = [{% for item in portfolios %}{ { item.to_dict() | tojson | safe } } {% if not loop.last %}, {% endif %} {% endfor %}];
+    const portfoliosData = [
+        {% for item in portfolios %}
+        {{ item.to_dict() | tojson | safe }},
+        {% endfor %}
+        {
+            id: 'manual-kfc',
+            slug: 'restoran-kfc-frontend',
+            title: 'Restoran KFC Frontend',
+            description: "Fast food restoran uchun zamonaviy frontend. Menyu, promo bloklar va onlayn buyurtmaga yo'naltirilgan interfeys.",
+            category: 'web',
+            emoji: '🍗',
+            technologies: ['Frontend', 'Responsive UI', 'Vercel'],
+            link: 'https://restorankfc-frontend.vercel.app/',
+            image_url: '',
+            is_featured: false,
+            details: "",
+            details_html: "<p>Fast food/restoran yo'nalishidagi landing sahifa. Foydalanuvchini menyu va promo bloklar orqali buyurtma jarayoniga olib kirishga mo'ljallangan.</p>",
+            features: ['Menyu ko\'rinishi', 'Responsive dizayn', 'Promo bloklar', 'Live demo link']
+        },
+        {
+            id: 'manual-realnews',
+            slug: 'realnewsuz',
+            title: 'RealNewsUZ',
+            description: "Yangiliklar va media kontent uchun tayyorlangan zamonaviy web interfeys. Kontentni tez o'qish va ko'rishga qulay struktura bilan ishlab chiqilgan.",
+            category: 'web',
+            emoji: '📰',
+            technologies: ['Frontend', 'News UI', 'Vercel'],
+            link: 'https://realnewsuz.vercel.app/',
+            image_url: '',
+            is_featured: false,
+            details: "",
+            details_html: "<p>Yangiliklar portali yo'nalishidagi web interfeys. Asosiy fokus kontentni toza ko'rsatish, sarlavhalarni ajratish va foydalanuvchi uchun qulay o'qish tajribasini berish.</p>",
+            features: ['Yangiliklar interfeysi', 'Responsive dizayn', 'Tez navigatsiya', 'Live demo link']
+        }
+    ];
 
     function openModal(projectId) {
         const project = portfoliosData.find(p => p.id === projectId);
