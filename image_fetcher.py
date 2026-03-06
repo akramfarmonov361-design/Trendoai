@@ -13,6 +13,22 @@ UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
 UNSPLASH_API_URL = "https://api.unsplash.com/search/photos"
 
 
+def build_image_prompt(topic, title=None, category=None):
+    """Create an editable image generation prompt for a blog post."""
+    topic_text = (topic or "technology").strip()
+    title_text = (title or "").strip()
+    category_text = (category or "").strip()
+
+    focus_parts = [part for part in [title_text, topic_text, category_text] if part]
+    focus = ", ".join(focus_parts[:2]) if focus_parts else "technology"
+
+    return (
+        f"Professional editorial hero image about {focus}. "
+        "Photorealistic, modern, high detail, cinematic lighting, 16:9 composition. "
+        "Clean background, no people unless necessary, no text, no watermark, no logo."
+    )
+
+
 def get_image_for_topic(topic, width=1200, height=630):
     """
     Berilgan mavzu bo'yicha Unsplash'dan rasm URL'ini oladi.

@@ -130,9 +130,14 @@ def generate_and_publish_post(topic=None, category=None):
             post_data = generate_post_for_seo(selected_topic)
 
             if post_data:
-                from image_fetcher import get_image_for_topic
+                from image_fetcher import get_image_for_topic, build_image_prompt
 
                 image_url = get_image_for_topic(selected_topic)
+                image_prompt = build_image_prompt(
+                    topic=selected_topic,
+                    title=post_data.get("title"),
+                    category=selected_category,
+                )
                 print(f"[scheduler] Rasm: {image_url[:50]}...")
 
                 new_post = Post(
@@ -142,6 +147,7 @@ def generate_and_publish_post(topic=None, category=None):
                     category=selected_category,
                     keywords=post_data["keywords"],
                     image_url=image_url,
+                    image_prompt=image_prompt,
                     is_published=True,
                 )
                 new_post.reading_time = new_post.calculate_reading_time()

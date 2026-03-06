@@ -165,7 +165,7 @@ SERVICES_DATA = {
         'price': '2,000,000 so\'m',
         'discount': {
             'percent': 30,
-            'until': '1-fevral'
+            'until': '1-aprel'
         },
         'full_description': "Biznesingizda tartib o'rnating! Buyurtmalarni Excel yoki daftarda emas, zamonaviy CRM tizimlarida yuriting. Biz sizning Telegram botingiz, saytingiz va Instagram sahifangizni yagona CRM bazasiga ulab beramiz. Har bir mijoz nazoratda bo'ladi.",
         'meta_desc': "CRM tizimlarini (AmoCRM, Bitrix24) joriy qilish va integratsiya xizmatlari. Biznes jarayonlarni avtomatlashtirish."
@@ -184,7 +184,7 @@ SERVICES_DATA = {
         'price': '3,000,000 so\'m dan',
         'discount': {
             'percent': 30,
-            'until': '1-fevral'
+            'until': '1-aprel'
         },
         'full_description': "Endi katta call-markaz ushlash shart emas. Bizning AI ovozli assistentlarimiz mijozlaringiz bilan xuddi insondek gaplashadi, savollarga javob beradi va buyurtma qabul qiladi. Bu xarajatlarni 70% ga qisqartiradi.",
         'meta_desc': "AI ovozli assistentlar va virtual call-markaz xizmatlari. Sun'iy intellekt orqali mijozlar bilan ovozli muloqot."
@@ -203,7 +203,7 @@ SERVICES_DATA = {
         'price': '1,500,000 so\'m',
         'discount': {
             'percent': 30,
-            'until': '1-fevral'
+            'until': '1-aprel'
         },
         'full_description': "E-tijoratda vaqt bu pul. Uzum Market yoki Wildberries do'koningizni boshqarishni avtomatlashtiring. Bizning yechimlarimiz orqali siz narxlarni tezkor o'zgartirishingiz va kunlik foydani telefoningizdan kuzatib borishingiz mumkin.",
         'meta_desc': "Uzum va Wildberries marketpleyslari uchun avtomatlashtirish xizmatlari. Savdoni oshirish uchun maxsus dasturlar."
@@ -222,7 +222,7 @@ SERVICES_DATA = {
         'price': '2,500,000 so\'m',
         'discount': {
             'percent': 30,
-            'until': '1-fevral'
+            'until': '1-aprel'
         },
         'full_description': "Raqamlarga asoslanib qaror qabul qiling. Biz sizning barcha ma'lumotlaringizni (Excel, CRM, 1C) yagona tushunarli Dashboardga yig'ib beramiz. Endi biznesingiz holatini bir qarashda tushunasiz.",
         'meta_desc': "Biznes uchun Data Analitika va Dashboardlar yaratish. Power BI va Google Data Studio xizmatlari."
@@ -241,7 +241,7 @@ SERVICES_DATA = {
         'price': '1,000,000 so\'m (guruh)',
         'discount': {
             'percent': 30,
-            'until': '1-fevral'
+            'until': '1-aprel'
         },
         'full_description': "Raqobatchilardan oldinda bo'ling! Xodimlaringizga sun'iy intellektdan foydalanishni o'rgating va ish samaradorligini 10 barobar oshiring. Biz har bir soha (sotuv, marketing, HR) uchun maxsus o'quv dasturlarini taklif qilamiz.",
         'meta_desc': "Sun'iy intellekt (AI) bo'yicha korporativ treninglar va kurslar. ChatGPT va Midjourney dan foydalanishni o'rganing."
@@ -288,6 +288,7 @@ class Post(db.Model):
     category = db.Column(db.String(50), default='Texnologiya')
     keywords = db.Column(db.String(250), nullable=True)
     image_url = db.Column(db.String(500), nullable=True)
+    image_prompt = db.Column(db.Text, nullable=True)
     views = db.Column(db.Integer, default=0)
     reading_time = db.Column(db.Integer, default=5)
     is_published = db.Column(db.Boolean, default=True)
@@ -319,6 +320,7 @@ class Post(db.Model):
             'topic': self.topic,
             'category': self.category,
             'keywords': self.keywords,
+            'image_prompt': self.image_prompt,
             'views': self.views,
             'reading_time': self.reading_time,
             'created_at': self.created_at.isoformat() if self.created_at else None,
@@ -1072,6 +1074,13 @@ def admin_new_post():
         category = request.form.get('category', 'Texnologiya')
         keywords = request.form.get('keywords', '')
         image_url = request.form.get('image_url', '')
+        image_prompt = request.form.get('image_prompt', '').strip()
+        if not image_prompt:
+            try:
+                from image_fetcher import build_image_prompt
+                image_prompt = build_image_prompt(topic=topic, title=title, category=category)
+            except Exception:
+                image_prompt = ''
         is_published = request.form.get('is_published') == 'on'
         
         post = Post(
@@ -1081,6 +1090,7 @@ def admin_new_post():
             category=category,
             keywords=keywords,
             image_url=image_url,
+            image_prompt=image_prompt,
             is_published=is_published
         )
         post.reading_time = post.calculate_reading_time()
@@ -1148,6 +1158,7 @@ def admin_edit_post(post_id):
         post.category = request.form.get('category')
         post.keywords = request.form.get('keywords')
         post.image_url = request.form.get('image_url', '')
+        post.image_prompt = request.form.get('image_prompt', '').strip()
         post.is_published = request.form.get('is_published') == 'on'
         post.reading_time = post.calculate_reading_time()
         
@@ -1996,10 +2007,13 @@ def cron_debug_generate():
         # 3. Rasm olish
         result['steps'].append('3. Rasm olinmoqda...')
         image_url = None
+        image_prompt = ''
         try:
-            from image_fetcher import get_image_for_topic
+            from image_fetcher import get_image_for_topic, build_image_prompt
             image_url = get_image_for_topic(topic)
+            image_prompt = build_image_prompt(topic=topic, title=post_data.get('title'), category=request.args.get('category'))
             result['image_url'] = image_url
+            result['image_prompt'] = image_prompt
             result['steps'].append('✅ Rasm topildi')
         except Exception as img_err:
             result['steps'].append(f'⚠️ Rasm xatosi (davom etiladi): {str(img_err)}')
@@ -2007,13 +2021,15 @@ def cron_debug_generate():
         # 4. Bazaga saqlash
         result['steps'].append('4. Bazaga saqlanmoqda...')
         import random
+        selected_category = request.args.get('category') or random.choice(CATEGORIES)
         new_post = Post(
             title=post_data['title'],
             content=post_data['content'],
             topic=topic,
-            category=random.choice(CATEGORIES),
+            category=selected_category,
             keywords=post_data.get('keywords', ''),
             image_url=image_url,
+            image_prompt=image_prompt,
             is_published=True
         )
         new_post.reading_time = new_post.calculate_reading_time()
@@ -2394,8 +2410,25 @@ def init_database():
                     )
                 print(f"OK: added {table_name}.{column_name}.")
 
+            def ensure_text_column(table_name, column_name):
+                if table_name not in table_names:
+                    print(f"INFO: {table_name} table not found; skip {column_name}.")
+                    return
+
+                existing_columns = {col["name"] for col in inspector.get_columns(table_name)}
+                if column_name in existing_columns:
+                    print(f"INFO: {table_name}.{column_name} already exists.")
+                    return
+
+                with db.engine.begin() as conn:
+                    conn.execute(
+                        text(f"ALTER TABLE {table_name} ADD COLUMN {column_name} TEXT")
+                    )
+                print(f"OK: added {table_name}.{column_name}.")
+
             ensure_varchar_column("portfolio", "price")
             ensure_varchar_column("service", "price")
+            ensure_text_column("post", "image_prompt")
 
             # PostgreSQL uchun meta_description ni TEXT ga o'zgartirish
             if "portfolio" in table_names and db.engine.dialect.name == "postgresql":
@@ -2410,8 +2443,26 @@ def init_database():
             print(f"WARN: Database migration step failed: {e}")
         return
 
+def migrate_service_discount_dates():
+    """One-off update for expired promo text shown on service pages."""
+    try:
+        updated_count = (
+            Service.query
+            .filter(Service.discount_percent > 0, Service.discount_until == '1-fevral')
+            .update({'discount_until': '1-aprel'}, synchronize_session=False)
+        )
+        if updated_count:
+            db.session.commit()
+            print(f"OK: updated {updated_count} service discount date(s) to 1-aprel.")
+        else:
+            db.session.rollback()
+    except Exception as e:
+        db.session.rollback()
+        print(f"WARN: Service discount date migration failed: {e}")
+
 # Run database initialization
 init_database()
+migrate_service_discount_dates()
 
 # ===== 1. Schedulerni ishga tushirish =====
 try:

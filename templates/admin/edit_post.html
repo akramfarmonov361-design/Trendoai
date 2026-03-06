@@ -43,6 +43,13 @@
             </div>
 
             <div class="form-group">
+                <label for="image_prompt">Rasm Prompti (AI)</label>
+                <textarea id="image_prompt" name="image_prompt" rows="4"
+                    placeholder="Image generation prompt...">{{ post.image_prompt if post else '' }}</textarea>
+                <small class="form-help">Post pastida shu prompt ko'rinadi. Nusxa olib rasmni alohida generatsiya qilishingiz mumkin.</small>
+            </div>
+
+            <div class="form-group">
                 <label for="content">📝 Kontent (Markdown)</label>
                 <textarea id="content" name="content"
                     placeholder="Markdown formatida yozing...">{{ post.content if post else '' }}</textarea>

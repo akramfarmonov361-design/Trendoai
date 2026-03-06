@@ -164,6 +164,15 @@
                     <p>Sun'iy intellekt va texnologiyalar olamidagi eng muhim xabarlar hamda tahlillar.</p>
                 </div>
             </div>
+
+
+            {% if post.image_prompt %}
+            <div class="article-image-prompt-box" style="margin-top: 20px; padding: 16px; border: 1px solid rgba(255,255,255,0.12); border-radius: 12px;">
+                <h4 style="margin-bottom: 10px;">Rasm prompti (tahrirlash uchun)</h4>
+                <pre id="image-prompt-text" style="white-space: pre-wrap; word-break: break-word; margin-bottom: 12px;">{{ post.image_prompt }}</pre>
+                <button type="button" class="cta-sidebar-btn" onclick="copyImagePrompt()">Promptni nusxalash</button>
+            </div>
+            {% endif %}
         </article>
     </main>
 
@@ -252,6 +261,12 @@
         const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-check"></i> Nusxalandi!';
         setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+    }
+
+    function copyImagePrompt() {
+        const promptElement = document.getElementById('image-prompt-text');
+        if (!promptElement) return;
+        navigator.clipboard.writeText(promptElement.textContent.trim());
     }
 </script>
 {% endblock %}
