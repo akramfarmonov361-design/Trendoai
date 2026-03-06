@@ -492,7 +492,7 @@
             }
         }
 
-        /* ========== AI CHATBOT WIDGET ========== */
+                /* ========== AI CHATBOT WIDGET ========== */
         .chatbot-toggle {
             position: fixed;
             bottom: 90px;
@@ -526,8 +526,9 @@
             right: 24px;
             width: 380px;
             max-width: calc(100vw - 48px);
-            height: 500px;
-            max-height: calc(100vh - 200px);
+            height: min(500px, calc(100dvh - 200px));
+            max-height: calc(100dvh - 200px);
+            min-height: 320px;
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
@@ -587,6 +588,7 @@
 
         .chatbot-messages {
             flex: 1;
+            min-height: 0;
             padding: 16px;
             overflow-y: auto;
             display: flex;
@@ -654,7 +656,9 @@
         }
 
         .chatbot-input {
-            display: flex;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto auto;
+            align-items: center;
             padding: 16px;
             gap: 12px;
             border-top: 1px solid var(--border);
@@ -662,7 +666,8 @@
         }
 
         .chatbot-input input {
-            flex: 1;
+            width: 100%;
+            min-width: 0;
             padding: 12px 16px;
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -678,6 +683,7 @@
         }
 
         .chatbot-input button {
+            min-height: 48px;
             padding: 12px 20px;
             background: var(--gradient-main);
             border: none;
@@ -697,8 +703,8 @@
             cursor: not-allowed;
         }
 
-        /* Microphone Button */
         .chatbot-mic {
+            min-width: 48px;
             padding: 12px 14px !important;
             background: var(--bg-elevated) !important;
             border: 1px solid var(--border) !important;
@@ -728,78 +734,74 @@
             }
         }
 
+        @media (max-width: 768px) {
+            body.chatbot-open {
+                overflow: hidden;
+            }
 
-        @media (max-width: 480px) {
             .chatbot-window {
-                bottom: 0;
-                right: 0;
-                left: 0;
-                width: 100%;
-                height: 90vh;
-                max-height: 90vh;
-                border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+                left: 12px;
+                right: 12px;
+                bottom: calc(12px + env(safe-area-inset-bottom));
+                width: auto;
+                max-width: none;
+                height: min(78dvh, 620px);
+                max-height: calc(100dvh - 24px - env(safe-area-inset-bottom));
+                border-radius: 24px;
             }
 
             .chatbot-header {
                 padding: 14px 16px;
             }
 
-            .chatbot-header h4 {
-                font-size: 1rem;
+            .chatbot-header-info h4 {
+                font-size: 0.98rem;
+            }
+
+            .chatbot-header-info span {
+                font-size: 0.78rem;
             }
 
             .chatbot-messages {
-                padding: 16px;
-                gap: 12px;
-                flex: 1;
-                min-height: 0;
+                padding: 14px;
+                gap: 10px;
             }
 
             .chat-message {
-                font-size: 0.95rem;
+                font-size: 0.94rem;
                 padding: 12px 14px;
-                max-width: 88%;
+                max-width: 92%;
             }
 
-            /* Mobile-optimized input area */
             .chatbot-input {
+                grid-template-columns: minmax(0, 1fr) 48px 88px;
                 padding: 12px;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom));
                 gap: 8px;
-                flex-wrap: wrap;
                 background: var(--bg-card);
-                border-top: 1px solid var(--border);
             }
 
             .chatbot-input input {
-                flex: 1;
-                min-width: 0;
                 padding: 14px 16px;
                 font-size: 16px;
-                /* Prevents zoom on iOS */
-                border-radius: var(--radius-md);
             }
 
-            /* Send button - clearly visible */
             .chatbot-input button#chatbotSend {
-                padding: 14px 20px;
+                min-width: 88px;
+                padding: 12px 14px;
                 font-size: 0.9rem;
                 font-weight: 700;
-                border-radius: var(--radius-md);
-                min-width: 80px;
-                background: var(--gradient-main);
                 white-space: nowrap;
             }
 
-            /* Mic button - compact */
             .chatbot-mic {
-                padding: 14px !important;
-                font-size: 1.2rem;
                 min-width: 48px;
+                padding: 0 !important;
                 border-radius: var(--radius-md) !important;
             }
 
             .chatbot-toggle {
-                bottom: 20px;
+                bottom: calc(20px + env(safe-area-inset-bottom));
                 right: 16px;
                 width: 56px;
                 height: 56px;
@@ -815,30 +817,30 @@
                 font-size: 1.1rem;
             }
         }
+
+        @media (max-width: 420px) {
+            .chatbot-window {
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: 100dvh;
+                max-height: 100dvh;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+                border-bottom: none;
+            }
+
+            .chatbot-input {
+                grid-template-columns: minmax(0, 1fr) 46px 82px;
+            }
+
+            .chatbot-input button#chatbotSend {
+                min-width: 82px;
+                padding-inline: 10px;
+            }
+        }
     </style>
-
-    <!-- Lead Magnet Modal -->
-    <div class="lead-modal-overlay" id="leadModalOverlay">
-        <div class="lead-modal">
-            <button class="lead-modal-close" id="leadModalClose">✕</button>
-            <div class="lead-modal-content">
-                <div class="lead-icon">🎁</div>
-                <h3>Bepul PDF Qo'llanma!</h3>
-                <p>"AI orqali daromadni 3 baravarga oshirishning 5 ta siri" - biznes egalari va freylanserlar uchun
-                    maxsus.</p>
-                <form id="leadForm">
-                    <input type="text" id="leadName" placeholder="Ismingiz" required>
-                    <input type="text" id="leadContact" placeholder="Telegram yoki raqamingiz" required>
-                    <button type="submit" id="leadSubmit" class="btn btn-primary" style="width:100%">Hoziroq Yuklab
-                        Olish</button>
-                </form>
-                <p class="lead-success-msg" id="leadSuccessMsg"
-                    style="display:none; color:var(--primary); margin-top:10px; font-weight:bold;">Muvaffaqiyatli! PDF
-                    fayl yuklanmoqda...</p>
-            </div>
-        </div>
-    </div>
-
     <!-- AI Chatbot Widget -->
     <button class="chatbot-toggle" id="chatbotToggle" title="AI Yordamchi">
         <span>🤖</span>
@@ -1080,7 +1082,7 @@
     </script>
 
     <script>
-        // ========== AI CHATBOT LOGIC ==========
+                // ========== AI CHATBOT LOGIC ==========
         const chatbotToggle = document.getElementById('chatbotToggle');
         const chatbotWindow = document.getElementById('chatbotWindow');
         const chatbotClose = document.getElementById('chatbotClose');
@@ -1088,74 +1090,72 @@
         const chatbotInput = document.getElementById('chatbotInput');
         const chatbotSend = document.getElementById('chatbotSend');
 
-        // Toggle chat window
-        chatbotToggle.addEventListener('click', function () {
-            chatbotWindow.classList.toggle('active');
-            if (chatbotWindow.classList.contains('active')) {
+        function setChatbotOpen(isOpen) {
+            chatbotWindow.classList.toggle('active', isOpen);
+            document.body.classList.toggle('chatbot-open', isOpen && window.innerWidth <= 768);
+            if (isOpen) {
                 chatbotInput.focus();
             }
+        }
+
+        chatbotToggle.addEventListener('click', function () {
+            setChatbotOpen(!chatbotWindow.classList.contains('active'));
         });
 
         chatbotClose.addEventListener('click', function () {
-            chatbotWindow.classList.remove('active');
+            setChatbotOpen(false);
         });
 
-        // AI Chatbot State
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 768) {
+                document.body.classList.remove('chatbot-open');
+            } else if (chatbotWindow.classList.contains('active')) {
+                document.body.classList.add('chatbot-open');
+            }
+        });
+
         let chatHistory = [];
 
-        // Send message function
         async function sendChatMessage() {
             const message = chatbotInput.value.trim();
             if (!message) return;
 
-            // Chat tarixiga qo'shish
             chatHistory.push({ role: 'user', content: message });
 
-            // Disable input
             chatbotInput.disabled = true;
             chatbotSend.disabled = true;
 
-            // Add user message
             const userDiv = document.createElement('div');
             userDiv.className = 'chat-message user';
             userDiv.textContent = message;
             chatbotMessages.appendChild(userDiv);
 
-            // Clear input
             chatbotInput.value = '';
 
-            // Add typing indicator
             const typingDiv = document.createElement('div');
             typingDiv.className = 'chat-message bot typing';
             typingDiv.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
             chatbotMessages.appendChild(typingDiv);
-
-            // Scroll to bottom
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
 
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messages: chatHistory })
+                    body: JSON.stringify({ message, messages: chatHistory })
                 });
 
                 const data = await response.json();
-
-                // Chat tarixiga bot javobini qo'shish
                 if (data.reply) {
                     chatHistory.push({ role: 'assistant', content: data.reply });
                 }
 
-                // Remove typing indicator
                 typingDiv.remove();
 
-                // Add bot response
                 const botDiv = document.createElement('div');
                 botDiv.className = 'chat-message bot';
                 botDiv.textContent = data.reply || data.response || data.error || 'Xatolik yuz berdi';
                 chatbotMessages.appendChild(botDiv);
-
             } catch (error) {
                 typingDiv.remove();
                 const errorDiv = document.createElement('div');
@@ -1164,90 +1164,17 @@
                 chatbotMessages.appendChild(errorDiv);
             }
 
-            // Re-enable input
             chatbotInput.disabled = false;
             chatbotSend.disabled = false;
             chatbotInput.focus();
-
-            // Scroll to bottom
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
         }
 
-        // Send on button click
         chatbotSend.addEventListener('click', sendChatMessage);
 
-        // Send on Enter key
         chatbotInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 sendChatMessage();
-            }
-        });
-
-        // ========== LEAD MAGNET LOGIC ==========
-        const leadModalOverlay = document.getElementById('leadModalOverlay');
-        const leadModalClose = document.getElementById('leadModalClose');
-        const leadForm = document.getElementById('leadForm');
-        const leadSubmit = document.getElementById('leadSubmit');
-        const leadSuccessMsg = document.getElementById('leadSuccessMsg');
-
-        // Show modal after 15 seconds if not closed before
-        if (!localStorage.getItem('lead_magnet_shown')) {
-            setTimeout(() => {
-                leadModalOverlay.classList.add('active');
-            }, 15000);
-        }
-
-        leadModalClose.addEventListener('click', () => {
-            leadModalOverlay.classList.remove('active');
-            localStorage.setItem('lead_magnet_shown', 'true');
-        });
-
-        // Close on overlay click
-        leadModalOverlay.addEventListener('click', (e) => {
-            if (e.target === leadModalOverlay) {
-                leadModalOverlay.classList.remove('active');
-                localStorage.setItem('lead_magnet_shown', 'true');
-            }
-        });
-
-        leadForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('leadName').value.trim();
-            const contact = document.getElementById('leadContact').value.trim();
-
-            if (!name || !contact) return;
-
-            leadSubmit.disabled = true;
-            leadSubmit.textContent = 'Kuting...';
-
-            try {
-                const response = await fetch('/api/lead', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, contact, source: 'Lead Magnet (PDF)' })
-                });
-
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                    leadForm.style.display = 'none';
-                    leadSuccessMsg.style.display = 'block';
-                    // Faylni yuklab olish logikasi simulyatsiyasi (haqiqiy loyihada PDF manzil beriladi)
-                    setTimeout(() => {
-                        leadModalOverlay.classList.remove('active');
-                        localStorage.setItem('lead_magnet_shown', 'true');
-                        // Masalan: window.location.href = '/static/downloads/trendo_ai_guide.pdf';
-                    }, 3000);
-                } else {
-                    alert(data.message || 'Xatolik yuz berdi');
-                    leadSubmit.disabled = false;
-                    leadSubmit.textContent = 'Hoziroq Yuklab Olish';
-                }
-            } catch (error) {
-                console.error(error);
-                alert('Tarmoq xatosi.');
-                leadSubmit.disabled = false;
-                leadSubmit.textContent = 'Hoziroq Yuklab Olish';
             }
         });
 

@@ -35,7 +35,7 @@ from config import (
     SITE_URL, SITE_NAME, SITE_DESCRIPTION, DATABASE_URI, SECRET_KEY,
     ADMIN_USERNAME, ADMIN_PASSWORD, POSTS_PER_PAGE, CATEGORIES,
     GA4_ID, GOOGLE_ADS_ID, FACEBOOK_PIXEL_ID,
-    CRON_SECRET, GEMINI_API_KEY
+    CRON_SECRET, GEMINI_API_KEY, GEMINI_MODEL
 )
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
@@ -1360,60 +1360,78 @@ def api_generate_portfolio():
 
 @app.route('/api/chat', methods=['POST'])
 def api_chat():
-    """AI Chatbot endpoint - Gemini 2.5 Flash Native Audio bilan"""
-    import google.generativeai as genai
-    
+    """AI chatbot yordamchisi API (saytdagi chat widget uchun)"""
+    data = request.get_json(silent=True) or {}
+    messages = data.get('messages') or []
+    raw_message = (data.get('message') or '').strip()
+
+    # Legacy klientlar faqat message yuborsa ham ishlasin.
+    if not messages and raw_message:
+        messages = [{'role': 'user', 'content': raw_message}]
+
+    if not messages:
+        fallback = 'Qanday yordam bera olaman?'
+        return jsonify({'success': True, 'reply': fallback, 'response': fallback})
+
+    last_user_msg = ''
+    for msg in reversed(messages):
+        if msg.get('role') == 'user':
+            content = (msg.get('content') or '').strip()
+            if content:
+                last_user_msg = content
+                break
+
+    if not last_user_msg:
+        last_user_msg = raw_message
+
+    if not last_user_msg:
+        fallback = 'Savolingizni qaytadan yozib yuboring.'
+        return jsonify({'success': False, 'reply': fallback, 'response': fallback}), 400
+
+    api_key = app.config.get('GEMINI_API_KEY') or os.getenv('GEMINI_API_KEY')
+    if not api_key:
+        fallback = "Uzr, AI yordamchi hozircha sozlanmagan. Telegram orqali yozing: @trendoai"
+        return jsonify({'success': False, 'reply': fallback, 'response': fallback, 'error': 'GEMINI_API_KEY topilmadi'}), 503
+
     try:
-        data = request.get_json()
-        user_message = data.get('message', '').strip()
-        
-        if not user_message:
-            return jsonify({'error': 'Xabar bo\'sh'}), 400
-        
-        # Gemini modelni sozlash
-        api_key = app.config.get('GEMINI_API_KEY')
         genai.configure(api_key=api_key)
-        
-        # Gemini 2.5 Flash (User requested)
-        model = genai.GenerativeModel('gemini-2.5-flash')
 
+        system_prompt = """Siz TrendoAI IT va marketing xizmatlarining aqlli menedjerisiz.
+Siz O'zbekistonda bot yaratish, website tayyorlash, CRM joriy qilish va sun'iy intellekt integratsiyasi bo'yicha savollarga javob berasiz.
+Maqsadingiz: mijozga ishonchli, foydali va qisqa javob berish.
+Agar mijoz xizmatga qiziqsa, uning aloqa ma'lumotini yoki Telegram username'ini so'rang.
+QOIDALAR:
+1. Qisqa va do'stona o'zbek lotin tilida yozing.
+2. Keraksiz markdown va uzun doston ishlatmang.
+3. Zarur joyda TrendoAI xizmatlarini mos ravishda tavsiya qiling.
+4. Agar aniq narxni bilmasangiz, konsultatsiyaga yo'naltiring."""
 
-        
-        # TrendoAI konteksti
-        system_prompt = """Siz TrendoAI AI assistentisiz. TrendoAI - O'zbekistondagi IT kompaniya bo'lib, quyidagi xizmatlarni taqdim etadi:
+        model = genai.GenerativeModel(
+            model_name=GEMINI_MODEL,
+            system_instruction=system_prompt
+        )
 
-🛠️ XIZMATLARIMIZ:
-1. Telegram Botlar va Mini Applar
-2. AI Chatbotlar (Gemini, GPT bilan)
-3. Web Saytlar va Landing Pagelar
-4. CRM Integratsiya (AmoCRM, Bitrix24)
-5. SMM Avtomatlashtirish
-6. AI Ovozli Assistentlar
-7. Data Analitika
+        history = []
+        for msg in messages[-6:-1]:
+            content = (msg.get('content') or '').strip()
+            if not content:
+                continue
+            role = 'user' if msg.get('role') == 'user' else 'model'
+            history.append({'role': role, 'parts': [content]})
 
-📞 ALOQA:
-- Telegram: @Akramjon1984
-- Kanal: @trendoai
-- Sayt: trendoai.uz
+        chat = model.start_chat(history=history)
+        response = chat.send_message(last_user_msg)
+        reply = (getattr(response, 'text', '') or '').strip()
 
-Doimo do'stona, professional va foydali javob bering. O'zbek tilida javob bering.
-Agar mijoz xizmat so'rasa, Telegram orqali bog'lanishni tavsiya qiling."""
+        if not reply:
+            reply = "Uzr, hozir javobni shakllantirib bo'lmadi. Telegram orqali yozing: @trendoai"
 
-        # Javob olish
-        chat = model.start_chat(history=[])
-        response = chat.send_message(f"{system_prompt}\n\nMijoz savoli: {user_message}")
-        
-        return jsonify({
-            'success': True,
-            'response': response.text
-        })
-        
+        return jsonify({'success': True, 'reply': reply, 'response': reply})
+
     except Exception as e:
-        print(f"Chatbot error: {e}")
-        return jsonify({
-            'error': 'AI javob berishda xatolik yuz berdi',
-            'details': str(e)
-        }), 500
+        print(f"Chat error: {e}")
+        fallback = "Uzr, hozircha men javob qaytara olmayapman. Telegram orqali yozing: @trendoai"
+        return jsonify({'success': False, 'reply': fallback, 'response': fallback, 'error': str(e)}), 500
 
 
 @app.route('/api/chat/audio', methods=['POST'])
@@ -1703,60 +1721,6 @@ def submit_lead():
     except Exception as e:
         print(f"Lead error: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
-
-
-@app.route('/api/chat', methods=['POST'])
-def ai_chat():
-    """AI chatbot yordamchisi API (Mijozlar bilan saytda gaplashish uchun)"""
-    data = request.json
-    messages = data.get('messages', [])
-    
-    if not messages:
-        return jsonify({'reply': 'Qanday yordam bera olaman?'})
-        
-    try:
-        # Foydalanuvchi tanlagan aniq modelni o'rnatamiz
-        model_name = "gemini-2.5-flash-native-audio-preview-12-2025"
-        # API key ni configuratsiya faylidan olamiz
-        api_key = app.config.get('GEMINI_API_KEY') or os.getenv('GEMINI_API_KEY')
-        genai.configure(api_key=api_key)
-        
-        # Maxsus TrendoAI suhbatdosh promti
-        system_prompt = """Siz TrendoAI IT va Marketing xizmatlarining aqlli menedjerisiz (ismini o'zingiz o'ylab toping yoki TrendoAI deb tanishing). 
-Siz O'zbekistonda bot yaratish, website (sayt) tayyorlash, CRM ni joriy qilish va Sun'iy intellekt integratsiyasi boyicha savollarga javob berasiz. 
-Maqsadingiz: Mijozga yaxshi, ishonchli taassurot qoldirish. Agar mijoz xizmat buyurtma qilsa yoki qiziqsa, uning aloqa ma'lumoti (telefon yoki Telegram username) ni so'rang ("Mutaxassislarimiz tekin konsultatsiya berishi uchun raqamingizni qoldiring").
-QOIDALAR:
-1. Qisqa va do'stona o'zbek lotin tilida yozing. (Uzun dostonlar yo'q). 
-2. Keraksiz formatlar (masalan markdownda katta bold shriftlar) ni kam ishlating, oddiy chatdagidek gaplashing.
-"""
-        
-        model = genai.GenerativeModel(
-            model_name=model_name,
-            system_instruction=system_prompt
-        )
-        
-        # Chat tarixini shakllantirish (Faqat oxirgi 5 ta xabar kontekst uchun)
-        history = []
-        # messages formati backend va frontend ga moslashtiriladi:
-        # [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]
-        recent_messages = messages[-5:] 
-        
-        for msg in recent_messages[:-1]:
-            # Gemini faqat 'user' va 'model' rollarini qabul qiladi
-            role = 'user' if msg.get('role') == 'user' else 'model'
-            history.append({"role": role, "parts": [msg.get('content')]})
-            
-        chat = model.start_chat(history=history)
-        
-        # Foydalanuvchi jo'natgan eng so'nggi xabarni berish
-        last_user_msg = recent_messages[-1].get('content', '')
-        response = chat.send_message(last_user_msg)
-        
-        return jsonify({'reply': response.text})
-        
-    except Exception as e:
-        print(f"Chat error: {e}")
-        return jsonify({'reply': "Uzur, hozircha men javob qaytara olmayapman (Tarmoq yoki API xatosi). Iltimos, o'zingizning ismingiz va profilingiz yozing biz siz bilan bog'lanamiz!"})
 
 
 @app.route('/api/health')
