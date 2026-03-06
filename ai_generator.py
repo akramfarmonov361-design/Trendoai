@@ -1,354 +1,480 @@
-# ai_generator.py
 """
-Gemini AI yordamida SEO-optimallashtirilgan kontent generatsiya qilish moduli.
-TrendoAI uchun moslashtirilgan.
-Zaxira API kalit va model bilan fallback qo'llab-quvvatlash.
+SEO and marketing content generation helpers for TrendoAI.
 """
-import os
+
 import json
+import os
 import re
 import time
-import google.generativeai as genai
 from datetime import datetime
-from config import GEMINI_API_KEY, GEMINI_MODEL, GEMINI_MODEL_BACKUP, AI_RETRY_ATTEMPTS, AI_RETRY_DELAY
 
-# Zaxira API kalit
+import google.generativeai as genai
+
+try:
+    from google import genai as google_genai_sdk
+    from google.genai import types as google_genai_types
+except ImportError:
+    google_genai_sdk = None
+    google_genai_types = None
+
+from config import (
+    AI_RETRY_ATTEMPTS,
+    AI_RETRY_DELAY,
+    GEMINI_API_KEY,
+    GEMINI_MODEL,
+    GEMINI_MODEL_BACKUP,
+)
+
 GEMINI_API_KEY2 = os.getenv("GEMINI_API_KEY2")
 
-# Hozirgi faol API kalit va model
 current_api_key = GEMINI_API_KEY
 current_model_name = GEMINI_MODEL
+realtime_client = None
+
+SPECIFIC_MODEL_PATTERN = re.compile(
+    r"\b(?:GPT-\d+(?:\.\d+)?(?:\s+[A-Za-z-]+)?|Gemini\s+\d+(?:\.\d+)?(?:\s+[A-Za-z-]+)?|Claude\s+(?:Opus|Sonnet|Haiku)\s*\d+(?:\.\d+)?)\b",
+    re.IGNORECASE,
+)
+
+
+def _refresh_realtime_client(api_key):
+    """Initialize the Google Search grounded client when the newer SDK is available."""
+    global realtime_client
+
+    realtime_client = None
+    if not google_genai_sdk or not api_key:
+        return
+
+    try:
+        realtime_client = google_genai_sdk.Client(api_key=api_key)
+    except Exception as exc:
+        print(f"[ai] Grounded Gemini client init failed: {exc}")
+        realtime_client = None
+
+
 
 def _configure_api(api_key):
-    """API kalitni sozlash"""
+    """Configure the legacy SDK and refresh the grounded client."""
     global current_api_key
-    if api_key:
-        genai.configure(api_key=api_key)
-        current_api_key = api_key
-        return True
-    return False
+
+    if not api_key:
+        return False
+
+    genai.configure(api_key=api_key)
+    _refresh_realtime_client(api_key)
+    current_api_key = api_key
+    return True
+
+
 
 def _switch_to_backup():
-    """Zaxira API kalitga yoki modelga o'tish"""
+    """Switch to a backup model first, then to a backup API key if available."""
     global current_api_key, current_model_name, model
-    
-    # Avval zaxira modelga o'tish
+
     if current_model_name != GEMINI_MODEL_BACKUP:
-        print(f"🔄 Zaxira modelga o'tilmoqda: {GEMINI_MODEL_BACKUP}...")
+        print(f"[ai] Switching to backup model: {GEMINI_MODEL_BACKUP}")
         current_model_name = GEMINI_MODEL_BACKUP
         model = genai.GenerativeModel(current_model_name)
         return True
-    
-    # Keyin zaxira API kalitga o'tish
+
     if GEMINI_API_KEY2 and current_api_key != GEMINI_API_KEY2:
-        print("🔄 Zaxira API kalitga o'tilmoqda (GEMINI_API_KEY2)...")
+        print("[ai] Switching to backup API key: GEMINI_API_KEY2")
         _configure_api(GEMINI_API_KEY2)
-        current_model_name = GEMINI_MODEL  # Asosiy model bilan
+        current_model_name = GEMINI_MODEL
         model = genai.GenerativeModel(current_model_name)
         return True
-    
+
     return False
 
-# Dastlabki API kalitni sozlash
-_configure_api(GEMINI_API_KEY)
 
-# Modelni yaratish
-# Note: Google Search grounding requires specific API setup
+_configure_api(GEMINI_API_KEY)
 model = genai.GenerativeModel(GEMINI_MODEL)
 
 
 
 def _retry_with_backoff(func, *args, **kwargs):
-    """
-    Funksiyani retry mehanizmi bilan ishga tushiradi.
-    Exponential backoff: 2s, 4s, 8s
-    Agar barcha urinishlar muvaffaqiyatsiz bo'lsa, zaxira model/API kalitga o'tadi.
-    """
+    """Run a function with exponential backoff and backup model/key fallback."""
     global model
     last_exception = None
-    
+
     for attempt in range(AI_RETRY_ATTEMPTS):
         try:
             return func(*args, **kwargs)
-        except Exception as e:
-            last_exception = e
+        except Exception as exc:
+            last_exception = exc
             wait_time = AI_RETRY_DELAY * (2 ** attempt)
-            print(f"🔄 AI xatolik (urinish {attempt + 1}/{AI_RETRY_ATTEMPTS}): {e}")
-            print(f"⏳ {wait_time} soniya kutilmoqda...")
+            print(f"[ai] Error ({attempt + 1}/{AI_RETRY_ATTEMPTS}): {exc}")
+            print(f"[ai] Waiting {wait_time} seconds before retry...")
             time.sleep(wait_time)
-    
-    # Asosiy model/kalit bilan muvaffaqiyatsiz - zaxiraga o'tish
+
     if _switch_to_backup():
-        print("🔄 Zaxira sozlama bilan qayta urinilmoqda...")
-        
+        print("[ai] Retrying with backup configuration...")
         for attempt in range(AI_RETRY_ATTEMPTS):
             try:
                 return func(*args, **kwargs)
-            except Exception as e:
-                last_exception = e
+            except Exception as exc:
+                last_exception = exc
                 wait_time = AI_RETRY_DELAY * (2 ** attempt)
-                print(f"🔄 Zaxira sozlama xatolik (urinish {attempt + 1}/{AI_RETRY_ATTEMPTS}): {e}")
+                print(f"[ai] Backup error ({attempt + 1}/{AI_RETRY_ATTEMPTS}): {exc}")
                 time.sleep(wait_time)
-        
-        # Yana bir urinish - ikkinchi zaxira variantga o'tish
+
         if _switch_to_backup():
-            print("🔄 Ikkinchi zaxira sozlama bilan urinilmoqda...")
-            for attempt in range(AI_RETRY_ATTEMPTS):
+            print("[ai] Retrying with secondary backup configuration...")
+            for _ in range(AI_RETRY_ATTEMPTS):
                 try:
                     return func(*args, **kwargs)
-                except Exception as e:
-                    last_exception = e
+                except Exception as exc:
+                    last_exception = exc
                     time.sleep(AI_RETRY_DELAY)
-    
-    print(f"❌ Barcha urinishlar muvaffaqiyatsiz. Oxirgi xato: {last_exception}")
+
+    print(f"[ai] All retries failed. Last error: {last_exception}")
     return None
 
 
+
 def _parse_json_response(response_text):
-    """
-    AI javobidan JSON ni xavfsiz ajratib olish.
-    ```json ... ``` bloklarini tozalaydi.
-    """
-    cleaned = response_text.strip()
-    
-    # JSON blokni tozalash
+    """Safely extract JSON from a model response."""
+    cleaned = (response_text or "").strip()
+
     if cleaned.startswith("```json"):
         cleaned = cleaned[7:]
     elif cleaned.startswith("```"):
         cleaned = cleaned[3:]
-    
+
     if cleaned.endswith("```"):
         cleaned = cleaned[:-3]
-    
+
     cleaned = cleaned.strip()
-    
+
     try:
         return json.loads(cleaned)
-    except json.JSONDecodeError as e:
-        print(f"⚠️ JSON parse xatosi: {e}")
-        # Regex orqali urinib ko'rish
+    except json.JSONDecodeError as exc:
+        print(f"[ai] JSON parse error: {exc}")
         try:
-            match = re.search(r"\{.*\}", response_text, re.DOTALL)
+            match = re.search(r"\{.*\}", response_text or "", re.DOTALL)
             if match:
                 return json.loads(match.group(0))
-        except:
+        except Exception:
             pass
-            
-        print(f"📄 Raw javob: {cleaned[:200]}...")
+
+        print(f"[ai] Raw response preview: {cleaned[:200]}...")
         return None
 
 
-def generate_post_for_seo(topic):
-    """
-    Berilgan mavzu bo'yicha SEO'ga moslashtirilgan maqola generatsiya qiladi.
-    
-    Args:
-        topic: Maqola mavzusi
-        
-    Returns:
-        dict: {"title": str, "keywords": str, "content": str} yoki None
-    """
-    current_date_str = datetime.now().strftime("%Y-yil %B")
-    
-    prompt = f"""
+
+def _should_use_grounding():
+    return bool(realtime_client and google_genai_types)
+
+
+
+def _generate_grounded_response(prompt):
+    """Generate content using Google Search grounding when supported."""
+    if not _should_use_grounding():
+        return None
+
+    tool = google_genai_types.Tool(google_search=google_genai_types.GoogleSearch())
+    config = google_genai_types.GenerateContentConfig(tools=[tool])
+
+    return realtime_client.models.generate_content(
+        model=current_model_name,
+        contents=prompt,
+        config=config,
+    )
+
+
+
+def _extract_grounding_sources(response):
+    """Extract grounded web sources from a grounded Gemini response."""
+    sources = []
+    seen_urls = set()
+
+    try:
+        candidates = getattr(response, "candidates", None) or []
+        if not candidates:
+            return sources
+
+        metadata = getattr(candidates[0], "grounding_metadata", None)
+        chunks = getattr(metadata, "grounding_chunks", None) or []
+
+        for chunk in chunks:
+            web_data = getattr(chunk, "web", None)
+            url = getattr(web_data, "uri", None)
+            title = getattr(web_data, "title", None)
+
+            if not url or url in seen_urls:
+                continue
+
+            seen_urls.add(url)
+            sources.append(
+                {
+                    "title": title or url,
+                    "url": url,
+                }
+            )
+    except Exception as exc:
+        print(f"[ai] Could not extract grounding sources: {exc}")
+
+    return sources
+
+
+
+def _add_freshness_note(content, current_date_str):
+    note = (
+        f"_Ushbu maqola {current_date_str} holatiga ko'ra tayyorlandi. "
+        "Tez ozgaradigan versiya, narx va reliz malumotlari vaqt otishi bilan yangilanishi mumkin._"
+    )
+
+    body = (content or "").strip()
+    if not body:
+        return note
+
+    if note in body:
+        return body
+
+    return f"{note}\n\n{body}"
+
+
+
+def _append_sources_section(content, sources):
+    if not sources:
+        return content
+
+    body = (content or "").rstrip()
+    if "## Manbalar" in body:
+        return body
+
+    lines = ["## Manbalar"]
+    for source in sources[:5]:
+        lines.append(f"- [{source['title']}]({source['url']})")
+
+    return f"{body}\n\n" + "\n".join(lines)
+
+
+
+def _contains_unrequested_model_versions(topic, content):
+    topic_lower = (topic or "").lower()
+    for match in SPECIFIC_MODEL_PATTERN.finditer(content or ""):
+        if match.group(0).lower() not in topic_lower:
+            return True
+    return False
+
+
+
+def _build_seo_prompt(topic, current_date_str, use_grounding):
+    if use_grounding:
+        realtime_rules = """
+    - Google Search grounding ishlayapti. Tez ozgaradigan faktlar, model nomlari, versiyalar, narx, benchmark va reliz holatlarini faqat qidiruv orqali tasdiqlangan bo'lsa yozing.
+    - "Eng songgi", "eng kuchli", "yangi chiqdi" kabi davolarni faqat tasdiqlanganda ishlating.
+    - Muhim faktlar real vaqtga mos bo'lsin va maqola ichida bugungi holat sifatida yozilsin.
+"""
+    else:
+        realtime_rules = """
+    - Google Search grounding mavjud emas. Shuning uchun aniq model versiyasi, reliz sanasi, benchmark, narx yoki "eng songgi" kabi davolarni yozmang.
+    - Tasdiqlanmagan model nomi va versiyalarni toqimang. Kerak bolsa umumiy iboralarni ishlating: "zamonaviy AI modellari", "yangi avlod vositalari".
+"""
+
+    return f"""
     Siz TrendoAI uchun professional SEO-maqola yozuvchi ekspertisiz.
-    
-    === MUHIM KONTEKST (HOZIRGI VAQT: {current_date_str}) ===
-    Bugun {current_date_str}. Maqolani 2026-yil perspektivasidan, kelajakka nazar bilan yozing.
-    Eski "2025 yil yakunlanmoqda" degan gaplarni ISHLATMANG.
-    Eng so'nggi texnologiyalar: GPT-5.2, Gemini 3, Claude Opus 4.5, AI Agentlar, RAG tizimlar.
-    
-    MUHIM: Google Search orqali mavzu haqida eng yangi ma'lumotlarni toping va ulardan foydalaning!
-    
-    === 80/20 QOIDASI (JUDA MUHIM!) ===
-    - 80% FOYDALI MA'LUMOT: O'quvchiga haqiqiy qiymat bering
-    - 20% KOMPANIYA HAQIDA: Faqat oxirida yengil eslatma
-    
+
+    === MUHIM KONTEKST ===
+    Bugungi sana: {current_date_str}
+    Maqola aynan shu sana holatiga mos bo'lsin.
+    Eski yoki kelajakdan yozilgandek gapirmang.
+    "2025 yakunlanmoqda" yoki tasdiqlanmagan "2026 yilning eng yangi modeli" kabi iboralarni ishlatmang.
+{realtime_rules}
+    - Mavzudan tashqari aniq model versiyalarini o'zingiz qo'shmang.
+    - Agar biror faktga ishonchingiz komil bo'lmasa, umumiy va amaliy tushuntirish bering.
+
+    === 80/20 QOIDASI ===
+    - 80% foydali va amaliy ma'lumot bering.
+    - 20% TrendoAI haqida faqat oxirida yengil eslatma bo'lsin.
+
     Maqola oxirida shunday yozing:
-    "Agar sizga ham [mavzu bo'yicha xizmat] kerak bo'lsa, TrendoAI jamoasi yordam beradi. 
-    Bepul konsultatsiya uchun: t.me/Akramjon1984"
-    
+    "Agar sizga ham [mavzu boyicha xizmat] kerak bolsa, TrendoAI jamoasi yordam beradi. Bepul konsultatsiya uchun: t.me/Akramjon1984"
+
     === VAZIFA ===
     "{topic}" mavzusida professional maqola yozing.
 
-    
-    === SEO TALABLARI (Google/Yandex uchun - JUDA MUHIM!) ===
-    
-    SARLAVHA OPTIMIZATSIYASI:
-    - Asosiy kalit so'z ALBATTA sarlavhada bo'lsin
-    - Raqam ishlating: "7 ta usul", "2025 yilda", "5 qadam"
-    - Savol yoki muammo: "Qanday qilib...", "Nima uchun...", "Eng yaxshi..."
-    - Misol: "Telegram Bot Yaratish 2025: 7 ta Muhim Qadam" ✅
-    - Noto'g'ri: "Bot haqida umumiy ma'lumot" ❌
-    
-    KALIT SO'ZLAR OPTIMIZATSIYASI:
-    - 1-kalit: Asosiy qidiruv so'zi (masalan: "telegram bot yaratish")
-    - 2-kalit: Boshqa variant (masalan: "telegram bot qilish")
-    - 3-kalit: Texnologiya nomi (masalan: "python telegram bot")
-    - 4-kalit: Muammo/yechim (masalan: "bot orqali pul ishlash")
-    - 5-kalit: Mahalliy (masalan: "o'zbekistonda telegram bot")
-    
+    === SEO TALABLARI ===
+    SARLAVHA:
+    - Asosiy kalit soz sarlavhada bo'lsin.
+    - Raqam yoki aniq foyda bo'lsa ishlating.
+    - Yil faqat haqiqatan zarur va tekshirilgan bo'lsa ishlatilsin.
+    - Noaniq hype yoki clickbait ishlatmang.
+
+    KALIT SOZLAR:
+    - 1-kalit: asosiy qidiruv sozi
+    - 2-kalit: shu sozning variant shakli
+    - 3-kalit: tegishli texnologiya yoki vosita
+    - 4-kalit: muammo yoki yechimga oid ibora
+    - 5-kalit: mahalliy yoki biznes konteksti
+
     KONTENT ICHIDA SEO:
-    - Birinchi 100 so'zda asosiy kalit so'z bo'lsin
-    - Har bir H2/H3 sarlavhada kalit so'z variant bo'lsin
-    - Kalit so'zlarni tabiiy tarzda 3-5 marta takrorlang
-    - 1000-1500 so'z uzunlik (Google chuqur kontentni yaxshi ko'radi)
-    
+    - Birinchi 100 sozda asosiy kalit soz bo'lsin.
+    - Har bir H2 yoki H3 sarlavhada kalit sozning tabiiy varianti bo'lsin.
+    - Kalit sozlar suniy emas, tabiiy ishlatilsin.
+    - 1000-1500 soz uzunlikda yozing.
+
     === KONTENT TALABLARI ===
-    1. O'zbek tilida (lotin alifbosi)
-    2. Professional lekin tushunarli til
-    3. Amaliy misollar va statistika (raqamlar bilan)
-    4. FAQAT Markdown formatlash (## ### ** - 1.)
-    5. HTML teglar YO'Q
-    
+    1. O'zbek tilida, lotin alifbosida yozing.
+    2. Professional, aniq va tushunarli til ishlating.
+    3. Amaliy misollar, jarayonlar va ehtiyotkor statistik yondashuv bering.
+    4. Faqat Markdown format ishlating.
+    5. HTML teg ishlatmang.
+    6. Tekshirilmagan release, benchmark yoki versiya iddaolarini yozmang.
+
     === STRUKTURA ===
-    - **Kirish**: Muammoni tushuntiring, asosiy kalit so'z (150-200 so'z)
-    - **Asosiy qism**: 4-5 bo'lim, har bir H2 da kalit so'z varianti
-    - **Xulosa**: Qisqa takrorlash + TrendoAI eslatmasi (80/20)
-    
+    - Kirish: muammo va kontekst
+    - Asosiy qism: 4-5 bo'lim
+    - Xulosa: qisqa yakun + TrendoAI eslatmasi
+
     JSON formatida javob bering:
     {{
-      "title": "Asosiy kalit so'z + raqam/savol sarlavha (50-65 belgi)",
-      "keywords": "asosiy_kalit, variant_kalit, texnologiya, muammo_yechim, mahalliy",
-      "content": "To'liq SEO-optimallashtirilgan Markdown maqola (1000-1500 so'z)"
+      "title": "SEO uchun qisqa va aniq sarlavha",
+      "keywords": "asosiy kalit, variant kalit, texnologiya, muammo yechim, mahalliy",
+      "content": "To'liq SEO-optimallashtirilgan Markdown maqola"
     }}
-    
-    Faqat JSON qaytaring!
+
+    Faqat JSON qaytaring.
     """
 
 
-    
+
+def generate_post_for_seo(topic):
+    """Generate an SEO blog post for the given topic."""
+    current_date_str = datetime.now().strftime("%Y-%m-%d")
+    use_grounding = _should_use_grounding()
+    prompt = _build_seo_prompt(topic, current_date_str, use_grounding)
+
     def _generate():
-        response = model.generate_content(prompt)
-        return _parse_json_response(response.text)
-    
-    result = _retry_with_backoff(_generate)
-    
-    if result and all(k in result for k in ['title', 'keywords', 'content']):
+        response = None
+        used_grounding = False
+
+        if use_grounding:
+            try:
+                response = _generate_grounded_response(prompt)
+                used_grounding = response is not None
+            except Exception as exc:
+                print(f"[ai] Grounded generation failed, falling back to legacy SDK: {exc}")
+
+        if response is None:
+            response = model.generate_content(prompt)
+
+        parsed = _parse_json_response(getattr(response, "text", ""))
+        return {
+            "parsed": parsed,
+            "grounded": used_grounding,
+            "sources": _extract_grounding_sources(response) if used_grounding else [],
+        }
+
+    generated = _retry_with_backoff(_generate)
+    if not generated:
+        return None
+
+    result = generated.get("parsed")
+    if result and all(key in result for key in ["title", "keywords", "content"]):
+        result["content"] = _add_freshness_note(result["content"], current_date_str)
+        result["content"] = _append_sources_section(result["content"], generated.get("sources", []))
+
+        if not generated.get("grounded") and _contains_unrequested_model_versions(topic, result["content"]):
+            print("[ai] Rejecting stale post because it mentioned unverified model versions without grounding.")
+            return None
+
         return result
-    
-    print("⚠️ AI javobi noto'g'ri formatda")
+
+    print("[ai] AI response had an invalid format")
     return None
+
 
 
 def generate_marketing_post_for_telegram():
-    """
-    Mijozlarni jalb qilish uchun Telegram kanaliga marketing posti yaratadi.
-    
-    Returns:
-        str: Marketing post matni yoki None
-    """
+    """Generate a short marketing post for the Telegram channel."""
     prompt = """
-    TrendoAI — O'zbekistondagi texnologiya va sun'iy intellekt haqidagi yetakchi blog platformasi uchun Telegram kanaliga qisqa, jalb qiluvchi post yozing.
-    
-    TrendoAI haqida:
-    - Trending texnologiya yangiliklari
-    - Sun'iy intellekt va AI haqida maqolalar
-    - Dasturlash bo'yicha qo'llanmalar
-    - Startap va IT biznes maslahatlar
-    
-    Post talablari:
-    - 150-200 so'z
-    - Qiziqarli va professional
-    - Emoji'lar ishlating
-    - O'quvchilarni blogga tashrif buyurishga chaqiring
-    - Harakatga chaqiruvchi tugallang
-    
+    TrendoAI uchun Telegram kanaliga qisqa va jalb qiluvchi post yozing.
+
+    Talablar:
+    - 150-200 soz
+    - Professional va qiziqarli ohang
+    - Oquvchini blogga kirishga undaydigan CTA bo'lsin
+    - Tekshirilmagan model versiyalari yoki "eng songgi" kabi davolarni ishlatmang
+
     Faqat post matnini yozing.
     """
-    
+
     def _generate():
         response = model.generate_content(prompt)
         return response.text.strip()
-    
-    result = _retry_with_backoff(_generate)
-    return result
 
-
-def generate_custom_content(prompt_text):
-    """
-    Ixtiyoriy prompt bo'yicha kontent generatsiya qiladi.
-    
-    Args:
-        prompt_text: AI'ga yuboriladigan prompt
-        
-    Returns:
-        str: Generatsiya qilingan matn yoki None
-    """
-    def _generate():
-        response = model.generate_content(prompt_text)
-        return response.text.strip()
-    
     return _retry_with_backoff(_generate)
 
 
+
+def generate_custom_content(prompt_text):
+    """Generate custom content from an arbitrary prompt."""
+    def _generate():
+        response = model.generate_content(prompt_text)
+        return response.text.strip()
+
+    return _retry_with_backoff(_generate)
+
+
+
 def generate_portfolio_content(title, category):
-    """
-    Portfolio loyiha uchun AI yordamida kontent generatsiya qiladi.
-    
-    Args:
-        title: Loyiha nomi
-        category: Loyiha kategoriyasi (bot, web, ai, mobile)
-        
-    Returns:
-        dict yoki None
-    """
+    """Generate portfolio content for a project."""
     category_names = {
-        'bot': 'Telegram Bot',
-        'web': 'Web Sayt',
-        'ai': 'AI Yechim',
-        'mobile': 'Mobile Ilova'
+        "bot": "Telegram Bot",
+        "web": "Web Sayt",
+        "ai": "AI Yechim",
+        "mobile": "Mobile Ilova",
     }
-    
+
     cat_name = category_names.get(category, category)
-    
+
     prompt = f"""
     Siz TrendoAI uchun professional portfolio kontenti yozuvchisiz.
-    
+
     Vazifa: "{title}" nomli {cat_name} loyihasi uchun professional marketing kontenti yarating.
-    
+
     MUHIM TALABLAR:
-    1. O'zbek tilida (lotin alifbosi) yozing
-    2. Professional va ishonchli ohangda
-    3. Mijozlarni jalb qiluvchi
-    
+    1. O'zbek tilida (lotin alifbosi) yozing.
+    2. Professional va ishonchli ohangda bo'lsin.
+    3. Mijozlarni jalb qiluvchi, ammo realistik bo'lsin.
+
     JSON formatida javob bering:
     {{
-      "description": "Loyiha haqida qisqa tavsif (2-3 jumla, 100-150 belgi)",
-      "technologies": "Python, Flask, PostgreSQL (3-5 ta texnologiya, vergul bilan)",
-      "features": "To'lov tizimi, Admin panel, Real-time xabarlar (5-7 ta feature, vergul bilan)",
-      "details": "## Loyiha haqida\\n\\nBatafsil ma'lumot markdown formatida. 150-200 so'z.",
-      "meta_description": "SEO uchun meta tavsif (150-160 belgi)",
-      "meta_keywords": "telegram bot, python (5-7 kalit so'z, vergul bilan)"
+      "description": "Loyiha haqida qisqa tavsif (2-3 jumla)",
+      "technologies": "Python, Flask, PostgreSQL",
+      "features": "Tolov tizimi, Admin panel, Real-time xabarlar",
+      "details": "## Loyiha haqida\\n\\nBatafsil malumot markdown formatida.",
+      "meta_description": "SEO uchun meta tavsif",
+      "meta_keywords": "telegram bot, python"
     }}
-    
-    Faqat JSON qaytaring!
+
+    Faqat JSON qaytaring.
     """
-    
+
     def _generate():
         response = model.generate_content(prompt)
         return _parse_json_response(response.text)
-    
+
     result = _retry_with_backoff(_generate)
-    
     if result:
         return result
-    
-    print("⚠️ Portfolio AI javobi noto'g'ri formatda")
+
+    print("[ai] Portfolio response had an invalid format")
     return None
 
 
-# Test uchun
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("=" * 60)
-    print("🔥 TrendoAI — AI Generator Test")
+    print("TrendoAI AI Generator Test")
     print("=" * 60)
-    
-    print("\n📢 Marketing post generatsiya qilinmoqda...")
+
+    print("\nGenerating marketing post...")
     marketing_text = generate_marketing_post_for_telegram()
     if marketing_text:
-        print("✅ Muvaffaqiyatli!")
+        print("OK")
         print("-" * 40)
         print(marketing_text)
     else:
-        print("❌ Xatolik yuz berdi")
+        print("FAILED")

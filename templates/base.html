@@ -64,8 +64,8 @@
     <meta name="keywords"
         content="{% block meta_keywords %}trendoai, trendo ai, trendo.ai, trendo.uz, trendo uz, trendo sun'iy intellekt, o'zbekistonda ai, chatbot, chat-bot yaratish, telegrambot, telegram bot, ai agent, ai agentlar, biznesni avtomatlashtirish, avtomatizatsiya, sun'iy intellekt, AI yechimlar, dasturlash, telegram bot yaratish, IT yangiliklar, ai loyihalar, ai bilan pul ishlash, sun'iy intellekt orqali, ai loyiha qilish{% endblock %}">
     <meta name="author" content="TrendoAI">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="{% block canonical_url %}{{ config.SITE_URL }}{% endblock %}">
+    <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
+    <link rel="canonical" href="{% block canonical_url %}{{ config.SITE_URL }}{{ request.path }}{% endblock %}">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
@@ -160,13 +160,13 @@
             </button>
 
             <nav id="mainNav">
-                <a href="{{ url_for('services') }}"
-                    class="{% if request.endpoint == 'services' or request.endpoint == 'index' %}active{% endif %}">🛠️
+                <a href="{{ url_for('index') }}"
+                    class="{% if request.endpoint in ['index', 'services', 'service_detail'] %}active{% endif %}">🛠️
                     Xizmatlar</a>
-                <a href="{{ url_for('blog') }}" class="{% if request.endpoint == 'blog' %}active{% endif %}">📝
+                <a href="{{ url_for('blog') }}" class="{% if request.endpoint in ['blog', 'post', 'post_by_slug', 'search'] %}active{% endif %}">📝
                     Blog</a>
                 <a href="{{ url_for('portfolio') }}"
-                    class="{% if request.endpoint == 'portfolio' %}active{% endif %}">🎨 Portfolio</a>
+                    class="{% if request.endpoint in ['portfolio', 'portfolio_item'] %}active{% endif %}">🎨 Portfolio</a>
                 <a href="{{ url_for('about') }}" class="{% if request.endpoint == 'about' %}active{% endif %}">ℹ️ Biz
                     haqimizda</a>
             </nav>

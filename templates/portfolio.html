@@ -4,17 +4,14 @@
 
 {% block meta_description %}TrendoAI portfolio: Professional Telegram botlar, zamonaviy web saytlar, AI yechimlar. 50+
 muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
-
-{% block extra_head %}
-<!-- Facebook Ads Optimization -->
-<meta property="og:title" content="TrendoAI Portfolio - Professional IT Xizmatlari">
-<meta property="og:description"
-    content="50+ muvaffaqiyatli loyihalar: Telegram botlar, web saytlar, AI yechimlar. Bepul konsultatsiya olish uchun bog'laning!">
-<meta property="og:image" content="https://trendoai.uz/static/images/portfolio-og.png">
-<meta property="og:url" content="https://trendoai.uz/portfolio">
-<meta property="og:type" content="website">
-<meta property="product:category" content="IT Services">
-{% endblock %}
+{% block canonical_url %}{{ config.SITE_URL }}/portfolio{% endblock %}
+{% block og_url %}{{ config.SITE_URL }}/portfolio{% endblock %}
+{% block og_title %}TrendoAI Portfolio - Professional IT Xizmatlari{% endblock %}
+{% block og_description %}50+ muvaffaqiyatli loyihalar: Telegram botlar, web saytlar, AI yechimlar. Bepul konsultatsiya olish uchun bog'laning!{% endblock %}
+{% block og_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}
+{% block twitter_title %}TrendoAI Portfolio - Professional IT Xizmatlari{% endblock %}
+{% block twitter_description %}50+ muvaffaqiyatli loyihalar: Telegram botlar, web saytlar, AI yechimlar. Bepul konsultatsiya olish uchun bog'laning!{% endblock %}
+{% block twitter_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}
 
 {% block content %}
 <!-- Portfolio Hero -->
@@ -322,7 +319,7 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
     <p>Bepul konsultatsiya oling va g'oyangizni haqiqatga aylantiring!</p>
     <div class="cta-buttons">
         <a href="https://t.me/trendoai" class="cta-button primary" target="_blank">📱 Telegram orqali bog'laning</a>
-        <a href="{{ url_for('services') }}" class="cta-button secondary">🛠️ Xizmatlarimiz</a>
+        <a href="{{ url_for('index') }}" class="cta-button secondary">🛠️ Xizmatlarimiz</a>
     </div>
 </section>
 

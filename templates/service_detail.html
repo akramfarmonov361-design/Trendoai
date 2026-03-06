@@ -1,16 +1,18 @@
 {% extends "base.html" %}
 
 {% block title %}{{ service.title }} - TrendoAI{% endblock %}
-
 {% block meta_description %}{{ service.meta_desc }}{% endblock %}
-
-{% block canonical_url %}https://trendoai.uz/services/{{ service.slug }}{% endblock %}
+{% block canonical_url %}{{ config.SITE_URL }}/services/{{ service.slug }}{% endblock %}
+{% block og_url %}{{ config.SITE_URL }}/services/{{ service.slug }}{% endblock %}
+{% block og_title %}{{ service.title }} - TrendoAI{% endblock %}
+{% block og_description %}{{ service.meta_desc }}{% endblock %}
+{% block og_type %}product{% endblock %}
+{% block og_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}
+{% block twitter_title %}{{ service.title }} - TrendoAI{% endblock %}
+{% block twitter_description %}{{ service.meta_desc }}{% endblock %}
+{% block twitter_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}
 
 {% block extra_head %}
-<!-- Facebook Ads Optimization -->
-<meta property="og:title" content="{{ service.title }} - TrendoAI">
-<meta property="og:description" content="{{ service.meta_desc }}">
-<meta property="og:type" content="product">
 <meta property="product:category" content="Software > IT Services">
 
 <script>
@@ -40,7 +42,7 @@
             <nav class="breadcrumb-nav">
                 <a href="{{ url_for('index') }}">Bosh sahifa</a>
                 <span class="sep">/</span>
-                <a href="{{ url_for('services') }}">Xizmatlar</a>
+                <a href="{{ url_for('index') }}">Xizmatlar</a>
                 <span class="sep">/</span>
                 <span class="current">{{ service.title }}</span>
             </nav>

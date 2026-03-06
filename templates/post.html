@@ -1,20 +1,17 @@
 {% extends 'base.html' %}
 
 {% block title %}{{ post.title }} - TrendoAI{% endblock %}
-
 {% block meta_description %}{{ post.content | striptags | truncate(160) }}{% endblock %}
 {% block meta_keywords %}{{ post.keywords }}{% endblock %}
-{% block canonical_url %}https://trendoai.uz/blog/{{ post.slug or post.id }}{% endblock %}
+{% block canonical_url %}{% if post.slug %}{{ config.SITE_URL }}/blog/{{ post.slug }}{% else %}{{ config.SITE_URL }}/post/{{ post.id }}{% endif %}{% endblock %}
 {% block og_title %}{{ post.title }}{% endblock %}
 {% block og_description %}{{ post.content | striptags | truncate(200) }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_url %}{% if post.slug %}{{ config.SITE_URL }}/blog/{{ post.slug }}{% else %}{{ config.SITE_URL }}/post/{{ post.id }}{% endif %}{% endblock %}
+{% block og_image %}{% if post.image_url %}{{ post.image_url }}{% else %}{{ config.SITE_URL }}/static/img/og-image.png{% endif %}{% endblock %}
+{% block twitter_image %}{% if post.image_url %}{{ post.image_url }}{% else %}{{ config.SITE_URL }}/static/img/og-image.png{% endif %}{% endblock %}
 
 {% block extra_head %}
-<!-- Open Graph Image -->
-{% if post.image_url %}
-<meta property="og:image" content="{{ post.image_url }}">
-<meta name="twitter:image" content="{{ post.image_url }}">
-{% endif %}
-<meta property="og:type" content="article">
 <meta property="article:published_time" content="{{ post.created_at.isoformat() if post.created_at else '' }}">
 <meta property="article:section" content="{{ post.category }}">
 {% if post.keywords %}
@@ -23,7 +20,6 @@
 {% endfor %}
 {% endif %}
 
-<!-- JSON-LD Article Schema -->
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
@@ -45,7 +41,7 @@
     },
     "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": "https://trendoai.uz/blog/{{ post.slug or post.id }}"
+        "@id": "{% if post.slug %}{{ config.SITE_URL }}/blog/{{ post.slug }}{% else %}{{ config.SITE_URL }}/post/{{ post.id }}{% endif %}"
     },
     "articleSection": "{{ post.category }}",
     "wordCount": {{ post.content.split()|length }},
@@ -53,7 +49,6 @@
 }
 </script>
 
-<!-- BreadcrumbList Schema -->
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
@@ -69,13 +64,13 @@
             "@type": "ListItem",
             "position": 2,
             "name": "{{ post.category }}",
-            "item": "https://trendoai.uz/?category={{ post.category }}"
+            "item": "{{ config.SITE_URL }}/blog?category={{ post.category | urlencode }}"
         },
         {
             "@type": "ListItem",
             "position": 3,
             "name": "{{ post.title }}",
-            "item": "https://trendoai.uz/blog/{{ post.slug or post.id }}"
+            "item": "{% if post.slug %}{{ config.SITE_URL }}/blog/{{ post.slug }}{% else %}{{ config.SITE_URL }}/post/{{ post.id }}{% endif %}"
         }
     ]
 }
@@ -95,7 +90,7 @@
             <nav class="breadcrumb-nav">
                 <a href="{{ url_for('index') }}">Bosh sahifa</a>
                 <span class="sep">/</span>
-                <a href="{{ url_for('index', category=post.category) }}">{{ post.category or 'Texnologiya' }}</a>
+                <a href="{{ url_for('blog', category=post.category) }}">{{ post.category or 'Texnologiya' }}</a>
                 <span class="sep">/</span>
                 <span class="current">{{ post.title | truncate(30) }}</span>
             </nav>
@@ -147,11 +142,11 @@
             <div class="article-share-footer">
                 <h4>Maqolani ulashing:</h4>
                 <div class="share-grid">
-                    <a href="https://t.me/share/url?url=https://trendoai.uz/blog/{{ post.slug or post.id }}&text={{ post.title }}"
+                    <a href="https://t.me/share/url?url={{ config.SITE_URL }}{{ url_for('post_by_slug', slug=post.slug) if post.slug else url_for('post', post_id=post.id) }}&text={{ post.title }}"
                         class="share-card tg" target="_blank">
                         <i class="fab fa-telegram-plane"></i> Telegram
                     </a>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://trendoai.uz/blog/{{ post.slug or post.id }}"
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ config.SITE_URL }}{{ url_for('post_by_slug', slug=post.slug) if post.slug else url_for('post', post_id=post.id) }}"
                         class="share-card fb" target="_blank">
                         <i class="fab fa-facebook-f"></i> Facebook
                     </a>
@@ -203,7 +198,7 @@
             <div class="cta-inner">
                 <h3>Sizga sayt yoki bot kerakmi? 🚀</h3>
                 <p>TrendoAI jamoasi sizning biznesingiz uchun professional yechimlarni taklif etadi.</p>
-                <a href="{{ url_for('services') }}" class="cta-sidebar-btn">Xizmatlarni ko'rish</a>
+                <a href="{{ url_for('index') }}" class="cta-sidebar-btn">Xizmatlarni ko'rish</a>
             </div>
         </div>
     </aside>

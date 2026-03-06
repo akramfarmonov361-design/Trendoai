@@ -1,24 +1,24 @@
 {% extends "base.html" %}
 
 {% block title %}{{ item.title }} - TrendoAI Portfolio{% endblock %}
-
 {% block meta_description %}{{ item.description | truncate(160) }}{% endblock %}
-
-{% block canonical_url %}https://trendoai.uz/portfolio/{{ item.slug }}{% endblock %}
+{% block canonical_url %}{{ config.SITE_URL }}/portfolio/project/{{ item.slug }}{% endblock %}
+{% block og_url %}{{ config.SITE_URL }}/portfolio/project/{{ item.slug }}{% endblock %}
+{% block og_title %}{{ item.title }} - TrendoAI{% endblock %}
+{% block og_description %}{{ item.description | truncate(160) }}{% endblock %}
+{% block og_type %}product{% endblock %}
+{% block og_image %}{{ item.image_url or config.SITE_URL ~ '/static/img/og-image.png' }}{% endblock %}
+{% block twitter_title %}{{ item.title }} - TrendoAI{% endblock %}
+{% block twitter_description %}{{ item.description | truncate(160) }}{% endblock %}
+{% block twitter_image %}{{ item.image_url or config.SITE_URL ~ '/static/img/og-image.png' }}{% endblock %}
 
 {% block extra_head %}
-<!-- Facebook Ads Optimization -->
-<meta property="og:title" content="{{ item.title }} - TrendoAI">
-<meta property="og:description" content="{{ item.description | truncate(160) }}">
-<meta property="og:image" content="{{ item.image_url }}">
-<meta property="og:type" content="product">
 <meta property="product:category" content="{{ item.category }}">
 {% if item.price %}
 <meta property="product:price:amount" content="{{ item.price | replace('$', '') | replace(' ', '') }}">
 <meta property="product:price:currency" content="USD">
 {% endif %}
 
-<!-- JSON-LD Product Schema (Facebook Catalog Microdata) -->
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
@@ -47,7 +47,6 @@
 </script>
 
 <script>
-    // Facebook Pixel ViewContent tracking
     var viewContentData = {
         content_name: '{{ item.title }}',
         content_category: '{{ item.category }}',
@@ -55,7 +54,7 @@
         content_type: 'product'
     };
     {% if item.price %}
-    viewContentData.value = {{ item.price | replace('$', '') | replace(' ', '') | int | default(0) }};};
+    viewContentData.value = {{ item.price | replace('$', '') | replace(' ', '') | int | default(0) }};
     viewContentData.currency = 'USD';
     {% endif %}
     fbq('track', 'ViewContent', viewContentData);
@@ -69,10 +68,9 @@
         };
         {% if item.price %}
         addToCartData.value = {{ item.price | replace('$', '') | replace(' ', '') | int | default(0) }};
-    };
-    addToCartData.currency = 'USD';
-    {% endif %}
-    fbq('track', 'AddToCart', addToCartData);
+        addToCartData.currency = 'USD';
+        {% endif %}
+        fbq('track', 'AddToCart', addToCartData);
     }
 </script>
 {% endblock %}

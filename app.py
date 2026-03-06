@@ -594,9 +594,8 @@ def about():
 
 @app.route('/services')
 def services():
-    """Xizmatlar sahifasi"""
-    all_services = Service.query.filter_by(is_active=True).order_by(Service.order.asc()).all()
-    return render_template('services.html', services=all_services)
+    """Legacy xizmatlar URL'ini bosh sahifaga yo'naltirish"""
+    return redirect(url_for('index'), code=301)
 
 
 @app.route('/services/<service_key>')
@@ -729,7 +728,7 @@ def submit_order():
         print(f"Telegram yuborishda xato: {e}")
     
     flash(f'Rahmat, {name}! Arizangiz qabul qilindi. Tez orada siz bilan boglanamiz!', 'success')
-    return redirect(url_for('services'))
+    return redirect(url_for('index'))
 
 
 # ========== ADMIN ROUTES ==========
@@ -1676,51 +1675,6 @@ def robots_txt():
     return Response("\n".join(lines), mimetype="text/plain")
 
 
-@app.route('/sitemap.xml')
-def sitemap_xml():
-    """Saytning barcha sahifalari xaritasi (Google va Yandex uchun)"""
-    import xml.etree.ElementTree as ET
-    
-    urlset = ET.Element('urlset', xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
-    site_url = app.config.get('SITE_URL', 'https://trendoai.uz')
-    
-    # Static sahifalar
-    pages = [
-        {'url': f'{site_url}/', 'priority': '1.0', 'freq': 'daily'},
-        {'url': f'{site_url}/services', 'priority': '0.9', 'freq': 'weekly'},
-        {'url': f'{site_url}/blog', 'priority': '0.9', 'freq': 'daily'},
-        {'url': f'{site_url}/portfolio', 'priority': '0.8', 'freq': 'weekly'},
-        {'url': f'{site_url}/about', 'priority': '0.8', 'freq': 'monthly'}
-    ]
-    
-    for page in pages:
-        url_el = ET.SubElement(urlset, 'url')
-        ET.SubElement(url_el, 'loc').text = page['url']
-        ET.SubElement(url_el, 'changefreq').text = page['freq']
-        ET.SubElement(url_el, 'priority').text = page['priority']
-        
-    # Blog postlari
-    posts = Post.query.filter_by(is_published=True).order_by(Post.created_at.desc()).all()
-    for post in posts:
-        url_el = ET.SubElement(urlset, 'url')
-        ET.SubElement(url_el, 'loc').text = f'{site_url}/post/{post.slug or post.id}'
-        ET.SubElement(url_el, 'lastmod').text = post.created_at.strftime('%Y-%m-%d')
-        ET.SubElement(url_el, 'changefreq').text = 'weekly'
-        ET.SubElement(url_el, 'priority').text = '0.7'
-        
-    # Portfolio ishlari
-    portfolios = Portfolio.query.order_by(Portfolio.order.asc(), Portfolio.created_at.desc()).all()
-    for item in portfolios:
-        url_el = ET.SubElement(urlset, 'url')
-        ET.SubElement(url_el, 'loc').text = f'{site_url}/portfolio/{item.slug or item.id}'
-        if hasattr(item, 'created_at') and item.created_at:
-            ET.SubElement(url_el, 'lastmod').text = item.created_at.strftime('%Y-%m-%d')
-        ET.SubElement(url_el, 'changefreq').text = 'monthly'
-        ET.SubElement(url_el, 'priority').text = '0.7'
-        
-    xml_str = ET.tostring(urlset, encoding='utf8', method='xml')
-    return Response(xml_str, mimetype='application/xml')
-
 
 # ========== API ROUTES ==========
 
@@ -2340,7 +2294,7 @@ def facebook_feed():
 
 
 @app.route('/sitemap.xml')
-def sitemap():
+def sitemap_xml():
     """Dinamik sitemap.xml - barcha sahifalar va postlar"""
     from datetime import datetime
     
@@ -2349,7 +2303,6 @@ def sitemap():
     # Asosiy sahifalar
     static_pages = [
         ('/', '1.0', 'daily'),
-        ('/services', '0.9', 'weekly'),
         ('/portfolio', '0.8', 'weekly'),
         ('/blog', '0.9', 'daily'),
         ('/about', '0.7', 'monthly'),
@@ -2379,7 +2332,7 @@ def sitemap():
     for post in posts:
         lastmod = post.updated_at or post.created_at
         pages.append({
-            'loc': f'{SITE_URL}/blog/{post.slug or post.id}',
+            'loc': f'{SITE_URL}/blog/{post.slug}' if post.slug else f'{SITE_URL}/post/{post.id}',
             'priority': '0.7',
             'changefreq': 'monthly',
             'lastmod': lastmod.strftime('%Y-%m-%d') if lastmod else datetime.now().strftime('%Y-%m-%d')
@@ -2388,11 +2341,13 @@ def sitemap():
     # Portfolio loyihalar
     portfolios = Portfolio.query.filter_by(is_published=True).all()
     for p in portfolios:
+        if not p.slug:
+            continue
         pages.append({
             'loc': f'{SITE_URL}/portfolio/project/{p.slug}',
             'priority': '0.6',
             'changefreq': 'monthly',
-            'lastmod': datetime.now().strftime('%Y-%m-%d')
+            'lastmod': p.created_at.strftime('%Y-%m-%d') if p.created_at else datetime.now().strftime('%Y-%m-%d')
         })
     
     # XML yaratish
