@@ -30,11 +30,22 @@ GEMINI_API_KEY2 = os.getenv("GEMINI_API_KEY2")
 current_api_key = GEMINI_API_KEY
 current_model_name = GEMINI_MODEL
 realtime_client = None
+LAST_AI_ERROR = None
 
 SPECIFIC_MODEL_PATTERN = re.compile(
     r"\b(?:GPT-\d+(?:\.\d+)?(?:\s+[A-Za-z-]+)?|Gemini\s+\d+(?:\.\d+)?(?:\s+[A-Za-z-]+)?|Claude\s+(?:Opus|Sonnet|Haiku)\s*\d+(?:\.\d+)?)\b",
     re.IGNORECASE,
 )
+
+
+def _set_last_ai_error(message):
+    """Store the most recent AI generation error for diagnostics."""
+    global LAST_AI_ERROR
+    LAST_AI_ERROR = (message or "").strip() or None
+
+
+def get_last_ai_error():
+    return LAST_AI_ERROR
 
 
 def _refresh_realtime_client(api_key):
@@ -96,12 +107,14 @@ def _retry_with_backoff(func, *args, **kwargs):
     """Run a function with exponential backoff and backup model/key fallback."""
     global model
     last_exception = None
+    _set_last_ai_error(None)
 
     for attempt in range(AI_RETRY_ATTEMPTS):
         try:
             return func(*args, **kwargs)
         except Exception as exc:
             last_exception = exc
+            _set_last_ai_error(str(exc))
             wait_time = AI_RETRY_DELAY * (2 ** attempt)
             print(f"[ai] Error ({attempt + 1}/{AI_RETRY_ATTEMPTS}): {exc}")
             print(f"[ai] Waiting {wait_time} seconds before retry...")
@@ -114,6 +127,7 @@ def _retry_with_backoff(func, *args, **kwargs):
                 return func(*args, **kwargs)
             except Exception as exc:
                 last_exception = exc
+                _set_last_ai_error(str(exc))
                 wait_time = AI_RETRY_DELAY * (2 ** attempt)
                 print(f"[ai] Backup error ({attempt + 1}/{AI_RETRY_ATTEMPTS}): {exc}")
                 time.sleep(wait_time)
@@ -125,11 +139,12 @@ def _retry_with_backoff(func, *args, **kwargs):
                     return func(*args, **kwargs)
                 except Exception as exc:
                     last_exception = exc
+                    _set_last_ai_error(str(exc))
                     time.sleep(AI_RETRY_DELAY)
 
     print(f"[ai] All retries failed. Last error: {last_exception}")
+    _set_last_ai_error(f"All retries failed: {last_exception}")
     return None
-
 
 
 def _parse_json_response(response_text):
@@ -160,6 +175,93 @@ def _parse_json_response(response_text):
         print(f"[ai] Raw response preview: {cleaned[:200]}...")
         return None
 
+
+def _response_to_text(response):
+    """Extract text safely from both legacy and newer Gemini SDK responses."""
+    if response is None:
+        return ""
+
+    try:
+        response_text = getattr(response, "text", None)
+        if isinstance(response_text, str) and response_text.strip():
+            return response_text.strip()
+    except Exception as exc:
+        print(f"[ai] Could not read response.text directly: {exc}")
+
+    try:
+        candidates = getattr(response, "candidates", None) or []
+        if not candidates:
+            return ""
+
+        content = getattr(candidates[0], "content", None)
+        parts = getattr(content, "parts", None) or []
+        collected = []
+        for part in parts:
+            text_part = getattr(part, "text", None)
+            if text_part:
+                collected.append(text_part)
+
+        return "\n".join(collected).strip()
+    except Exception as exc:
+        print(f"[ai] Could not extract response parts: {exc}")
+        return ""
+
+
+def _build_fallback_keywords(topic, title):
+    phrases = []
+    seen = set()
+
+    for raw in [topic or "", title or ""]:
+        for piece in re.split(r"[:,()]+", raw):
+            cleaned = re.sub(r"\s+", " ", piece).strip(" -")
+            if not cleaned:
+                continue
+
+            key = cleaned.lower()
+            if key in seen:
+                continue
+
+            seen.add(key)
+            phrases.append(cleaned)
+
+    for generic in ["AI", "biznes", "texnologiya"]:
+        if generic.lower() not in seen:
+            phrases.append(generic)
+            seen.add(generic.lower())
+
+    return ", ".join(phrases[:5])
+
+
+def _coerce_post_payload(response_text, topic):
+    """Fallback when the model returns Markdown/plain text instead of JSON."""
+    body = (response_text or "").strip()
+    if not body:
+        return None
+
+    lines = [line.strip() for line in body.splitlines() if line.strip()]
+    if not lines:
+        return None
+
+    title = None
+    for line in lines:
+        if line.startswith("#"):
+            title = line.lstrip("#").strip()
+            break
+
+    if not title:
+        title = lines[0].strip("* ").strip()
+
+    if len(body) < 400 or not title:
+        return None
+
+    if lines[0].strip("# ").strip() != title:
+        body = f"# {title}\n\n{body}"
+
+    return {
+        "title": title[:120],
+        "keywords": _build_fallback_keywords(topic, title),
+        "content": body,
+    }
 
 
 def _should_use_grounding():
@@ -345,6 +447,7 @@ def generate_post_for_seo(topic):
     current_date_str = datetime.now().strftime("%Y-%m-%d")
     use_grounding = _should_use_grounding()
     prompt = _build_seo_prompt(topic, current_date_str, use_grounding)
+    _set_last_ai_error(None)
 
     def _generate():
         response = None
@@ -360,15 +463,22 @@ def generate_post_for_seo(topic):
         if response is None:
             response = model.generate_content(prompt)
 
-        parsed = _parse_json_response(getattr(response, "text", ""))
+        response_text = _response_to_text(response)
+        parsed = _parse_json_response(response_text)
+        if not parsed:
+            parsed = _coerce_post_payload(response_text, topic)
+
         return {
             "parsed": parsed,
             "grounded": used_grounding,
             "sources": _extract_grounding_sources(response) if used_grounding else [],
+            "response_text": response_text,
         }
 
     generated = _retry_with_backoff(_generate)
     if not generated:
+        if not get_last_ai_error():
+            _set_last_ai_error("AI modeli hech qanday javob qaytarmadi.")
         return None
 
     result = generated.get("parsed")
@@ -378,13 +488,20 @@ def generate_post_for_seo(topic):
 
         if not generated.get("grounded") and _contains_unrequested_model_versions(topic, result["content"]):
             print("[ai] Rejecting stale post because it mentioned unverified model versions without grounding.")
+            _set_last_ai_error("AI javobi tekshirilmagan model versiyalarini tilga oldi.")
             return None
 
+        _set_last_ai_error(None)
         return result
 
     print("[ai] AI response had an invalid format")
+    preview = (generated.get("response_text") or "").strip().replace("\n", " ")
+    preview = preview[:240] + ("..." if len(preview) > 240 else "")
+    if preview:
+        _set_last_ai_error(f"AI javobi JSON formatida emas. Preview: {preview}")
+    else:
+        _set_last_ai_error("AI bosh yoki yaroqsiz javob qaytardi.")
     return None
-
 
 
 def generate_marketing_post_for_telegram():

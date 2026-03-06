@@ -35,7 +35,8 @@ from config import (
     SITE_URL, SITE_NAME, SITE_DESCRIPTION, DATABASE_URI, SECRET_KEY,
     ADMIN_USERNAME, ADMIN_PASSWORD, POSTS_PER_PAGE, CATEGORIES,
     GA4_ID, GOOGLE_ADS_ID, FACEBOOK_PIXEL_ID,
-    CRON_SECRET, GEMINI_API_KEY, GEMINI_MODEL
+    CRON_SECRET, GEMINI_API_KEY, GEMINI_MODEL,
+    VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_CLAIMS_SUB
 )
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
@@ -43,6 +44,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = SECRET_KEY
 app.config['CRON_SECRET'] = CRON_SECRET
 app.config['GEMINI_API_KEY'] = GEMINI_API_KEY
+app.config['VAPID_PUBLIC_KEY'] = VAPID_PUBLIC_KEY
+app.config['VAPID_PRIVATE_KEY'] = VAPID_PRIVATE_KEY
+app.config['VAPID_CLAIMS_SUB'] = VAPID_CLAIMS_SUB
 
 # PostgreSQL connection pool sozlamalari - ulanish uzilganda qayta ulanish
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
@@ -1000,16 +1004,15 @@ def notify_all_subscribers(title, message, url):
     try:
         from pywebpush import webpush, WebPushException
         import json
-        
-        # VAPID Keyni faylga o'tkazish (agar string bo'lsa)
+        import tempfile
+
         vapid_private_key_path = app.config['VAPID_PRIVATE_KEY']
         temp_pem_path = None
-        
+
         if not os.path.exists(str(vapid_private_key_path)):
             try:
                 with tempfile.NamedTemporaryFile(suffix='.pem', delete=False, mode='w', encoding='utf-8') as temp_pem:
                     key_content = str(vapid_private_key_path).strip()
-                    # Headerlar yo'q bo'lsa qo'shamiz
                     if "-----BEGIN PRIVATE KEY-----" not in key_content:
                         key_content = f"-----BEGIN PRIVATE KEY-----\n{key_content}\n-----END PRIVATE KEY-----"
                     temp_pem.write(key_content)
@@ -1020,8 +1023,12 @@ def notify_all_subscribers(title, message, url):
                 return 0
 
         subscriptions = PushSubscription.query.all()
+        if not subscriptions:
+            print("[push] Faol obunachilar topilmadi")
+            return 0
+
         count = 0
-        
+
         for sub in subscriptions:
             try:
                 webpush(
@@ -1034,25 +1041,26 @@ def notify_all_subscribers(title, message, url):
                 )
                 count += 1
             except WebPushException as ex:
-                if ex.response and ex.response.status_code == 410:
+                status_code = getattr(getattr(ex, 'response', None), 'status_code', None)
+                print(f"[push] WebPush xatosi ({status_code}): {ex}")
+                if status_code in (404, 410):
                     db.session.delete(sub)
             except Exception as e:
-                print(f"Individual push error: {e}")
-        
+                print(f"[push] Individual push error: {e}")
+
         db.session.commit()
-        
-        # Temp faylni o'chirish
+
         if temp_pem_path and os.path.exists(temp_pem_path):
             try:
                 os.unlink(temp_pem_path)
-            except:
+            except Exception:
                 pass
-                
+
+        print(f"[push] {count}/{len(subscriptions)} ta obunachiga xabar yuborildi")
         return count
     except Exception as e:
         print(f"Push notification error: {e}")
         return 0
-
 @app.route('/admin/posts/new', methods=['GET', 'POST'])
 @login_required
 def admin_new_post():
@@ -1513,7 +1521,7 @@ Javobni matn ko'rinishida yozing."""
 
 @app.route('/api/push/subscribe', methods=['POST'])
 def push_subscribe():
-    """Web Push obunasini saqlash"""
+    """Web Push obunasini saqlash yoki yangilash"""
     data = request.json
     if not data or not data.get('endpoint'):
         return jsonify({'error': 'Invalid data'}), 400
@@ -1526,8 +1534,9 @@ def push_subscribe():
     if not p256dh or not auth:
         return jsonify({'error': 'Missing keys'}), 400
 
-    # Obunani tekshirish
     subscription = PushSubscription.query.filter_by(endpoint=endpoint).first()
+    created = False
+
     if not subscription:
         subscription = PushSubscription(
             endpoint=endpoint,
@@ -1535,44 +1544,25 @@ def push_subscribe():
             auth=auth
         )
         db.session.add(subscription)
-        db.session.commit()
-    
-    return jsonify({'success': True, 'message': 'Obuna bo\'ldi'})
+        created = True
+    else:
+        subscription.p256dh = p256dh
+        subscription.auth = auth
 
+    db.session.commit()
+    print(f"[push] Subscription {'yaratildi' if created else 'yangilandi'}: {endpoint[:80]}")
+    return jsonify({'success': True, 'message': 'Obuna saqlandi', 'created': created})
 @app.route('/api/push/send', methods=['POST'])
 @login_required
 def push_send():
     """Push xabar yuborish (Admin)"""
-    data = request.json
+    data = request.json or {}
+    title = data.get('title', 'TrendoAI')
     message = data.get('message', 'Yangi xabar!')
     url = data.get('url', '/')
-    
-    subscriptions = PushSubscription.query.all()
-    count = 0
-    
-    for sub in subscriptions:
-        try:
-            webpush(
-                subscription_info=sub.to_json(),
-                data=json.dumps({'title': 'TrendoAI', 'body': message, 'url': url}),
-                vapid_private_key=app.config['VAPID_PRIVATE_KEY'],
-                vapid_claims={
-                    'sub': app.config.get('VAPID_CLAIMS_SUB', 'mailto:admin@trendoai.uz')
-                }
-            )
-            count += 1
-        except WebPushException as ex:
-            print(f"Push error: {ex}")
-            # Agar obuna o'chgan bo'lsa (410 Gone), bazadan o'chirish
-            if ex.response and ex.response.status_code == 410:
-                db.session.delete(sub)
-                db.session.commit()
-        except Exception as e:
-            print(f"Genral push error: {e}")
 
-    return jsonify({'success': True, 'sent_count': count})
-
-
+    sent_count = notify_all_subscribers(title=title, message=message, url=url)
+    return jsonify({'success': sent_count > 0, 'sent_count': sent_count})
 @app.route('/sw.js')
 def service_worker():
     """Service Worker faylini root'dan uzatish"""

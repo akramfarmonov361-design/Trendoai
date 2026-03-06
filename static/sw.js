@@ -1,7 +1,8 @@
-const CACHE_NAME = 'trendoai-v2';
+const CACHE_NAME = 'trendoai-v3';
 const urlsToCache = [
     '/static/css/style.css',
-    '/static/manifest.json'
+    '/static/manifest.json',
+    '/static/icons/icon-192x192.png'
 ];
 
 // Install event - cache assets
@@ -77,8 +78,8 @@ self.addEventListener('push', function (event) {
         const title = data.title || 'TrendoAI';
         const options = {
             body: data.body,
-            icon: '/static/img/logo.png', // Logo path
-            badge: '/static/img/logo.png',
+            icon: '/static/icons/icon-192x192.png',
+            badge: '/static/icons/icon-192x192.png',
             vibrate: [100, 50, 100],
             data: {
                 url: data.url || '/'

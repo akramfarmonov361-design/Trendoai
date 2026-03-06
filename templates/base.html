@@ -954,40 +954,38 @@
 
         // Service Worker & Push Notifications
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SW registered:', registration);
-                        initializeUI(registration);
-                    })
-                    .catch(error => {
-                        console.log('SW registration failed:', error);
-                    });
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('SW registered:', registration);
+                    const readyRegistration = await navigator.serviceWorker.ready;
+                    initializeUI(readyRegistration);
+                } catch (error) {
+                    console.log('SW registration failed:', error);
+                }
             });
         }
 
         function initializeUI(registration) {
             const notifyBtn = document.getElementById('notify-btn');
-
-            // Check if push is supported
-            if (!('PushManager' in window)) {
+            if (!notifyBtn || !('PushManager' in window)) {
                 return;
             }
 
-            // Check permission
+            syncExistingSubscription(registration);
+
             if (Notification.permission === 'granted') {
                 notifyBtn.style.display = 'none';
             } else if (Notification.permission !== 'denied') {
                 notifyBtn.style.display = 'inline-block';
             }
 
-            notifyBtn.addEventListener('click', () => {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        subscribeUser(registration);
-                        notifyBtn.style.display = 'none';
-                    }
-                });
+            notifyBtn.addEventListener('click', async () => {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    await subscribeUser(registration);
+                    notifyBtn.style.display = 'none';
+                }
             });
         }
 
@@ -1006,29 +1004,57 @@
             return outputArray;
         }
 
-        function subscribeUser(registration) {
+        async function syncExistingSubscription(registration) {
+            try {
+                const existingSubscription = await registration.pushManager.getSubscription();
+                if (existingSubscription) {
+                    await sendSubscriptionToBackEnd(existingSubscription);
+                    return existingSubscription;
+                }
+
+                if (Notification.permission === 'granted') {
+                    return await subscribeUser(registration);
+                }
+            } catch (error) {
+                console.error('Push subscription sync failed:', error);
+            }
+            return null;
+        }
+
+        async function subscribeUser(registration) {
             const subscribeOptions = {
                 userVisibleOnly: true,
                 applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
             };
 
-            registration.pushManager.subscribe(subscribeOptions)
-                .then(function (pushSubscription) {
-                    console.log('Received PushSubscription:', JSON.stringify(pushSubscription));
-                    sendSubscriptionToBackEnd(pushSubscription);
-                })
-                .catch(function (err) { // Agar xato bo'lsa, konsolga chiqarish
-                    console.log('Subscription failed: ', err);
-                });
+            try {
+                const existingSubscription = await registration.pushManager.getSubscription();
+                if (existingSubscription) {
+                    await sendSubscriptionToBackEnd(existingSubscription);
+                    return existingSubscription;
+                }
+
+                const pushSubscription = await registration.pushManager.subscribe(subscribeOptions);
+                console.log('Received PushSubscription:', JSON.stringify(pushSubscription));
+                await sendSubscriptionToBackEnd(pushSubscription);
+                return pushSubscription;
+            } catch (err) {
+                console.log('Subscription failed: ', err);
+                return null;
+            }
         }
 
         function sendSubscriptionToBackEnd(subscription) {
-            fetch('/api/push/subscribe', {
+            const payload = typeof subscription.toJSON === 'function'
+                ? subscription.toJSON()
+                : subscription;
+
+            return fetch('/api/push/subscribe', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(subscription)
+                body: JSON.stringify(payload)
             })
                 .then(function (response) {
                     if (!response.ok) {
@@ -1037,15 +1063,13 @@
                     return response.json();
                 })
                 .then(function (responseData) {
-                    if (responseData.success) {
-                        // Subscription sent successfully
-                    }
+                    return responseData;
                 })
                 .catch(function (error) {
                     console.error('Error sending subscription to backend:', error);
+                    throw error;
                 });
         }
-
         // PWA Install Logic
         let deferredPrompt;
         const installBtn = document.getElementById('install-btn');

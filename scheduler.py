@@ -11,7 +11,7 @@ from datetime import datetime
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from ai_generator import generate_post_for_seo
+from ai_generator import generate_post_for_seo, get_last_ai_error
 from config import CATEGORIES, SITE_URL, TIMEZONE
 
 # 80/20 QOIDASI BO'YICHA MAVZULAR
@@ -204,10 +204,12 @@ O'qish vaqti: {new_post.reading_time} daqiqa
 
                 return True
 
+            ai_error_detail = get_last_ai_error() or "Noma'lum AI xatosi"
             error_msg = (
                 "Post generatsiya qilishda xatolik yuz berdi "
                 "(AI javob bermadi yoki xato qaytardi).\n"
-                f"Mavzu: {selected_topic}"
+                f"Mavzu: {selected_topic}\n"
+                f"Sabab: {ai_error_detail}"
             )
             print(error_msg)
             try:
