@@ -74,11 +74,22 @@ def get_ai_response(user_message):
         current_date = datetime.now().strftime("%Y-%m-%d")
         dynamic_prompt = f"{SYSTEM_PROMPT}\nBugungi sana: {current_date}"
         
-        chat = model.start_chat(history=[
-            {"role": "user", "parts": [dynamic_prompt]}
-        ])
-        response = chat.send_message(user_message)
-        return response.text
+        try:
+            chat = model.start_chat(history=[
+                {"role": "user", "parts": [dynamic_prompt]}
+            ])
+            response = chat.send_message(user_message)
+            return response.text
+        except Exception as primary_error:
+            print(f"⚠️ Primary model failed: {primary_error}. Trying backup model...")
+            from config import GEMINI_MODEL_BACKUP
+            backup_model = genai.GenerativeModel(GEMINI_MODEL_BACKUP)
+            chat = backup_model.start_chat(history=[
+                {"role": "user", "parts": [dynamic_prompt]}
+            ])
+            response = chat.send_message(user_message)
+            return response.text
+            
     except Exception as e:
         print(f"❌ Gemini AI Error: {e}")
         return "Uzr, hozirda serverda xatolik yuz berdi. Birozdan so'ng urinib ko'ring."
