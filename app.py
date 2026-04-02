@@ -355,6 +355,17 @@ class Order(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
 
+class TelegramUser(db.Model):
+    """Bot bilan muloqot qilgan foydalanuvchilar (marketing uchun)"""
+    id = db.Column(db.Integer, primary_key=True)
+    tg_id = db.Column(db.BigInteger, unique=True, nullable=False)
+    username = db.Column(db.String(100), nullable=True)
+    full_name = db.Column(db.String(150), nullable=True)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    last_interaction = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+    
+    def __repr__(self):
+        return f'<TelegramUser {self.tg_id}>'
 
 class Portfolio(db.Model):
     """Portfolio loyihalar modeli (SEO-optimized)"""

@@ -35,6 +35,9 @@ MUHIM QOIDALAR:
 4. Agar TrendoAI xizmatlari haqida so'rashsa - to'liq ma'lumot ber.
 5. Savol noaniq bo'lsa - aniqlashtirish so'ra.
 6. Javobni strukturali qil: raqamlar, punktlar, sarlavhalar ishlat.
+7. MIJOZ BUYURTMA BERSA: Agar suhbat davomida foydalanuvchi o'z ismini va telefon raqamini (+998...) qilsa, javobingning eng oxirida FAQAT ushbu formatda maxfiy kod qoldir:
+   [LEAD: Ism, Nomer, Xizmat]
+   Misol: [LEAD: Ali, +998901234567, Web Sayt yaratish]
 
 TRENDOAI HAQIDA:
 - Kompaniya: TrendoAI - O'zbekistondagi texnologiya va AI yechimlari kompaniyasi
@@ -165,8 +168,56 @@ Yoki menga "Web sayt kerak" deb yozing.
 
 @bot.message_handler(func=lambda message: True) if bot else lambda f: f
 def echo_all(message):
+    import re
+    from config import TELEGRAM_ADMIN_ID
+    
+    # 1. Foydalanuvchini bazaga qo'shish yoki yangilash
+    try:
+        from app import app, db, TelegramUser, Order
+        with app.app_context():
+            user = TelegramUser.query.filter_by(tg_id=message.from_user.id).first()
+            if not user:
+                user = TelegramUser(
+                    tg_id=message.from_user.id,
+                    username=message.from_user.username,
+                    full_name=f"{message.from_user.first_name or ''} {message.from_user.last_name or ''}".strip()
+                )
+                db.session.add(user)
+            else:
+                user.last_interaction = db.func.now()
+            db.session.commit()
+    except Exception as e:
+        print(f"User track error: {e}")
+
     bot.send_chat_action(message.chat.id, 'typing')
     ai_reply = get_ai_response(message.text)
+    
+    # 2. Lead (Mijoz) ma'lumotlarini ajratib olish
+    lead_match = re.search(r'\[LEAD:\s*(.*?),\s*(.*?),\s*(.*?)\]', ai_reply)
+    if lead_match:
+        name, phone, service = lead_match.groups()
+        # Maxfiy kodni foydalanuvchiga bormaydigan javobdan o'chirib tashlaymiz
+        ai_reply = ai_reply.replace(lead_match.group(0), "").strip()
+        
+        try:
+            with app.app_context():
+                new_order = Order(
+                    name=name,
+                    phone=phone,
+                    service="telegram_bot_lead",
+                    service_name=service,
+                    message=f"Telegram Chatbot orqali qabul qilindi. Mijoz: @{message.from_user.username or message.from_user.id}"
+                )
+                db.session.add(new_order)
+                db.session.commit()
+                
+                # Adminga xabar yuborish
+                if TELEGRAM_ADMIN_ID:
+                    admin_msg = f"🔥 **YANGI MIJOZ (Bot orqali)**\n\n👤 **Ism:** {name}\n📞 **Raqam:** {phone}\n🛠 **Xizmat:** {service}\n💬 **Chatdan usti:** @{message.from_user.username or message.from_user.id}"
+                    bot.send_message(TELEGRAM_ADMIN_ID, admin_msg, parse_mode='Markdown')
+                    print(f"✅ Lead qabul qilindi va adminga yuborildi: {phone}")
+        except Exception as e:
+            print(f"Failed to process lead: {e}")
     
     try:
         bot.reply_to(message, ai_reply, parse_mode='Markdown')
