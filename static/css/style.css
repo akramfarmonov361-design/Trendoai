@@ -59,21 +59,21 @@
 
 /* ========== LIGHT MODE ========== */
 [data-theme="light"] {
-    --bg-dark: #f8fafc;
+    --bg-dark: #f0f4f8;
     --bg-card: #ffffff;
-    --bg-elevated: #f1f5f9;
-    --text-primary: #1e293b;
-    --text-secondary: #475569;
-    --text-muted: #94a3b8;
-    --border: rgba(0, 0, 0, 0.08);
-    --border-light: rgba(0, 0, 0, 0.12);
-    --glass: rgba(255, 255, 255, 0.8);
-    --glass-border: rgba(0, 0, 0, 0.1);
-    --gradient-hero: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
-    --gradient-glow: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%);
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.12);
-    --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
+    --bg-elevated: #f8fafc;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --border: rgba(0, 0, 0, 0.1);
+    --border-light: rgba(0, 0, 0, 0.15);
+    --glass: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --gradient-hero: linear-gradient(135deg, #e0e7ff 0%, #fce7f3 50%, #fef3c7 100%);
+    --gradient-glow: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.2) 0%, transparent 50%);
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.1);
 }
 
 /* Theme Toggle Button */
@@ -127,6 +127,8 @@
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    width: 100%;
 }
 
 body {
@@ -136,6 +138,7 @@ body {
     line-height: 1.7;
     min-height: 100vh;
     overflow-x: hidden;
+    width: 100%;
 }
 
 /* Background Glow Effect */
@@ -445,6 +448,7 @@ main {
     display: flex;
     justify-content: center;
     gap: 60px;
+    flex-wrap: wrap;
 }
 
 .hero-stat {
@@ -861,6 +865,7 @@ main {
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -2299,7 +2304,7 @@ footer {
     }
 
     .logo-text {
-        font-size: 1.1rem;
+        font-size: 1.3rem;
     }
 
     /* ========== HAMBURGER MENU BUTTON ========== */
@@ -2309,8 +2314,8 @@ footer {
         justify-content: center;
         align-items: center;
         gap: 5px;
-        width: 42px;
-        height: 42px;
+        width: 40px;
+        height: 40px;
         background: var(--bg-elevated);
         border: 1px solid var(--border);
         border-radius: var(--radius-sm);
@@ -2326,7 +2331,7 @@ footer {
     }
 
     .hamburger-line {
-        width: 22px;
+        width: 24px;
         height: 2.5px;
         background: var(--text-primary);
         border-radius: 2px;
@@ -2377,8 +2382,9 @@ footer {
     }
 
     nav a {
-        padding: 14px 16px;
-        font-size: 1rem;
+        padding: 16px 18px;
+        font-size: 1.1rem;
+        font-weight: 700;
         border-radius: var(--radius-md);
         background: var(--bg-elevated);
         text-align: center;
@@ -2393,43 +2399,51 @@ footer {
         color: white;
     }
 
-    /* Hide social icons in header on mobile - they're in footer */
-    .social-icons {
+    /* Hide social links in header on mobile - keep utility buttons */
+    .social-icons > a.social-icon {
         display: none !important;
     }
 
+    .social-icons {
+        margin-left: auto;
+        margin-right: 10px;
+        order: 1;
+    }
+
     .hero {
-        padding: 20px 16px;
-        margin-bottom: 12px;
+        padding: 24px 16px;
+        margin-bottom: 16px;
         border-radius: var(--radius-lg);
     }
 
     .hero h1 {
-        font-size: 1.3rem;
-        margin-bottom: 6px;
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+        line-height: 1.3;
     }
 
     .hero-subtitle {
-        font-size: 0.85rem;
-        margin-bottom: 12px;
+        font-size: 1rem;
+        margin-bottom: 16px;
     }
 
     .hero-stats {
         flex-direction: row;
+        flex-wrap: wrap;
         gap: 16px;
         justify-content: center;
     }
 
     .hero-stat .stat-value {
-        font-size: 1.3rem;
+        font-size: 1.6rem;
     }
 
     .hero-stat .stat-label {
-        font-size: 0.65rem;
+        font-size: 0.75rem;
     }
 
     main {
-        padding: 0 8px;
+        padding: 0 12px;
     }
 
     .posts-section,
@@ -2466,25 +2480,25 @@ footer {
     /* Portfolio - 2 columns on mobile like product catalog */
     .portfolio-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        gap: 12px;
     }
 
     .portfolio-card {
-        padding: 12px;
+        padding: 16px;
     }
 
     .portfolio-card .card-emoji {
-        font-size: 2rem;
-        margin-bottom: 10px;
+        font-size: 2.2rem;
+        margin-bottom: 12px;
     }
 
     .portfolio-card h3 {
-        font-size: 0.85rem;
-        margin-bottom: 6px;
+        font-size: 1rem;
+        margin-bottom: 8px;
     }
 
     .portfolio-card p {
-        font-size: 0.7rem;
+        font-size: 0.85rem;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         line-clamp: 2;
@@ -2497,26 +2511,25 @@ footer {
     }
 
     .portfolio-card .card-link {
-        padding: 8px 12px;
-        font-size: 0.75rem;
+        padding: 10px 16px;
+        font-size: 0.9rem;
     }
 
     .stats-grid {
         grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
+        gap: 16px;
     }
 
     .stat-number {
-        font-size: 2rem;
+        font-size: 2.2rem;
     }
 
     .article-header h1 {
-        font-size: 1.15rem;
-        /* Even smaller to fit very high */
+        font-size: 1.6rem;
     }
 
     .article-content {
-        font-size: 1rem;
+        font-size: 1.15rem;
     }
 
     .search-form {
@@ -2552,31 +2565,31 @@ footer {
     }
 
     .cta-section h3 {
-        font-size: 1.4rem;
+        font-size: 1.6rem;
     }
 
     .cta-buttons {
         flex-direction: column;
-        gap: 12px;
+        gap: 16px;
     }
 
     .cta-button {
         width: 100%;
         text-align: center;
-        padding: 14px 20px;
-        font-size: 1rem;
+        padding: 16px 20px;
+        font-size: 1.15rem;
     }
 
     .about-hero,
     .services-hero,
     .portfolio-hero {
-        padding: 30px 16px;
+        padding: 40px 20px;
     }
 
     .about-hero h2,
     .services-hero h2,
     .portfolio-hero h1 {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
     }
 
     footer {
