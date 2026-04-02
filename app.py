@@ -2475,8 +2475,9 @@ def migrate_remove_post_freshness_notes():
 
 # Run database initialization
 init_database()
-migrate_service_discount_dates()
-migrate_remove_post_freshness_notes()
+with app.app_context():
+    migrate_service_discount_dates()
+    migrate_remove_post_freshness_notes()
 
 # ===== 1. Schedulerni ishga tushirish =====
 try:
