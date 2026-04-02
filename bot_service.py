@@ -25,38 +25,48 @@ bot_blueprint = Blueprint('bot', __name__)
 SYSTEM_PROMPT = """
 Sen TrendoAI kompaniyasining professional AI assistentisan.
 Isming: TrendoBot.
-Vazifang: Foydalanuvchilarga texnologiya, AI, dasturlash va TrendoAI xizmatlari haqida to'liq va tushunarli javoblar berish.
+Sen haqiqiy inson kabi samimiy, do'stona va professional gaplashassan.
+Vazifang: Foydalanuvchilarga texnologiya, AI, dasturlash va TrendoAI xizmatlari haqida yordam berish, shuningdek ularni mijozga aylantirish.
 Muloqot tili: O'zbek tili (Lotin yozuvi).
 
-MUHIM QOIDALAR:
-1. Javoblaringni BATAFSIL va TUSHUNARLI yoz - qisqa emas!
-2. Har doim misollar va tushuntirishlar bilan javob ber.
-3. Agar dasturlash savoli bo'lsa - kod misoli bilan javob ber.
-4. Agar TrendoAI xizmatlari haqida so'rashsa - to'liq ma'lumot ber.
-5. Savol noaniq bo'lsa - aniqlashtirish so'ra.
-6. Javobni strukturali qil: raqamlar, punktlar, sarlavhalar ishlat.
-7. MIJOZ BUYURTMA BERSA: Agar suhbat davomida foydalanuvchi o'z ismini va telefon raqamini (+998...) qilsa, javobingning eng oxirida FAQAT ushbu formatda maxfiy kod qoldir:
+SENING XULQ-ATVORING:
+1. Doimo samimiy va iliq munosabatda bo'l — do'stingga gaplashayotgandek.
+2. Javoblaringni BATAFSIL va TUSHUNARLI yoz — qisqa emas!
+3. Har doim misollar va tushuntirishlar bilan javob ber.
+4. Agar dasturlash savoli bo'lsa — kod misoli bilan javob ber.
+5. Agar TrendoAI xizmatlari haqida so'rashsa — to'liq ma'lumot ber va buyurtma berishga undovchi chiroyli taklif qil.
+6. Suhbatni davom ettirish uchun oxirida savol qo'y yoki taklif ber.
+7. Javobni strukturali qil: emoji, raqamlar, punktlar ishlat.
+8. Agar foydalanuvchi oddiy savol bersa (masalan, "salom", "nima yangilik") — iliq javob ber va xizmatlarimiz haqida qisqacha eslatib o'tib, "Sizga qanday yordam bera olaman?" deb so'ra.
+
+MIJOZ LEAD QOIDASI (MAXFIY!):
+9. Agar suhbat davomida foydalanuvchi o'z ismini VA telefon raqamini (+998...) aytsa, javobingning eng oxirida FAQAT ushbu formatda maxfiy kod qoldir (bu foydalanuvchiga ko'rinmaydi):
    [LEAD: Ism, Nomer, Xizmat]
    Misol: [LEAD: Ali, +998901234567, Web Sayt yaratish]
+10. Agar mijoz buyurtma berishga tayyor bo'lsa lekin raqam bermagan bo'lsa — "Raqamingizni qoldirsangiz, mutaxassisimiz 5 daqiqa ichida aloqaga chiqadi!" deb so'ra.
 
 TRENDOAI HAQIDA:
-- Kompaniya: TrendoAI - O'zbekistondagi texnologiya va AI yechimlari kompaniyasi
+- Kompaniya: TrendoAI — O'zbekistondagi yetakchi IT va AI yechimlari kompaniyasi
 - Sayt: trendoai.uz
-- Telegram: @TrendoAibot
+- Telegram kanal: @TrendoAI
+- Bot: @TrendoAibot
 - Rahbar: Akbarjon
+- Manzil: Toshkent, O'zbekiston
 
 XIZMATLAR VA NARXLAR:
-1. Telegram Botlar - $100 dan
-2. Web Saytlar - $150 dan
-3. AI Chatbotlar - $200 dan
-4. Mini App ishlab chiqish - $300 dan
-5. SMM va Marketing - $50/oy dan
+1. 🤖 Telegram Botlar — $100 dan (Oddiy botlar, menyu botlar, to'lov bilan)
+2. 🌐 Web Saytlar — $150 dan (Landing page, korporativ sayt, internet do'kon)
+3. 🧠 AI Chatbotlar — $200 dan (Sun'iy intellekt bilan ishlaydigan aqlli botlar)
+4. 📱 Mini App ishlab chiqish — $300 dan (Telegram ichida to'liq ilova)
+5. 📢 SMM va Marketing — $50/oy dan (Kontent, dizayn, reklama)
+6. 📊 Data Analitika — $250 dan (Dashboardlar, hisobotlar)
+7. 🎓 AI Ta'lim — $100/guruh (Xodimlar uchun AI trening)
 
 MUHIM KONTEKST:
-- Eng so'nggi AI modellari: Google Gemini 2.5 Flash, OpenAI GPT-4o, Claude 3.5 Sonnet
-- Sen bu yangiliklardan xabardorsan
+- Eng so'nggi AI modellari: Google Gemini 2.5 Flash, OpenAI GPT-4o, Claude Sonnet 4
+- Sen bu yangiliklardan xabardorsan va mijozlarga tushuntira olasan
 
-Esla: Javoblar BATAFSIL, TUSHUNARLI va FOYDALI bo'lsin!
+Esla: Sen sotuvchi ham, maslahatchi ham, do'st hamsan. Javoblar FOYDALI, SAMIMIY va PROFESSIONAL bo'lsin!
 """
 
 def get_ai_response(user_message):
@@ -77,44 +87,58 @@ def get_ai_response(user_message):
 def send_welcome(message):
     print(f"🤖 Bot Handler: /start or /help triggered by {message.from_user.id}")
     try:
-        welcome_text = """
-🔥 **Assalomu alaykum!** Men TrendoAI assistentiman.
+        user_name = message.from_user.first_name or "do'stim"
+        welcome_text = f"""
+👋 **Salom, {user_name}!** Men TrendoAI sun'iy intellekt assistentiman.
 
-🤖 **Men sizga yordam bera olaman:**
-• Sun'iy intellekt va AI haqida savollar
-• Dasturlash va kod yozish
-• Web sayt, Telegram bot buyurtma berish
-• Texnologiya yangiliklari
+🧠 **Men bilan xohlagan mavzuda gaplashishingiz mumkin:**
+• _"Telegram bot qancha turadi?"_
+• _"Menga web sayt kerak"_
+• _"Python da loop qanday yoziladi?"_
+• _"AI nima va u qanday ishlaydi?"_
 
-📱 **Quyidagi tugmalardan foydalaning:**
-🌐 Mini App - Saytni Telegramda oching
-📋 Xizmatlar - Narxlar va xizmatlar ro'yxati
+✍️ **Shunchaki pastga xabar yozing — men darhol javob beraman!**
 
-💬 Yoki savolingizni yozing, men javob beraman! 🚀
+⬇️ Yoki quyidagi tugmalardan birini tanlang:
         """
         
-        # Create inline keyboard with Mini App button
+        # Create inline keyboard
         markup = telebot.types.InlineKeyboardMarkup(row_width=2)
+        
+        # AI Chat button - most prominent
+        ai_chat_btn = telebot.types.InlineKeyboardButton(
+            text="💬 AI bilan suhbatlashish",
+            callback_data="ai_chat_start"
+        )
+        
+        # Services button
+        services_btn = telebot.types.InlineKeyboardButton(
+            text="📋 Xizmatlar va Narxlar",
+            callback_data="services"
+        )
         
         # Mini App button
         web_app = telebot.types.WebAppInfo(url="https://trendoai.uz")
         mini_app_btn = telebot.types.InlineKeyboardButton(
-            text="🌐 Mini App", 
+            text="🌐 Saytni ochish",
             web_app=web_app
         )
         
-        # Other buttons
-        services_btn = telebot.types.InlineKeyboardButton(
-            text="📋 Xizmatlar", 
-            callback_data="services"
-        )
-        site_btn = telebot.types.InlineKeyboardButton(
-            text="🔗 Saytga o'tish", 
-            url="https://trendoai.uz"
+        # Contact button
+        contact_btn = telebot.types.InlineKeyboardButton(
+            text="📞 Bog'lanish",
+            callback_data="contact"
         )
         
-        markup.add(mini_app_btn)
-        markup.add(services_btn, site_btn)
+        # Portfolio
+        portfolio_btn = telebot.types.InlineKeyboardButton(
+            text="🎯 Loyihalarimiz",
+            url="https://trendoai.uz/portfolio"
+        )
+
+        markup.add(ai_chat_btn)
+        markup.add(services_btn, mini_app_btn)
+        markup.add(contact_btn, portfolio_btn)
         
         bot.reply_to(message, welcome_text, reply_markup=markup, parse_mode='Markdown')
         print(f"✅ Bot reply sent to {message.from_user.id}")
@@ -126,43 +150,90 @@ def send_welcome(message):
 
 
 # Callback handler for inline buttons
+@bot.callback_query_handler(func=lambda call: call.data == "ai_chat_start") if bot else lambda f: f
+def callback_ai_chat(call):
+    ai_text = """
+🧠 **AI Assistent tayyor!**
+
+Men sizga quyidagi mavzularda yordam bera olaman:
+
+💻 **Dasturlash** — Python, JavaScript, va boshqa tillar
+🤖 **Sun'iy intellekt** — ChatGPT, Gemini, neyrosetlar
+📱 **Loyiha g'oyalari** — Bot, sayt, ilova yaratish
+💡 **Biznes maslahat** — Raqamli marketing, SEO, SMM
+📚 **Ta'lim** — Yangi texnologiyalarni o'rganish
+
+✍️ **Shunchaki savolingizni yozing!**
+_Misol: "Python da bot qanday yoziladi?"_
+    """
+    bot.answer_callback_query(call.id)
+    bot.send_message(call.message.chat.id, ai_text, parse_mode='Markdown')
+
 @bot.callback_query_handler(func=lambda call: call.data == "services") if bot else lambda f: f
 def callback_services(call):
     services_text = """
 🚀 **TrendoAI Xizmatlari va Narxlar:**
 
-🔥 **YANGI! 1-fevralgacha 30% CHEGIRMA:**
-1. 📞 **AI Ovozli Assistent** - Call-markaz o'rniga
-2. ⚙️ **CRM Integratsiya** - Biznes avtomatlashtirish
-3. 🛍️ **Marketpleys Botlar** - Uzum/Wildberries uchun
-4. 📊 **Data Analitika** - Dashboardlar
-5. 🎓 **AI Ta'lim** - Xodimlar uchun trening
+🤖 **Telegram Botlar** — $100 dan
+   _Menyu bot, to'lov bot, sotuv bot_
 
-💼 **ASOSIY XIZMATLAR:**
-6. 📱 **Telegram Botlar** - $100 dan
-7. 🌐 **Web Saytlar** - $150 dan
-8. 🧠 **AI Chatbotlar** - $200 dan
-9. 📢 **SMM Marketing** - $50/oy dan
+🌐 **Web Saytlar** — $150 dan
+   _Landing page, korporativ sayt, do'kon_
 
-📞 Bog'lanish: @Akramjon1984
-🌐 Batafsil: trendoai.uz/services
+🧠 **AI Chatbotlar** — $200 dan
+   _Aqlli assistent, avtomatik javob_
+
+📱 **Mini App** — $300 dan
+   _Telegram ichida to'liq ilova_
+
+📢 **SMM Marketing** — $50/oy dan
+   _Kontent, dizayn, reklama_
+
+📊 **Data Analitika** — $250 dan
+   _Dashboardlar, hisobotlar_
+
+🎓 **AI Ta'lim** — $100/guruh
+   _Xodimlar uchun AI trening_
+
+💬 Buyurtma berish uchun shunchaki menga yozing:
+_"Menga web sayt kerak, raqamim +998..."_
+
+📞 Bevosita bog'lanish: @Akramjon1984
+🌐 Sayt: trendoai.uz
     """
     bot.answer_callback_query(call.id)
     bot.send_message(call.message.chat.id, services_text, parse_mode='Markdown')
 
+@bot.callback_query_handler(func=lambda call: call.data == "contact") if bot else lambda f: f
+def callback_contact(call):
+    contact_text = """
+📞 **Biz bilan bog'laning:**
+
+👤 **Rahbar:** Akbarjon
+📱 **Telegram:** @Akramjon1984
+🌐 **Sayt:** trendoai.uz
+📧 **Email:** admin@trendoai.uz
+
+💬 Yoki shu yerda menga xabar yozing — men AI assistent sifatida har qanday savolingizga javob beraman!
+
+_Raqamingizni qoldirsangiz, mutaxassisimiz 5 daqiqa ichida aloqaga chiqadi!_
+    """
+    bot.answer_callback_query(call.id)
+    bot.send_message(call.message.chat.id, contact_text, parse_mode='Markdown')
 
 @bot.message_handler(commands=['services']) if bot else lambda f: f
 def send_services(message):
     services_text = """
 🚀 **TrendoAI Xizmatlari:**
 
-1. **Telegram Botlar:** Biznesingiz uchun mukammal botlar.
-2. **Web Saytlar:** Zamonaviy va tezkor saytlar.
-3. **AI Integratsiya:** Ish jarayonlarini avtomatlashtirish.
-4. **SMM Dizayn:** Brendingizni rivojlantirish.
+🤖 Telegram Botlar — $100 dan
+🌐 Web Saytlar — $150 dan
+🧠 AI Chatbotlar — $200 dan
+📱 Mini App — $300 dan
+📢 SMM Marketing — $50/oy dan
 
-Buyurtma berish uchun saytimizga o'ting: trendoai.uz/services
-Yoki menga "Web sayt kerak" deb yozing.
+💬 Buyurtma berish uchun menga "Web sayt kerak" deb yozing.
+📞 Yoki @Akramjon1984 ga murojaat qiling.
     """
     bot.reply_to(message, services_text, parse_mode='Markdown')
 
