@@ -1463,6 +1463,64 @@ QOIDALAR:
         fallback = "Uzr, hozircha men javob qaytara olmayapman. Telegram orqali yozing: @trendoai"
         return jsonify({'success': False, 'reply': fallback, 'response': fallback, 'error': str(e)}), 500
 
+import asyncio
+import io
+import wave
+import base64
+
+async def _generate_native_audio_chunks(api_key, context_text):
+    try:
+        from google import genai as new_genai
+        from google.genai import types as new_types
+    except ImportError:
+        print("google-genai not installed")
+        return []
+        
+    client = new_genai.Client(api_key=api_key)
+    model = 'gemini-3.1-flash-live-preview'
+    config = new_types.LiveConnectConfig(
+        response_modalities=[new_types.Modality.AUDIO],
+        speech_config=new_types.SpeechConfig(
+            voice_config=new_types.VoiceConfig(
+                prebuilt_voice_config=new_types.PrebuiltVoiceConfig(voice_name='Puck')
+            )
+        )
+    )
+    audio_chunks = []
+    try:
+        async with client.aio.live.connect(model=model, config=config) as session:
+            await session.send(input=context_text, end_of_turn=True)
+            async for response in session.receive():
+                server_content = response.server_content
+                if server_content is not None:
+                    model_turn = server_content.model_turn
+                    if model_turn is not None:
+                        for part in model_turn.parts:
+                            if part.inline_data:
+                                audio_chunks.append(part.inline_data.data)
+    except Exception as e:
+        print(f"Native audio live connect error: {e}")
+    return audio_chunks
+
+def get_audio_base64_from_text(api_key, text):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    chunks = loop.run_until_complete(_generate_native_audio_chunks(api_key, text))
+    loop.close()
+    
+    if not chunks:
+        return None
+        
+    wav_io = io.BytesIO()
+    with wave.open(wav_io, 'wb') as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(2)
+        wav_file.setframerate(24000)
+        for chunk in chunks:
+            wav_file.writeframes(chunk)
+            
+    return base64.b64encode(wav_io.getvalue()).decode('utf-8')
+
 
 @app.route('/api/chat/audio', methods=['POST'])
 def api_chat_audio():
@@ -1517,13 +1575,17 @@ Javobni matn ko'rinishida yozing."""
             # Javob olish
             response = model.generate_content([system_prompt, uploaded_file])
             
+            # Native Gemini 3.1 Audio generation
+            audio_b64 = get_audio_base64_from_text(api_key, response.text)
+            
             # Faylni o'chirish
             if os.path.exists(temp_audio_path):
                 os.unlink(temp_audio_path)
 
             return jsonify({
                 'success': True,
-                'response': response.text
+                'response': response.text,
+                'audio_base64': audio_b64
             })
         except Exception as inner_e:
             if os.path.exists(temp_audio_path):
