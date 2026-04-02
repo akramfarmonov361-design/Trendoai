@@ -2473,38 +2473,39 @@ def migrate_remove_post_freshness_notes():
         db.session.rollback()
         print(f"WARN: Freshness-note cleanup failed: {e}")
 
-# Run database initialization
-init_database()
-with app.app_context():
-    migrate_service_discount_dates()
-    migrate_remove_post_freshness_notes()
+def _boot_sequence():
+    """Background boot sequence to prevent blocking Gunicorn worker start"""
+    try:
+        # Run database initialization
+        init_database()
+        with app.app_context():
+            migrate_service_discount_dates()
+            migrate_remove_post_freshness_notes()
+            
+        # ===== 1. Schedulerni ishga tushirish =====
+        try:
+            from scheduler import scheduler
+            if not scheduler.running:
+                scheduler.start()
+                jobs = scheduler.get_jobs()
+                print(f"✅ Scheduler ishga tushdi! Joblar soni: {len(jobs)}")
+        except Exception as e:
+            print(f"❌ Scheduler startup error: {e}")
 
-# ===== 1. Schedulerni ishga tushirish =====
-try:
-    from scheduler import scheduler
-    if not scheduler.running:
-        scheduler.start()
-        jobs = scheduler.get_jobs()
-        print(f"✅ Scheduler ishga tushdi! Joblar soni: {len(jobs)}")
-        for job in jobs[:3]:
-            print(f"   📌 {job.name} → keyingi: {job.next_run_time}")
-        if len(jobs) > 3:
-            print(f"   ... va yana {len(jobs) - 3} ta job")
-    else:
-        print("ℹ️ Scheduler allaqachon ishlayapti.")
-except Exception as e:
-    print(f"❌ Scheduler startup error: {e}")
-    import traceback
-    traceback.print_exc()
+        # ===== 2. Bot webhookni ishga tushirish =====
+        try:
+            from bot_service import setup_webhook, bot
+            setup_webhook(app)
+        except Exception as e:
+            print(f"❌ Bot webhook error: {e}")
 
-# ===== 2. Bot webhookni ishga tushirish =====
-try:
-    from bot_service import setup_webhook, bot
-    setup_webhook(app)
-except Exception as e:
-    print(f"❌ Bot webhook error: {e}")
+        print("🚀 TrendoAI xizmatlari ishga tushdi!")
+    except Exception as e:
+        print(f"❌ Boot sequence error: {e}")
 
-print("🚀 TrendoAI xizmatlari ishga tushdi!")
+# Start boot sequence in background thread
+import threading
+threading.Thread(target=_boot_sequence, daemon=True).start()
 
 
 if __name__ == '__main__':
