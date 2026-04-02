@@ -258,17 +258,22 @@ O'qish vaqti: {new_post.reading_time} daqiqa
 
 scheduler = BackgroundScheduler(timezone=TIMEZONE)
 
-for hour in range(6, 23):
-    scheduler.add_job(
-        generate_and_publish_post,
-        "cron",
-        hour=hour,
-        minute=0,
-        id=f"hourly_post_{hour}",
-        name=f"TrendoAI Soatlik Post ({hour}:00)",
-    )
+# Har kuni faqat bitta post chiqarish (soat 09:00 yoki configdagi vaqt)
+try:
+    from config import SEO_POST_HOUR, SEO_POST_MINUTE
+except ImportError:
+    SEO_POST_HOUR, SEO_POST_MINUTE = 9, 0
 
-print("[scheduler] Har kuni 06:00 - 22:00 oralig'ida 17 ta post sozlandi")
+scheduler.add_job(
+    generate_and_publish_post,
+    "cron",
+    hour=SEO_POST_HOUR,
+    minute=SEO_POST_MINUTE,
+    id="daily_seo_post",
+    name=f"TrendoAI Kunlik Post ({SEO_POST_HOUR}:{SEO_POST_MINUTE:02d})",
+)
+
+print(f"[scheduler] Har kuni soat {SEO_POST_HOUR}:{SEO_POST_MINUTE:02d} da 1 ta post chiqishi sozlandi")
 
 
 
