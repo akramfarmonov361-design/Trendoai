@@ -428,6 +428,14 @@
                     class="{% if request.endpoint in ['admin_portfolio', 'admin_portfolio_new', 'admin_portfolio_edit'] %}active{% endif %}">
                     🎨 Portfolio
                 </a>
+                <a href="{{ url_for('admin_bot_orders') }}"
+                    class="{% if request.endpoint == 'admin_bot_orders' %}active{% endif %}">
+                    🤖 Bot Buyurtmalari
+                </a>
+                <a href="{{ url_for('admin_menu') }}"
+                    class="{% if request.endpoint == 'admin_menu' %}active{% endif %}">
+                    📋 Bot Menyusi
+                </a>
                 <a href="{{ url_for('index') }}" target="_blank">
                     🌐 Saytni Ko'rish
                 </a>

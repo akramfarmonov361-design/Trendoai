@@ -1,0 +1,119 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Bot Buyurtmalari - TrendoAI Admin{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1>🤖 Telegram Bot Buyurtmalari</h1>
+    <p>Bu yerda Telegram bot (@TrendoAibot) orqali kelgan menyu buyurtmalarini boshqarishingiz mumkin.</p>
+    <br>
+    
+    <div class="recent-posts">
+        {% if orders %}
+        <table class="posts-table">
+            <thead>
+                <tr>
+                    <th># ID</th>
+                    <th>Mijoz</th>
+                    <th>Telefon</th>
+                    <th>Summa</th>
+                    <th>Status</th>
+                    <th>Vaqt</th>
+                    <th>Harakat</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><strong>{{ order.order_number }}</strong></td>
+                    <td>
+                        {{ order.customer_name }}<br>
+                        <small style="color:var(--gray)">@{{ order.tg_username or order.tg_id }}</small>
+                    </td>
+                    <td>{{ order.phone }}</td>
+                    <td><b>{{ order.total_amount }}</b> so'm</td>
+                    <td>
+                        <span class="status-badge status-{{ order.status }}">
+                            {% if order.status == 'new' %}🆕 Yangi{% endif %}
+                            {% if order.status == 'confirmed' %}✅ Qabul qilindi{% endif %}
+                            {% if order.status == 'preparing' %}👨‍🍳 Tayyorlanmoqda{% endif %}
+                            {% if order.status == 'delivering' %}🛵 Yetkazilmoqda{% endif %}
+                            {% if order.status == 'done' %}🎉 Yetkazildi{% endif %}
+                            {% if order.status == 'cancelled' %}❌ Bekor qilindi{% endif %}
+                        </span>
+                    </td>
+                    <td>{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                    <td>
+                        <select onchange="updateStatus('{{ order.id }}', this.value)" class="status-select">
+                            <option value="">Status o'zgartirish...</option>
+                            <option value="new" {% if order.status == 'new' %}disabled{% endif %}>🆕 Yangi</option>
+                            <option value="confirmed" {% if order.status == 'confirmed' %}disabled{% endif %}>✅ Qabul qilish</option>
+                            <option value="preparing" {% if order.status == 'preparing' %}disabled{% endif %}>👨‍🍳 Tayyorlash</option>
+                            <option value="delivering" {% if order.status == 'delivering' %}disabled{% endif %}>🛵 Yetkazish</option>
+                            <option value="done" {% if order.status == 'done' %}disabled{% endif %}>🎉 Yetkazildi</option>
+                            <option value="cancelled" {% if order.status == 'cancelled' %}disabled{% endif %}>❌ Bekor qilish</option>
+                        </select>
+                        <br>
+                        <button class="btn-sm" style="margin-top:5px; background:var(--primary); color:white" onclick="alert('Manzil:\n{{ order.address }}\nIzoh: {{ order.note }}\nMahsulotlar: {{ order.items_json }}')">Ma'lumot</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="empty-message">Bot orqali tushgan buyurtmalar hozircha yo'q.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .status-new { background: #dbeafe; color: #2563eb; }
+    .status-confirmed { background: #d1fae5; color: #059669; }
+    .status-preparing { background: #fef3c7; color: #d97706; }
+    .status-delivering { background: #e0e7ff; color: #4338ca; }
+    .status-done { background: #dcfce7; color: #166534; }
+    .status-cancelled { background: #fee2e2; color: #dc2626; }
+    
+    .status-select {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid var(--border);
+    }
+</style>
+
+<script>
+function updateStatus(orderId, newStatus) {
+    if(!newStatus) return;
+    
+    if(!confirm("Haqiqatdan ham statusni o'zgartirmoqchimisiz? Mijozga Telegram orqali xabar boradi!")) {
+        return;
+    }
+    
+    fetch('/api/bot-order-status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            order_id: orderId,
+            status: newStatus
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if(data.success) {
+            window.location.reload();
+        } else {
+            alert('Xatolik yuz berdi: ' + data.error);
+        }
+    });
+}
+</script>
+{% endblock %}

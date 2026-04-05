@@ -1,8 +1,11 @@
 import telebot
-import google.generativeai as genai
-from config import TELEGRAM_BOT_TOKEN, GEMINI_API_KEY, GEMINI_MODEL, SITE_URL
+import json
+import re
 from datetime import datetime
-from flask import request, Blueprint
+import google.generativeai as genai
+from flask import Blueprint
+from config import TELEGRAM_BOT_TOKEN, GEMINI_API_KEY, GEMINI_MODEL, SITE_URL, TELEGRAM_ADMIN_ID
+from app import app, db, TelegramUser, Order, MenuItem, MenuCategory, BotOrder
 
 # Configure Gemini
 genai.configure(api_key=GEMINI_API_KEY)
@@ -16,57 +19,29 @@ if TELEGRAM_BOT_TOKEN:
         print("✅ Telegram bot instansiyasi yaratildi.")
     except Exception as e:
         print(f"⚠️ Telegram bot initialization error: {e}")
-else:
-    print("⚠️ TELEGRAM_BOT_TOKEN topilmadi. Bot xizmatlari o'chirildi.")
 
-# Create Blueprint for webhook
 bot_blueprint = Blueprint('bot', __name__)
 
+# --- STATE MACHINE ---
+user_states = {}
+# Structure: { 123456: {'state': 'idle', 'cart': [], 'data': {}} }
+
+def get_user_state(user_id):
+    if user_id not in user_states:
+        user_states[user_id] = {'state': 'idle', 'cart': [], 'data': {}}
+    return user_states[user_id]
+
+def update_user_state(user_id, state):
+    if user_id not in user_states:
+        user_states[user_id] = {'state': 'idle', 'cart': [], 'data': {}}
+    user_states[user_id]['state'] = state
+
+# --- GEMINI PROMPT ---
 SYSTEM_PROMPT = """
 Sen TrendoAI kompaniyasining professional AI assistentisan.
-Isming: TrendoBot.
-Sen haqiqiy inson kabi samimiy, do'stona va professional gaplashassan.
-Vazifang: Foydalanuvchilarga texnologiya, AI, dasturlash va TrendoAI xizmatlari haqida yordam berish, shuningdek ularni mijozga aylantirish.
-Muloqot tili: O'zbek tili (Lotin yozuvi).
-
-SENING XULQ-ATVORING:
-1. Doimo samimiy va iliq munosabatda bo'l — do'stingga gaplashayotgandek.
-2. Javoblaringni BATAFSIL va TUSHUNARLI yoz — qisqa emas!
-3. Har doim misollar va tushuntirishlar bilan javob ber.
-4. Agar dasturlash savoli bo'lsa — kod misoli bilan javob ber.
-5. Agar TrendoAI xizmatlari haqida so'rashsa — to'liq ma'lumot ber va buyurtma berishga undovchi chiroyli taklif qil.
-6. Suhbatni davom ettirish uchun oxirida savol qo'y yoki taklif ber.
-7. Javobni strukturali qil: emoji, raqamlar, punktlar ishlat.
-8. Agar foydalanuvchi oddiy savol bersa (masalan, "salom", "nima yangilik") — iliq javob ber va xizmatlarimiz haqida qisqacha eslatib o'tib, "Sizga qanday yordam bera olaman?" deb so'ra.
-
-MIJOZ LEAD QOIDASI (MAXFIY!):
-9. Agar suhbat davomida foydalanuvchi o'z ismini VA telefon raqamini (+998...) aytsa, javobingning eng oxirida FAQAT ushbu formatda maxfiy kod qoldir (bu foydalanuvchiga ko'rinmaydi):
-   [LEAD: Ism, Nomer, Xizmat]
-   Misol: [LEAD: Ali, +998901234567, Web Sayt yaratish]
-10. Agar mijoz buyurtma berishga tayyor bo'lsa lekin raqam bermagan bo'lsa — "Raqamingizni qoldirsangiz, mutaxassisimiz 5 daqiqa ichida aloqaga chiqadi!" deb so'ra.
-
-TRENDOAI HAQIDA:
-- Kompaniya: TrendoAI — O'zbekistondagi yetakchi IT va AI yechimlari kompaniyasi
-- Sayt: trendoai.uz
-- Telegram kanal: @TrendoAI
-- Bot: @TrendoAibot
-- Rahbar: Akbarjon
-- Manzil: Toshkent, O'zbekiston
-
-XIZMATLAR VA NARXLAR:
-1. 🤖 Telegram Botlar — $100 dan (Oddiy botlar, menyu botlar, to'lov bilan)
-2. 🌐 Web Saytlar — $150 dan (Landing page, korporativ sayt, internet do'kon)
-3. 🧠 AI Chatbotlar — $200 dan (Sun'iy intellekt bilan ishlaydigan aqlli botlar)
-4. 📱 Mini App ishlab chiqish — $300 dan (Telegram ichida to'liq ilova)
-5. 📢 SMM va Marketing — $50/oy dan (Kontent, dizayn, reklama)
-6. 📊 Data Analitika — $250 dan (Dashboardlar, hisobotlar)
-7. 🎓 AI Ta'lim — $100/guruh (Xodimlar uchun AI trening)
-
-MUHIM KONTEKST:
-- Eng so'nggi AI modellari: Google Gemini 2.5 Flash, OpenAI GPT-4o, Claude Sonnet 4
-- Sen bu yangiliklardan xabardorsan va mijozlarga tushuntira olasan
-
-Esla: Sen sotuvchi ham, maslahatchi ham, do'st hamsan. Javoblar FOYDALI, SAMIMIY va PROFESSIONAL bo'lsin!
+Vazifang: Mijozlarga menyudan xarid qilishda yoki IT xizmatlari bo'yicha maslahat berish.
+Agar ular nimadir buyurtma qilmoqchi bo'lishsa, ularga "📋 Menyu" tugmasini bosishni yoki xarid bo'limidan foydalanishni taklif qil.
+O'zbek tilida, professional va samimiy javob ber. Emojilar ishlat!
 """
 
 def get_ai_response(user_message):
@@ -74,193 +49,37 @@ def get_ai_response(user_message):
         current_date = datetime.now().strftime("%Y-%m-%d")
         dynamic_prompt = f"{SYSTEM_PROMPT}\nBugungi sana: {current_date}"
         
-        try:
-            chat = model.start_chat(history=[
-                {"role": "user", "parts": [dynamic_prompt]}
-            ])
-            response = chat.send_message(user_message)
-            return response.text
-        except Exception as primary_error:
-            print(f"⚠️ Primary model failed: {primary_error}. Trying backup model...")
-            from config import GEMINI_MODEL_BACKUP
-            backup_model = genai.GenerativeModel(GEMINI_MODEL_BACKUP)
-            chat = backup_model.start_chat(history=[
-                {"role": "user", "parts": [dynamic_prompt]}
-            ])
-            response = chat.send_message(user_message)
-            return response.text
-            
+        chat = model.start_chat(history=[{"role": "user", "parts": [dynamic_prompt]}])
+        response = chat.send_message(user_message)
+        return response.text
     except Exception as e:
         print(f"❌ Gemini AI Error: {e}")
         return "Uzr, hozirda serverda xatolik yuz berdi. Birozdan so'ng urinib ko'ring."
 
+# --- KEYBOARDS ---
+def get_main_menu():
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    markup.add(
+        telebot.types.KeyboardButton("📋 Menyu"),
+        telebot.types.KeyboardButton("🛒 Savat"),
+        telebot.types.KeyboardButton("💬 AI Assistent"),
+        telebot.types.KeyboardButton("📦 Buyurtmalarim")
+    )
+    return markup
+
+# --- HANDLERS ---
 @bot.message_handler(commands=['start', 'help']) if bot else lambda f: f
 def send_welcome(message):
-    print(f"🤖 Bot Handler: /start or /help triggered by {message.from_user.id}")
-    try:
-        user_name = message.from_user.first_name or "do'stim"
-        welcome_text = f"""
-👋 **Salom, {user_name}!** Men TrendoAI sun'iy intellekt assistentiman.
-
-🧠 **Men bilan xohlagan mavzuda gaplashishingiz mumkin:**
-• _"Telegram bot qancha turadi?"_
-• _"Menga web sayt kerak"_
-• _"Python da loop qanday yoziladi?"_
-• _"AI nima va u qanday ishlaydi?"_
-
-✍️ **Shunchaki pastga xabar yozing — men darhol javob beraman!**
-
-⬇️ Yoki quyidagi tugmalardan birini tanlang:
-        """
-        
-        # Create inline keyboard
-        markup = telebot.types.InlineKeyboardMarkup(row_width=2)
-        
-        # AI Chat button - most prominent
-        ai_chat_btn = telebot.types.InlineKeyboardButton(
-            text="💬 AI bilan suhbatlashish",
-            callback_data="ai_chat_start"
-        )
-        
-        # Services button
-        services_btn = telebot.types.InlineKeyboardButton(
-            text="📋 Xizmatlar va Narxlar",
-            callback_data="services"
-        )
-        
-        # Mini App button
-        web_app = telebot.types.WebAppInfo(url="https://trendoai.uz")
-        mini_app_btn = telebot.types.InlineKeyboardButton(
-            text="🌐 Saytni ochish",
-            web_app=web_app
-        )
-        
-        # Contact button
-        contact_btn = telebot.types.InlineKeyboardButton(
-            text="📞 Bog'lanish",
-            callback_data="contact"
-        )
-        
-        # Portfolio
-        portfolio_btn = telebot.types.InlineKeyboardButton(
-            text="🎯 Loyihalarimiz",
-            url="https://trendoai.uz/portfolio"
-        )
-
-        markup.add(ai_chat_btn)
-        markup.add(services_btn, mini_app_btn)
-        markup.add(contact_btn, portfolio_btn)
-        
-        bot.reply_to(message, welcome_text, reply_markup=markup, parse_mode='Markdown')
-        print(f"✅ Bot reply sent to {message.from_user.id}")
-    except Exception as e:
-        print(f"❌ Bot Handler Error: {e}")
-        import traceback
-        traceback.print_exc()
-
-
-
-# Callback handler for inline buttons
-@bot.callback_query_handler(func=lambda call: call.data == "ai_chat_start") if bot else lambda f: f
-def callback_ai_chat(call):
-    ai_text = """
-🧠 **AI Assistent tayyor!**
-
-Men sizga quyidagi mavzularda yordam bera olaman:
-
-💻 **Dasturlash** — Python, JavaScript, va boshqa tillar
-🤖 **Sun'iy intellekt** — ChatGPT, Gemini, neyrosetlar
-📱 **Loyiha g'oyalari** — Bot, sayt, ilova yaratish
-💡 **Biznes maslahat** — Raqamli marketing, SEO, SMM
-📚 **Ta'lim** — Yangi texnologiyalarni o'rganish
-
-✍️ **Shunchaki savolingizni yozing!**
-_Misol: "Python da bot qanday yoziladi?"_
-    """
-    bot.answer_callback_query(call.id)
-    bot.send_message(call.message.chat.id, ai_text, parse_mode='Markdown')
-
-@bot.callback_query_handler(func=lambda call: call.data == "services") if bot else lambda f: f
-def callback_services(call):
-    services_text = """
-🚀 **TrendoAI Xizmatlari va Narxlar:**
-
-🤖 **Telegram Botlar** — $100 dan
-   _Menyu bot, to'lov bot, sotuv bot_
-
-🌐 **Web Saytlar** — $150 dan
-   _Landing page, korporativ sayt, do'kon_
-
-🧠 **AI Chatbotlar** — $200 dan
-   _Aqlli assistent, avtomatik javob_
-
-📱 **Mini App** — $300 dan
-   _Telegram ichida to'liq ilova_
-
-📢 **SMM Marketing** — $50/oy dan
-   _Kontent, dizayn, reklama_
-
-📊 **Data Analitika** — $250 dan
-   _Dashboardlar, hisobotlar_
-
-🎓 **AI Ta'lim** — $100/guruh
-   _Xodimlar uchun AI trening_
-
-💬 Buyurtma berish uchun shunchaki menga yozing:
-_"Menga web sayt kerak, raqamim +998..."_
-
-📞 Bevosita bog'lanish: @Akramjon1984
-🌐 Sayt: trendoai.uz
-    """
-    bot.answer_callback_query(call.id)
-    bot.send_message(call.message.chat.id, services_text, parse_mode='Markdown')
-
-@bot.callback_query_handler(func=lambda call: call.data == "contact") if bot else lambda f: f
-def callback_contact(call):
-    contact_text = """
-📞 **Biz bilan bog'laning:**
-
-👤 **Rahbar:** Akbarjon
-📱 **Telegram:** @Akramjon1984
-🌐 **Sayt:** trendoai.uz
-📧 **Email:** admin@trendoai.uz
-
-💬 Yoki shu yerda menga xabar yozing — men AI assistent sifatida har qanday savolingizga javob beraman!
-
-_Raqamingizni qoldirsangiz, mutaxassisimiz 5 daqiqa ichida aloqaga chiqadi!_
-    """
-    bot.answer_callback_query(call.id)
-    bot.send_message(call.message.chat.id, contact_text, parse_mode='Markdown')
-
-@bot.message_handler(commands=['services']) if bot else lambda f: f
-def send_services(message):
-    services_text = """
-🚀 **TrendoAI Xizmatlari:**
-
-🤖 Telegram Botlar — $100 dan
-🌐 Web Saytlar — $150 dan
-🧠 AI Chatbotlar — $200 dan
-📱 Mini App — $300 dan
-📢 SMM Marketing — $50/oy dan
-
-💬 Buyurtma berish uchun menga "Web sayt kerak" deb yozing.
-📞 Yoki @Akramjon1984 ga murojaat qiling.
-    """
-    bot.reply_to(message, services_text, parse_mode='Markdown')
-
-@bot.message_handler(func=lambda message: True) if bot else lambda f: f
-def echo_all(message):
-    import re
-    from config import TELEGRAM_ADMIN_ID
+    user_id = message.from_user.id
+    update_user_state(user_id, 'idle')
     
-    # 1. Foydalanuvchini bazaga qo'shish yoki yangilash
+    # Save user to DB
     try:
-        from app import app, db, TelegramUser, Order
         with app.app_context():
-            user = TelegramUser.query.filter_by(tg_id=message.from_user.id).first()
+            user = TelegramUser.query.filter_by(tg_id=user_id).first()
             if not user:
                 user = TelegramUser(
-                    tg_id=message.from_user.id,
+                    tg_id=user_id,
                     username=message.from_user.username,
                     full_name=f"{message.from_user.first_name or ''} {message.from_user.last_name or ''}".strip()
                 )
@@ -269,69 +88,253 @@ def echo_all(message):
                 user.last_interaction = db.func.now()
             db.session.commit()
     except Exception as e:
-        print(f"User track error: {e}")
+        print(f"Error saving user: {e}")
 
-    bot.send_chat_action(message.chat.id, 'typing')
-    ai_reply = get_ai_response(message.text)
-    
-    # 2. Lead (Mijoz) ma'lumotlarini ajratib olish
-    lead_match = re.search(r'\[LEAD:\s*(.*?),\s*(.*?),\s*(.*?)\]', ai_reply)
-    if lead_match:
-        name, phone, service = lead_match.groups()
-        # Maxfiy kodni foydalanuvchiga bormaydigan javobdan o'chirib tashlaymiz
-        ai_reply = ai_reply.replace(lead_match.group(0), "").strip()
+    welcome_text = f"👋 Salom, {message.from_user.first_name}! TrendoAI botiga xush kelibsiz.\n\nMenyudan mahsulot tanlashingiz yoki AI assistentim bilan suhbatlashishingiz mumkin."
+    bot.send_message(message.chat.id, welcome_text, reply_markup=get_main_menu())
+
+@bot.message_handler(func=lambda message: message.text == "📋 Menyu") if bot else lambda f: f
+def show_categories(message):
+    update_user_state(message.from_user.id, 'idle')
+    with app.app_context():
+        cats = MenuCategory.query.filter_by(is_active=True).order_by(MenuCategory.order_index).all()
+        markup = telebot.types.InlineKeyboardMarkup(row_width=2)
         
-        try:
-            with app.app_context():
-                new_order = Order(
-                    name=name,
-                    phone=phone,
-                    service="telegram_bot_lead",
-                    service_name=service,
-                    message=f"Telegram Chatbot orqali qabul qilindi. Mijoz: @{message.from_user.username or message.from_user.id}"
-                )
-                db.session.add(new_order)
-                db.session.commit()
-                
-                # Adminga xabar yuborish
-                if TELEGRAM_ADMIN_ID:
-                    admin_msg = f"🔥 **YANGI MIJOZ (Bot orqali)**\n\n👤 **Ism:** {name}\n📞 **Raqam:** {phone}\n🛠 **Xizmat:** {service}\n💬 **Chatdan usti:** @{message.from_user.username or message.from_user.id}"
-                    bot.send_message(TELEGRAM_ADMIN_ID, admin_msg, parse_mode='Markdown')
-                    print(f"✅ Lead qabul qilindi va adminga yuborildi: {phone}")
-        except Exception as e:
-            print(f"Failed to process lead: {e}")
+        for cat in cats:
+            markup.add(telebot.types.InlineKeyboardButton(f"{cat.emoji} {cat.name}", callback_data=f"cat_{cat.id}"))
+            
+        bot.send_message(message.chat.id, "Kategoriyalardan birini tanlang:", reply_markup=markup)
+
+@bot.message_handler(func=lambda message: message.text == "🛒 Savat") if bot else lambda f: f
+def show_cart(message):
+    user_state = get_user_state(message.from_user.id)
+    cart = user_state['cart']
     
-    try:
+    if not cart:
+        bot.send_message(message.chat.id, "🛒 Savatingiz bo'sh. Marhamat, menyudan mahsulot tanlang.")
+        return
+        
+    total = sum([item['price'] * item['qty'] for item in cart])
+    text = "🛒 **Sizning savatingiz:**\n\n"
+    for i, item in enumerate(cart):
+        text += f"{i+1}. {item['name']} x {item['qty']} = {item['price'] * item['qty']} so'm\n"
+        
+    text += f"\n💰 **Jami: {total} so'm**"
+    
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.add(telebot.types.InlineKeyboardButton("🗑 Savatni tozalash", callback_data="clear_cart"))
+    markup.add(telebot.types.InlineKeyboardButton("✅ Buyurtma berish", callback_data="checkout"))
+    
+    bot.send_message(message.chat.id, text, parse_mode='Markdown', reply_markup=markup)
+
+@bot.message_handler(func=lambda message: message.text == "📦 Buyurtmalarim") if bot else lambda f: f
+def my_orders(message):
+    with app.app_context():
+        orders = BotOrder.query.filter_by(tg_id=message.from_user.id).order_by(BotOrder.created_at.desc()).limit(5).all()
+        if not orders:
+            bot.send_message(message.chat.id, "Sizda hozircha buyurtmalar yo'q.")
+            return
+            
+        text = "📦 **So'nggi buyurtmalaringiz:**\n\n"
+        for o in orders:
+            text += f"🔖 #{o.order_number} — {o.total_amount} so'm\nStatus: {o.status}\n\n"
+        bot.send_message(message.chat.id, text, parse_mode='Markdown')
+
+@bot.message_handler(func=lambda message: message.text == "💬 AI Assistent") if bot else lambda f: f
+def ai_assistant_mode(message):
+    update_user_state(message.from_user.id, 'ai_chat')
+    bot.send_message(message.chat.id, "🤖 AI Assistent holatiga o'tdingiz. Menga savolingizni yozib qoldiring.")
+
+# --- CALLBACK HANDLERS ---
+@bot.callback_query_handler(func=lambda call: call.data.startswith('cat_')) if bot else lambda f: f
+def category_clicked(call):
+    cat_id = int(call.data.split('_')[1])
+    with app.app_context():
+        cat = MenuCategory.query.get(cat_id)
+        items = MenuItem.query.filter_by(category=cat.name, is_available=True).order_by(MenuItem.order_index).all()
+        
+        if not items:
+            bot.answer_callback_query(call.id, "Bu kategoriyada mahsulot yo'q.")
+            return
+            
+        markup = telebot.types.InlineKeyboardMarkup(row_width=1)
+        for item in items:
+            markup.add(telebot.types.InlineKeyboardButton(f"{item.emoji} {item.name} - {item.price} so'm", callback_data=f"item_{item.id}"))
+            
+        bot.edit_message_text(f"📋 **{cat.name}** bo'limi", call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('item_')) if bot else lambda f: f
+def item_clicked(call):
+    item_id = int(call.data.split('_')[1])
+    with app.app_context():
+        item = MenuItem.query.get(item_id)
+        if not item:
+            bot.answer_callback_query(call.id, "Mahsulot topilmadi.")
+            return
+            
+        text = f"{item.emoji} **{item.name}**\n\nNarxi: {item.price} so'm\n"
+        if item.description:
+            text += f"Ta'rif: {item.description}\n"
+            
+        markup = telebot.types.InlineKeyboardMarkup()
+        markup.add(telebot.types.InlineKeyboardButton("➕ Savatga qo'shish", callback_data=f"add_{item.id}"))
+        markup.add(telebot.types.InlineKeyboardButton("🔙 Orqaga", callback_data="menyu_back"))
+        
+        bot.edit_message_text(text, call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
+
+@bot.callback_query_handler(func=lambda call: call.data == "menyu_back") if bot else lambda f: f
+def menyu_back(call):
+    show_categories(call.message)
+    bot.delete_message(call.message.chat.id, call.message.message_id)
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('add_')) if bot else lambda f: f
+def add_to_cart(call):
+    item_id = int(call.data.split('_')[1])
+    user_state = get_user_state(call.from_user.id)
+    
+    with app.app_context():
+        item = MenuItem.query.get(item_id)
+        if not item:
+            bot.answer_callback_query(call.id, "Xatolik.")
+            return
+            
+        # Check if already in cart
+        found = False
+        for cart_item in user_state['cart']:
+            if cart_item['id'] == item.id:
+                cart_item['qty'] += 1
+                found = True
+                break
+        
+        if not found:
+            user_state['cart'].append({
+                'id': item.id,
+                'name': item.name,
+                'price': item.price,
+                'qty': 1
+            })
+            
+        bot.answer_callback_query(call.id, f"✅ {item.name} savatga qo'shildi!")
+
+@bot.callback_query_handler(func=lambda call: call.data == "clear_cart") if bot else lambda f: f
+def clear_cart(call):
+    user_state = get_user_state(call.from_user.id)
+    user_state['cart'] = []
+    bot.edit_message_text("🗑 Savat tozalandi.", call.message.chat.id, call.message.message_id)
+
+@bot.callback_query_handler(func=lambda call: call.data == "checkout") if bot else lambda f: f
+def checkout_cart(call):
+    user_id = call.from_user.id
+    user_state = get_user_state(user_id)
+    
+    if not user_state['cart']:
+        bot.answer_callback_query(call.id, "Savat bo'sh!")
+        return
+        
+    update_user_state(user_id, 'waiting_name')
+    bot.send_message(call.message.chat.id, "Iltimos, ism va familiyangizni kiriting:", reply_markup=telebot.types.ReplyKeyboardRemove())
+
+# --- ORDER FLOW STATE HANDLER ---
+@bot.message_handler(func=lambda message: True) if bot else lambda f: f
+def handle_all(message):
+    user_id = message.from_user.id
+    user_state = get_user_state(user_id)
+    state = user_state['state']
+    
+    if state == 'waiting_name':
+        user_state['data']['name'] = message.text
+        update_user_state(user_id, 'waiting_phone')
+        
+        markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+        markup.add(telebot.types.KeyboardButton("📱 Raqamni yuborish", request_contact=True))
+        bot.send_message(message.chat.id, "Telefon raqamingizni kiriting yoki pastdagi tugmani bosing:", reply_markup=markup)
+        
+    elif state == 'waiting_phone':
+        if message.contact:
+            user_state['data']['phone'] = message.contact.phone_number
+        else:
+            user_state['data']['phone'] = message.text
+            
+        update_user_state(user_id, 'waiting_address')
+        bot.send_message(message.chat.id, "Yetkazib berish manzilini kiriting (yoki mo'ljal):", reply_markup=telebot.types.ReplyKeyboardRemove())
+        
+    elif state == 'waiting_address':
+        user_state['data']['address'] = message.text
+        
+        # Save order
+        cart = user_state['cart']
+        total = sum([item['price'] * item['qty'] for item in cart])
+        order_num = f"TRD-{datetime.now().strftime('%y%m%d%H%M%S')}"
+        
+        with app.app_context():
+            new_order = BotOrder(
+                order_number=order_num,
+                tg_id=user_id,
+                tg_username=message.from_user.username,
+                customer_name=user_state['data']['name'],
+                phone=user_state['data']['phone'],
+                address=user_state['data']['address'],
+                items_json=json.dumps(cart),
+                total_amount=total
+            )
+            db.session.add(new_order)
+            db.session.commit()
+            
+            # Send to Admin
+            admin_msg = f"🔥 **YANGI BUYURTMA #{order_num}** (Botdan)\n\n"
+            admin_msg += f"👤 Ism: {user_state['data']['name']}\n"
+            admin_msg += f"📞 Tel: {user_state['data']['phone']}\n"
+            admin_msg += f"📍 Manzil: {user_state['data']['address']}\n\n"
+            admin_msg += "🛒 **Savat:**\n"
+            for item in cart:
+                admin_msg += f" - {item['name']} x {item['qty']}\n"
+            admin_msg += f"\n💰 **Jami:** {total} so'm"
+            
+            if TELEGRAM_ADMIN_ID:
+                try:
+                    bot.send_message(TELEGRAM_ADMIN_ID, admin_msg)
+                except:
+                    pass
+        
+        # Reset state
+        user_state['cart'] = []
+        user_state['data'] = {}
+        update_user_state(user_id, 'idle')
+        
+        bot.send_message(message.chat.id, f"✅ Buyurtmangiz muvaffaqiyatli qabul qilindi!\nBuyurtma raqami: {order_num}\n\nTez orada siz bilan bog'lanamiz.", reply_markup=get_main_menu())
+        
+    elif state == 'ai_chat':
+        bot.send_chat_action(message.chat.id, 'typing')
+        ai_reply = get_ai_response(message.text)
         bot.reply_to(message, ai_reply, parse_mode='Markdown')
-    except Exception as e:
+        
+    else:
+        # Default AI Chat Fallback
+        bot.send_chat_action(message.chat.id, 'typing')
+        ai_reply = get_ai_response(message.text)
         try:
-            bot.reply_to(message, ai_reply, parse_mode=None)
-        except Exception as e2:
-            bot.reply_to(message, "Uzr, xatolik yuz berdi.")
+            bot.reply_to(message, ai_reply, parse_mode='Markdown')
+        except:
+            bot.reply_to(message, ai_reply)
+
 
 # ========== WEBHOOK SETUP ==========
 def setup_webhook(app):
-    """Webhook ni sozlash (faqat URL ni Telegramga yuborish)"""
     if not bot:
-        print("⚠️ Bot sozlanmagan, webhook o'rnatilmadi.")
         return
 
     webhook_url = f"{SITE_URL}/webhook"
     
     def _set_hook():
         import time
-        time.sleep(1) # Wait for app to fully start
+        time.sleep(1)
         try:
-            # Eski webhook ni o'chirish
             bot.remove_webhook()
             time.sleep(0.5)
-            
-            # Yangi webhook o'rnatish
             bot.set_webhook(url=webhook_url)
             print(f"✅ Webhook o'rnatildi: {webhook_url}")
         except Exception as e:
-            print(f"⚠️ Webhook o'rnatishda xatolik: {e}")
+            print(f"⚠️ Webhook error: {e}")
 
-    # Run in background thread
     import threading
     threading.Thread(target=_set_hook, daemon=True).start()

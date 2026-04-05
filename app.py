@@ -367,6 +367,43 @@ class TelegramUser(db.Model):
     def __repr__(self):
         return f'<TelegramUser {self.tg_id}>'
 
+class MenuCategory(db.Model):
+    """Menyu kategoriyalari"""
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    emoji = db.Column(db.String(10), default='📋')
+    order_index = db.Column(db.Integer, default=0)
+    is_active = db.Column(db.Boolean, default=True)
+
+class MenuItem(db.Model):
+    """Bot menyu elementlari"""
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    price = db.Column(db.Integer, nullable=False)  # so'mda
+    category = db.Column(db.String(50), default='taom')
+    emoji = db.Column(db.String(10), default='🍽')
+    image_url = db.Column(db.String(500))
+    is_available = db.Column(db.Boolean, default=True)
+    order_index = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+class BotOrder(db.Model):
+    """Telegram bot orqali kelgan menyu buyurtmalari"""
+    id = db.Column(db.Integer, primary_key=True)
+    order_number = db.Column(db.String(20), unique=True)  # #TRD-0001
+    tg_id = db.Column(db.BigInteger, nullable=False)
+    tg_username = db.Column(db.String(100))
+    customer_name = db.Column(db.String(100))
+    phone = db.Column(db.String(20))
+    address = db.Column(db.Text)
+    items_json = db.Column(db.Text)  # JSON: [{"id":1, "name":"...", "qty":2, "price":25000}]
+    total_amount = db.Column(db.Integer, default=0)
+    status = db.Column(db.String(20), default='new')  # new -> confirmed -> preparing -> delivering -> done / cancelled
+    note = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, onupdate=db.func.now())
+
 class Portfolio(db.Model):
     """Portfolio loyihalar modeli (SEO-optimized)"""
     id = db.Column(db.Integer, primary_key=True)
@@ -812,9 +849,93 @@ def admin_dashboard():
                           recent_posts=recent_posts,
                           top_posts=top_posts)
 
+# ========== BOT ADMIN ROUTES ==========
+
+@app.route('/admin/bot-orders')
+@login_required
+def admin_bot_orders():
+    """Bot orqali tushgan menyu buyurtmalarini boshqarish"""
+    orders = BotOrder.query.order_by(BotOrder.created_at.desc()).all()
+    return render_template('admin/bot_orders.html', orders=orders)
+
+@app.route('/api/bot-order-status', methods=['POST'])
+@login_required
+def update_bot_order_status():
+    """Bot buyurtma statusini o'zgartirish (AJAX)"""
+    try:
+        order_id = request.json.get('order_id') or request.form.get('order_id')
+        status = request.json.get('status') or request.form.get('status')
+        order = BotOrder.query.get(order_id)
+        if order:
+            order.status = status
+            db.session.commit()
+            
+            # Mijozga status o'zgargani haqida xabar berish
+            from telegram_poster import bot
+            if bot and order.tg_id:
+                status_text = {
+                    'confirmed': "✅ Qabul qilindi",
+                    'preparing': "👨‍🍳 Tayyorlanmoqda",
+                    'delivering': "🛵 Yetkazilmoqda",
+                    'done': "🎉 Yetkazib berildi",
+                    'cancelled': "❌ Bekor qilindi"
+                }.get(status, status)
+                
+                msg = f"📋 Buyurtma {order.order_number} yangilandi!\n"
+                msg += f"📦 Status: *{status_text}*"
+                try:
+                    bot.send_message(order.tg_id, msg, parse_mode='Markdown')
+                except Exception as e:
+                    print(f"Failed to send status update to customer: {e}")
+            
+            return jsonify({'success': True})
+        return jsonify({'success': False, 'error': 'Order not found'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/admin/menu', methods=['GET', 'POST'])
+@login_required
+def admin_menu():
+    """Menyu boshqaruvi (mahsulotlar va kategoriyalar)"""
+    if request.method == 'POST':
+        action = request.form.get('action')
+        
+        if action == 'add_category':
+            name = request.form.get('name')
+            emoji = request.form.get('emoji', '📋')
+            new_cat = MenuCategory(name=name, emoji=emoji)
+            db.session.add(new_cat)
+            db.session.commit()
+            flash('Kategoriya qo\'shildi', 'success')
+            
+        elif action == 'add_item':
+            name = request.form.get('name')
+            price = int(request.form.get('price', 0))
+            category = request.form.get('category')
+            description = request.form.get('description', '')
+            emoji = request.form.get('emoji', '🍽')
+            new_item = MenuItem(name=name, price=price, category=category, description=description, emoji=emoji)
+            db.session.add(new_item)
+            db.session.commit()
+            flash('Mahsulot qo\'shildi', 'success')
+            
+        elif action == 'delete_item':
+            item_id = request.form.get('item_id')
+            item = MenuItem.query.get(item_id)
+            if item:
+                db.session.delete(item)
+                db.session.commit()
+                flash('Mahsulot o\'chirildi', 'success')
+                
+        return redirect(url_for('admin_menu'))
+
+    items = MenuItem.query.order_by(MenuItem.category, MenuItem.order_index).all()
+    categories = MenuCategory.query.order_by(MenuCategory.order_index).all()
+    return render_template('admin/menu_manage.html', items=items, categories=categories)
 
 
 # ========== SERVICE ADMIN ROUTES ==========
+
 
 @app.route('/admin/services/generate', methods=['POST'])
 @login_required

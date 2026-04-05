@@ -1,0 +1,175 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Bot Menyusi - TrendoAI Admin{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>📋 Bot Menyusi</h1>
+        <button class="btn btn-primary" onclick="document.getElementById('addModal').style.display='block'">+ Yangi Mahsulot</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-cards">
+        <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-info">
+                <span class="stat-value">{{ categories|length }}</span>
+                <span class="stat-label">Kategoriyalar</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🍽</div>
+            <div class="stat-info">
+                <span class="stat-value">{{ items|length }}</span>
+                <span class="stat-label">Jami Mahsulotlar</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Mahsulotlar royxati -->
+        <div class="recent-posts">
+            <h2>🍽 Mahsulotlar ({% if items %}{{ items|length }}{% else %}0{% endif %})</h2>
+            {% if items %}
+            <table class="posts-table">
+                <thead>
+                    <tr>
+                        <th>Nomi</th>
+                        <th>Kategoriya</th>
+                        <th>Narxi</th>
+                        <th>Harakat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.emoji }} <strong>{{ item.name }}</strong></td>
+                        <td><span class="category-tag">{{ item.category }}</span></td>
+                        <td>{{ item.price }} so'm</td>
+                        <td>
+                            <form action="{{ url_for('admin_menu') }}" method="POST" style="display:inline;">
+                                <input type="hidden" name="action" value="delete_item">
+                                <input type="hidden" name="item_id" value="{{ item.id }}">
+                                <button type="submit" class="btn-sm btn-danger" onclick="return confirm('Rostdan ohcirmoqchimisiz?');">O'chirish</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty-message">Mahsulotlar yo'q. Yangi qo'shing!</p>
+            {% endif %}
+        </div>
+
+        <!-- Kategoriyalar -->
+        <div class="recent-posts">
+            <h2>📋 Kategoriyalar ({% if categories %}{{ categories|length }}{% else %}0{% endif %})</h2>
+            
+            <form action="{{ url_for('admin_menu') }}" method="POST" style="margin-bottom: 20px; display: flex; gap: 10px;">
+                <input type="hidden" name="action" value="add_category">
+                <input type="text" name="emoji" placeholder="Emoji (Masalan: 🍕)" required style="width: 80px; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                <input type="text" name="name" placeholder="Kategoriya nomi" required style="flex:1; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Qo'shish</button>
+            </form>
+
+            {% if categories %}
+            <ul style="list-style: none; padding: 0;">
+                {% for cat in categories %}
+                <li style="padding: 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;">
+                    <span>{{ cat.emoji }} {{ cat.name }}</span>
+                    <span class="category-tag">Status: {% if cat.is_active %}Aktiv{% else %}Noaktiv{% endif %}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="empty-message">Kategoriyalar yo'q. Eng yuqoridagidan boshlang!</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Adding Item -->
+<div id="addModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="document.getElementById('addModal').style.display='none'">&times;</span>
+    <h2>Yangi Mahsulot Qo'shish</h2>
+    <form action="{{ url_for('admin_menu') }}" method="POST">
+        <input type="hidden" name="action" value="add_item">
+        
+        <div class="form-group">
+            <label>Nomi</label>
+            <input type="text" name="name" required placeholder="Masalan: Pepperoni Pizza">
+        </div>
+        
+        <div class="form-group">
+            <label>Emoji</label>
+            <input type="text" name="emoji" required value="🍽" placeholder="Masalan: 🍕">
+        </div>
+        
+        <div class="form-group">
+            <label>Kategoriya</label>
+            <select name="category" required>
+                <option value="">Kategoriyani tanlang...</option>
+                {% for cat in categories %}
+                <option value="{{ cat.name }}">{{ cat.emoji }} {{ cat.name }}</option>
+                {% endfor %}
+                <option value="Boshqa">Boshqa</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Narxi (so'mda)</label>
+            <input type="number" name="price" required placeholder="Masalan: 45000">
+        </div>
+        
+        <div class="form-group">
+            <label>Tavsifi (ixtiyoriy)</label>
+            <textarea name="description" rows="3" placeholder="Masalan: Mazali pishloq va pepperoni kolbasasi bilan..." style="min-height: 80px;"></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width:100%">Saqlash</button>
+    </form>
+  </div>
+</div>
+
+<style>
+/* Modal CSS */
+.modal {
+  display: none; 
+  position: fixed; 
+  z-index: 1000; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  overflow: auto; 
+  background-color: rgba(0,0,0,0.4); 
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto; 
+  padding: 30px;
+  border: 1px solid #888;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 16px;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+}
+</style>
+{% endblock %}
