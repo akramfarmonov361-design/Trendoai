@@ -245,7 +245,10 @@ def add_to_cart(call):
 def clear_cart(call):
     user_state = get_user_state(call.from_user.id)
     user_state['cart'] = []
+    user_state['data'] = {}
+    update_user_state(call.from_user.id, 'idle')
     bot.edit_message_text("🗑 Savat tozalandi.", call.message.chat.id, call.message.message_id)
+    bot.send_message(call.message.chat.id, "Asosiy menyuga qaytdingiz.", reply_markup=get_main_menu())
 
 @bot.callback_query_handler(func=lambda call: call.data == "checkout") if bot else lambda f: f
 def checkout_cart(call):
@@ -275,6 +278,10 @@ def handle_all(message):
     state = user_state['state']
     
     if state == 'waiting_name':
+        if not user_state['cart']:
+            update_user_state(user_id, 'idle')
+            bot.send_message(message.chat.id, "⚠️ Savatingiz bo'sh. Avval menyudan xizmat tanlang.", reply_markup=get_main_menu())
+            return
         user_state['data']['name'] = message.text
         update_user_state(user_id, 'waiting_phone')
         
@@ -292,6 +299,10 @@ def handle_all(message):
         bot.send_message(message.chat.id, "Yetkazib berish manzilini kiriting (yoki mo'ljal):", reply_markup=telebot.types.ReplyKeyboardRemove())
         
     elif state == 'waiting_address':
+        if not user_state['cart']:
+            update_user_state(user_id, 'idle')
+            bot.send_message(message.chat.id, "⚠️ Savatingiz bo'sh. Buyurtma bekor qilindi.", reply_markup=get_main_menu())
+            return
         user_state['data']['address'] = message.text
         
         # Save order
