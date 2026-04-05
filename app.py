@@ -2472,6 +2472,37 @@ def facebook_feed():
         SubElement(item, 'g:custom_label_0').text = p.category # Use custom label for filtering
         SubElement(item, 'g:google_product_category').text = "Software > Business & Productivity Software"
 
+    # 3. Add Blog Posts
+    posts = Post.query.filter_by(is_published=True).all()
+    for post in posts:
+        item = SubElement(channel, 'item')
+        
+        SubElement(item, 'g:id').text = f"blog_{post.id}"
+        SubElement(item, 'g:title').text = post.title
+        
+        # Qisqa tavsif Markdown bo'lishi mumkin, shuning uchun biroz tozalaymiz
+        content_desc = post.content[:200].replace('#', '').replace('*', '') + "..." if post.content else "TrendoAI Blog post"
+        SubElement(item, 'g:description').text = content_desc
+        
+        link = f"{SITE_URL}/blog/{post.slug}" if post.slug else f"{SITE_URL}/post/{post.id}"
+        SubElement(item, 'g:link').text = link
+        
+        if post.image_url and post.image_url != 'None':
+            if post.image_url.startswith('http'):
+                 SubElement(item, 'g:image_link').text = post.image_url
+            else:
+                 SubElement(item, 'g:image_link').text = f"{SITE_URL}{post.image_url}"
+        else:
+            SubElement(item, 'g:image_link').text = f"{SITE_URL}/static/img/og-image.png"
+            
+        SubElement(item, 'g:brand').text = "TrendoAI Blog"
+        SubElement(item, 'g:condition').text = "new"
+        SubElement(item, 'g:availability').text = "in stock"
+        
+        SubElement(item, 'g:price').text = "0 UZS"
+        SubElement(item, 'g:custom_label_0').text = "Blog"
+        SubElement(item, 'g:google_product_category').text = "Media > Media Articles"
+
     # Convert to simple string with header
     xml_str = xml.dom.minidom.parseString(tostring(rss)).toprettyxml(indent="   ")
     
