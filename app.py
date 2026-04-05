@@ -3224,6 +3224,47 @@ def seed_portfolio():
         return f"Xatolik: {e}"
 
 
+@app.route('/admin/seed-services')
+def seed_services():
+    """Xizmatlarni SERVICES_DATA dan bazaga qo'shish"""
+    try:
+        import json
+        created_count = 0
+        order_idx = 1
+        
+        for key, data in SERVICES_DATA.items():
+            slug = data.get('key', key)
+            existing = Service.query.filter_by(slug=slug).first()
+            if existing:
+                continue
+                
+            service = Service(
+                slug=slug,
+                title=data.get('title', ''),
+                description=data.get('description', ''),
+                full_description=data.get('full_description', ''),
+                price=data.get('price', ''),
+                icon=data.get('icon', ''),
+                features=json.dumps(data.get('features', [])),
+                meta_desc=data.get('meta_desc', ''),
+                is_active=True,
+                order=order_idx
+            )
+            
+            discount = data.get('discount')
+            if discount:
+                service.discount_percent = discount.get('percent', 0)
+                service.discount_until = discount.get('until', '')
+                
+            db.session.add(service)
+            db.session.commit()
+            created_count += 1
+            order_idx += 1
+
+        return f"✅ {created_count} ta Xizmat muvaffaqiyatli yaratildi! XML Katalogingiz to'liq tayyor bo'ldi 😉"
+    except Exception as e:
+        return f"Xatolik: {e}"
+
 if __name__ == '__main__':
     # Flask ilovasini ishga tushirish
     app.run(debug=True, use_reloader=False, port=5000)
