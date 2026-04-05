@@ -90,8 +90,15 @@ def send_welcome(message):
     except Exception as e:
         print(f"Error saving user: {e}")
 
-    welcome_text = f"👋 Salom, {message.from_user.first_name}! TrendoAI botiga xush kelibsiz.\n\nMenyudan mahsulot tanlashingiz yoki AI assistentim bilan suhbatlashishingiz mumkin."
-    bot.send_message(message.chat.id, welcome_text, reply_markup=get_main_menu())
+    welcome_text = (
+        f"👋 **Salom, {message.from_user.first_name}!** TrendoAI botiga xush kelibsiz.\n\n"
+        f"🚀 **Bu bot orqali siz nimalar qila olasiz?**\n"
+        f"1️⃣ **📋 Menyu:** Bizning xizmatlar yoki mahsulotlarni tanlab, oson buyurtma berasiz.\n"
+        f"2️⃣ **💬 AI Assistent:** Assistent (ChatGPT) bilan suhbatlashasiz — u har qanday savolingizga yordam beradi.\n"
+        f"3️⃣ **📦 Buyurtmalarim:** O'zingizning xarid va statuslaringizni kuzatasiz.\n\n"
+        f"👇 **Pastdagi klaviaturadan tugmalarni tanlang!**"
+    )
+    bot.send_message(message.chat.id, welcome_text, parse_mode='Markdown', reply_markup=get_main_menu())
 
 @bot.message_handler(func=lambda message: message.text == "📋 Menyu") if bot else lambda f: f
 def show_categories(message):
