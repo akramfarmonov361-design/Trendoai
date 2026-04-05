@@ -2750,6 +2750,44 @@ def _boot_sequence():
 import threading
 threading.Thread(target=_boot_sequence, daemon=True).start()
 
+# ========== TEMPORARY SEED ROUTE ==========
+@app.route('/admin/seed-menu')
+@login_required
+def seed_menu():
+    """Vaqtinchalik: Eski menyularni o'chirib TrendoAI ning haqiqiy xizmatlarini qo'shadi."""
+    try:
+        # Eski ma'lumotlarni tozalash
+        MenuItem.query.delete()
+        MenuCategory.query.delete()
+        db.session.commit()
+        
+        # Yangi kategoriyalar
+        cat_bot = MenuCategory(name="🤖 Telegram Botlar", emoji="🤖", order_index=1)
+        cat_web = MenuCategory(name="🌐 Veb-saytlar", emoji="🌐", order_index=2)
+        cat_ai = MenuCategory(name="🧠 AI Xizmatlar", emoji="🧠", order_index=3)
+        cat_smm = MenuCategory(name="📱 SMM & Target", emoji="📱", order_index=4)
+        
+        db.session.add_all([cat_bot, cat_web, cat_ai, cat_smm])
+        db.session.commit()
+
+        # Yangi maxsulotlar
+        items = [
+            MenuItem(name="Do'kon Boti (E-commerce)", price=1500000, category=cat_bot.name, emoji="🛒", description="To'lov tizimi (Payme/Click) ulangan, savat va admin panelga ega to'liq do'kon boti."),
+            MenuItem(name="Katalog / Menyu Bot", price=800000, category=cat_bot.name, emoji="📋", description="Kompaniyangiz xizmatlari va mahsulotlarini ko'rsatish uchun qulay menyu boti."),
+            MenuItem(name="Landing Page (1 betlik sayt)", price=1500000, category=cat_web.name, emoji="📄", description="Mahsulot yoki xizmatingizni sotish uchun zamonaviy va tez ishlaydigan bitta sahifali sayt."),
+            MenuItem(name="Korporativ Veb-sayt", price=3000000, category=cat_web.name, emoji="🏢", description="Kompaniyangiz haqida to'liq ma'lumot beruvchi ko'p sahifali premium sayt."),
+            MenuItem(name="AI Chatbot (Avto-javob)", price=2000000, category=cat_ai.name, emoji="💬", description="Mijozlar savollariga Sun'iy Intellekt orqali 24/7 avtomatik va to'g'ri javob beradigan aqlli bot."),
+            MenuItem(name="SMM (1 oylik yuritish)", price=1500000, category=cat_smm.name, emoji="📈", description="Instagram va Telegram sahifalaringiz uchun postlar, dizaynlar va storislar tayyorlab borish."),
+            MenuItem(name="Target Reklama Sozlash", price=600000, category=cat_smm.name, emoji="🎯", description="Facebook va Instagram orqali sizning aniq maqsadli mijozlaringizga reklamangizni ko'rsatish.")
+        ]
+        
+        db.session.add_all(items)
+        db.session.commit()
+        
+        return "✅ Baza muvaffaqiyatli tozalandi va haqiqiy xizmatlar qo'shildi! <a href='/admin/menu'>Menyu sozlamalariga qaytish</a>"
+    except Exception as e:
+        return f"Xatolik: {e}"
+
 
 if __name__ == '__main__':
     # Flask ilovasini ishga tushirish
