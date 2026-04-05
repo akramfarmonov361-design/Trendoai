@@ -2,7 +2,7 @@
 
 {% block title %}Xizmatlar - TrendoAI{% endblock %}
 
-{% block meta_description %}TrendoAI xizmatlari: AI kontent yaratish, texnologiya konsalting, Telegram bot integratsiya.
+{% block meta_description %}TrendoAI xizmatlari: Telegram botlar, veb-saytlar, AI chatbotlar va target reklama.
 Professional IT xizmatlar O'zbekistonda.{% endblock %}
 {% block canonical_url %}{{ config.SITE_URL }}{% endblock %}
 {% block og_url %}{{ config.SITE_URL }}{% endblock %}
@@ -53,34 +53,160 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
 
 {% block content %}
 <section class="services-hero">
-    <h2>🛠️ Bizning Xizmatlar</h2>
-    <p class="lead">TrendoAI bilan biznesingizni texnologiya orqali rivojlantiring</p>
+    <div class="hero-glow"></div>
+    <h2>🚀 Bizning Xizmatlar</h2>
+    <p class="lead">Biznesingizni texnologiya kuchi bilan yangi bosqichga olib chiqing</p>
 </section>
 
-<div class="services-grid">
-    {% for s in services %}
-    <article class="service-card {% if s.slug == 'ai_content' %}featured{% endif %}">
-        {% if s.slug == 'ai_content' %}<div class="service-badge">⭐ Asosiy</div>{% endif %}
-        <div class="service-icon">{{ s.icon }}</div>
-        <h3>{{ s.title }}</h3>
-        <p>{{ s.description }}</p>
-        <ul class="service-features">
-            {% for feature in s.get_features_list() %}
-            <li>✓ {{ feature }}</li>
-            {% endfor %}
+<!-- ========== HAQIQIY XIZMATLAR ========== -->
+<div class="services-grid-new">
+
+    <!-- 🤖 TELEGRAM BOTLAR -->
+    <article class="service-card-new card-bot" id="telegram-botlar">
+        <div class="card-glow"></div>
+        <div class="card-badge">🔥 Eng ommabop</div>
+        <div class="card-icon">🤖</div>
+        <h3>Telegram Botlar</h3>
+        <p class="card-subtitle">Do'kon, Katalog, Menyu va boshqa botlar</p>
+        <p class="card-desc">Biznesingiz uchun to'liq avtomatlashtirilgan Telegram bot — do'kon, katalog, 
+        to'lov tizimi (Payme/Click), savat va admin panel bilan.</p>
+        
+        <ul class="card-features">
+            <li><span class="check">✓</span> Do'kon boti (E-commerce)</li>
+            <li><span class="check">✓</span> Katalog / Menyu bot</li>
+            <li><span class="check">✓</span> To'lov tizimi integratsiyasi</li>
+            <li><span class="check">✓</span> Admin panel va statistika</li>
+            <li><span class="check">✓</span> 24/7 avtomatik ishlash</li>
         </ul>
-        <div class="service-price">
-            <span>dan</span> <strong>{{ s.price }}</strong>
+        
+        <div class="card-price">
+            <span class="price-label">Narxi:</span>
+            <div class="price-range">
+                <span class="price-from">300,000</span>
+                <span class="price-sep">—</span>
+                <span class="price-to">3,000,000 so'm</span>
+            </div>
+            <span class="price-note">*Loyiha murakkabligiga qarab</span>
         </div>
-        <div class="service-actions-grid">
-            <a href="{{ url_for('order_page') }}?service={{ s.slug }}" class="service-order-btn"
-                onclick="fbq('track', 'AddToCart', {content_ids: ['service_{{ s.slug }}'], content_type: 'product'})">🚀
-                Buyurtma berish</a>
-            <a href="{{ url_for('service_detail', service_key=s.slug) }}" class="service-detail-link">Batafsil ma'lumot
-                →</a>
+        
+        <div class="card-actions">
+            <a href="{{ url_for('order_page') }}?service=telegram_bot" class="btn-order"
+                onclick="typeof fbq!=='undefined' && fbq('track', 'AddToCart', {content_ids: ['service_telegram-bot'], content_type: 'product'})">
+                🚀 Buyurtma berish
+            </a>
+            <a href="https://t.me/TrendoAibot" class="btn-demo" target="_blank">💬 Namuna ko'rish</a>
         </div>
     </article>
-    {% endfor %}
+
+    <!-- 🌐 VEB-SAYTLAR -->
+    <article class="service-card-new card-web" id="veb-saytlar">
+        <div class="card-glow"></div>
+        <div class="card-icon">🌐</div>
+        <h3>Veb-saytlar</h3>
+        <p class="card-subtitle">Landing Page va Korporativ saytlar</p>
+        <p class="card-desc">Zamonaviy dizayn, mobil moslashuvchan, SEO-optimizatsiya qilingan 
+        professional veb-saytlar. Biznesingiz uchun onlayn vitrina.</p>
+        
+        <ul class="card-features">
+            <li><span class="check">✓</span> Landing Page (1 betlik sayt)</li>
+            <li><span class="check">✓</span> Korporativ ko'p sahifali sayt</li>
+            <li><span class="check">✓</span> SEO va Google indeksatsiya</li>
+            <li><span class="check">✓</span> Mobil moslashuvchan dizayn</li>
+            <li><span class="check">✓</span> Hosting va domen sozlash</li>
+        </ul>
+        
+        <div class="card-price">
+            <span class="price-label">Narxi:</span>
+            <div class="price-range">
+                <span class="price-from">500,000</span>
+                <span class="price-sep">—</span>
+                <span class="price-to">3,000,000 so'm</span>
+            </div>
+            <span class="price-note">*Sahifalar soni va murakkablikka qarab</span>
+        </div>
+        
+        <div class="card-actions">
+            <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order"
+                onclick="typeof fbq!=='undefined' && fbq('track', 'AddToCart', {content_ids: ['service_web-site'], content_type: 'product'})">
+                🚀 Buyurtma berish
+            </a>
+            <a href="https://trendoai.uz" class="btn-demo" target="_blank">🔗 Namuna ko'rish</a>
+        </div>
+    </article>
+
+    <!-- 🧠 AI XIZMATLAR -->
+    <article class="service-card-new card-ai" id="ai-xizmatlar">
+        <div class="card-glow"></div>
+        <div class="card-badge badge-ai">🧠 Premium</div>
+        <div class="card-icon">🧠</div>
+        <h3>AI Xizmatlar</h3>
+        <p class="card-subtitle">AI Chatbot va Sun'iy Intellekt yechimlari</p>
+        <p class="card-desc">Mijozlaringizga 24/7 avtomatik javob qaytaruvchi aqlli AI chatbot. 
+        ChatGPT asosida ishlovchi, xatorini bilmaydigan virtual yordamchi.</p>
+        
+        <ul class="card-features">
+            <li><span class="check">✓</span> AI Chatbot (24/7 avto-javob)</li>
+            <li><span class="check">✓</span> ChatGPT / Gemini integratsiya</li>
+            <li><span class="check">✓</span> Kompaniya haqida o'rgatish</li>
+            <li><span class="check">✓</span> Ko'p tilli qo'llab-quvvatlash</li>
+            <li><span class="check">✓</span> Sayt va Telegramga ulash</li>
+        </ul>
+        
+        <div class="card-price">
+            <span class="price-label">Narxi:</span>
+            <div class="price-range">
+                <span class="price-from">1,000,000</span>
+                <span class="price-sep">—</span>
+                <span class="price-to">5,000,000 so'm</span>
+            </div>
+            <span class="price-note">*AI model va funksionallikka qarab</span>
+        </div>
+        
+        <div class="card-actions">
+            <a href="{{ url_for('order_page') }}?service=ai_chatbot" class="btn-order"
+                onclick="typeof fbq!=='undefined' && fbq('track', 'AddToCart', {content_ids: ['service_ai-chatbot'], content_type: 'product'})">
+                🚀 Buyurtma berish
+            </a>
+            <a href="https://t.me/TrendoAibot" class="btn-demo" target="_blank">🤖 AI bilan gaplashing</a>
+        </div>
+    </article>
+
+    <!-- 🎯 TARGET REKLAMA -->
+    <article class="service-card-new card-target" id="target-reklama">
+        <div class="card-glow"></div>
+        <div class="card-icon">🎯</div>
+        <h3>Target Reklama</h3>
+        <p class="card-subtitle">Facebook va Instagram Ads sozlash</p>
+        <p class="card-desc">Aniq maqsadli auditoriyangizga reklamangizni ko'rsating. 
+        Facebook va Instagram orqali eng ko'p haridor topuvchi professional reklama kampaniyalari.</p>
+        
+        <ul class="card-features">
+            <li><span class="check">✓</span> Facebook Ads sozlash</li>
+            <li><span class="check">✓</span> Instagram reklama</li>
+            <li><span class="check">✓</span> Pixel va konversiya sozlash</li>
+            <li><span class="check">✓</span> A/B test va optimallashtirish</li>
+            <li><span class="check">✓</span> Haftalik hisobotlar</li>
+        </ul>
+        
+        <div class="card-price">
+            <span class="price-label">Narxi:</span>
+            <div class="price-range">
+                <span class="price-from">600,000</span>
+                <span class="price-sep">—</span>
+                <span class="price-to">1,000,000 so'm</span>
+            </div>
+            <span class="price-note">*Reklama byudjetisiz</span>
+        </div>
+        
+        <div class="card-actions">
+            <a href="{{ url_for('order_page') }}?service=target_ads" class="btn-order"
+                onclick="typeof fbq!=='undefined' && fbq('track', 'AddToCart', {content_ids: ['service_target-ads'], content_type: 'product'})">
+                🚀 Buyurtma berish
+            </a>
+            <a href="https://t.me/Akramjon1984" class="btn-demo" target="_blank">📞 Maslahat olish</a>
+        </div>
+    </article>
+
 </div>
 
 <!-- Order Form Section -->
@@ -108,20 +234,19 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
                 <label for="service">🛠️ Xizmat turi *</label>
                 <select id="service" name="service" required>
                     <option value="">Tanlang...</option>
-                    <option value="ai_content">🤖 AI Kontent Generatsiya</option>
-                    <option value="telegram_bot">📱 Telegram Bot</option>
-                    <option value="web_site">🌐 Web Sayt</option>
-                    <option value="consulting">💡 IT Konsalting</option>
-                    <option value="smm">📢 SMM Avtomatlashtirish</option>
-                    <option value="ai_chatbot">🤖 AI Chatbot</option>
+                    <option value="telegram_bot">🤖 Telegram Bot</option>
+                    <option value="web_site">🌐 Veb-sayt</option>
+                    <option value="ai_chatbot">🧠 AI Chatbot</option>
+                    <option value="target_ads">🎯 Target Reklama</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="budget">💰 Byudjet</label>
                 <select id="budget" name="budget">
                     <option value="">Tanlang...</option>
-                    <option value="500k-1m">500,000 - 1,000,000 so'm</option>
-                    <option value="1m-3m">1,000,000 - 3,000,000 so'm</option>
+                    <option value="300k-800k">300,000 - 800,000 so'm</option>
+                    <option value="800k-1.5m">800,000 - 1,500,000 so'm</option>
+                    <option value="1.5m-3m">1,500,000 - 3,000,000 so'm</option>
                     <option value="3m-5m">3,000,000 - 5,000,000 so'm</option>
                     <option value="5m+">5,000,000+ so'm</option>
                 </select>
@@ -160,6 +285,20 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
                 }, 500);
             }
         }
+
+        // Animate cards on scroll
+        const cards = document.querySelectorAll('.service-card-new');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, index * 150);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        cards.forEach(card => observer.observe(card));
     });
 
     const form = document.querySelector('.order-form');
@@ -169,7 +308,6 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
             const serviceName = document.getElementById('service').selectedOptions[0]?.text || 'Unknown';
             const catalogId = 'service_' + serviceId.replace('_', '-');
 
-            // Lead/Purchase event for Catalog matching
             fbq('track', 'Purchase', {
                 content_name: serviceName,
                 content_category: 'Service Order',
@@ -179,7 +317,6 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
                 currency: 'UZS'
             });
 
-            // Standard Lead event
             fbq('track', 'Lead', {
                 content_name: serviceName,
                 content_category: 'Service Order'
@@ -189,176 +326,374 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
 </script>
 
 <style>
-    .order-form-section {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xl);
-        padding: 50px;
-        margin-bottom: 40px;
-    }
-
-    .form-header {
+    /* ========== HERO ========== */
+    .services-hero {
         text-align: center;
-        margin-bottom: 40px;
+        padding: 60px 20px 40px;
+        position: relative;
+        overflow: hidden;
+    }
+    .services-hero .hero-glow {
+        position: absolute;
+        top: -50%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+    .services-hero h2 {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+        background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+        z-index: 1;
+    }
+    .services-hero .lead {
+        color: var(--text-secondary);
+        font-size: 1.15rem;
+        position: relative;
+        z-index: 1;
     }
 
-    .form-header h2 {
-        font-size: 2rem;
-        margin-bottom: 12px;
-        background: var(--gradient-text);
+    /* ========== SERVICES GRID ========== */
+    .services-grid-new {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 28px;
+        margin-bottom: 60px;
+    }
+
+    /* ========== CARD STYLES ========== */
+    .service-card-new {
+        position: relative;
+        background: var(--bg-card, #1a1a2e);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 20px;
+        padding: 36px 30px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    .service-card-new.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .service-card-new:hover {
+        transform: translateY(-6px);
+        border-color: rgba(99,102,241,0.3);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    /* Card glows */
+    .card-glow {
+        position: absolute;
+        top: -80px;
+        right: -80px;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        opacity: 0.08;
+        pointer-events: none;
+        transition: opacity 0.4s;
+    }
+    .card-bot .card-glow { background: #6366f1; }
+    .card-web .card-glow { background: #10b981; }
+    .card-ai .card-glow { background: #a855f7; }
+    .card-target .card-glow { background: #f59e0b; }
+
+    .service-card-new:hover .card-glow { opacity: 0.18; }
+
+    /* Badge */
+    .card-badge {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: linear-gradient(135deg, #f59e0b, #ef4444);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 5px 14px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+    }
+    .badge-ai {
+        background: linear-gradient(135deg, #a855f7, #6366f1);
+    }
+
+    /* Icon */
+    .card-icon {
+        font-size: 3rem;
+        margin-bottom: 16px;
+        display: inline-block;
+        animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    /* Text */
+    .service-card-new h3 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: 6px;
+        color: var(--text-primary, #fff);
+    }
+    .card-subtitle {
+        color: var(--text-muted, #888);
+        font-size: 0.9rem;
+        margin-bottom: 14px;
+        font-weight: 500;
+    }
+    .card-desc {
+        color: var(--text-secondary, #aaa);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    /* Features */
+    .card-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 24px;
+    }
+    .card-features li {
+        padding: 6px 0;
+        font-size: 0.9rem;
+        color: var(--text-secondary, #bbb);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .card-features .check {
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+    .card-bot .check { color: #6366f1; }
+    .card-web .check { color: #10b981; }
+    .card-ai .check { color: #a855f7; }
+    .card-target .check { color: #f59e0b; }
+
+    /* Price */
+    .card-price {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 14px;
+        padding: 18px 20px;
+        margin-bottom: 24px;
+        text-align: center;
+    }
+    .price-label {
+        font-size: 0.8rem;
+        color: var(--text-muted, #888);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: block;
+        margin-bottom: 8px;
+    }
+    .price-range {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .price-from {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
+    .price-sep {
+        color: var(--text-muted, #666);
+        font-size: 1.2rem;
+    }
+    .price-to {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary, #fff);
+    }
+    .price-note {
+        display: block;
+        margin-top: 6px;
+        font-size: 0.75rem;
+        color: var(--text-muted, #666);
+        font-style: italic;
+    }
 
+    /* Actions */
+    .card-actions {
+        display: grid;
+        grid-template-columns: 1.6fr 1fr;
+        gap: 10px;
+    }
+    .btn-order {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        color: white;
+        transition: all 0.3s;
+    }
+    .card-bot .btn-order { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+    .card-web .btn-order { background: linear-gradient(135deg, #10b981, #059669); }
+    .card-ai .btn-order { background: linear-gradient(135deg, #a855f7, #7c3aed); }
+    .card-target .btn-order { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+    .btn-order:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(99,102,241,0.35);
+    }
+    .btn-demo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        color: var(--text-secondary, #bbb);
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.04);
+        transition: all 0.3s;
+    }
+    .btn-demo:hover {
+        background: rgba(255,255,255,0.08);
+        color: var(--text-primary, #fff);
+        border-color: rgba(255,255,255,0.2);
+    }
+
+    /* ========== ORDER FORM ========== */
+    .order-form-section {
+        background: var(--bg-card, #1a1a2e);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 20px;
+        padding: 50px;
+        margin-bottom: 40px;
+    }
+    .form-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .form-header h2 {
+        font-size: 2rem;
+        margin-bottom: 12px;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
     .form-header p {
         color: var(--text-secondary);
     }
-
     .order-form {
         max-width: 700px;
         margin: 0 auto;
     }
-
     .form-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20px;
         margin-bottom: 20px;
     }
-
     .form-group {
         display: flex;
         flex-direction: column;
     }
-
     .form-group label {
         margin-bottom: 8px;
         font-weight: 600;
         color: var(--text-primary);
     }
-
     .form-group input,
     .form-group select,
     .form-group textarea {
         padding: 14px 18px;
-        background: var(--bg-elevated);
-        border: 2px solid var(--border);
-        border-radius: var(--radius-md);
+        background: var(--bg-elevated, #0f0f23);
+        border: 2px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
         color: var(--text-primary);
         font-size: 1rem;
         font-family: inherit;
-        transition: var(--transition-smooth);
+        transition: all 0.3s;
     }
-
     .form-group input::placeholder,
     .form-group textarea::placeholder {
         color: var(--text-muted);
     }
-
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
         outline: none;
-        border-color: var(--primary);
+        border-color: #6366f1;
         box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
     }
-
-    .form-group select {
-        cursor: pointer;
-    }
-
+    .form-group select { cursor: pointer; }
     .form-group select option {
-        background: var(--bg-dark);
+        background: var(--bg-dark, #0a0a1a);
         color: var(--text-primary);
     }
-
     .form-group textarea {
         resize: vertical;
         min-height: 120px;
     }
-
     .submit-btn {
         width: 100%;
         padding: 18px;
-        background: var(--gradient-main);
+        background: linear-gradient(135deg, #6366f1, #a855f7);
         color: white;
         border: none;
-        border-radius: var(--radius-md);
+        border-radius: 12px;
         font-size: 1.1rem;
         font-weight: 700;
         font-family: inherit;
         cursor: pointer;
-        transition: var(--transition-smooth);
+        transition: all 0.3s;
         margin-top: 10px;
     }
-
     .submit-btn:hover {
         transform: translateY(-3px);
         box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
     }
 
+    /* ========== CTA SECTION ========== */
+    .cta-section {
+        text-align: center;
+        padding: 50px 20px;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 900px) {
+        .services-grid-new {
+            grid-template-columns: 1fr;
+        }
+        .services-hero h2 { font-size: 2rem; }
+    }
     @media (max-width: 768px) {
-        .order-form-section {
-            padding: 30px 20px;
-        }
-
-        .form-row {
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
-
-        .form-header h2 {
-            font-size: 1.5rem;
-        }
+        .order-form-section { padding: 30px 20px; }
+        .form-row { grid-template-columns: 1fr; gap: 16px; }
+        .form-header h2 { font-size: 1.5rem; }
+        .card-actions { grid-template-columns: 1fr; }
+        .service-card-new { padding: 28px 22px; }
     }
-
-    /* Service Actions Layout */
-    .service-actions-grid {
-        display: grid;
-        grid-template-columns: 1.5fr 1fr;
-        gap: 12px;
-        margin-top: 16px;
-        align-items: center;
-    }
-
-    .service-order-btn {
-        display: block;
-        padding: 12px 16px;
-        background: var(--gradient-main);
-        color: white;
-        text-align: center;
-        border-radius: var(--radius-md);
-        font-weight: 700;
-        font-size: 0.9rem;
-        transition: var(--transition-smooth);
-        text-decoration: none;
-    }
-
-    .service-detail-link {
-        color: var(--primary-light);
-        text-decoration: none;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-align: center;
-        transition: var(--transition-fast);
-    }
-
-    .service-detail-link:hover {
-        text-decoration: underline;
-        opacity: 0.8;
-    }
-
-    .service-order-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
-    }
-
     @media (max-width: 480px) {
-        .service-actions-grid {
-            grid-template-columns: 1fr;
-            gap: 12px;
-        }
+        .services-hero h2 { font-size: 1.6rem; }
+        .price-from, .price-to { font-size: 1.2rem; }
     }
 </style>
 {% endblock %}
