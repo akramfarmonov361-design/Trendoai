@@ -2785,6 +2785,360 @@ def seed_menu():
         return f"Xatolik: {e}"
 
 
+@app.route('/admin/seed-blog')
+def seed_blog():
+    """SEO maqolalarni bazaga qo'shish"""
+    try:
+        articles = [
+            {
+                'title': "Telegram Bot Nima va U Biznesingizga Qanday Foyda Keltiradi?",
+                'topic': "Telegram Bot",
+                'category': "Texnologiya",
+                'keywords': "telegram bot, telegram bot yaratish, biznes bot, do'kon bot, O'zbekiston",
+                'content': """## Telegram Bot — Biznesingizning 24/7 Xodimi
+
+Hozirgi kunda O'zbekistonda **20 milliondan ortiq** inson Telegram'dan foydalanadi. Bu degani — sizning potensial mijozlaringiz aynan shu yerda. Telegram bot esa ularni sizga olib keluvchi eng samarali vositadir.
+
+### Telegram Bot Nima?
+
+Telegram bot — bu avtomatik ravishda foydalanuvchilar bilan muloqot qiladigan dastur. U quyidagi vazifalarni bajaradi:
+
+- **Katalog ko'rsatish** — barcha mahsulot va xizmatlaringizni chiroyli formatda taqdim etish
+- **Buyurtma qabul qilish** — mijoz botdan to'g'ridan-to'g'ri xarid qilishi mumkin
+- **To'lov qabul qilish** — Payme va Click orqali avtomatik to'lov
+- **Mijozlarga xabar yuborish** — aksiyalar, yangiliklar va maxsus takliflar haqida
+- **24/7 ishlash** — dam olish yoki bayram kuni ham mijozlaringizga xizmat ko'rsatadi
+
+### Qaysi bizneslar uchun bot kerak?
+
+**Har qanday biznes** uchun. Masalan:
+- 🍕 Restoranlar va kafelar — menyu va yetkazib berish
+- 👗 Kiyim-kechak do'konlari — katalog va buyurtma
+- 📚 O'quv markazlari — kurslar va ro'yxatdan o'tish
+- 🏥 Klinikalar — qabulga yozilish
+- 🏠 Ko'chmas mulk — e'lonlar va so'rovlar
+
+### TrendoAI bilan bot yaratish
+
+Biz sizga **2-5 kun** ichida to'liq ishlaydigan Telegram bot yaratib beramiz. Narxi **300,000 so'mdan** boshlanadi.
+
+📱 **Hoziroq buyurtma bering:** [Bot orqali bog'laning](https://t.me/TrendoAibot)""",
+            },
+            {
+                'title': "2025-yilda Biznesingizga Veb-sayt Kerakmi? Javob: Ha!",
+                'topic': "Veb-sayt",
+                'category': "Texnologiya",
+                'keywords': "veb sayt yaratish, web site, landing page, korporativ sayt, sayt narxi O'zbekiston",
+                'content': """## Nima Uchun Har Bir Biznesga Veb-sayt Kerak?
+
+Google'da qidiruv qiluvchi har bir inson — bu sizning potensial mijozingiz. Lekin agar sizda veb-sayt bo'lmasa, ular sizni **topa olmaydi**.
+
+### Veb-saytning Biznesga Foydasi
+
+1. **Ishonch yaratadi** — professional saytga ega kompaniyaga odamlar ko'proq ishonadi
+2. **Google'da topilasiz** — SEO orqali bepul mijozlar oqimi
+3. **24/7 vitrina** — saytingiz sizning doimo ochiq do'koningiz
+4. **Raqobatchilardan oldinda** — ko'pchilik O'zbek bizneslar hali sayt qiltirgani yo'q
+5. **Reklamadan samaradorlik** — target reklama faqat sayt bor bo'lsa yaxshi ishlaydi
+
+### Qanday Sayt Turlari Bor?
+
+**Landing Page (1 betlik sayt):**
+- Bitta mahsulot yoki xizmatni sotish uchun
+- Tez yaratiladi (3-5 kun)
+- Narxi: 500,000 so'mdan
+
+**Korporativ Sayt (Ko'p betlik):**
+- Kompaniya haqida to'liq ma'lumot
+- Blog, portfolio, aloqa sahifalari
+- Narxi: 1,500,000 so'mdan
+
+### TrendoAI Bilan Sayt Yaratish
+
+Biz zamonaviy dizayn, mobil moslashuvchanlik va SEO-optimizatsiya bilan professional saytlar yaratamiz.
+
+**Bepul konsultatsiya olish uchun:** [Bog'laning](https://t.me/TrendoAibot)""",
+            },
+            {
+                'title': "AI Chatbot: Mijozlaringizga 24/7 Javob Beruvchi Aqlli Yordamchi",
+                'topic': "AI Chatbot",
+                'category': "Sun'iy Intellekt",
+                'keywords': "ai chatbot, sun'iy intellekt, chatgpt, gemini, biznes uchun ai, avtomatik javob",
+                'content': """## AI Chatbot Nima va Nima Uchun Kerak?
+
+Tasavvur qiling: mijozingiz kechasi soat 2:00 da savol berdi. Siz uxlab yotibsiz. Lekin **AI chatbot** uning savoliga bir necha soniyada javob berdi va u sizning xizmatingizga buyurtma berdi.
+
+### AI Chatbot Qanday Ishlaydi?
+
+AI Chatbot — bu **sun'iy intellekt** (ChatGPT, Gemini) asosida ishlovchi aqlli dastur. U:
+
+- Mijozlar savollariga **o'zbek tilida** javob beradi
+- Sizning kompaniyangiz haqida **o'rgatilgan** — noto'g'ri javob bermaydi
+- **24/7** ishlaydi — dam olish, bayram kuni ham
+- Bir vaqtda **yuzlab** mijozga javob bera oladi
+- Vaqt o'tishi bilan **o'rganadi** va yaxshilanadi
+
+### Qayerda Ishlatish Mumkin?
+
+1. **Telegram botda** — mijozlar bot orqali savol beradi
+2. **Veb-saytda** — sayt ichidagi chat oynasida
+3. **Instagram DM** — avtomatik javob berish
+4. **WhatsApp** — biznes WhatsApp integratsiyasi
+
+### Amaliy Misol
+
+TrendoAI.uz saytiga kiring — pastki o'ng burchakda **AI chatbot** ko'rasiz. Unga istalgan savolni yozing — u sizga professional javob beradi. Bu bizning ishimizning namunasidir!
+
+### Narxi va Muddati
+
+AI Chatbot yaratish **1,000,000 so'mdan** boshlanadi. Murakkablikka qarab 5-10 kun ichida tayyor bo'ladi.
+
+🤖 [AI chatbot buyurtma berish](https://t.me/TrendoAibot)""",
+            },
+            {
+                'title': "Facebook va Instagram Target Reklama: Mijozlarni Aniq Topish San'ati",
+                'topic': "Target Reklama",
+                'category': "Marketing",
+                'keywords': "target reklama, facebook ads, instagram reklama, facebook pixel, targetolog O'zbekiston",
+                'content': """## Target Reklama Nima va Nima Uchun U Boshqa Reklamalardan Yaxshiroq?
+
+Odatiy reklama — ko'chada banner osish. **Target reklama** — faqat sizning mahsulotingizga qiziqadigan odamlarga reklama ko'rsatish. Farqni sezdingizmi?
+
+### Target Reklama Qanday Ishlaydi?
+
+Facebook va Instagram **milliardlab** foydalanuvchilar haqida ma'lumotga ega:
+- Yoshi, jinsi, manzili
+- Qiziqishlari va xobbilari
+- Onlayn xarid qilish odatlari
+- Qaysi sahifalarni kuzatishi
+
+Biz bu ma'lumotlardan foydalanib, reklamangizni **aynan** sizning mijozlaringizga ko'rsatamiz.
+
+### Target Reklama Turlari
+
+1. **Lead Generation** — telefon raqam va ism yig'ish
+2. **Traffic** — saytga trafik olib kelish
+3. **Conversion** — sotuvni oshirish
+4. **Brand Awareness** — brendni taniqli qilish
+5. **Retargeting** — saytga kirgan lekin xarid qilmaganlarni qaytarish
+
+### Biz Nima Qilamiz?
+
+TrendoAI jamoasi sizning target reklamangizni to'liq sozlab beradi:
+- ✅ Facebook Business Manager yaratish
+- ✅ Facebook Pixel o'rnatish
+- ✅ Auditoriya tahlili va segmentatsiya
+- ✅ Reklama kreativlari tayyorlash
+- ✅ A/B test va optimallashtirish
+- ✅ Haftalik hisobotlar
+
+### Narxi
+
+Target reklama sozlash **600,000 — 1,000,000 so'm** (reklama byudjetisiz).
+
+📊 [Target reklama buyurtma berish](https://t.me/TrendoAibot)""",
+            },
+            {
+                'title': "O'zbekistonda IT Xizmatlar Narxi: 2025-yilgi To'liq Qo'llanma",
+                'topic': "IT Xizmatlar Narxi",
+                'category': "Texnologiya",
+                'keywords': "it xizmatlar narxi, telegram bot narxi, sayt narxi, dasturlash narxi O'zbekiston",
+                'content': """## O'zbekistonda IT Xizmatlar Qancha Turadi?
+
+Ko'pchilik tadbirkorlar IT xizmatlarning narxini bilmaydi va ortiqcha to'lab qo'yadi yoki arzon lekin sifatsiz xizmat oladi. Keling, haqiqiy bozor narxlarini ko'rib chiqamiz.
+
+### 1. 🤖 Telegram Bot Yaratish
+
+| Bot turi | Narx oralig'i |
+|----------|---------------|
+| Oddiy katalog bot | 300,000 - 800,000 so'm |
+| Do'kon bot (to'lov bilan) | 1,000,000 - 2,000,000 so'm |
+| Murakkab bot (AI, CRM) | 2,000,000 - 3,000,000 so'm |
+
+### 2. 🌐 Veb-sayt Yaratish
+
+| Sayt turi | Narx oralig'i |
+|----------|---------------|
+| Landing page | 500,000 - 1,000,000 so'm |
+| Korporativ sayt | 1,500,000 - 3,000,000 so'm |
+| E-commerce sayt | 3,000,000 - 5,000,000 so'm |
+
+### 3. 🧠 AI Chatbot
+
+| AI turi | Narx oralig'i |
+|---------|---------------|
+| Oddiy avto-javob | 1,000,000 - 2,000,000 so'm |
+| AI + bazali chatbot | 2,000,000 - 4,000,000 so'm |
+| Full AI yechim | 4,000,000 - 5,000,000 so'm |
+
+### 4. 🎯 Target Reklama Sozlash
+
+| Xizmat | Narx |
+|--------|------|
+| Bitta kampaniya | 600,000 so'm |
+| Oylik boshqarish | 800,000 - 1,000,000 so'm |
+
+### Qayerdan Buyurtma Berish Kerak?
+
+**TrendoAI** — O'zbekistondagi ishonchli IT kompaniya. Biz sifat va narx o'rtasida eng yaxshi balansni taklif qilamiz.
+
+💰 [Bepul konsultatsiya olish](https://t.me/TrendoAibot)""",
+            },
+            {
+                'title': "Telegram Bot vs Mobil Ilova: Biznesingiz Uchun Qaysi Biri Yaxshiroq?",
+                'topic': "Telegram Bot",
+                'category': "Texnologiya",
+                'keywords': "telegram bot yoki ilova, mobil ilova yaratish, bot afzalliklari, biznes ilova",
+                'content': """## Telegram Bot va Mobil Ilova: Taqqoslash
+
+Ko'p tadbirkorlar "menga ilova kerak" deyishadi. Lekin haqiqatda, ko'p hollarda **Telegram bot** ularning ehtiyojini to'liq qondiradi va **10 barobar arzonroq** turadi.
+
+### Taqqoslash Jadvali
+
+| Mezon | Telegram Bot | Mobil Ilova |
+|-------|-------------|-------------|
+| 💰 Narxi | 300K - 3M so'm | 10M - 50M so'm |
+| ⏱ Yaratish muddati | 3-7 kun | 1-3 oy |
+| 📥 O'rnatish | Kerak emas | Play Store/App Store |
+| 🔄 Yangilash | Bir zumda | Har safar yangi versiya |
+| 👥 Foydalanuvchilar | Telegram'da tayyor | Alohida jalb qilish kerak |
+| 🛠 Xarajatlar | Minimal | Server, hosting, support |
+
+### Qachon Bot Yetarli?
+
+✅ Mahsulot katalogi ko'rsatish kerak bo'lsa
+✅ Buyurtma qabul qilish kerak bo'lsa  
+✅ Mijozlarga xabar yuborish kerak bo'lsa
+✅ Oddiy to'lov integratsiyasi kerak bo'lsa
+✅ Byudjet cheklangan bo'lsa
+
+### Qachon Ilova Kerak?
+
+- Murakkab funksiyalar (GPS, kamera, offline rejim) kerak bo'lsa
+- Katta kompaniya bo'lsa (bank, yetkazib berish xizmati)
+- Platformaga bog'liq bo'lmagan yechim kerak bo'lsa
+
+### Xulosа
+
+**90% O'zbek bizneslar** uchun Telegram bot **yetarli va eng samarali** yechim. Ilova yaratishdan oldin, bot imkoniyatlarini ko'rib chiqing!
+
+🤖 [Bot yaratish uchun murojaat qiling](https://t.me/TrendoAibot)""",
+            },
+            {
+                'title': "SEO Nima va Nima Uchun Sizning Saytingizga Kerak?",
+                'topic': "SEO",
+                'category': "Marketing",
+                'keywords': "seo nima, seo optimization, google da birinchi, sayt optimizatsiya, seo O'zbekiston",
+                'content': """## SEO — Google'dan Bepul Mijozlar Oqimi
+
+**SEO** (Search Engine Optimization) — bu sizning saytingizni Google qidiruv natijalarida **birinchi** o'rinlarga chiqarish usullari.
+
+### Nima Uchun SEO Muhim?
+
+- Google'da **birinchi 3 ta natija** barcha kliklarning **75%** ini oladi
+- SEO orqali kelgan mijozlar **bepul** — reklamaga pul to'lamaysiz
+- SEOning ta'siri **uzoq muddat** davom etadi (yillab)
+- Odamlar Google natijalariga **reklamadan ko'ra ko'proq** ishonadilar
+
+### SEO Elementlari
+
+**1. Texnik SEO:**
+- Sayt tezligi
+- Mobil moslashuvchanlik
+- SSL sertifikati (https)
+- Sitemap va robots.txt
+
+**2. On-Page SEO:**
+- Kalit so'zlarni to'g'ri joylashtirish
+- Meta taglar (title, description)
+- Sarlavha tuzilishi (H1, H2, H3)
+- Ichki linklar
+
+**3. Kontent SEO:**
+- Foydali blog maqolalari (xuddi siz hozir o'qiyotgandek!)
+- Muntazam yangi kontent
+- Kalit so'zlarga moslashtirilgan matnlar
+
+### TrendoAI va SEO
+
+Biz yaratgan **har bir veb-sayt** SEO-optimizatsiya qilingan holda topshiriladi. Sayt yaratish bilan birga siz bepul SEO asoslarini ham olasiz.
+
+🌐 [SEO-optimizatsiya qilingan sayt buyurtma berish](https://t.me/TrendoAibot)""",
+            },
+            {
+                'title': "Sun'iy Intellekt (AI) Biznesda: 5 Ta Amaliy Foydalanish Yo'li",
+                'topic': "Sun'iy Intellekt",
+                'category': "Sun'iy Intellekt",
+                'keywords': "sun'iy intellekt biznesda, ai foydalanish, chatgpt biznes, ai avtomat, trendoai",
+                'content': """## AI Biznesda: Endi Bu Kelajak Emas, Hozirgi Kun!
+
+Sun'iy intellekt (AI) faqat katta kompaniyalar uchun emas. **Har qanday O'zbek biznes** AI dan foyda olishi mumkin. Keling, 5 ta amaliy usulni ko'ramiz.
+
+### 1. 🤖 AI Chatbot — Avtomatik Mijoz Xizmati
+
+Mijozlaringiz **24/7** savol beradi. AI chatbot ularga:
+- Mahsulotlar haqida ma'lumot beradi
+- Narxlar va aksiyalarni tushuntiradi
+- Buyurtma qabul qilishga yordam beradi
+- Ko'p tilda ishlaydi (o'zbek, rus, ingliz)
+
+**Natija:** Mijoz yo'qotmaslik, xodim xarajatini kamaytirish.
+
+### 2. 📝 AI Kontent Yaratish
+
+Blogingiz uchun maqolalar, Instagram uchun postlar, reklamalar uchun matnlar — AI bularni **bir necha daqiqada** yaratib beradi.
+
+**TrendoAI misoli:** Shu maqolaning o'zi ham AI yordamida tayyorlangan!
+
+### 3. 📊 AI Data Tahlili
+
+Sotuvlarni bashorat qilish, mijoz xulq-atvorini tahlil qilish, bozor trendlarini aniqlash — AI bularni oddiy odamdan ancha tezroq bajaradi.
+
+### 4. 🎨 AI Dizayn va Rasm Yaratish
+
+Logo, banner, reklama kreativlari — AI dizayn vositalari (Midjourney, DALL-E) bularni professional darajada yarata oladi.
+
+### 5. 📞 AI Ovozli Yordamchi
+
+Telefon qo'ng'iroqlariga avtomatik javob berish, buyurtma tasdiqlash, eslatmalar yuborish — AI ovozli assistentlar bularni bajara oladi.
+
+### TrendoAI — Sizning AI Hamkoringiz
+
+Biz biznesingizga AI integratsiya qilib beramiz. **1,000,000 so'mdan** boshlab.
+
+🧠 [AI xizmatlar buyurtma berish](https://t.me/TrendoAibot)""",
+            }
+        ]
+
+        created_count = 0
+        for article in articles:
+            # Takrorlashni oldini olish
+            existing = Post.query.filter_by(title=article['title']).first()
+            if existing:
+                continue
+                
+            post = Post(
+                title=article['title'],
+                content=article['content'],
+                topic=article['topic'],
+                category=article['category'],
+                keywords=article['keywords'],
+                is_published=True
+            )
+            post.reading_time = post.calculate_reading_time()
+            db.session.add(post)
+            db.session.commit()
+            
+            post.slug = post.generate_slug()
+            db.session.commit()
+            created_count += 1
+
+        return f"✅ {created_count} ta SEO maqola muvaffaqiyatli yaratildi! <a href='/blog'>Blogga o'tish</a> | <a href='/admin/posts'>Admin panelda ko'rish</a>"
+    except Exception as e:
+        return f"Xatolik: {e}"
+
+
 if __name__ == '__main__':
     # Flask ilovasini ishga tushirish
     app.run(debug=True, use_reloader=False, port=5000)
+
