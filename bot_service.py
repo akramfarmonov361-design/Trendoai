@@ -243,7 +243,7 @@ def checkout_cart(call):
     bot.send_message(call.message.chat.id, "Iltimos, ism va familiyangizni kiriting:", reply_markup=telebot.types.ReplyKeyboardRemove())
 
 # --- ORDER FLOW STATE HANDLER ---
-@bot.message_handler(func=lambda message: True) if bot else lambda f: f
+@bot.message_handler(content_types=['text', 'contact'], func=lambda message: True) if bot else lambda f: f
 def handle_all(message):
     user_id = message.from_user.id
     user_state = get_user_state(user_id)
@@ -320,12 +320,20 @@ def handle_all(message):
         bot.send_message(message.chat.id, f"✅ Buyurtmangiz muvaffaqiyatli qabul qilindi!\nBuyurtma raqami: {order_num}\n\nTez orada siz bilan bog'lanamiz.", reply_markup=get_main_menu())
         
     elif state == 'ai_chat':
+        if not message.text:
+            bot.send_message(message.chat.id, "Iltimos, menga faqat matnli savol yuboring.")
+            return
+            
         bot.send_chat_action(message.chat.id, 'typing')
         ai_reply = get_ai_response(message.text)
         bot.reply_to(message, ai_reply, parse_mode='Markdown')
         
     else:
         # Default AI Chat Fallback
+        if not message.text:
+            bot.send_message(message.chat.id, "Iltimos, faqat matn yuboring yoki menyudan kerakli bo'limni tanlang.")
+            return
+            
         bot.send_chat_action(message.chat.id, 'typing')
         ai_reply = get_ai_response(message.text)
         try:
