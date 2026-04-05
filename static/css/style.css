@@ -244,8 +244,8 @@ header::before {
 }
 
 .logo-img {
-    width: 40px;
-    height: 40px;
+    width: 55px;
+    height: 55px;
     object-fit: contain;
     filter: drop-shadow(0 0 15px rgba(244, 114, 182, 0.4));
     transition: transform 0.3s ease;
@@ -268,7 +268,7 @@ header::before {
 }
 
 .logo-text {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     font-weight: 800;
     background: var(--gradient-text);
     -webkit-background-clip: text;
