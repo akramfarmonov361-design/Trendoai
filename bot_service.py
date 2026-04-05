@@ -25,16 +25,16 @@ bot_blueprint = Blueprint('bot', __name__)
 
 # --- STATE MACHINE ---
 user_states = {}
-# Structure: { 123456: {'state': 'idle', 'cart': [], 'data': {}, 'last_time': 0} }
+# Structure: { user_id: {'state': 'idle', 'selected_item': None, 'data': {}, 'last_time': 0} }
 
 def get_user_state(user_id):
     if user_id not in user_states:
-        user_states[user_id] = {'state': 'idle', 'cart': [], 'data': {}, 'last_time': 0}
+        user_states[user_id] = {'state': 'idle', 'selected_item': None, 'data': {}, 'last_time': 0}
     return user_states[user_id]
 
 def update_user_state(user_id, state):
     if user_id not in user_states:
-        user_states[user_id] = {'state': 'idle', 'cart': [], 'data': {}, 'last_time': 0}
+        user_states[user_id] = {'state': 'idle', 'selected_item': None, 'data': {}, 'last_time': 0}
     user_states[user_id]['state'] = state
 
 def get_price_range(cat_name):
@@ -53,8 +53,8 @@ def get_price_range(cat_name):
 # --- GEMINI PROMPT ---
 SYSTEM_PROMPT = """
 Sen TrendoAI kompaniyasining professional AI assistentisan.
-Vazifang: Mijozlarga menyudan xarid qilishda yoki IT xizmatlari bo'yicha maslahat berish.
-Agar ular nimadir buyurtma qilmoqchi bo'lishsa, ularga "📋 Menyu" tugmasini bosishni yoki xarid bo'limidan foydalanishni taklif qil.
+Vazifang: Mijozlarga IT xizmatlari bo'yicha maslahat berish.
+Agar ular nimadir buyurtma qilmoqchi bo'lishsa, ularga "📋 Menyu" tugmasini bosishni taklif qil.
 O'zbek tilida, professional va samimiy javob ber. Emojilar ishlat!
 """
 
@@ -75,7 +75,6 @@ def get_main_menu():
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(
         telebot.types.KeyboardButton("📋 Menyu"),
-        telebot.types.KeyboardButton("🛒 Savat"),
         telebot.types.KeyboardButton("💬 AI Assistent"),
         telebot.types.KeyboardButton("📦 Buyurtmalarim")
     )
@@ -85,7 +84,10 @@ def get_main_menu():
 @bot.message_handler(commands=['start', 'help']) if bot else lambda f: f
 def send_welcome(message):
     user_id = message.from_user.id
-    update_user_state(user_id, 'idle')
+    user_state = get_user_state(user_id)
+    user_state['state'] = 'idle'
+    user_state['selected_item'] = None
+    user_state['data'] = {}
     
     # Save user to DB
     try:
@@ -107,9 +109,9 @@ def send_welcome(message):
     welcome_text = (
         f"👋 **Salom, {message.from_user.first_name}!** TrendoAI botiga xush kelibsiz.\n\n"
         f"🚀 **Bu bot orqali siz nimalar qila olasiz?**\n"
-        f"1️⃣ **📋 Menyu:** Bizning xizmatlar yoki mahsulotlarni tanlab, oson buyurtma berasiz.\n"
-        f"2️⃣ **💬 AI Assistent:** Assistent (ChatGPT) bilan suhbatlashasiz — u har qanday savolingizga yordam beradi.\n"
-        f"3️⃣ **📦 Buyurtmalarim:** O'zingizning xarid va statuslaringizni kuzatasiz.\n\n"
+        f"1️⃣ **📋 Menyu:** Bizning xizmatlarni tanlab, oson buyurtma berasiz.\n"
+        f"2️⃣ **💬 AI Assistent:** AI bilan suhbatlashasiz — u har qanday savolingizga yordam beradi.\n"
+        f"3️⃣ **📦 Buyurtmalarim:** Buyurtmalaringiz statusini kuzatasiz.\n\n"
         f"👇 **Pastdagi klaviaturadan tugmalarni tanlang!**"
     )
     bot.send_message(message.chat.id, welcome_text, parse_mode='Markdown', reply_markup=get_main_menu())
@@ -125,29 +127,6 @@ def show_categories(message):
             markup.add(telebot.types.InlineKeyboardButton(f"{cat.emoji} {cat.name}", callback_data=f"cat_{cat.id}"))
             
         bot.send_message(message.chat.id, "Kategoriyalardan birini tanlang:", reply_markup=markup)
-
-@bot.message_handler(func=lambda message: message.text == "🛒 Savat") if bot else lambda f: f
-def show_cart(message):
-    user_state = get_user_state(message.from_user.id)
-    cart = user_state['cart']
-    
-    if not cart:
-        bot.send_message(message.chat.id, "🛒 Savatingiz bo'sh. Marhamat, menyudan mahsulot tanlang.")
-        return
-        
-    total = sum([item['price'] * item['qty'] for item in cart])
-    text = "🛒 **Sizning savatingiz:**\n\n"
-    for i, item in enumerate(cart):
-        p_range = get_price_range(item.get('category', ''))
-        text += f"{i+1}. {item['name']} x {item['qty']} ({p_range} oralig'ida)\n"
-        
-    text += f"\n💰 **Taxminiy minimal jami: {total} so'm**\n*(Aniq narx loyiha murakkabligiga qarab belgilanadi)*"
-    
-    markup = telebot.types.InlineKeyboardMarkup()
-    markup.add(telebot.types.InlineKeyboardButton("🗑 Savatni tozalash", callback_data="clear_cart"))
-    markup.add(telebot.types.InlineKeyboardButton("✅ Buyurtma berish", callback_data="checkout"))
-    
-    bot.send_message(message.chat.id, text, parse_mode='Markdown', reply_markup=markup)
 
 @bot.message_handler(func=lambda message: message.text == "📦 Buyurtmalarim") if bot else lambda f: f
 def my_orders(message):
@@ -165,7 +144,7 @@ def my_orders(message):
 @bot.message_handler(func=lambda message: message.text == "💬 AI Assistent") if bot else lambda f: f
 def ai_assistant_mode(message):
     update_user_state(message.from_user.id, 'ai_chat')
-    bot.send_message(message.chat.id, "🤖 AI Assistent holatiga o'tdingiz. Menga savolingizni yozib qoldiring.")
+    bot.send_message(message.chat.id, "🤖 AI Assistent holatiga o'tdingiz. Menga savolingizni yozib qoldiring.\n\nChiqish uchun /start bosing.")
 
 # --- CALLBACK HANDLERS ---
 @bot.callback_query_handler(func=lambda call: call.data.startswith('cat_')) if bot else lambda f: f
@@ -182,7 +161,7 @@ def category_clicked(call):
         markup = telebot.types.InlineKeyboardMarkup(row_width=1)
         for item in items:
             p_range = get_price_range(cat.name)
-            markup.add(telebot.types.InlineKeyboardButton(f"{item.emoji} {item.name} - {p_range}", callback_data=f"item_{item.id}"))
+            markup.add(telebot.types.InlineKeyboardButton(f"{item.emoji} {item.name}", callback_data=f"item_{item.id}"))
             
         bot.edit_message_text(f"📋 **{cat.name}** bo'limi", call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
 
@@ -196,12 +175,12 @@ def item_clicked(call):
             return
             
         p_range = get_price_range(item.category)
-        text = f"{item.emoji} **{item.name}**\n\nNarxi: {p_range}\n"
+        text = f"{item.emoji} **{item.name}**\n\n💰 Narxi: {p_range}\n"
         if item.description:
-            text += f"Ta'rif: {item.description}\n"
+            text += f"\n📝 {item.description}\n"
             
         markup = telebot.types.InlineKeyboardMarkup()
-        markup.add(telebot.types.InlineKeyboardButton("➕ Savatga qo'shish", callback_data=f"add_{item.id}"))
+        markup.add(telebot.types.InlineKeyboardButton("🚀 Buyurtma berish", callback_data=f"order_{item.id}"))
         markup.add(telebot.types.InlineKeyboardButton("🔙 Orqaga", callback_data="menyu_back"))
         
         bot.edit_message_text(text, call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
@@ -211,56 +190,35 @@ def menyu_back(call):
     show_categories(call.message)
     bot.delete_message(call.message.chat.id, call.message.message_id)
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith('add_')) if bot else lambda f: f
-def add_to_cart(call):
+# --- DIRECT ORDER (savatsiz) ---
+@bot.callback_query_handler(func=lambda call: call.data.startswith('order_')) if bot else lambda f: f
+def direct_order(call):
+    """Xizmatni tanlab, to'g'ridan-to'g'ri buyurtma jaroyoniga o'tish"""
     item_id = int(call.data.split('_')[1])
-    user_state = get_user_state(call.from_user.id)
+    user_id = call.from_user.id
+    user_state = get_user_state(user_id)
     
     with app.app_context():
         item = MenuItem.query.get(item_id)
         if not item:
             bot.answer_callback_query(call.id, "Xatolik.")
             return
-            
-        # Check if already in cart
-        found = False
-        for cart_item in user_state['cart']:
-            if cart_item['id'] == item.id:
-                cart_item['qty'] += 1
-                found = True
-                break
-        
-        if not found:
-            user_state['cart'].append({
-                'id': item.id,
-                'name': item.name,
-                'price': item.price,
-                'category': item.category,
-                'qty': 1
-            })
-            
-        bot.answer_callback_query(call.id, f"✅ {item.name} savatga qo'shildi!")
 
-@bot.callback_query_handler(func=lambda call: call.data == "clear_cart") if bot else lambda f: f
-def clear_cart(call):
-    user_state = get_user_state(call.from_user.id)
-    user_state['cart'] = []
-    user_state['data'] = {}
-    update_user_state(call.from_user.id, 'idle')
-    bot.edit_message_text("🗑 Savat tozalandi.", call.message.chat.id, call.message.message_id)
-    bot.send_message(call.message.chat.id, "Asosiy menyuga qaytdingiz.", reply_markup=get_main_menu())
-
-@bot.callback_query_handler(func=lambda call: call.data == "checkout") if bot else lambda f: f
-def checkout_cart(call):
-    user_id = call.from_user.id
-    user_state = get_user_state(user_id)
-    
-    if not user_state['cart']:
-        bot.answer_callback_query(call.id, "Savat bo'sh!")
-        return
+        # Tanlangan xizmatni saqlash
+        user_state['selected_item'] = {
+            'id': item.id,
+            'name': item.name,
+            'price': item.price,
+            'category': item.category
+        }
+        user_state['data'] = {}
+        update_user_state(user_id, 'waiting_name')
         
-    update_user_state(user_id, 'waiting_name')
-    bot.send_message(call.message.chat.id, "Iltimos, ism va familiyangizni kiriting:", reply_markup=telebot.types.ReplyKeyboardRemove())
+        p_range = get_price_range(item.category)
+        bot.edit_message_text(
+            f"✅ **{item.name}** tanlandi!\n💰 Narxi: {p_range}\n\nIltimos, ism va familiyangizni kiriting:",
+            call.message.chat.id, call.message.message_id, parse_mode='Markdown'
+        )
 
 # --- ORDER FLOW STATE HANDLER ---
 @bot.message_handler(content_types=['text', 'contact'], func=lambda message: True) if bot else lambda f: f
@@ -268,19 +226,19 @@ def handle_all(message):
     user_id = message.from_user.id
     user_state = get_user_state(user_id)
     
-    # Rate Limiting (Anti-Spam) Check: Maksimum 1 so'rov har 3 soniyada
+    # Rate Limiting (Anti-Spam) Check
     now = time.time()
     if now - user_state.get('last_time', 0) < 3:
-        bot.send_message(message.chat.id, "⏳ Iltimos, biroz sekinroq yozing. AI javob tayyorlamoqda...")
+        bot.send_message(message.chat.id, "⏳ Iltimos, biroz sekinroq yozing...")
         return
     user_state['last_time'] = now
     
     state = user_state['state']
     
     if state == 'waiting_name':
-        if not user_state['cart']:
+        if not user_state.get('selected_item'):
             update_user_state(user_id, 'idle')
-            bot.send_message(message.chat.id, "⚠️ Savatingiz bo'sh. Avval menyudan xizmat tanlang.", reply_markup=get_main_menu())
+            bot.send_message(message.chat.id, "⚠️ Avval menyudan xizmat tanlang.", reply_markup=get_main_menu())
             return
         user_state['data']['name'] = message.text
         update_user_state(user_id, 'waiting_phone')
@@ -296,19 +254,20 @@ def handle_all(message):
             user_state['data']['phone'] = message.text
             
         update_user_state(user_id, 'waiting_address')
-        bot.send_message(message.chat.id, "Yetkazib berish manzilini kiriting (yoki mo'ljal):", reply_markup=telebot.types.ReplyKeyboardRemove())
+        bot.send_message(message.chat.id, "📍 Manzilingizni kiriting (yoki mo'ljal):", reply_markup=telebot.types.ReplyKeyboardRemove())
         
     elif state == 'waiting_address':
-        if not user_state['cart']:
+        selected = user_state.get('selected_item')
+        if not selected:
             update_user_state(user_id, 'idle')
-            bot.send_message(message.chat.id, "⚠️ Savatingiz bo'sh. Buyurtma bekor qilindi.", reply_markup=get_main_menu())
+            bot.send_message(message.chat.id, "⚠️ Xizmat tanlanmagan. Qaytadan boshlang.", reply_markup=get_main_menu())
             return
+            
         user_state['data']['address'] = message.text
         
         # Save order
-        cart = user_state['cart']
-        total = sum([item['price'] * item['qty'] for item in cart])
         order_num = f"TRD-{datetime.now().strftime('%y%m%d%H%M%S')}"
+        items_list = [{'id': selected['id'], 'name': selected['name'], 'price': selected['price'], 'qty': 1}]
         
         with app.app_context():
             new_order = BotOrder(
@@ -318,34 +277,40 @@ def handle_all(message):
                 customer_name=user_state['data']['name'],
                 phone=user_state['data']['phone'],
                 address=user_state['data']['address'],
-                items_json=json.dumps(cart),
-                total_amount=total
+                items_json=json.dumps(items_list),
+                total_amount=selected['price']
             )
             db.session.add(new_order)
             db.session.commit()
             
             # Send to Admin
+            p_range = get_price_range(selected.get('category', ''))
             admin_msg = f"🔥 **YANGI BUYURTMA #{order_num}** (Botdan)\n\n"
             admin_msg += f"👤 Ism: {user_state['data']['name']}\n"
             admin_msg += f"📞 Tel: {user_state['data']['phone']}\n"
             admin_msg += f"📍 Manzil: {user_state['data']['address']}\n\n"
-            admin_msg += "🛒 **Savat:**\n"
-            for item in cart:
-                admin_msg += f" - {item['name']} x {item['qty']}\n"
-            admin_msg += f"\n💰 **Jami:** {total} so'm"
+            admin_msg += f"🛠 **Xizmat:** {selected['name']}\n"
+            admin_msg += f"💰 **Narx oralig'i:** {p_range}"
             
             if TELEGRAM_ADMIN_ID:
                 try:
-                    bot.send_message(TELEGRAM_ADMIN_ID, admin_msg)
+                    bot.send_message(TELEGRAM_ADMIN_ID, admin_msg, parse_mode='Markdown')
                 except:
                     pass
         
         # Reset state
-        user_state['cart'] = []
+        user_state['selected_item'] = None
         user_state['data'] = {}
         update_user_state(user_id, 'idle')
         
-        bot.send_message(message.chat.id, f"✅ Buyurtmangiz muvaffaqiyatli qabul qilindi!\nBuyurtma raqami: {order_num}\n\nTez orada siz bilan bog'lanamiz.", reply_markup=get_main_menu())
+        bot.send_message(
+            message.chat.id, 
+            f"✅ **Buyurtmangiz qabul qilindi!**\n\n"
+            f"📋 Xizmat: {selected['name']}\n"
+            f"🔖 Buyurtma raqami: `{order_num}`\n\n"
+            f"Tez orada siz bilan bog'lanamiz! 🤝",
+            parse_mode='Markdown', reply_markup=get_main_menu()
+        )
         
     elif state == 'ai_chat':
         if not message.text:
@@ -354,7 +319,10 @@ def handle_all(message):
             
         bot.send_chat_action(message.chat.id, 'typing')
         ai_reply = get_ai_response(message.text)
-        bot.reply_to(message, ai_reply, parse_mode='Markdown')
+        try:
+            bot.reply_to(message, ai_reply, parse_mode='Markdown')
+        except:
+            bot.reply_to(message, ai_reply)
         
     else:
         # Default AI Chat Fallback
