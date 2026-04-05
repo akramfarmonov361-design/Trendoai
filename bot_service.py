@@ -253,17 +253,17 @@ def handle_all(message):
         else:
             user_state['data']['phone'] = message.text
             
-        update_user_state(user_id, 'waiting_address')
-        bot.send_message(message.chat.id, "📍 Manzilingizni kiriting (yoki mo'ljal):", reply_markup=telebot.types.ReplyKeyboardRemove())
+        update_user_state(user_id, 'waiting_project')
+        bot.send_message(message.chat.id, "📝 Loyihangiz haqida qisqacha yozing (nima qilish kerak?):", reply_markup=telebot.types.ReplyKeyboardRemove())
         
-    elif state == 'waiting_address':
+    elif state == 'waiting_project':
         selected = user_state.get('selected_item')
         if not selected:
             update_user_state(user_id, 'idle')
             bot.send_message(message.chat.id, "⚠️ Xizmat tanlanmagan. Qaytadan boshlang.", reply_markup=get_main_menu())
             return
             
-        user_state['data']['address'] = message.text
+        user_state['data']['project_desc'] = message.text
         
         # Save order
         order_num = f"TRD-{datetime.now().strftime('%y%m%d%H%M%S')}"
@@ -276,7 +276,7 @@ def handle_all(message):
                 tg_username=message.from_user.username,
                 customer_name=user_state['data']['name'],
                 phone=user_state['data']['phone'],
-                address=user_state['data']['address'],
+                address=user_state['data'].get('project_desc', ''),
                 items_json=json.dumps(items_list),
                 total_amount=selected['price']
             )
@@ -288,7 +288,7 @@ def handle_all(message):
             admin_msg = f"🔥 **YANGI BUYURTMA #{order_num}** (Botdan)\n\n"
             admin_msg += f"👤 Ism: {user_state['data']['name']}\n"
             admin_msg += f"📞 Tel: {user_state['data']['phone']}\n"
-            admin_msg += f"📍 Manzil: {user_state['data']['address']}\n\n"
+            admin_msg += f"📝 Loyiha: {user_state['data'].get('project_desc', '')}\n\n"
             admin_msg += f"🛠 **Xizmat:** {selected['name']}\n"
             admin_msg += f"💰 **Narx oralig'i:** {p_range}"
             
