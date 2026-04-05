@@ -7,6 +7,50 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
 {% block canonical_url %}{{ config.SITE_URL }}{% endblock %}
 {% block og_url %}{{ config.SITE_URL }}{% endblock %}
 
+{% block extra_head %}
+<!-- LocalBusiness Schema -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "TrendoAI",
+    "image": "{{ config.SITE_URL }}/static/img/logo.png",
+    "@id": "{{ config.SITE_URL }}",
+    "url": "{{ config.SITE_URL }}",
+    "telephone": "+998974771229",
+    "priceRange": "$$",
+    "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Tashkent",
+        "addressCountry": "UZ"
+    },
+    "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 41.2995,
+        "longitude": 69.2401
+    },
+    "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+        ],
+        "opens": "09:00",
+        "closes": "18:00"
+    },
+    "sameAs": [
+        "https://t.me/trendoai",
+        "https://instagram.com/trendoai",
+        "https://youtube.com/@trendoaiuz"
+    ]
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <section class="services-hero">
     <h2>🛠️ Bizning Xizmatlar</h2>
