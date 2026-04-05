@@ -57,7 +57,7 @@
 
             <div class="form-group">
                 <label for="image_url">Rasm URL (Facebook Katalog uchun)</label>
-                <input type="text" id="image_url" name="image_url" value="{{ service.image_url if service else '' }}"
+                <input type="text" id="image_url" name="image_url" value="{{ service.image_url if service and service.image_url else '' }}"
                     placeholder="https://...">
             </div>
 
@@ -74,7 +74,7 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="form-group">
                     <label for="price">Narxi</label>
-                    <input type="text" id="price" name="price" value="{{ service.price if service else '' }}"
+                    <input type="text" id="price" name="price" value="{{ service.price if service and service.price else '' }}"
                         placeholder="1,500,000 so'm">
                 </div>
 
@@ -105,7 +105,7 @@
                 <div class="form-group">
                     <label for="discount_until">Qachongacha</label>
                     <input type="text" id="discount_until" name="discount_until"
-                        value="{{ service.discount_until if service else '' }}" placeholder="1-aprel">
+                        value="{{ service.discount_until if service and service.discount_until else '' }}" placeholder="1-aprel">
                 </div>
             </div>
         </div>

@@ -74,7 +74,7 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="price">💰 Narxi (Katalog uchun)</label>
-                <input type="text" id="price" name="price" value="{{ portfolio.price if portfolio else '' }}"
+                <input type="text" id="price" name="price" value="{{ portfolio.price if portfolio and portfolio.price else '' }}"
                     placeholder="2,500,000 so'm">
             </div>
         </div>
@@ -82,26 +82,26 @@
         <div class="form-row">
             <div class="form-group flex-grow">
                 <label for="link">Loyiha Havolasi</label>
-                <input type="url" id="link" name="link" value="{{ portfolio.link if portfolio else '' }}"
+                <input type="url" id="link" name="link" value="{{ portfolio.link if portfolio and portfolio.link else '' }}"
                     placeholder="https://example.com">
             </div>
             <div class="form-group flex-grow">
                 <label for="image_url">Rasm URL</label>
-                <input type="url" id="image_url" name="image_url" value="{{ portfolio.image_url if portfolio else '' }}"
+                <input type="url" id="image_url" name="image_url" value="{{ portfolio.image_url if portfolio and portfolio.image_url else '' }}"
                     placeholder="https://example.com/image.jpg">
             </div>
         </div>
 
         <div class="form-group">
             <label for="features">Loyiha Imkoniyatlari (Features)</label>
-            <input type="text" id="features" name="features" value="{{ portfolio.features if portfolio else '' }}"
+            <input type="text" id="features" name="features" value="{{ portfolio.features if portfolio and portfolio.features else '' }}"
                 placeholder="To'lov tizimi, Admin panel, Push xabarlar (vergul bilan ajrating)">
         </div>
 
         <div class="form-group">
             <label for="details">Loyiha Haqida Batafsil (Markdown qo'llab-quvvatlanadi)</label>
             <textarea id="details" name="details" rows="10"
-                placeholder="Loyiha qanday muammoni hal qildi? Qanday natijaga erishildi?">{{ portfolio.details if portfolio else '' }}</textarea>
+                placeholder="Loyiha qanday muammoni hal qildi? Qanday natijaga erishildi?">{{ portfolio.details if portfolio and portfolio.details else '' }}</textarea>
         </div>
     </div>
 
@@ -111,14 +111,14 @@
         <div class="form-group">
             <label for="meta_description">Meta Tavsif (160 belgi)</label>
             <textarea id="meta_description" name="meta_description" rows="2" maxlength="160"
-                placeholder="Qidiruv tizimlarida ko'rinadigan qisqa tavsif...">{{ portfolio.meta_description if portfolio else '' }}</textarea>
+                placeholder="Qidiruv tizimlarida ko'rinadigan qisqa tavsif...">{{ portfolio.meta_description if portfolio and portfolio.meta_description else '' }}</textarea>
             <small class="char-count">0/160</small>
         </div>
 
         <div class="form-group">
             <label for="meta_keywords">Meta Kalit So'zlar</label>
             <input type="text" id="meta_keywords" name="meta_keywords"
-                value="{{ portfolio.meta_keywords if portfolio else '' }}"
+                value="{{ portfolio.meta_keywords if portfolio and portfolio.meta_keywords else '' }}"
                 placeholder="telegram bot, python, e-commerce (vergul bilan ajrating)">
         </div>
     </div>
