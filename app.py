@@ -2564,9 +2564,9 @@ def telegram_webhook():
         from bot_service import bot
         import telebot
         
-        # Verify Secret Token
+        # Verify Secret Token (yumshoq tekshiruv - eski webhook ham ishlaydi)
         secret_token = request.headers.get('X-Telegram-Bot-Api-Secret-Token')
-        if secret_token != TELEGRAM_WEBHOOK_SECRET:
+        if secret_token and secret_token != TELEGRAM_WEBHOOK_SECRET:
             return 'Unauthorized', 403
 
         if bot and request.headers.get('content-type') == 'application/json':
