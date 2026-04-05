@@ -2762,9 +2762,9 @@ def seed_menu():
         db.session.commit()
         
         # Yangi kategoriyalar
-        cat_bot = MenuCategory(name="🤖 Telegram Botlar", emoji="🤖", order_index=1)
-        cat_web = MenuCategory(name="🌐 Veb-saytlar", emoji="🌐", order_index=2)
-        cat_ai = MenuCategory(name="🧠 AI Xizmatlar", emoji="🧠", order_index=3)
+        cat_bot = MenuCategory(name="🤖 Telegram Botlar (Do'kon, Katalog)", emoji="🤖", order_index=1)
+        cat_web = MenuCategory(name="🌐 Veb-saytlar (Landing, Korporativ)", emoji="🌐", order_index=2)
+        cat_ai = MenuCategory(name="🧠 AI Xizmatlar (AI Chatbot)", emoji="🧠", order_index=3)
         cat_target = MenuCategory(name="🎯 Target Reklama", emoji="🎯", order_index=4)
         
         db.session.add_all([cat_bot, cat_web, cat_ai, cat_target])
@@ -2772,12 +2772,10 @@ def seed_menu():
 
         # Yangi maxsulotlar
         items = [
-            MenuItem(name="Do'kon Boti (E-commerce)", price=1500000, category=cat_bot.name, emoji="🛒", description="To'lov tizimi (Payme/Click) ulangan, savat va admin panelga ega to'liq do'kon boti."),
-            MenuItem(name="Katalog / Menyu Bot", price=800000, category=cat_bot.name, emoji="📋", description="Kompaniyangiz xizmatlari va mahsulotlarini ko'rsatish uchun qulay menyu boti."),
-            MenuItem(name="Landing Page (1 betlik sayt)", price=1500000, category=cat_web.name, emoji="📄", description="Mahsulot yoki xizmatingizni sotish uchun zamonaviy va tez ishlaydigan bitta sahifali sayt."),
-            MenuItem(name="Korporativ Veb-sayt", price=3000000, category=cat_web.name, emoji="🏢", description="Kompaniyangiz haqida to'liq ma'lumot beruvchi ko'p sahifali premium sayt."),
-            MenuItem(name="AI Chatbot (Avto-javob)", price=2000000, category=cat_ai.name, emoji="💬", description="Mijozlar savollariga Sun'iy Intellekt orqali 24/7 avtomatik va to'g'ri javob beradigan aqlli bot."),
-            MenuItem(name="Target Reklama Sozlash", price=600000, category=cat_target.name, emoji="🎯", description="Facebook va Instagram orqali sizning aniq maqsadli mijozlaringizga reklamangizni ko'rsatish.")
+            MenuItem(name="Telegram Bot (Do'kon yoki Katalog)", price=300000, category=cat_bot.name, emoji="🤖", description="Biznesingiz uchun aynan sizning talabingizdagi mukammal Telegram botlar."),
+            MenuItem(name="Veb-sayt (Landing yoki Korporativ)", price=500000, category=cat_web.name, emoji="🌐", description="Mijozlar ishonchini oson qozonish uchun barcha qurilmalarga mos veb-saytlar."),
+            MenuItem(name="AI Chatbot", price=1000000, category=cat_ai.name, emoji="💬", description="Mijozlarga sizsiz ham 24/7 javob qaytarish xususiyatiga ega aqlli AI yordamchilari."),
+            MenuItem(name="Facebook va Instagram Target Ads", price=600000, category=cat_target.name, emoji="🎯", description="Aniqlik bilan qilingan Target reklamasi – sizning eng ko'p haridor topuvchi qurolingiz.")
         ]
         
         db.session.add_all(items)

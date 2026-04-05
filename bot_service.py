@@ -37,6 +37,19 @@ def update_user_state(user_id, state):
         user_states[user_id] = {'state': 'idle', 'cart': [], 'data': {}, 'last_time': 0}
     user_states[user_id]['state'] = state
 
+def get_price_range(cat_name):
+    if not cat_name: return "Kelishilgan narx"
+    cat_name = cat_name.lower()
+    if 'bot' in cat_name:
+        return "300,000 - 3,000,000 so'm"
+    elif 'veb' in cat_name or 'sayt' in cat_name:
+        return "500,000 - 3,000,000 so'm"
+    elif 'ai' in cat_name:
+        return "1,000,000 - 5,000,000 so'm"
+    elif 'target' in cat_name:
+        return "600,000 - 1,000,000 so'm"
+    return "Kelishilgan narx"
+
 # --- GEMINI PROMPT ---
 SYSTEM_PROMPT = """
 Sen TrendoAI kompaniyasining professional AI assistentisan.
@@ -125,9 +138,10 @@ def show_cart(message):
     total = sum([item['price'] * item['qty'] for item in cart])
     text = "🛒 **Sizning savatingiz:**\n\n"
     for i, item in enumerate(cart):
-        text += f"{i+1}. {item['name']} x {item['qty']} = {item['price'] * item['qty']} so'm\n"
+        p_range = get_price_range(item.get('category', ''))
+        text += f"{i+1}. {item['name']} x {item['qty']} ({p_range} oralig'ida)\n"
         
-    text += f"\n💰 **Jami: {total} so'm**"
+    text += f"\n💰 **Taxminiy minimal jami: {total} so'm**\n*(Aniq narx loyiha murakkabligiga qarab belgilanadi)*"
     
     markup = telebot.types.InlineKeyboardMarkup()
     markup.add(telebot.types.InlineKeyboardButton("🗑 Savatni tozalash", callback_data="clear_cart"))
@@ -167,7 +181,8 @@ def category_clicked(call):
             
         markup = telebot.types.InlineKeyboardMarkup(row_width=1)
         for item in items:
-            markup.add(telebot.types.InlineKeyboardButton(f"{item.emoji} {item.name} - {item.price} so'm", callback_data=f"item_{item.id}"))
+            p_range = get_price_range(cat.name)
+            markup.add(telebot.types.InlineKeyboardButton(f"{item.emoji} {item.name} - {p_range}", callback_data=f"item_{item.id}"))
             
         bot.edit_message_text(f"📋 **{cat.name}** bo'limi", call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
 
@@ -180,7 +195,8 @@ def item_clicked(call):
             bot.answer_callback_query(call.id, "Mahsulot topilmadi.")
             return
             
-        text = f"{item.emoji} **{item.name}**\n\nNarxi: {item.price} so'm\n"
+        p_range = get_price_range(item.category)
+        text = f"{item.emoji} **{item.name}**\n\nNarxi: {p_range}\n"
         if item.description:
             text += f"Ta'rif: {item.description}\n"
             
@@ -219,6 +235,7 @@ def add_to_cart(call):
                 'id': item.id,
                 'name': item.name,
                 'price': item.price,
+                'category': item.category,
                 'qty': 1
             })
             
