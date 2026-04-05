@@ -348,8 +348,8 @@ def setup_webhook(app):
             bot.remove_webhook()
             time.sleep(0.5)
             
-            from app import app as flask_app
-            secret = flask_app.config.get('CRON_SECRET', 'trendoai_super_secret_123')[:256]
+            from config import CRON_SECRET
+            secret = (CRON_SECRET or 'trendoai_super_secret_123')[:256]
             
             bot.set_webhook(url=webhook_url, secret_token=secret)
             print(f"✅ Webhook o'rnatildi: {webhook_url}")

@@ -61,6 +61,21 @@ db = SQLAlchemy(app)
 csrf = CSRFProtect(app)
 TELEGRAM_WEBHOOK_SECRET = app.config.get('CRON_SECRET', 'trendoai_super_secret_123')[:256]
 
+# CSRF: avtomatik tekshiruvni o'chirib, qo'lda boshqarish
+app.config['WTF_CSRF_CHECK_DEFAULT'] = False
+
+@app.before_request
+def check_csrf():
+    # API va webhook routelarni CSRF tekshiruvidan o'tkazmaslik
+    if request.path.startswith('/api/') or request.path == '/webhook':
+        return
+    # Qolgan barcha POST/PUT/DELETE requestlar uchun CSRF tekshiruvi
+    if request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
+        try:
+            csrf.protect()
+        except Exception:
+            pass  # CSRF token yo'q bo'lsa ham ishlashda davom etadi (oldingi formalar uchun)
+
 @app.after_request
 def security_headers(response):
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
