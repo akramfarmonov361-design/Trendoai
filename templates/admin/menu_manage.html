@@ -49,6 +49,7 @@
                         <td>{{ item.price }} so'm</td>
                         <td>
                             <form action="{{ url_for('admin_menu') }}" method="POST" style="display:inline;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <input type="hidden" name="action" value="delete_item">
                                 <input type="hidden" name="item_id" value="{{ item.id }}">
                                 <button type="submit" class="btn-sm btn-danger" onclick="return confirm('Rostdan ohcirmoqchimisiz?');">O'chirish</button>
@@ -68,6 +69,7 @@
             <h2>📋 Kategoriyalar ({% if categories %}{{ categories|length }}{% else %}0{% endif %})</h2>
             
             <form action="{{ url_for('admin_menu') }}" method="POST" style="margin-bottom: 20px; display: flex; gap: 10px;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <input type="hidden" name="action" value="add_category">
                 <input type="text" name="emoji" placeholder="Emoji (Masalan: 🍕)" required style="width: 80px; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
                 <input type="text" name="name" placeholder="Kategoriya nomi" required style="flex:1; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
@@ -96,6 +98,7 @@
     <span class="close" onclick="document.getElementById('addModal').style.display='none'">&times;</span>
     <h2>Yangi Mahsulot Qo'shish</h2>
     <form action="{{ url_for('admin_menu') }}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <input type="hidden" name="action" value="add_item">
         
         <div class="form-group">

@@ -59,6 +59,7 @@
                             style="padding: 6px 12px; font-size: 0.9rem; background: var(--light);">✏️</a>
                         <form action="{{ url_for('admin_service_delete', service_id=service.id) }}" method="POST"
                             style="display:inline;" onsubmit="return confirm('O\'chirmoqchimisiz?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <button type="submit" class="btn btn-danger"
                                 style="padding: 6px 12px; font-size: 0.9rem;">🗑️</button>
                         </form>

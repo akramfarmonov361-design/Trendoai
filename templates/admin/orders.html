@@ -87,6 +87,7 @@
         <div class="order-actions">
             <form action="{{ url_for('admin_update_order_status', order_id=order.id) }}" method="POST"
                 class="status-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <select name="status" onchange="this.form.submit()">
                     <option value="new" {% if order.status=='new' %}selected{% endif %}>🆕 Yangi</option>
                     <option value="contacted" {% if order.status=='contacted' %}selected{% endif %}>📞 Bog'lanildi
@@ -98,6 +99,7 @@
 
             <form action="{{ url_for('admin_delete_order', order_id=order.id) }}" method="POST"
                 onsubmit="return confirm('Buyurtmani o\'chirmoqchimisiz?')">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <button type="submit" class="btn-delete">🗑️</button>
             </form>
         </div>

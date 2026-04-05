@@ -69,6 +69,7 @@
                     </form>
                     <form action="{{ url_for('admin_portfolio_send_telegram', portfolio_id=item.id) }}" method="POST"
                         style="display:inline;" onsubmit="return confirm('Bu loyiha Telegram kanalga yuborilsinmi?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <button type="submit" class="btn btn-sm"
                             style="background-color: #3B82F6; color: white; margin-left: 5px;"
                             title="Telegramga yuborish">

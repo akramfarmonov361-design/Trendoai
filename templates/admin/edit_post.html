@@ -11,6 +11,7 @@
     <div class="form-container">
         <form method="POST"
             action="{% if post %}{{ url_for('admin_edit_post', post_id=post.id) }}{% else %}{{ url_for('admin_new_post') }}{% endif %}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
             <div class="form-row">
                 <div class="form-group" style="flex: 2;">

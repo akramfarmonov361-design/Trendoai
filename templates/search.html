@@ -9,6 +9,7 @@
     <h1>Qidiruv Natijalari</h1>
 
     <form action="{{ url_for('search') }}" method="GET" class="search-form large">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <input type="text" name="q" placeholder="Maqola qidirish..." value="{{ query }}">
         <button type="submit">Qidirish</button>
     </form>

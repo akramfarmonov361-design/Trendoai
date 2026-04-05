@@ -31,6 +31,7 @@
 
 <section class="search-section">
     <form action="{{ url_for('search') }}" method="GET" class="search-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <input type="text" name="q" placeholder="Maqola qidirish..." value="{{ request.args.get('q', '') }}">
         <button type="submit">Qidirish</button>
     </form>

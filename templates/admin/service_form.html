@@ -13,6 +13,7 @@
     </div>
 
     <form method="POST" id="service-form" style="max-width: 800px;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <!-- Asosiy Ma'lumotlar -->
         <div style="background: var(--light); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
             <h3 style="margin-bottom: 15px; color: var(--primary);">Asosiy ma'lumotlar</h3>

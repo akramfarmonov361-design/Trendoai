@@ -15,6 +15,7 @@ import time
 import google.generativeai as genai
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, Response
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
 
 # .env faylidagi o'zgaruvchilarni yuklash
@@ -57,6 +58,14 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 }
 
 db = SQLAlchemy(app)
+csrf = CSRFProtect(app)
+TELEGRAM_WEBHOOK_SECRET = app.config.get('CRON_SECRET', 'trendoai_super_secret_123')[:256]
+
+@app.after_request
+def security_headers(response):
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    return response
 
 
 # ========== SERVICE DATA (For Landing Pages) ==========
@@ -1910,6 +1919,7 @@ def robots_txt():
 # ========== API ROUTES ==========
 
 @app.route('/api/lead', methods=['POST'])
+@csrf.exempt
 def submit_lead():
     """Lead Magnet yoki Chatbot orqali kelgan ma'lumotni saqlash"""
     data = request.json
@@ -2532,12 +2542,18 @@ def sitemap_xml():
 
 # ========== TELEGRAM WEBHOOK ==========
 @app.route('/webhook', methods=['POST'])
+@csrf.exempt
 def telegram_webhook():
     """Telegram webhook handler - botga kelgan xabarlarni qayta ishlash"""
     try:
         from bot_service import bot
         import telebot
         
+        # Verify Secret Token
+        secret_token = request.headers.get('X-Telegram-Bot-Api-Secret-Token')
+        if secret_token != TELEGRAM_WEBHOOK_SECRET:
+            return 'Unauthorized', 403
+
         if bot and request.headers.get('content-type') == 'application/json':
             json_string = request.get_data().decode('utf-8')
             update = telebot.types.Update.de_json(json_string)

@@ -2,6 +2,7 @@ import telebot
 import json
 import re
 from datetime import datetime
+import time
 import google.generativeai as genai
 from flask import Blueprint
 from config import TELEGRAM_BOT_TOKEN, GEMINI_API_KEY, GEMINI_MODEL, SITE_URL, TELEGRAM_ADMIN_ID
@@ -24,16 +25,16 @@ bot_blueprint = Blueprint('bot', __name__)
 
 # --- STATE MACHINE ---
 user_states = {}
-# Structure: { 123456: {'state': 'idle', 'cart': [], 'data': {}} }
+# Structure: { 123456: {'state': 'idle', 'cart': [], 'data': {}, 'last_time': 0} }
 
 def get_user_state(user_id):
     if user_id not in user_states:
-        user_states[user_id] = {'state': 'idle', 'cart': [], 'data': {}}
+        user_states[user_id] = {'state': 'idle', 'cart': [], 'data': {}, 'last_time': 0}
     return user_states[user_id]
 
 def update_user_state(user_id, state):
     if user_id not in user_states:
-        user_states[user_id] = {'state': 'idle', 'cart': [], 'data': {}}
+        user_states[user_id] = {'state': 'idle', 'cart': [], 'data': {}, 'last_time': 0}
     user_states[user_id]['state'] = state
 
 # --- GEMINI PROMPT ---
@@ -246,6 +247,14 @@ def checkout_cart(call):
 def handle_all(message):
     user_id = message.from_user.id
     user_state = get_user_state(user_id)
+    
+    # Rate Limiting (Anti-Spam) Check: Maksimum 1 so'rov har 3 soniyada
+    now = time.time()
+    if now - user_state.get('last_time', 0) < 3:
+        bot.send_message(message.chat.id, "⏳ Iltimos, biroz sekinroq yozing. AI javob tayyorlamoqda...")
+        return
+    user_state['last_time'] = now
+    
     state = user_state['state']
     
     if state == 'waiting_name':
@@ -338,7 +347,11 @@ def setup_webhook(app):
         try:
             bot.remove_webhook()
             time.sleep(0.5)
-            bot.set_webhook(url=webhook_url)
+            
+            from app import app as flask_app
+            secret = flask_app.config.get('CRON_SECRET', 'trendoai_super_secret_123')[:256]
+            
+            bot.set_webhook(url=webhook_url, secret_token=secret)
             print(f"✅ Webhook o'rnatildi: {webhook_url}")
         except Exception as e:
             print(f"⚠️ Webhook error: {e}")

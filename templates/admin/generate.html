@@ -23,6 +23,7 @@
 
         <div class="form-container">
             <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="form-group">
                     <label for="topic">🎯 Mavzu</label>
                     <input type="text" id="topic" name="topic" required placeholder="Masalan: Python'da web scraping">

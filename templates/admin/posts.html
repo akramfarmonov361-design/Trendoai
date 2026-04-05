@@ -50,6 +50,7 @@
                             style="background: #dbeafe; color: #2563eb; margin-right: 5px;" title="Tahrirlash">✏️</a>
                         <form action="{{ url_for('admin_delete_post', post_id=post.id) }}" method="POST"
                             style="display: inline;" onsubmit="return confirm('Rostdan ham o\'chirmoqchimisiz?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <button type="submit" class="btn-sm danger" style="padding: 6px 10px;"
                                 title="O'chirish">🗑️</button>
                         </form>
