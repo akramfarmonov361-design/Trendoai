@@ -2825,7 +2825,7 @@ Biz sizga **2-5 kun** ichida to'liq ishlaydigan Telegram bot yaratib beramiz. Na
 📱 **Hoziroq buyurtma bering:** [Bot orqali bog'laning](https://t.me/TrendoAibot)""",
             },
             {
-                'title': "2025-yilda Biznesingizga Veb-sayt Kerakmi? Javob: Ha!",
+                'title': "2026-yilda Biznesingizga Veb-sayt Kerakmi? Javob: Ha!",
                 'topic': "Veb-sayt",
                 'category': "Texnologiya",
                 'keywords': "veb sayt yaratish, web site, landing page, korporativ sayt, sayt narxi O'zbekiston",
@@ -2939,7 +2939,7 @@ Target reklama sozlash **600,000 — 1,000,000 so'm** (reklama byudjetisiz).
 📊 [Target reklama buyurtma berish](https://t.me/TrendoAibot)""",
             },
             {
-                'title': "O'zbekistonda IT Xizmatlar Narxi: 2025-yilgi To'liq Qo'llanma",
+                'title': "O'zbekistonda IT Xizmatlar Narxi: 2026-yilgi To'liq Qo'llanma",
                 'topic': "IT Xizmatlar Narxi",
                 'category': "Texnologiya",
                 'keywords': "it xizmatlar narxi, telegram bot narxi, sayt narxi, dasturlash narxi O'zbekiston",
