@@ -3138,7 +3138,92 @@ Biz biznesingizga AI integratsiya qilib beramiz. **1,000,000 so'mdan** boshlab.
         return f"Xatolik: {e}"
 
 
+@app.route('/admin/seed-portfolio')
+def seed_portfolio():
+    """Demo portfoliolarni bazaga qo'shish"""
+    try:
+        items = [
+            {
+                'title': "Restoran va Kafelar uchun Telegram Bot",
+                'description': "Mijozlar to'g'ridan-to'g'ri Telegram orqali taomlarni ko'rib chiqishi, savatga qo'shishi va yetkazib berish uchun buyurtma berishi mumkin bo'lgan to'liq avtomatlashgan tizim. Payme/Click integratsiyasi mavjud.",
+                'category': "bot",
+                'emoji': "🍔",
+                'technologies': "Python, Aiogram, PostgreSQL, Payme API",
+                'image_url': "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1000&auto=format&fit=crop",
+                'features': "Mahsulotlar katalogi,Savat va hisob-kitob,To'lov tizimi integratsiyasi,Admin panel uchun webview,Aksiya va chegirmalar",
+                'price': "3,000,000 so'm",
+                'meta_description': "Restoranlar uchun maxsus yetkazib berish telegram boti yaratish xizmati. Onlayn buyurtma qabul qilish va to'lovlarni avtomatlashtirish.",
+                'meta_keywords': "telegram bot yaratish, fast food bot, restoran bot, dostavka bot, payme integratsiya"
+            },
+            {
+                'title': "TrendoAI - IT Xizmatlar Agentligi Sayti",
+                'description': "Zamonaviy 'Show, don't tell' konsepsiyasiga asoslangan web sayt. Tizimda o'rnatilgan AI assistent to'g'ridan-to'g'ri chatbot rejimida mijozlarga konsultatsiya beradi va lidlarni yig'ishga yordam beradi.",
+                'category': "web",
+                'emoji': "🌐",
+                'technologies': "Flask, Vanilla JS, Google Gemini AI, PostgreSQL",
+                'image_url': "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop",
+                'features': "SEO optimizatsiya,Jonli AI yordamchi,Dark/Light rejim,Portfolio va Blog bo'limlari,Tezkor ishlash",
+                'price': "5,000,000 so'm",
+                'meta_description': "Zamonaviy IT va marketing agentliklari uchun biznes vizitka va xizmatlar sayti. SEO va AI texnologiyalariga asoslangan.",
+                'meta_keywords': "it agentlik sayti, landing page yaratish, biznes web sayt, korporativ sayt"
+            },
+            {
+                'title': "Kundalik AI - Ovozli Chatbot",
+                'description': "Mijozlarning ovozli savollariga o'zbek tilida insondek javob qaytaruvchi innovatsion Telegram AI Chatbot. Endi mijozlarni qo'llab-quvvatlash uchun alohida operator yollashga zarurat yo'q.",
+                'category': "ai",
+                'emoji': "🧠",
+                'technologies': "Python, Google GenAI, Telegram API, WebSockets",
+                'image_url': "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1000&auto=format&fit=crop",
+                'features': "O'zbek tilini tushunish,Ovozli javob qaytarish,24/7 mijozlarga xizmat,Sotuv skriptlariga moslashish,Mijozlar bazasi (CRM)",
+                'price': "4,500,000 so'm",
+                'meta_description': "Biznesni avtomatlashtirish uchun ovozli xabarlarni tushunuvchi AI chatbot yaratish.",
+                'meta_keywords': "sun'iy intellekt bot, ai chatbot yaratish, chatgpt telegram bot, ovozli bot"
+            },
+            {
+                'title': "O'quv Markazi va Maktablar uchun CRM tizimi",
+                'description': "O'quvchilar davomati, to'lovlari, dars jadvallari va o'qituvchilar oyliklarini avtomatlashtiruvchi to'liq boshqaruv paneli (Web + Telegram bot). Ota-onalar farzandining natijalarini kuzatish imkoniga ega.",
+                'category': "web",
+                'emoji': "📚",
+                'technologies': "React, Node.js, Express, PostgreSQL",
+                'image_url': "https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=1000&auto=format&fit=crop",
+                'features': "Davomatni avtomatlashtirish,To'lovlar nazorati,Ota-onalar uchun bot,QR kodli ruxsatnomalar,Analitika va Hisobotlar",
+                'price': "8,000,000 so'm",
+                'meta_description': "O'quv markazlari va maktablar uchun talabalar nazorati, davomat va to'lovlarni boshqarish crm tizimlari.",
+                'meta_keywords': "crm yaratish, o'quv markazi dasturi, dasturiy ta'minot yaratish, web ilova"
+            }
+        ]
+
+        created_count = 0
+        for item_data in items:
+            existing = Portfolio.query.filter_by(title=item_data['title']).first()
+            if existing:
+                continue
+                
+            item = Portfolio(
+                title=item_data['title'],
+                description=item_data['description'],
+                category=item_data['category'],
+                emoji=item_data['emoji'],
+                technologies=item_data['technologies'],
+                image_url=item_data['image_url'],
+                features=item_data['features'],
+                price=item_data['price'],
+                meta_description=item_data['meta_description'],
+                meta_keywords=item_data['meta_keywords'],
+                is_published=True
+            )
+            db.session.add(item)
+            db.session.commit()
+            
+            item.slug = item.generate_slug()
+            db.session.commit()
+            created_count += 1
+
+        return f"✅ {created_count} ta Demo Portfolio muvaffaqiyatli yaratildi! <a href='/portfolio'>Portfolioga o'tish</a>"
+    except Exception as e:
+        return f"Xatolik: {e}"
+
+
 if __name__ == '__main__':
     # Flask ilovasini ishga tushirish
     app.run(debug=True, use_reloader=False, port=5000)
-
