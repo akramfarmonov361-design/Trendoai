@@ -1000,7 +1000,7 @@ def admin_menu():
 def admin_service_generate():
     """AI yordamida xizmat ma'lumotlarini generatsiya qilish"""
     try:
-        from ai_generator import model
+        from ai_generator import generate_custom_content
         import json
         
         title = request.json.get('title', '')
@@ -1024,8 +1024,9 @@ Quyidagi formatda JSON qaytaring (faqat JSON, boshqa matn yo'q):
 }}
 """
         
-        response = model.generate_content(prompt)
-        text = response.text.strip()
+        text = (generate_custom_content(prompt) or "").strip()
+        if not text:
+            return jsonify({'error': 'AI generatsiya muvaffaqiyatsiz'}), 500
         
         # JSON ni ajratib olish
         if '```json' in text:
