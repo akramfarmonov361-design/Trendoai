@@ -15,7 +15,7 @@ import time
 import google.generativeai as genai
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, Response
 from flask_sqlalchemy import SQLAlchemy
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFError, CSRFProtect
 from dotenv import load_dotenv
 
 # .env faylidagi o'zgaruvchilarni yuklash
@@ -36,7 +36,7 @@ from config import (
     SITE_URL, SITE_NAME, SITE_DESCRIPTION, DATABASE_URI, SECRET_KEY,
     ADMIN_USERNAME, ADMIN_PASSWORD, POSTS_PER_PAGE, CATEGORIES,
     GA4_ID, GOOGLE_ADS_ID, FACEBOOK_PIXEL_ID,
-    CRON_SECRET, GEMINI_API_KEY, GEMINI_MODEL,
+    CRON_SECRET, DEBUG, GEMINI_API_KEY, GEMINI_MODEL,
     VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_CLAIMS_SUB
 )
 
@@ -48,6 +48,9 @@ app.config['GEMINI_API_KEY'] = GEMINI_API_KEY
 app.config['VAPID_PUBLIC_KEY'] = VAPID_PUBLIC_KEY
 app.config['VAPID_PRIVATE_KEY'] = VAPID_PRIVATE_KEY
 app.config['VAPID_CLAIMS_SUB'] = VAPID_CLAIMS_SUB
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = not DEBUG
 
 # PostgreSQL connection pool sozlamalari - ulanish uzilganda qayta ulanish
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
@@ -63,24 +66,56 @@ TELEGRAM_WEBHOOK_SECRET = app.config.get('CRON_SECRET', 'trendoai_super_secret_1
 
 # CSRF: avtomatik tekshiruvni o'chirib, qo'lda boshqarish
 app.config['WTF_CSRF_CHECK_DEFAULT'] = False
+CSRF_EXEMPT_ENDPOINTS = {
+    'telegram_webhook',
+    'api_health',
+    'api_posts',
+    'api_post',
+    'api_stats',
+    'api_init_database',
+    'cron_status',
+    'cron_generate_post',
+    'cron_keep_alive',
+    'cron_debug_generate',
+    'cron_test_ai',
+    'api_chat',
+    'api_chat_audio',
+    'push_subscribe',
+    'submit_lead',
+}
 
 @app.before_request
 def check_csrf():
-    # API va webhook routelarni CSRF tekshiruvidan o'tkazmaslik
-    if request.path.startswith('/api/') or request.path == '/webhook':
+    if request.endpoint in CSRF_EXEMPT_ENDPOINTS:
         return
     # Qolgan barcha POST/PUT/DELETE requestlar uchun CSRF tekshiruvi
     if request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
-        try:
-            csrf.protect()
-        except Exception:
-            pass  # CSRF token yo'q bo'lsa ham ishlashda davom etadi (oldingi formalar uchun)
+        csrf.protect()
 
 @app.after_request
 def security_headers(response):
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
     response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
     return response
+
+
+@app.errorhandler(CSRFError)
+def handle_csrf_error(error):
+    if request.is_json or request.path.startswith('/api/'):
+        return jsonify({'error': 'CSRF token xato yoki topilmadi'}), 400
+    flash('Forma xavfsizlik tokeni eskirgan. Iltimos, sahifani yangilab qayta urinib ko\'ring.', 'error')
+    return redirect(request.referrer or url_for('index'))
+
+
+def _cron_secret_error():
+    return jsonify({'error': 'Unauthorized', 'message': 'Invalid secret key'}), 401
+
+
+def _has_valid_cron_secret():
+    secret = request.args.get('secret') or request.headers.get('X-Cron-Secret')
+    return bool(secret and secret == app.config.get('CRON_SECRET'))
 
 
 # ========== SERVICE DATA (For Landing Pages) ==========
@@ -2024,6 +2059,9 @@ def api_init_database():
     Database jadvallarini yaratish va tekshirish.
     Order jadvali yo'q bo'lsa yaratadi.
     """
+    if not _has_valid_cron_secret():
+        return _cron_secret_error()
+
     try:
         # Barcha jadvallarni yaratish
         db.create_all()
@@ -2113,11 +2151,8 @@ def server_error(e):
 @app.route('/api/cron/generate', methods=['GET', 'POST'])
 def cron_generate_post():
     """Tashqi cron xizmatlari uchun post generatsiya qilish"""
-    secret = request.args.get('secret') or request.headers.get('X-Cron-Secret')
-    
-    # Secret key tekshirish
-    if secret != app.config.get('CRON_SECRET'):
-        return jsonify({'error': 'Unauthorized', 'message': 'Invalid secret key'}), 401
+    if not _has_valid_cron_secret():
+        return _cron_secret_error()
         
     topic = request.args.get('topic')
     category = request.args.get('category')
@@ -2155,9 +2190,8 @@ def cron_keep_alive():
 @app.route('/api/cron/debug-generate')
 def cron_debug_generate():
     """Sinxron debug endpoint — xatoliklarni aniq ko'rish uchun"""
-    secret = request.args.get('secret') or request.headers.get('X-Cron-Secret')
-    if secret != app.config.get('CRON_SECRET'):
-        return jsonify({'error': 'Unauthorized'}), 401
+    if not _has_valid_cron_secret():
+        return _cron_secret_error()
     
     import traceback as tb
     result = {'steps': [], 'success': False}
@@ -2272,9 +2306,8 @@ def cron_debug_generate():
 @app.route('/api/cron/test-ai')
 def cron_test_ai():
     """Tezkor Gemini API test — retrylar yo'q, 10 soniya ichida javob"""
-    secret = request.args.get('secret') or request.headers.get('X-Cron-Secret')
-    if secret != app.config.get('CRON_SECRET'):
-        return jsonify({'error': 'Unauthorized'}), 401
+    if not _has_valid_cron_secret():
+        return _cron_secret_error()
     
     import traceback as tb
     result = {}

@@ -12,6 +12,12 @@ load_dotenv()
 ENV = os.getenv("FLASK_ENV", "development")
 DEBUG = ENV == "development"
 
+
+def _require_production_secret(env_name, value, default_value):
+    if not DEBUG and (not value or value == default_value):
+        raise RuntimeError(f"{env_name} production muhitida xavfsiz qiymat bilan berilishi kerak.")
+    return value
+
 # ========== SAYT SOZLAMALARI ==========
 # Render da SITE_URL env o'zgaruvchisini ishlatish
 SITE_URL = os.getenv("SITE_URL", "https://www.trendoai.uz")
@@ -36,8 +42,8 @@ elif DATABASE_URI.startswith("mysql2://"):
 
 # ========== AI SOZLAMALARI ==========
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY2") or os.getenv("GEMINI_API_KEY3")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite-preview")
-GEMINI_MODEL_BACKUP = os.getenv("GEMINI_MODEL_BACKUP", "gemini-3.1-flash-live-preview")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_MODEL_BACKUP = os.getenv("GEMINI_MODEL_BACKUP", "gemini-2.5-flash-lite")
 AI_RETRY_ATTEMPTS = 3
 AI_RETRY_DELAY = 2
 
@@ -49,9 +55,20 @@ TELEGRAM_MAX_MESSAGE_LENGTH = 4096
 TELEGRAM_RETRY_ATTEMPTS = 3
 
 # ========== ADMIN SOZLAMALARI ==========
-ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "trendoai2025")
-SECRET_KEY = os.getenv("SECRET_KEY", "trendoai-secret-key-change-in-production")
+DEFAULT_ADMIN_USERNAME = "admin"
+DEFAULT_ADMIN_PASSWORD = "trendoai2025"
+DEFAULT_SECRET_KEY = "trendoai-secret-key-change-in-production"
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", DEFAULT_ADMIN_USERNAME)
+ADMIN_PASSWORD = _require_production_secret(
+    "ADMIN_PASSWORD",
+    os.getenv("ADMIN_PASSWORD", DEFAULT_ADMIN_PASSWORD),
+    DEFAULT_ADMIN_PASSWORD,
+)
+SECRET_KEY = _require_production_secret(
+    "SECRET_KEY",
+    os.getenv("SECRET_KEY", DEFAULT_SECRET_KEY),
+    DEFAULT_SECRET_KEY,
+)
 
 # ========== PUSH NOTIFICATION SOZLAMALARI ==========
 VAPID_PUBLIC_KEY = os.getenv("VAPID_PUBLIC_KEY", "BJt75bqZyZdfqtfNkvQUT3uZpg6ytWSi0mg9riLZl2zOTIarMwxvxJNHCc8OvfVwh8Xe2o60cYXzqa3MBKYOT8s")
@@ -67,7 +84,12 @@ MARKETING_POST_MINUTE = 0
 
 # ========== CRON SOZLAMALARI ==========
 # Tashqi cron xizmatlari uchun secret key
-CRON_SECRET = os.getenv("CRON_SECRET", "trendoai-cron-secret-2025")
+DEFAULT_CRON_SECRET = "trendoai-cron-secret-2025"
+CRON_SECRET = _require_production_secret(
+    "CRON_SECRET",
+    os.getenv("CRON_SECRET", DEFAULT_CRON_SECRET),
+    DEFAULT_CRON_SECRET,
+)
 
 # ========== ANALYTICS & REMARKETING ==========
 # Google Analytics 4 (G-XXXXXXXXXX formatida)

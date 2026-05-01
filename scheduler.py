@@ -6,6 +6,7 @@ Har soatda 06:00 dan 22:00 gacha post chiqaradi.
 
 import random
 import sys
+import time
 import traceback
 from datetime import datetime
 
@@ -298,7 +299,7 @@ if __name__ == "__main__":
 
     try:
         while True:
-            pass
+            time.sleep(60)
     except KeyboardInterrupt:
         scheduler.shutdown()
         print("Scheduler to'xtatildi.")

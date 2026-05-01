@@ -16,12 +16,18 @@ services:
         value: 3.11.0
       - key: GEMINI_API_KEY
         sync: false
+      - key: GEMINI_API_KEY2
+        sync: false
+      - key: GEMINI_API_KEY3
+        sync: false
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       - key: TELEGRAM_CHANNEL_ID
         sync: false
       - key: SECRET_KEY
         generateValue: true
+      - key: CRON_SECRET
+        sync: false
       - key: ADMIN_USERNAME
         sync: false
       - key: ADMIN_PASSWORD

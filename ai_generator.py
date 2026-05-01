@@ -26,11 +26,19 @@ from config import (
 )
 
 GEMINI_API_KEY2 = os.getenv("GEMINI_API_KEY2")
+GEMINI_API_KEY3 = os.getenv("GEMINI_API_KEY3")
 
 current_api_key = GEMINI_API_KEY
 current_model_name = GEMINI_MODEL
 realtime_client = None
 LAST_AI_ERROR = None
+TEXT_MODEL_FALLBACKS = [
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-3-flash-preview",
+    "gemini-3.1-flash-lite-preview",
+]
+TEXT_UNSUPPORTED_MODEL_PARTS = ("live", "native-audio", "tts", "image")
 
 SPECIFIC_MODEL_PATTERN = re.compile(
     r"\b(?:GPT-\d+(?:\.\d+)?(?:\s+[A-Za-z-]+)?|Gemini\s+\d+(?:\.\d+)?(?:\s+[A-Za-z-]+)?|Claude\s+(?:Opus|Sonnet|Haiku)\s*\d+(?:\.\d+)?)\b",
@@ -46,6 +54,54 @@ def _set_last_ai_error(message):
 
 def get_last_ai_error():
     return LAST_AI_ERROR
+
+
+def _is_text_generation_model(model_name):
+    """Return True only for models suitable for text generate_content calls."""
+    normalized = (model_name or "").strip().lower()
+    return bool(normalized) and not any(part in normalized for part in TEXT_UNSUPPORTED_MODEL_PARTS)
+
+
+def _build_text_model_candidates():
+    candidates = []
+    skipped = []
+
+    for model_name in [GEMINI_MODEL, GEMINI_MODEL_BACKUP, *TEXT_MODEL_FALLBACKS]:
+        model_name = (model_name or "").strip()
+        if not model_name or model_name in candidates:
+            continue
+
+        if _is_text_generation_model(model_name):
+            candidates.append(model_name)
+        else:
+            skipped.append(model_name)
+
+    if skipped:
+        print(f"[ai] Skipping non-text Gemini models for post generation: {', '.join(skipped)}")
+
+    return candidates
+
+
+def _build_api_key_candidates():
+    candidates = []
+    for api_key in [GEMINI_API_KEY, GEMINI_API_KEY2, GEMINI_API_KEY3]:
+        if api_key and api_key not in candidates:
+            candidates.append(api_key)
+    return candidates
+
+
+def _is_permission_error(exc):
+    message = str(exc).lower()
+    exc_name = exc.__class__.__name__.lower()
+    return "permissiondenied" in exc_name or "403" in message or "denied access" in message
+
+
+def _is_model_config_error(exc):
+    message = str(exc).lower()
+    return (
+        "404" in message
+        and ("not found" in message or "not supported" in message or "models/" in message)
+    )
 
 
 def _refresh_realtime_client(api_key):
@@ -78,28 +134,65 @@ def _configure_api(api_key):
 
 
 
-def _switch_to_backup():
-    """Switch to a backup model first, then to a backup API key if available."""
+def _switch_to_next_api_key(model_candidates):
     global current_api_key, current_model_name, model
 
-    if current_model_name != GEMINI_MODEL_BACKUP:
-        print(f"[ai] Switching to backup model: {GEMINI_MODEL_BACKUP}")
-        current_model_name = GEMINI_MODEL_BACKUP
-        model = genai.GenerativeModel(current_model_name)
-        return True
+    api_keys = _build_api_key_candidates()
+    try:
+        current_key_index = api_keys.index(current_api_key)
+    except ValueError:
+        current_key_index = -1
 
-    if GEMINI_API_KEY2 and current_api_key != GEMINI_API_KEY2:
-        print("[ai] Switching to backup API key: GEMINI_API_KEY2")
-        _configure_api(GEMINI_API_KEY2)
-        current_model_name = GEMINI_MODEL
+    if current_key_index + 1 < len(api_keys):
+        print(f"[ai] Switching to backup API key #{current_key_index + 2}")
+        _configure_api(api_keys[current_key_index + 1])
+        current_model_name = model_candidates[0]
         model = genai.GenerativeModel(current_model_name)
         return True
 
     return False
 
 
+def _reset_to_primary_config():
+    global current_model_name, model
+
+    api_keys = _build_api_key_candidates()
+    model_candidates = _build_text_model_candidates()
+
+    if api_keys:
+        _configure_api(api_keys[0])
+
+    current_model_name = model_candidates[0]
+    model = genai.GenerativeModel(current_model_name)
+
+
+def _switch_to_backup(prefer_next_key=False):
+    """Switch through text-safe backup models first, then to a backup API key."""
+    global current_api_key, current_model_name, model
+
+    model_candidates = _build_text_model_candidates()
+
+    if prefer_next_key:
+        return _switch_to_next_api_key(model_candidates)
+
+    try:
+        current_index = model_candidates.index(current_model_name)
+    except ValueError:
+        current_index = -1
+
+    if current_index + 1 < len(model_candidates):
+        next_model = model_candidates[current_index + 1]
+        print(f"[ai] Switching to backup model: {next_model}")
+        current_model_name = next_model
+        model = genai.GenerativeModel(current_model_name)
+        return True
+
+    return _switch_to_next_api_key(model_candidates)
+
+
 _configure_api(GEMINI_API_KEY)
-model = genai.GenerativeModel(GEMINI_MODEL)
+current_model_name = _build_text_model_candidates()[0]
+model = genai.GenerativeModel(current_model_name)
 
 
 
@@ -109,41 +202,34 @@ def _retry_with_backoff(func, *args, **kwargs):
     last_exception = None
     _set_last_ai_error(None)
 
-    for attempt in range(AI_RETRY_ATTEMPTS):
-        try:
-            return func(*args, **kwargs)
-        except Exception as exc:
-            last_exception = exc
-            _set_last_ai_error(str(exc))
-            wait_time = AI_RETRY_DELAY * (2 ** attempt)
-            print(f"[ai] Error ({attempt + 1}/{AI_RETRY_ATTEMPTS}): {exc}")
-            print(f"[ai] Waiting {wait_time} seconds before retry...")
-            time.sleep(wait_time)
-
-    if _switch_to_backup():
-        print("[ai] Retrying with backup configuration...")
+    while True:
         for attempt in range(AI_RETRY_ATTEMPTS):
             try:
                 return func(*args, **kwargs)
             except Exception as exc:
                 last_exception = exc
                 _set_last_ai_error(str(exc))
+                if _is_permission_error(exc) or _is_model_config_error(exc):
+                    print(f"[ai] Configuration error: {exc}")
+                    break
+
                 wait_time = AI_RETRY_DELAY * (2 ** attempt)
-                print(f"[ai] Backup error ({attempt + 1}/{AI_RETRY_ATTEMPTS}): {exc}")
+                print(f"[ai] Error ({attempt + 1}/{AI_RETRY_ATTEMPTS}): {exc}")
+                print(f"[ai] Waiting {wait_time} seconds before retry...")
                 time.sleep(wait_time)
 
-        if _switch_to_backup():
-            print("[ai] Retrying with secondary backup configuration...")
-            for _ in range(AI_RETRY_ATTEMPTS):
-                try:
-                    return func(*args, **kwargs)
-                except Exception as exc:
-                    last_exception = exc
-                    _set_last_ai_error(str(exc))
-                    time.sleep(AI_RETRY_DELAY)
+        prefer_next_key = bool(last_exception and _is_permission_error(last_exception))
+        if not _switch_to_backup(prefer_next_key=prefer_next_key):
+            break
+
+        print(
+            f"[ai] Retrying with model '{current_model_name}' "
+            f"and API key ending ...{current_api_key[-4:] if current_api_key else 'none'}"
+        )
 
     print(f"[ai] All retries failed. Last error: {last_exception}")
     _set_last_ai_error(f"All retries failed: {last_exception}")
+    _reset_to_primary_config()
     return None
 
 
