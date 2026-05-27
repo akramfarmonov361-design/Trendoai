@@ -465,11 +465,28 @@
             <form @submit.prevent="send()" class="p-3 border-t border-ink-200 dark:border-ink-800 bg-ink-50 dark:bg-ink-950">
                 <div class="flex items-center gap-2">
                     <label for="chatbotInput" class="visually-hidden">Xabar yozing</label>
-                    <input id="chatbotInput" type="text" x-model="input" :disabled="sending"
+                    <input id="chatbotInput" type="text" x-model="input" :disabled="sending || recording"
                         placeholder="Xabar yozing..." autocomplete="off"
                         class="flex-1 min-w-0 px-3.5 py-2.5 rounded-lg border border-ink-300 dark:border-ink-700 bg-white dark:bg-ink-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
-                    <button type="submit" :disabled="sending || !input.trim()"
-                        class="px-4 py-2.5 rounded-lg bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                    
+                    <!-- Microphone Button -->
+                    <button type="button" @click="toggleRecording()" :disabled="sending"
+                        :class="recording ? 'bg-red-500 text-white animate-pulse' : 'bg-ink-200 dark:bg-ink-800 text-ink-700 dark:text-ink-300 hover:bg-ink-300 dark:hover:bg-ink-700'"
+                        class="p-2.5 rounded-lg text-sm font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center shrink-0"
+                        title="Ovozli xabar yuborish">
+                        <!-- Mic Icon -->
+                        <svg x-show="!recording" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+                        </svg>
+                        <!-- Stop Icon -->
+                        <svg x-show="recording" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
+                        </svg>
+                    </button>
+
+                    <button type="submit" :disabled="sending || recording || !input.trim()"
+                        class="px-4 py-2.5 rounded-lg bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                     </button>
                 </div>
@@ -484,6 +501,9 @@
                 input: '',
                 sending: false,
                 typing: false,
+                recording: false,
+                mediaRecorder: null,
+                audioChunks: [],
                 messages: [
                     { role: 'assistant', content: 'Salom! 👋 Men TrendoAI AI yordamchisiman. IT xizmatlar, web saytlar, Telegram botlar yoki AI chatbotlar haqida so\'rang.' }
                 ],
@@ -498,6 +518,77 @@
                 scrollToBottom() {
                     const el = this.$refs.messages;
                     if (el) el.scrollTop = el.scrollHeight;
+                },
+                async toggleRecording() {
+                    if (this.recording) {
+                        await this.stopRecording();
+                    } else {
+                        await this.startRecording();
+                    }
+                },
+                async startRecording() {
+                    if (this.sending || this.recording) return;
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        this.audioChunks = [];
+                        this.mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                        this.mediaRecorder.ondataavailable = (event) => {
+                            if (event.data.size > 0) {
+                                this.audioChunks.push(event.data);
+                            }
+                        };
+                        this.mediaRecorder.onstop = async () => {
+                            const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+                            const reader = new FileReader();
+                            reader.readAsDataURL(audioBlob);
+                            reader.onloadend = async () => {
+                                const base64Audio = reader.result.split(',')[1];
+                                await this.sendAudio(base64Audio);
+                            };
+                            stream.getTracks().forEach(track => track.stop());
+                        };
+                        this.mediaRecorder.start();
+                        this.recording = true;
+                    } catch (err) {
+                        console.error("Microphone error:", err);
+                        this.messages.push({ role: 'assistant', content: "Mikrofon ruxsatnomasi rad etildi yoki moslama topilmadi." });
+                    }
+                },
+                async stopRecording() {
+                    if (!this.recording || !this.mediaRecorder) return;
+                    this.mediaRecorder.stop();
+                    this.recording = false;
+                },
+                async sendAudio(base64Audio) {
+                    this.sending = true;
+                    this.typing = true;
+                    this.messages.push({ role: 'user', content: '🎤 Ovozli xabar...' });
+                    try {
+                        const res = await fetch('/api/chat/audio', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ audio: base64Audio })
+                        });
+                        const data = await res.json();
+                        if (data.success && data.response) {
+                            // Find and replace the last user audio indicator or just add response
+                            this.messages.push({ role: 'assistant', content: data.response });
+                            if (data.audio_base64) {
+                                const audioUrl = `data:audio/wav;base64,${data.audio_base64}`;
+                                const audio = new Audio(audioUrl);
+                                audio.play().catch(e => console.error("Audio playback error:", e));
+                            }
+                        } else {
+                            const errMsg = data.error || data.response || "Ovozni qayta ishlashda xatolik yuz berdi.";
+                            this.messages.push({ role: 'assistant', content: errMsg });
+                        }
+                    } catch (err) {
+                        console.error("Audio sending error:", err);
+                        this.messages.push({ role: 'assistant', content: "Server bilan bog'lanishda xatolik yuz berdi." });
+                    } finally {
+                        this.typing = false;
+                        this.sending = false;
+                    }
                 },
                 async send() {
                     const text = this.input.trim();
