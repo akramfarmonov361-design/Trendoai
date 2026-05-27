@@ -1,8 +1,9 @@
-const CACHE_NAME = 'trendoai-v4';
+const CACHE_NAME = 'trendoai-v5';
 const urlsToCache = [
-    '/static/css/style.css',
     '/static/manifest.json',
-    '/static/favicon.svg'
+    '/static/favicon.svg',
+    '/static/favicon-32.png',
+    '/static/img/logo-icon.png'
 ];
 
 // Install event - cache assets
