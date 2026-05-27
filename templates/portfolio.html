@@ -13,6 +13,61 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
 {% block twitter_description %}50+ muvaffaqiyatli loyihalar: Telegram botlar, web saytlar, AI yechimlar. Bepul konsultatsiya olish uchun bog'laning!{% endblock %}
 {% block twitter_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}
 
+{% block extra_head %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "TrendoAI Portfolio - Professional IT Xizmatlari",
+    "description": "50+ muvaffaqiyatli loyihalar: Telegram botlar, web saytlar, AI yechimlar.",
+    "url": "{{ config.SITE_URL }}/portfolio",
+    "inLanguage": "uz",
+    "isPartOf": {
+        "@type": "WebSite",
+        "name": "TrendoAI",
+        "url": "{{ config.SITE_URL }}"
+    },
+    "mainEntity": {
+        "@type": "ItemList",
+        "numberOfItems": {{ portfolios|length if portfolios else 0 }},
+        "itemListOrder": "https://schema.org/ItemListOrderDescending",
+        "itemListElement": [
+            {% for item in portfolios %}
+            {
+                "@type": "ListItem",
+                "position": {{ loop.index }},
+                "url": "{{ config.SITE_URL }}/portfolio/project/{{ item.slug }}",
+                "name": {{ item.title | tojson }}{% if item.description %},
+                "description": {{ item.description | truncate(160) | tojson }}{% endif %}
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ]
+    }
+}
+</script>
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Bosh sahifa",
+            "item": "{{ config.SITE_URL }}/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Portfolio",
+            "item": "{{ config.SITE_URL }}/portfolio"
+        }
+    ]
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- Portfolio Hero -->
 <section class="portfolio-hero">

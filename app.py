@@ -1956,12 +1956,21 @@ def admin_migrate_db():
 @app.route('/robots.txt')
 def robots_txt():
     """Qidiruv tizimlari botlari uchun ruxsatnoma"""
-    site_url = app.config.get('SITE_URL', 'https://trendoai.uz')
     lines = [
         "User-agent: *",
         "Disallow: /admin/",
         "Disallow: /api/",
-        f"Sitemap: {site_url}/sitemap.xml"
+        "Disallow: /search",
+        "Disallow: /search?",
+        "Disallow: /login",
+        "Disallow: /logout",
+        "Allow: /static/img/",
+        "Allow: /static/css/",
+        "",
+        "User-agent: Googlebot-Image",
+        "Allow: /static/img/",
+        "",
+        f"Sitemap: {SITE_URL}/sitemap.xml",
     ]
     return Response("\n".join(lines), mimetype="text/plain")
 

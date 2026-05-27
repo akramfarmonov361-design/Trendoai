@@ -32,13 +32,18 @@
     "author": {
         "@type": "Organization",
         "name": "TrendoAI",
-        "url": "https://trendoai.uz"
+        "url": "{{ config.SITE_URL }}"
     },
     "publisher": {
         "@type": "Organization",
         "name": "TrendoAI",
-        "url": "https://trendoai.uz"
+        "url": "{{ config.SITE_URL }}",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "{{ config.SITE_URL }}/static/img/logo.png"
+        }
     },
+    "inLanguage": "uz",
     "mainEntityOfPage": {
         "@type": "WebPage",
         "@id": "{% if post.slug %}{{ config.SITE_URL }}/blog/{{ post.slug }}{% else %}{{ config.SITE_URL }}/post/{{ post.id }}{% endif %}"
@@ -58,7 +63,7 @@
             "@type": "ListItem",
             "position": 1,
             "name": "Bosh sahifa",
-            "item": "https://trendoai.uz"
+            "item": "{{ config.SITE_URL }}/"
         },
         {
             "@type": "ListItem",
