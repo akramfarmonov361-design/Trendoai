@@ -109,12 +109,12 @@ def send_welcome(message):
         print(f"Error saving user: {e}")
 
     welcome_text = (
-        f"👋 **Salom, {message.from_user.first_name}!** TrendoAI botiga xush kelibsiz.\n\n"
-        f"🚀 **Bu bot orqali siz nimalar qila olasiz?**\n"
-        f"1️⃣ **📋 Menyu:** Bizning xizmatlarni tanlab, oson buyurtma berasiz.\n"
-        f"2️⃣ **💬 AI Assistent:** AI bilan suhbatlashasiz — u har qanday savolingizga yordam beradi.\n"
-        f"3️⃣ **📦 Buyurtmalarim:** Buyurtmalaringiz statusini kuzatasiz.\n\n"
-        f"👇 **Pastdagi klaviaturadan tugmalarni tanlang!**"
+        f"Salom, {message.from_user.first_name} 👋\n\n"
+        f"Men *TrendoAI* botman. Quyidagilarda yordam beraman:\n\n"
+        f"📋 *Menyu* — xizmatlarimizni ko'rib chiqish va buyurtma berish\n"
+        f"💬 *AI Assistent* — savollaringizga aqlli javob\n"
+        f"📦 *Buyurtmalarim* — buyurtma holatini kuzatish\n\n"
+        f"Pastdagi tugmalardan birini tanlang."
     )
     bot.send_message(message.chat.id, welcome_text, parse_mode='Markdown', reply_markup=get_main_menu())
 
@@ -126,27 +126,61 @@ def show_categories(message):
         markup = telebot.types.InlineKeyboardMarkup(row_width=2)
         
         for cat in cats:
-            markup.add(telebot.types.InlineKeyboardButton(f"{cat.emoji} {cat.name}", callback_data=f"cat_{cat.id}"))
-            
-        bot.send_message(message.chat.id, "Kategoriyalardan birini tanlang:", reply_markup=markup)
+            # cat.name DB'da ko'pincha emoji bilan boshlanadi ("🤖 Telegram Botlar...").
+            # cat.emoji'ni qayta qo'shsak, emoji 2 marta chiqadi. Shuning uchun
+            # name boshidagi emoji'ni stripp qilamiz va keyin formatga qaytaramiz.
+            emoji = (cat.emoji or '').strip()
+            name = cat.name or ''
+            if emoji and name.startswith(emoji):
+                name = name[len(emoji):].lstrip()
+            label = f"{emoji} {name}".strip() if emoji else name
+            markup.add(telebot.types.InlineKeyboardButton(label, callback_data=f"cat_{cat.id}"))
+
+        bot.send_message(message.chat.id, "Qaysi xizmatga qiziqasiz?", reply_markup=markup)
 
 @bot.message_handler(func=lambda message: message.text == "📦 Buyurtmalarim") if bot else lambda f: f
 def my_orders(message):
+    status_labels = {
+        'new': '🟡 Yangi',
+        'pending': '🟡 Kutilmoqda',
+        'processing': '🔵 Ishlanmoqda',
+        'confirmed': '🔵 Tasdiqlangan',
+        'completed': '🟢 Tugallangan',
+        'cancelled': '🔴 Bekor qilindi',
+    }
     with app.app_context():
         orders = BotOrder.query.filter_by(tg_id=message.from_user.id).order_by(BotOrder.created_at.desc()).limit(5).all()
         if not orders:
-            bot.send_message(message.chat.id, "Sizda hozircha buyurtmalar yo'q.")
+            bot.send_message(
+                message.chat.id,
+                "Sizda hozircha buyurtmalar yo'q.\n\n"
+                "Yangi buyurtma berish uchun *📋 Menyu* tugmasini bosing.",
+                parse_mode='Markdown'
+            )
             return
-            
-        text = "📦 **So'nggi buyurtmalaringiz:**\n\n"
+
+        lines = ["*So'nggi buyurtmalaringiz:*\n"]
         for o in orders:
-            text += f"🔖 #{o.order_number} — {o.total_amount} so'm\nStatus: {o.status}\n\n"
-        bot.send_message(message.chat.id, text, parse_mode='Markdown')
+            status = status_labels.get((o.status or '').lower(), o.status or '—')
+            amount = f"{o.total_amount:,}".replace(',', ' ') if o.total_amount else '—'
+            lines.append(f"#{o.order_number}  ·  {amount} so'm")
+            lines.append(f"  {status}\n")
+        bot.send_message(message.chat.id, "\n".join(lines), parse_mode='Markdown')
 
 @bot.message_handler(func=lambda message: message.text == "💬 AI Assistent") if bot else lambda f: f
 def ai_assistant_mode(message):
     update_user_state(message.from_user.id, 'ai_chat')
-    bot.send_message(message.chat.id, "🤖 AI Assistent holatiga o'tdingiz. Menga savolingizni yozib qoldiring.\n\nChiqish uchun /start bosing.")
+    intro = (
+        "🤖 *AI Assistent rejimi yoqildi*\n\n"
+        "Menga IT, sun'iy intellekt, web ishlab chiqish va biznes avtomatlashtirish bo'yicha istalgan savolni bering.\n\n"
+        "*Misol savollar:*\n"
+        "• Telegram bot qancha turadi?\n"
+        "• Web saytim uchun qaysi texnologiya yaxshi?\n"
+        "• AI chatbot biznesimga qanday foyda keltiradi?\n"
+        "• To'lov tizimini qanday qo'shaman?\n\n"
+        "Chiqish uchun /start bosing."
+    )
+    bot.send_message(message.chat.id, intro, parse_mode='Markdown')
 
 # --- CALLBACK HANDLERS ---
 @bot.callback_query_handler(func=lambda call: call.data.startswith('cat_')) if bot else lambda f: f
