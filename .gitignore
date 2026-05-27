@@ -1,7 +1,10 @@
 venv/
+.venv/
 __pycache__/
 *.pyc
 .env
 instance/
 .pytest_cache/
 .DS_Store
+node_modules/
+package-lock.json

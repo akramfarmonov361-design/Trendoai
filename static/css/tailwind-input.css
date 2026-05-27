@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html { font-feature-settings: 'cv11', 'ss01'; }
+    body { @apply bg-white text-ink-900 antialiased; }
+    html.dark body { @apply bg-ink-950 text-ink-100; }
+    ::selection { @apply bg-brand-200 text-brand-900; }
+    html.dark ::selection { @apply bg-brand-500/30 text-white; }
+}
+
+@layer components {
+    .container-narrow { @apply max-w-5xl mx-auto px-6 sm:px-8; }
+    .container-wide  { @apply max-w-7xl mx-auto px-6 sm:px-8; }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg
+               bg-ink-900 text-white font-semibold text-sm
+               hover:bg-ink-800 active:scale-[0.98] transition-all
+               shadow-soft;
+    }
+    html.dark .btn-primary { @apply bg-white text-ink-900 hover:bg-ink-100; }
+
+    .btn-accent {
+        @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg
+               bg-brand-600 text-white font-semibold text-sm
+               hover:bg-brand-700 active:scale-[0.98] transition-all
+               shadow-glow;
+    }
+
+    .btn-ghost {
+        @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg
+               text-ink-700 font-semibold text-sm
+               hover:bg-ink-100 transition-all;
+    }
+    html.dark .btn-ghost { @apply text-ink-200 hover:bg-ink-800; }
+
+    .card {
+        @apply bg-white rounded-xl border border-ink-200 shadow-soft
+               transition-all hover:shadow-glow hover:-translate-y-0.5;
+    }
+    html.dark .card { @apply bg-ink-900 border-ink-800; }
+
+    .tag {
+        @apply inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium
+               bg-ink-100 text-ink-700;
+    }
+    html.dark .tag { @apply bg-ink-800 text-ink-300; }
+
+    .nav-link {
+        @apply px-3 py-2 rounded-md text-sm font-medium text-ink-600
+               hover:text-ink-900 hover:bg-ink-100 transition-colors;
+    }
+    html.dark .nav-link { @apply text-ink-400 hover:text-white hover:bg-ink-800; }
+    .nav-link.active { @apply text-ink-900 bg-ink-100; }
+    html.dark .nav-link.active { @apply text-white bg-ink-800; }
+}
+
+.visually-hidden {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+.skip-to-content {
+    position: absolute; top: -40px; left: 0;
+    background: #6366f1; color: #fff; padding: 10px 16px;
+    border-radius: 0 0 8px 0; text-decoration: none; font-weight: 600;
+    z-index: 10001; transition: top 0.2s ease;
+}
+.skip-to-content:focus { top: 0; outline: 3px solid #fff; outline-offset: 2px; }

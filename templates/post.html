@@ -16,11 +16,16 @@
 {
     "@context": "https://schema.org",
     "@type": "Article",
-    "headline": "{{ post.title }}",
-    "description": "{{ post.content | striptags | truncate(200) }}",
-    {% if post.image_url %}"image": "{{ post.image_url }}",{% endif %}
+    "headline": {{ post.title | tojson }},
+    "description": {{ (post.content | striptags | truncate(200)) | tojson }},
+    {% if post.image_url %}"image": {
+        "@type": "ImageObject",
+        "url": "{{ post.image_url }}",
+        "width": 1200,
+        "height": 630
+    },{% endif %}
     "datePublished": "{{ post.created_at.isoformat() if post.created_at else '' }}",
-    {% if post.updated_at %}"dateModified": "{{ post.updated_at.isoformat() }}",{% endif %}
+    "dateModified": "{{ (post.updated_at or post.created_at).isoformat() if (post.updated_at or post.created_at) else '' }}",
     "author": {"@type": "Organization", "name": "TrendoAI", "url": "{{ config.SITE_URL }}"},
     "publisher": {
         "@type": "Organization",
@@ -33,7 +38,8 @@
         "@type": "WebPage",
         "@id": "{% if post.slug %}{{ config.SITE_URL }}/blog/{{ post.slug }}{% else %}{{ config.SITE_URL }}/post/{{ post.id }}{% endif %}"
     },
-    "articleSection": "{{ post.category }}",
+    "articleSection": {{ post.category | tojson }},
+    {% if post.keywords %}"keywords": {{ post.keywords | tojson }},{% endif %}
     "wordCount": {{ post.content.split()|length }},
     "timeRequired": "PT{{ post.reading_time }}M"
 }
@@ -128,7 +134,9 @@ html.dark .article-body th { background: #1e293b; }
             <!-- Featured image -->
             {% if post.image_url %}
             <figure class="rounded-2xl overflow-hidden border border-ink-200 dark:border-ink-800 mb-10 aspect-video bg-ink-100 dark:bg-ink-900">
-                <img src="{{ post.image_url }}" alt="{{ post.title }}" loading="lazy"
+                <img src="{{ post.image_url }}" alt="{{ post.title }}"
+                    width="1200" height="630"
+                    loading="eager" fetchpriority="high" decoding="async"
                     class="w-full h-full object-cover">
             </figure>
             {% endif %}

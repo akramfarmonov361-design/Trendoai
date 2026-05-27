@@ -80,6 +80,25 @@ python app.py
 gunicorn --bind 0.0.0.0:5000 app:app
 ```
 
+### 6. Tailwind CSS build (faqat dizayn o'zgarsa)
+
+Tailwind CDN o'rniga pre-built CSS ishlatilmoqda (`static/css/tailwind.css`).
+Yangi class qo'shsangiz yoki dizayn o'zgartirsangiz qayta build qilish kerak:
+
+```bash
+# Bir martalik (paketlarni o'rnatish)
+npm install
+
+# CSS'ni build qilish
+npm run build:css
+
+# Yoki tahrirlash vaqtida avtomatik kuzatish
+npm run watch:css
+```
+
+Build natijasi (`static/css/tailwind.css`) **git'ga commit qilinishi kerak** —
+Render.com'da Node.js yo'q, shuning uchun build mahalliy mashinada amalga oshiriladi.
+
 ## 🌐 Sahifalar
 
 | URL | Tavsif |

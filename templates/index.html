@@ -9,6 +9,18 @@
 {% block twitter_title %}Blog — TrendoAI{% endblock %}
 {% block twitter_description %}AI va IT bo'yicha o'zbek tilidagi blog.{% endblock %}
 
+{% block extra_head %}
+{%- set _cat = request.args.get('category') -%}
+{%- set _qs_base = ('?category=' ~ (_cat | urlencode)) if _cat else '' -%}
+{%- set _sep = '&' if _cat else '?' -%}
+{% if pagination and pagination.has_prev %}
+<link rel="prev" href="{{ config.SITE_URL }}/blog{% if pagination.prev_num == 1 %}{{ _qs_base }}{% else %}{{ _qs_base }}{{ _sep }}page={{ pagination.prev_num }}{% endif %}">
+{% endif %}
+{% if pagination and pagination.has_next %}
+<link rel="next" href="{{ config.SITE_URL }}/blog{{ _qs_base }}{{ _sep }}page={{ pagination.next_num }}">
+{% endif %}
+{% endblock %}
+
 {% block content %}
 
 <!-- BLOG HEADER -->
