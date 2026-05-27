@@ -48,8 +48,66 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
     },
     "sameAs": [
         "https://t.me/trendoai",
-        "https://instagram.com/trendoai",
+        "https://instagram.com/trendoaiuz",
         "https://youtube.com/@trendoaiuz"
+    ]
+}
+</script>
+
+<!-- FAQPage Schema -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "Loyiha narxi qancha turadi?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Narx loyiha murakkabligiga bog'liq. Oddiy Telegram bot 300 000 so'mdan boshlanadi, korporativ web-sayt 2 000 000 so'mdan, murakkab AI yechimlar esa loyihaga qarab individual hisoblanadi. Bepul konsultatsiya so'rab, aniq narxni bilib olishingiz mumkin."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Loyiha qancha vaqtda tayyor bo'ladi?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "O'rtacha muddatlar: Telegram bot — 3–10 kun, landing page — 5–7 kun, korporativ web-sayt — 2–4 hafta, AI chatbot — 1–3 hafta. Aniq muddat texnik topshiriqdan keyin belgilanadi."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Loyihadan keyin texnik qo'llab-quvvatlash bormi?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ha. Har bir loyiha 1 oylik bepul kafolat bilan keladi (hosting va xato tuzatish). Undan keyin oylik texnik xizmat shartnomasi tuzish mumkin: kichik o'zgartirishlar, yangi funksiyalar, monitoring."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Qaysi to'lov tizimlari integratsiya qilinadi?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Mahalliy: Payme, Click, Uzum Bank, Apelsin. Xalqaro: Stripe, PayPal. Telegram bot va web-saytlarga to'liq integratsiya qilamiz, shu jumladan webhook va admin panel orqali to'lovlarni boshqarish."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Bepul konsultatsiya olish mumkinmi?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Albatta. Telegram (@TrendoAibot) yoki +998 97 477 12 29 orqali bog'laning — 15–20 daqiqalik bepul konsultatsiyada loyihangizga mos yechim va taxminiy narx aytib beramiz."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Ishlaringizning namunalarini ko'rsa bo'ladimi?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ha. Portfolio sahifamizda 50+ tugallangan loyihani ko'rishingiz mumkin — Telegram botlar, web-saytlar, AI yechimlar va mobil ilovalar bo'yicha real misollar."
+            }
+        }
     ]
 }
 </script>
@@ -212,6 +270,132 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
     </article>
 
 </div>
+
+<!-- ========== FAQ SECTION ========== -->
+<section class="faq-section" id="faq" aria-labelledby="faq-heading">
+    <div class="faq-container">
+        <h2 id="faq-heading">❓ Tez-tez so'raladigan savollar</h2>
+        <p class="faq-lead">Mijozlarimiz ko'pincha quyidagi savollar bilan murojaat qilishadi</p>
+
+        <div class="faq-list">
+            <details class="faq-item">
+                <summary>Loyiha narxi qancha turadi?</summary>
+                <p>Narx loyiha murakkabligiga bog'liq. Oddiy Telegram bot 300 000 so'mdan boshlanadi, korporativ web-sayt 2 000 000 so'mdan, murakkab AI yechimlar esa loyihaga qarab individual hisoblanadi. Bepul konsultatsiya so'rab, aniq narxni bilib olishingiz mumkin.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Loyiha qancha vaqtda tayyor bo'ladi?</summary>
+                <p>O'rtacha muddatlar: Telegram bot — 3–10 kun, landing page — 5–7 kun, korporativ web-sayt — 2–4 hafta, AI chatbot — 1–3 hafta. Aniq muddat texnik topshiriqdan keyin belgilanadi.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Loyihadan keyin texnik qo'llab-quvvatlash bormi?</summary>
+                <p>Ha. Har bir loyiha 1 oylik bepul kafolat bilan keladi (hosting va xato tuzatish). Undan keyin oylik texnik xizmat shartnomasi tuzish mumkin: kichik o'zgartirishlar, yangi funksiyalar, monitoring.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Qaysi to'lov tizimlari integratsiya qilinadi?</summary>
+                <p>Mahalliy: Payme, Click, Uzum Bank, Apelsin. Xalqaro: Stripe, PayPal. Telegram bot va web-saytlarga to'liq integratsiya qilamiz, shu jumladan webhook va admin panel orqali to'lovlarni boshqarish.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Bepul konsultatsiya olish mumkinmi?</summary>
+                <p>Albatta. Telegram (@TrendoAibot) yoki <a href="tel:+998974771229">+998 97 477 12 29</a> orqali bog'laning — 15–20 daqiqalik bepul konsultatsiyada loyihangizga mos yechim va taxminiy narx aytib beramiz.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Ishlaringizning namunalarini ko'rsa bo'ladimi?</summary>
+                <p>Ha. <a href="{{ url_for('portfolio') }}">Portfolio sahifamizda</a> 50+ tugallangan loyihani ko'rishingiz mumkin — Telegram botlar, web-saytlar, AI yechimlar va mobil ilovalar bo'yicha real misollar.</p>
+            </details>
+        </div>
+    </div>
+</section>
+
+<style>
+    .faq-section {
+        padding: 60px 20px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .faq-container h2 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .faq-lead {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 32px;
+    }
+
+    .faq-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .faq-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 12px;
+        padding: 16px 20px;
+        transition: border-color 0.3s ease;
+    }
+
+    .faq-item[open] {
+        border-color: rgba(99, 102, 241, 0.5);
+        background: rgba(99, 102, 241, 0.05);
+    }
+
+    .faq-item summary {
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: #fff;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .faq-item summary::-webkit-details-marker { display: none; }
+
+    .faq-item summary::after {
+        content: '+';
+        font-size: 1.5rem;
+        color: #a855f7;
+        transition: transform 0.3s ease;
+    }
+
+    .faq-item[open] summary::after {
+        content: '−';
+    }
+
+    .faq-item p {
+        margin-top: 12px;
+        color: rgba(255, 255, 255, 0.75);
+        line-height: 1.6;
+    }
+
+    .faq-item a {
+        color: #a855f7;
+        text-decoration: underline;
+    }
+
+    [data-theme="light"] .faq-item {
+        background: rgba(0, 0, 0, 0.02);
+        border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    [data-theme="light"] .faq-item summary { color: #1f2937; }
+    [data-theme="light"] .faq-item p { color: #4b5563; }
+</style>
 
 <!-- Order Form Section -->
 <section class="order-form-section" id="order">
