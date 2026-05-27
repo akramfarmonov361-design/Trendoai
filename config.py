@@ -42,8 +42,34 @@ elif DATABASE_URI.startswith("mysql2://"):
 
 # ========== AI SOZLAMALARI ==========
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY2") or os.getenv("GEMINI_API_KEY3")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-GEMINI_MODEL_BACKUP = os.getenv("GEMINI_MODEL_BACKUP", "gemini-2.5-flash-lite")
+_DEFAULT_MODEL = "gemini-2.5-flash"
+_DEFAULT_MODEL_BACKUP = "gemini-2.5-flash-lite"
+
+# Models that Google has retired or never shipped GA. If someone has one of
+# these in their .env / Render env vars, silently fall back to the safe
+# default instead of letting every /api/chat call 404 from Gemini.
+_DEPRECATED_MODELS = {
+    "gemini-3.1-flash-lite",
+    "gemini-3.1-flash-lite-preview",
+    "gemini-3-flash-preview",
+    "gemini-pro",  # legacy v1
+    "gemini-1.5-flash",  # retired
+    "gemini-1.5-pro",  # retired
+}
+
+
+def _resolve_model(env_name, default):
+    raw = (os.getenv(env_name) or "").strip()
+    if not raw:
+        return default
+    if raw in _DEPRECATED_MODELS:
+        print(f"⚠️ {env_name}={raw} is deprecated/unavailable, falling back to {default}")
+        return default
+    return raw
+
+
+GEMINI_MODEL = _resolve_model("GEMINI_MODEL", _DEFAULT_MODEL)
+GEMINI_MODEL_BACKUP = _resolve_model("GEMINI_MODEL_BACKUP", _DEFAULT_MODEL_BACKUP)
 AI_RETRY_ATTEMPTS = 3
 AI_RETRY_DELAY = 2
 
