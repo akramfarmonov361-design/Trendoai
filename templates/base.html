@@ -132,12 +132,20 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    <!-- FontAwesome (async to avoid render-blocking) -->
+    <link rel="preload" as="style"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+        crossorigin="anonymous" referrerpolicy="no-referrer"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+            integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </noscript>
 
     <!-- Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
@@ -154,7 +162,7 @@
         <div class="header-content">
             <div class="logo">
                 <a href="{{ url_for('index') }}">
-                    <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="TrendoAI" class="logo-img">
+                    <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="TrendoAI" class="logo-img" width="40" height="40" decoding="async" fetchpriority="high">
                     <span class="logo-text">Trendo<span class="logo-highlight">AI</span></span>
                 </a>
             </div>
@@ -341,6 +349,18 @@
         summary:focus-visible {
             outline: 2px solid #a855f7;
             outline-offset: 2px;
+        }
+
+        /* Prevent layout shift for content images of unknown dimensions */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .post-card img,
+        .portfolio-card img,
+        article img:not(.logo-img) {
+            content-visibility: auto;
         }
 
         /* Back to Top Button */
