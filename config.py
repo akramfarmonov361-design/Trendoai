@@ -42,16 +42,16 @@ elif DATABASE_URI.startswith("mysql2://"):
 
 # ========== AI SOZLAMALARI ==========
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY2") or os.getenv("GEMINI_API_KEY3")
-_DEFAULT_MODEL = "gemini-2.5-flash"
+_DEFAULT_MODEL = "gemini-3.1-flash-lite"
 _DEFAULT_MODEL_BACKUP = "gemini-2.5-flash-lite"
 
-# Models that Google has retired or never shipped GA. If someone has one of
-# these in their .env / Render env vars, silently fall back to the safe
-# default instead of letting every /api/chat call 404 from Gemini.
+# Models that Google has retired. If someone has one of these in their
+# .env / Render env vars, silently fall back to the safe default instead
+# of letting every /api/chat call 404 from Gemini.
+# Verified against `genai.list_models()` — entries here must actually be
+# missing or "no longer available" via the live Gemini API.
 _DEPRECATED_MODELS = {
-    "gemini-3.1-flash-lite",
-    "gemini-3.1-flash-lite-preview",
-    "gemini-3-flash-preview",
+    "gemini-3.1-flash-lite-preview",  # preview retired; GA "gemini-3.1-flash-lite" still works
     "gemini-pro",  # legacy v1
     "gemini-1.5-flash",  # retired
     "gemini-1.5-pro",  # retired

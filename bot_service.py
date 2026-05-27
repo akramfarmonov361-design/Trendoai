@@ -7,10 +7,10 @@ import google.generativeai as genai
 from flask import Blueprint
 from config import TELEGRAM_BOT_TOKEN, GEMINI_API_KEY, GEMINI_MODEL, SITE_URL, TELEGRAM_ADMIN_ID
 from app import app, db, TelegramUser, Order, MenuItem, MenuCategory, BotOrder
+from ai_helpers import generate_text
 
-# Configure Gemini
+# Configure Gemini (helpers reuse the configured key)
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel(GEMINI_MODEL)
 
 # Create bot instance safely
 bot = None
@@ -64,10 +64,12 @@ def get_ai_response(user_message):
     try:
         current_date = datetime.now().strftime("%Y-%m-%d")
         dynamic_prompt = f"{SYSTEM_PROMPT}\nBugungi sana: {current_date}"
-        
-        chat = model.start_chat(history=[{"role": "user", "parts": [dynamic_prompt]}])
-        response = chat.send_message(user_message)
-        return response.text
+
+        text, _model_used = generate_text(
+            prompt=user_message,
+            history=[{"role": "user", "parts": [dynamic_prompt]}],
+        )
+        return text or "Uzr, javob shakllantirilmadi. Iltimos, savolingizni qayta yozing."
     except Exception as e:
         print(f"❌ Gemini AI Error: {e}")
         return "Uzr, hozirda serverda xatolik yuz berdi. Birozdan so'ng urinib ko'ring."

@@ -1617,11 +1617,6 @@ QOIDALAR:
 3. Zarur joyda TrendoAI xizmatlarini mos ravishda tavsiya qiling.
 4. Agar aniq narxni bilmasangiz, konsultatsiyaga yo'naltiring."""
 
-        model = genai.GenerativeModel(
-            model_name=GEMINI_MODEL,
-            system_instruction=system_prompt
-        )
-
         history = []
         for msg in messages[-6:-1]:
             content = (msg.get('content') or '').strip()
@@ -1630,9 +1625,12 @@ QOIDALAR:
             role = 'user' if msg.get('role') == 'user' else 'model'
             history.append({'role': role, 'parts': [content]})
 
-        chat = model.start_chat(history=history)
-        response = chat.send_message(last_user_msg)
-        reply = (getattr(response, 'text', '') or '').strip()
+        from ai_helpers import generate_text
+        reply, _model_used = generate_text(
+            prompt=last_user_msg,
+            system_instruction=system_prompt,
+            history=history,
+        )
 
         if not reply:
             reply = "Uzr, hozir javobni shakllantirib bo'lmadi. Telegram orqali yozing: @trendoai"
