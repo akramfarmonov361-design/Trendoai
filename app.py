@@ -1570,6 +1570,35 @@ def api_generate_portfolio():
 
 # ========== AI CHATBOT API ==========
 
+def _is_ai_capacity_error(exc):
+    message = str(exc).lower()
+    return any(part in message for part in ["quota", "429", "resourceexhausted", "denied access", "403", "1008"])
+
+
+def _local_chat_fallback(user_message, exc=None):
+    message = (user_message or "").lower()
+    prefix = ""
+    if exc and _is_ai_capacity_error(exc):
+        prefix = "Gemini API limiti yoki project access sabab hozir live javob sekinlashgan. "
+
+    if any(word in message for word in ["salom", "assalom", "hello", "hi"]):
+        return prefix + "Salom! TrendoAI web saytlar, Telegram botlar, AI chatbotlar va SMM bo'yicha yordam beradi. Qaysi xizmat sizga kerak?"
+
+    if any(word in message for word in ["narx", "qancha", "price", "sum", "so'm"]):
+        return prefix + "Narx loyiha murakkabligiga bog'liq. Telegram botlar odatda 1 500 000 so'mdan, web saytlar 2 000 000 so'mdan, AI chatbotlar 2 500 000 so'mdan boshlanadi. Aniq hisoblash uchun Telegram username yoki telefon raqamingizni qoldiring."
+
+    if any(word in message for word in ["bot", "telegram"]):
+        return prefix + "Telegram bot uchun buyurtma, to'lov, admin panel, CRM va xabar avtomatlashtirish funksiyalarini qilib beramiz. Qanday biznes uchun bot kerak?"
+
+    if any(word in message for word in ["sayt", "website", "web", "landing"]):
+        return prefix + "Web sayt uchun landing page, korporativ sayt yoki internet do'kon tayyorlaymiz. Mobilga mos, tez va SEO asoslari bilan qilinadi. Qaysi turdagi sayt kerak?"
+
+    if any(word in message for word in ["ai", "chatbot", "sun'iy", "suniy"]):
+        return prefix + "AI chatbot mijoz savollariga 24/7 javob berishi, lead yig'ishi va Telegram yoki saytga ulanishi mumkin. Qaysi soha uchun kerakligini yozing."
+
+    return prefix + "Savolingizni oldim. TrendoAI xizmatlari bo'yicha yordam beraman: web sayt, Telegram bot, AI chatbot yoki SMM. Batafsilroq yozsangiz, mos yechimni tavsiya qilaman."
+
+
 @app.route('/api/chat', methods=['POST'])
 def api_chat():
     """AI chatbot yordamchisi API (saytdagi chat widget uchun)"""
@@ -1640,8 +1669,14 @@ QOIDALAR:
 
     except Exception as e:
         print(f"Chat error: {e}")
-        fallback = "Uzr, hozircha men javob qaytara olmayapman. Telegram orqali yozing: @trendoai"
-        return jsonify({'success': False, 'reply': fallback, 'response': fallback, 'error': str(e)}), 500
+        fallback = _local_chat_fallback(last_user_msg, e)
+        return jsonify({
+            'success': True,
+            'reply': fallback,
+            'response': fallback,
+            'ai_fallback': True,
+            'error': 'AI provider vaqtincha limit yoki access sabab javob bermadi.',
+        })
 
 import asyncio
 import io
@@ -1886,7 +1921,7 @@ def _friendly_audio_error(exc):
         return "Gemini Live uchun API project access yoqilmagan. Iltimos, matn yozib yuboring yoki Telegram orqali bog'laning: @trendoai"
     if 'quota' in message or 'resourceexhausted' in message or '429' in message:
         return "Gemini API limiti tugagan. Iltimos, matn yozib yuboring yoki birozdan keyin qayta urinib ko'ring."
-    return "Ovozli xabarni tushunishda xatolik bo'ldi. Iltimos, donaroq gapiring yoki yozib yuboring."
+    return "Gemini Live ovozni qayta ishlay olmadi. Iltimos, savolingizni matn qilib yozing yoki Telegram orqali bog'laning: @trendoai"
 
 
 @app.route('/api/chat/audio', methods=['POST'])

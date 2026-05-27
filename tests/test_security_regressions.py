@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 import unittest
+from unittest import mock
 
 
 class SecurityRegressionTests(unittest.TestCase):
@@ -45,6 +46,24 @@ class SecurityRegressionTests(unittest.TestCase):
         self.assertFalse(ai_generator._is_text_generation_model("gemini-3.1-flash-tts-preview"))
         self.assertFalse(ai_generator._is_text_generation_model("gemini-2.5-flash-image"))
         self.assertTrue(ai_generator._is_text_generation_model("gemini-2.5-flash"))
+
+    def test_chat_has_local_fallback_when_gemini_quota_is_exhausted(self):
+        import ai_helpers
+        import app as trendo_app
+
+        client = trendo_app.app.test_client()
+
+        with mock.patch.object(ai_helpers, "generate_text", side_effect=RuntimeError("429 quota exceeded")):
+            response = client.post(
+                "/api/chat",
+                json={"message": "salom", "messages": [{"role": "user", "content": "salom"}]},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue(data["success"])
+        self.assertTrue(data["ai_fallback"])
+        self.assertIn("Salom", data["response"])
 
     def test_production_rejects_default_security_values(self):
         env = os.environ.copy()
