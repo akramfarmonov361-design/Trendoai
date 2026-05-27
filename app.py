@@ -37,7 +37,7 @@ from config import (
     ADMIN_USERNAME, ADMIN_PASSWORD, POSTS_PER_PAGE, CATEGORIES,
     GA4_ID, GOOGLE_ADS_ID, FACEBOOK_PIXEL_ID,
     CRON_SECRET, DEBUG, GEMINI_API_KEY, GEMINI_MODEL,
-    VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_CLAIMS_SUB
+    GEMINI_LIVE_MODEL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_CLAIMS_SUB
 )
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
@@ -45,6 +45,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = SECRET_KEY
 app.config['CRON_SECRET'] = CRON_SECRET
 app.config['GEMINI_API_KEY'] = GEMINI_API_KEY
+app.config['GEMINI_LIVE_MODEL'] = GEMINI_LIVE_MODEL
 app.config['VAPID_PUBLIC_KEY'] = VAPID_PUBLIC_KEY
 app.config['VAPID_PRIVATE_KEY'] = VAPID_PRIVATE_KEY
 app.config['VAPID_CLAIMS_SUB'] = VAPID_CLAIMS_SUB
@@ -1647,184 +1648,290 @@ import io
 import wave
 import base64
 
-async def _generate_native_audio_chunks(context_text):
-    try:
-        from google import genai as new_genai
-        from google.genai import types as new_types
-    except ImportError:
-        print("google-genai not installed")
-        return []
-    
-    # Barcha kalitlarni ro'yxati
-    keys_to_try = [
+def _gemini_api_key_candidates():
+    keys = []
+    for key in [
+        app.config.get('GEMINI_API_KEY'),
         os.getenv('GEMINI_API_KEY'),
         os.getenv('GEMINI_API_KEY2'),
         os.getenv('GEMINI_API_KEY3'),
-        app.config.get('GEMINI_API_KEY')
-    ]
-    
-    models_to_try = [
-        'gemini-3.1-flash-live-preview',
-        'gemini-3.1-flash-live',
-        'gemini-2.5-flash-live-preview',
-        'gemini-2.0-flash-exp'
-    ]
-    
-    audio_chunks = []
-    
-    for key in keys_to_try:
-        if not key:
-            continue
-            
-        for model in models_to_try:
-            try:
-                client = new_genai.Client(api_key=key)
-                config = new_types.LiveConnectConfig(
-                    response_modalities=[new_types.Modality.AUDIO],
-                    speech_config=new_types.SpeechConfig(
-                        voice_config=new_types.VoiceConfig(
-                            prebuilt_voice_config=new_types.PrebuiltVoiceConfig(voice_name='Puck')
-                        )
-                    )
-                )
-                async with client.aio.live.connect(model=model, config=config) as session:
-                    await session.send(input=context_text, end_of_turn=True)
-                    async for response in session.receive():
-                        server_content = response.server_content
-                        if server_content is not None:
-                            model_turn = server_content.model_turn
-                            if model_turn is not None:
-                                for part in model_turn.parts:
-                                    if part.inline_data:
-                                        audio_chunks.append(part.inline_data.data)
-                
-                # Agar muvaffaqiyatli olsa, tsikllarni to'xtatish
-                if audio_chunks:
-                    print(f"✅ Native audio generated using model: {model}")
-                    break
-            except Exception as e:
-                print(f"Native audio live connect xatosi (Model: {model}, Key: {key[:5]}...): {e}")
-        
-        if audio_chunks:
-            break
-            
-    return audio_chunks
+    ]:
+        key = (key or '').strip()
+        if key and key not in keys:
+            keys.append(key)
+    return keys
 
-def get_audio_base64_from_text(text):
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    chunks = loop.run_until_complete(_generate_native_audio_chunks(text))
-    loop.close()
-    
+
+def _get_ffmpeg_executable():
+    import shutil
+
+    ffmpeg_path = shutil.which('ffmpeg')
+    if ffmpeg_path:
+        return ffmpeg_path
+
+    try:
+        import imageio_ffmpeg
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except Exception:
+        return None
+
+
+def _convert_audio_for_live_api(audio_bytes, mime_type):
+    normalized_mime = (mime_type or '').split(';', 1)[0].lower()
+    if normalized_mime == 'audio/pcm':
+        return audio_bytes, mime_type or 'audio/pcm;rate=16000'
+
+    ffmpeg_path = _get_ffmpeg_executable()
+    if not ffmpeg_path:
+        return audio_bytes, mime_type
+
+    import subprocess
+    import tempfile
+
+    suffix_by_mime = {
+        'audio/webm': '.webm',
+        'audio/ogg': '.ogg',
+        'audio/mpeg': '.mp3',
+        'audio/mp3': '.mp3',
+        'audio/mp4': '.m4a',
+        'audio/wav': '.wav',
+        'audio/x-wav': '.wav',
+    }
+    input_path = None
+    output_path = None
+
+    try:
+        with tempfile.NamedTemporaryFile(suffix=suffix_by_mime.get(normalized_mime, '.audio'), delete=False) as source_file:
+            source_file.write(audio_bytes)
+            input_path = source_file.name
+
+        with tempfile.NamedTemporaryFile(suffix='.pcm', delete=False) as output_file:
+            output_path = output_file.name
+
+        subprocess.run(
+            [
+                ffmpeg_path,
+                '-hide_banner',
+                '-loglevel',
+                'error',
+                '-y',
+                '-i',
+                input_path,
+                '-ac',
+                '1',
+                '-ar',
+                '16000',
+                '-f',
+                's16le',
+                output_path,
+            ],
+            check=True,
+            capture_output=True,
+        )
+
+        with open(output_path, 'rb') as converted_file:
+            converted = converted_file.read()
+
+        if converted:
+            return converted, 'audio/pcm;rate=16000'
+    except Exception as exc:
+        print(f"Audio conversion for Gemini Live failed: {exc}")
+    finally:
+        for path in [input_path, output_path]:
+            if path and os.path.exists(path):
+                try:
+                    os.unlink(path)
+                except OSError:
+                    pass
+
+    return audio_bytes, mime_type
+
+
+def _audio_chunks_to_wav_base64(chunks):
     if not chunks:
         return None
-        
+
     wav_io = io.BytesIO()
     with wave.open(wav_io, 'wb') as wav_file:
         wav_file.setnchannels(1)
         wav_file.setsampwidth(2)
         wav_file.setframerate(24000)
         for chunk in chunks:
-            wav_file.writeframes(chunk)
-            
+            if isinstance(chunk, str):
+                chunk = base64.b64decode(chunk)
+            wav_file.writeframes(bytes(chunk))
+
     return base64.b64encode(wav_io.getvalue()).decode('utf-8')
+
+
+def _chat_audio_system_prompt():
+    return """Siz TrendoAI AI assistentisiz.
+Vazifangiz:
+1. Kelayotgan ovozli xabarni to'g'ridan-to'g'ri tushuning.
+2. Foydalanuvchiga o'zbek tilida, samimiy va professional javob bering.
+3. Javobni qisqa, aniq va sotuvga yordam beradigan uslubda ayting.
+
+TrendoAI xizmatlari: Telegram Botlar, Web Saytlar, AI Chatbotlar, SMM.
+Aloqa: @Akramjon1984, trendoai.uz"""
+
+
+async def _generate_live_audio_reply(audio_bytes, mime_type, system_prompt):
+    try:
+        from google import genai as new_genai
+        from google.genai import types as new_types
+    except ImportError as exc:
+        raise RuntimeError("google-genai kutubxonasi o'rnatilmagan") from exc
+
+    live_audio, live_mime_type = _convert_audio_for_live_api(audio_bytes, mime_type)
+    config = new_types.LiveConnectConfig(
+        response_modalities=[new_types.Modality.AUDIO],
+        system_instruction=system_prompt,
+        input_audio_transcription=new_types.AudioTranscriptionConfig(language_codes=['uz-UZ', 'en-US', 'ru-RU']),
+        output_audio_transcription=new_types.AudioTranscriptionConfig(language_codes=['uz-UZ']),
+        speech_config=new_types.SpeechConfig(
+            voice_config=new_types.VoiceConfig(
+                prebuilt_voice_config=new_types.PrebuiltVoiceConfig(voice_name='Puck')
+            )
+        ),
+    )
+
+    last_error = None
+    for index, key in enumerate(_gemini_api_key_candidates(), start=1):
+        try:
+            client = new_genai.Client(api_key=key)
+            audio_chunks = []
+            model_text_parts = []
+            output_transcript_parts = []
+            input_transcript_parts = []
+
+            async with client.aio.live.connect(model=GEMINI_LIVE_MODEL, config=config) as session:
+                if (live_mime_type or '').startswith('audio/pcm'):
+                    await session.send_realtime_input(
+                        audio=new_types.Blob(data=live_audio, mime_type=live_mime_type)
+                    )
+                    await session.send_realtime_input(audio_stream_end=True)
+                else:
+                    await session.send_client_content(
+                        turns=new_types.Content(
+                            role='user',
+                            parts=[
+                                new_types.Part(text="Foydalanuvchining audio xabariga javob bering."),
+                                new_types.Part(
+                                    inline_data=new_types.Blob(
+                                        data=live_audio,
+                                        mime_type=live_mime_type or 'audio/webm',
+                                    )
+                                ),
+                            ],
+                        ),
+                        turn_complete=True,
+                    )
+
+                async for response in session.receive():
+                    server_content = getattr(response, 'server_content', None)
+                    if server_content is None:
+                        continue
+
+                    input_transcription = getattr(server_content, 'input_transcription', None)
+                    if input_transcription and input_transcription.text:
+                        input_transcript_parts.append(input_transcription.text)
+
+                    output_transcription = getattr(server_content, 'output_transcription', None)
+                    if output_transcription and output_transcription.text:
+                        output_transcript_parts.append(output_transcription.text)
+
+                    model_turn = getattr(server_content, 'model_turn', None)
+                    if model_turn and model_turn.parts:
+                        for part in model_turn.parts:
+                            if getattr(part, 'text', None):
+                                model_text_parts.append(part.text)
+                            inline_data = getattr(part, 'inline_data', None)
+                            if inline_data and inline_data.data:
+                                audio_chunks.append(inline_data.data)
+
+            response_text = ''.join(output_transcript_parts).strip() or ''.join(model_text_parts).strip()
+            audio_base64 = _audio_chunks_to_wav_base64(audio_chunks)
+            if response_text or audio_base64:
+                return {
+                    'text': response_text,
+                    'audio_base64': audio_base64,
+                    'input_transcription': ''.join(input_transcript_parts).strip(),
+                    'model': GEMINI_LIVE_MODEL,
+                }
+        except Exception as exc:
+            last_error = exc
+            print(f"Gemini Live audio failed on key #{index}: {type(exc).__name__}: {str(exc)[:160]}")
+
+    raise last_error if last_error else RuntimeError("Gemini Live API kaliti topilmadi")
+
+
+def get_live_audio_reply(audio_bytes, mime_type='audio/webm', system_prompt=None):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        return loop.run_until_complete(
+            _generate_live_audio_reply(
+                audio_bytes=audio_bytes,
+                mime_type=mime_type,
+                system_prompt=system_prompt or _chat_audio_system_prompt(),
+            )
+        )
+    finally:
+        loop.close()
+
+
+def _friendly_audio_error(exc):
+    message = str(exc).lower()
+    if 'denied access' in message or 'permission' in message or '403' in message or '1008' in message:
+        return "Gemini Live uchun API project access yoqilmagan. Iltimos, matn yozib yuboring yoki Telegram orqali bog'laning: @trendoai"
+    if 'quota' in message or 'resourceexhausted' in message or '429' in message:
+        return "Gemini API limiti tugagan. Iltimos, matn yozib yuboring yoki birozdan keyin qayta urinib ko'ring."
+    return "Ovozli xabarni tushunishda xatolik bo'ldi. Iltimos, donaroq gapiring yoki yozib yuboring."
 
 
 @app.route('/api/chat/audio', methods=['POST'])
 def api_chat_audio():
-    """AI Chatbot audio endpoint - Gemini 2.5 Flash Native Audio bilan"""
-    import google.generativeai as genai
-    from pywebpush import webpush, WebPushException
-    import markdown2
-    import base64
-    import tempfile
-    import os
-    
+    """AI Chatbot audio endpoint - Gemini Live bilan."""
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         audio_base64 = data.get('audio', '')
-        mime_type = data.get('mime_type', 'audio/webm')
-        
+        mime_type = data.get('mime_type') or data.get('mimeType') or 'audio/webm'
+
         if not audio_base64:
             return jsonify({'error': 'Audio topilmadi'}), 400
-        
-        # Base64 ni decode qilish
+
+
+        if not _gemini_api_key_candidates():
+            return jsonify({
+                'error': 'GEMINI_API_KEY topilmadi',
+                'response': "AI ovozli yordamchi hozircha sozlanmagan."
+            }), 503
+
+        if ',' in audio_base64:
+            audio_base64 = audio_base64.split(',', 1)[1]
+
         audio_bytes = base64.b64decode(audio_base64)
-        
-        # Gemini modelni sozlash
-        api_key = app.config.get('GEMINI_API_KEY') or os.getenv('GEMINI_API_KEY')
-        genai.configure(api_key=api_key)
-        
-        # GEMINI_MODEL env (default: gemini-3.1-flash-lite)
-        model = genai.GenerativeModel(GEMINI_MODEL)
-        
-        # TrendoAI konteksti
-        system_prompt = """Siz TrendoAI AI assistentisiz. 
-Vazifangiz:
-1. Kelayotgan ovozli xabarni to'g'ridan-to'g'ri tushuning (intonatsiya va hissiyotlarni hisobga olgan holda).
-2. Foydalanuvchiga o'zbek tilida, samimiy va professional javob bering.
+        live_reply = get_live_audio_reply(
+            audio_bytes=audio_bytes,
+            mime_type=mime_type,
+            system_prompt=_chat_audio_system_prompt(),
+        )
 
-TrendoAI xizmatlari: Telegram Botlar, Web Saytlar, AI Chatbotlar, SMM.
-Aloqa: @Akramjon1984, trendoai.uz
-
-Javobni matn ko'rinishida yozing."""
-
-        response = None
-        
-        # 1-usul: Tezroq va eng xavfsiz inline audio (upload_file va wait talab qilmaydi)
-        try:
-            response = model.generate_content([
-                system_prompt,
-                {
-                    "mime_type": mime_type,
-                    "data": audio_bytes
-                }
-            ])
-            print("✅ Direct inline audio generation succeeded")
-        except Exception as inline_e:
-            print(f"⚠️ Inline audio failed ({inline_e}), trying File API upload fallback...")
-            
-            # 2-usul (Zaxira): Vaqtinchalik faylga saqlash va File API orqali yuklash
-            suffix = '.webm'
-            if 'mp4' in mime_type:
-                suffix = '.mp4'
-            elif 'ogg' in mime_type:
-                suffix = '.ogg'
-            elif 'wav' in mime_type:
-                suffix = '.wav'
-                
-            with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_audio:
-                temp_audio.write(audio_bytes)
-                temp_audio_path = temp_audio.name
-
-            try:
-                uploaded_file = genai.upload_file(temp_audio_path, mime_type=mime_type)
-                response = model.generate_content([system_prompt, uploaded_file])
-                
-                try:
-                    uploaded_file.delete()
-                except:
-                    pass
-            finally:
-                if os.path.exists(temp_audio_path):
-                    os.unlink(temp_audio_path)
-
-        if not response:
-            raise RuntimeError("Gemini did not return a response")
-
-        # Native Gemini 3.1 Audio generation
-        audio_b64 = get_audio_base64_from_text(response.text)
-        
+        response_text = live_reply.get('text') or "Ovozli javob tayyor."
         return jsonify({
             'success': True,
-            'response': response.text,
-            'audio_base64': audio_b64
+            'response': response_text,
+            'reply': response_text,
+            'audio_base64': live_reply.get('audio_base64'),
+            'input_transcription': live_reply.get('input_transcription'),
+            'model': live_reply.get('model') or GEMINI_LIVE_MODEL,
         })
     except Exception as e:
         print(f"Audio chatbot error: {e}")
         return jsonify({
             'error': 'Ovozni tushunib bo\'lmadi',
-            'response': "Ovozli xabarni tushunishda xatolik bo'ldi. Iltimos, donaroq gapiring yoki yozib yuboring."
+            'response': _friendly_audio_error(e),
+            'model': GEMINI_LIVE_MODEL,
         }), 500
 
 
