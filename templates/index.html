@@ -1,156 +1,86 @@
 {% extends 'base_v2.html' %}
 
-{% block title %}TrendoAI — IT xizmatlar, Telegram botlar va AI yechimlar{% endblock %}
-{% block meta_description %}TrendoAI — O'zbekistonda professional IT studiyasi. Telegram botlar, web saytlar, AI chatbotlar va biznesni avtomatlashtirish bo'yicha 50+ tugallangan loyiha.{% endblock %}
-{% block canonical_url %}{{ config.SITE_URL }}/{% endblock %}
-{% block og_url %}{{ config.SITE_URL }}/{% endblock %}
-{% block og_title %}TrendoAI — IT xizmatlar va sun'iy intellekt yechimlari{% endblock %}
-{% block og_description %}Telegram botlar, web saytlar, AI chatbotlar — O'zbekistonda professional IT studiyasi.{% endblock %}
-{% block twitter_title %}TrendoAI — IT xizmatlar va sun'iy intellekt{% endblock %}
-{% block twitter_description %}Telegram botlar, web saytlar va AI yechimlar.{% endblock %}
+{% block title %}Blog — TrendoAI | AI, IT va texnologiya yangiliklari{% endblock %}
+{% block meta_description %}TrendoAI blog — sun'iy intellekt, Telegram botlar, web ishlab chiqish va biznesni avtomatlashtirish bo'yicha o'zbek tilidagi professional maqolalar.{% endblock %}
+{% block canonical_url %}{{ config.SITE_URL }}/blog{% if request.args.get('category') or request.args.get('page', '1') != '1' %}?{% if request.args.get('category') %}category={{ request.args.get('category') | urlencode }}{% endif %}{% if request.args.get('category') and request.args.get('page', '1') != '1' %}&{% endif %}{% if request.args.get('page', '1') != '1' %}page={{ request.args.get('page') }}{% endif %}{% endif %}{% endblock %}
+{% block og_url %}{{ config.SITE_URL }}/blog{% endblock %}
+{% block og_title %}Blog — TrendoAI | AI va IT yangiliklari{% endblock %}
+{% block og_description %}AI, IT va texnologiya bo'yicha o'zbek tilidagi professional maqolalar.{% endblock %}
+{% block twitter_title %}Blog — TrendoAI{% endblock %}
+{% block twitter_description %}AI va IT bo'yicha o'zbek tilidagi blog.{% endblock %}
 
 {% block content %}
 
-<!-- HERO -->
-<section class="relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-b from-brand-50/50 to-transparent dark:from-brand-950/20 dark:to-transparent pointer-events-none"></div>
-    <div class="container-narrow relative pt-20 pb-16 sm:pt-28 sm:pb-24 text-center">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ink-100 dark:bg-ink-900 border border-ink-200 dark:border-ink-800 text-xs font-medium text-ink-700 dark:text-ink-300 mb-6">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            Loyihalar qabul qilinmoqda
-        </div>
-
-        <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-ink-900 dark:text-white">
-            Biznesingizni
-            <span class="bg-gradient-to-r from-brand-600 to-accent-600 bg-clip-text text-transparent">
-                avtomatlashtiramiz
-            </span>
-        </h1>
-
-        <p class="mt-6 text-lg sm:text-xl text-ink-600 dark:text-ink-400 max-w-2xl mx-auto leading-relaxed">
-            Telegram botlar, web saytlar va AI chatbotlar — sizning biznesingizni 24/7 ishlashga o'rgatamiz.
-            50+ tugallangan loyiha, O'zbekistonda 5 yillik tajriba.
-        </p>
-
-        <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <a href="{{ url_for('order_page') }}" class="btn-accent text-base px-7 py-3.5">
-                Bepul konsultatsiya olish
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-            </a>
-            <a href="{{ url_for('portfolio') }}" class="btn-ghost text-base px-7 py-3.5">
-                Loyihalarni ko'rish
-            </a>
-        </div>
-
-        <!-- Trust bar -->
-        <dl class="mt-16 grid grid-cols-3 gap-6 sm:gap-12 max-w-2xl mx-auto">
-            <div>
-                <dt class="text-xs sm:text-sm text-ink-500 dark:text-ink-400">Loyiha</dt>
-                <dd class="mt-1 text-2xl sm:text-3xl font-bold text-ink-900 dark:text-white">50+</dd>
-            </div>
-            <div>
-                <dt class="text-xs sm:text-sm text-ink-500 dark:text-ink-400">Mamnun mijoz</dt>
-                <dd class="mt-1 text-2xl sm:text-3xl font-bold text-ink-900 dark:text-white">100+</dd>
-            </div>
-            <div>
-                <dt class="text-xs sm:text-sm text-ink-500 dark:text-ink-400">Tajriba</dt>
-                <dd class="mt-1 text-2xl sm:text-3xl font-bold text-ink-900 dark:text-white">5 yil</dd>
-            </div>
-        </dl>
-    </div>
-</section>
-
-<!-- SERVICES PREVIEW -->
-<section class="py-16 sm:py-24">
-    <div class="container-wide">
-        <div class="max-w-2xl">
-            <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-ink-900 dark:text-white">
-                Asosiy xizmatlar
-            </h2>
-            <p class="mt-3 text-ink-600 dark:text-ink-400">
-                Biznesingiz uchun mos yechimni tanlang. Har bir loyiha 1 oylik kafolat bilan.
+<!-- BLOG HEADER -->
+<section class="border-b border-ink-200 dark:border-ink-800">
+    <div class="container-wide py-12 sm:py-16">
+        <div class="max-w-3xl">
+            <p class="text-sm font-semibold uppercase tracking-wider text-brand-600">Blog</p>
+            <h1 class="mt-2 text-4xl sm:text-5xl font-extrabold tracking-tight text-ink-900 dark:text-white">
+                AI va texnologiya
+            </h1>
+            <p class="mt-4 text-lg text-ink-600 dark:text-ink-400">
+                Sun'iy intellekt, web ishlab chiqish va biznesni avtomatlashtirish bo'yicha o'zbek tilidagi professional maqolalar.
             </p>
         </div>
 
-        <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <article class="card p-6">
-                <div class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-                </div>
-                <h3 class="mt-4 text-lg font-semibold text-ink-900 dark:text-white">Telegram botlar</h3>
-                <p class="mt-2 text-sm text-ink-600 dark:text-ink-400 leading-relaxed">
-                    Do'kon, katalog, menyu, CRM botlari. Payme/Click integratsiyasi, admin panel.
-                </p>
-                <div class="mt-4 text-sm font-medium text-ink-500 dark:text-ink-400">
-                    300 000 so'mdan
-                </div>
-                <a href="{{ url_for('order_page') }}?service=telegram_bot"
-                    class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700">
-                    Buyurtma berish
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-                </a>
-            </article>
+        <!-- Search -->
+        <form action="{{ url_for('search') }}" method="GET" class="mt-8 max-w-xl">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="relative">
+                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="text" name="q" placeholder="Maqola qidirish..." value="{{ request.args.get('q', '') }}"
+                    class="w-full pl-11 pr-4 py-3 rounded-lg border border-ink-300 dark:border-ink-700 bg-white dark:bg-ink-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+            </div>
+        </form>
 
-            <article class="card p-6">
-                <div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
-                </div>
-                <h3 class="mt-4 text-lg font-semibold text-ink-900 dark:text-white">Veb-saytlar</h3>
-                <p class="mt-2 text-sm text-ink-600 dark:text-ink-400 leading-relaxed">
-                    Landing, korporativ saytlar, e-commerce. SEO-optimallashtirish va admin panel.
-                </p>
-                <div class="mt-4 text-sm font-medium text-ink-500 dark:text-ink-400">
-                    2 000 000 so'mdan
-                </div>
-                <a href="{{ url_for('order_page') }}?service=web_site"
-                    class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700">
-                    Buyurtma berish
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-                </a>
-            </article>
-
-            <article class="card p-6">
-                <div class="w-10 h-10 rounded-lg bg-accent-500/10 text-accent-600 dark:text-accent-500 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-                </div>
-                <h3 class="mt-4 text-lg font-semibold text-ink-900 dark:text-white">AI chatbotlar</h3>
-                <p class="mt-2 text-sm text-ink-600 dark:text-ink-400 leading-relaxed">
-                    Gemini/ChatGPT asosida o'zbek tilini tushunadigan aqlli yordamchilar.
-                </p>
-                <div class="mt-4 text-sm font-medium text-ink-500 dark:text-ink-400">
-                    Individual narx
-                </div>
-                <a href="{{ url_for('order_page') }}?service=ai_chatbot"
-                    class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700">
-                    Buyurtma berish
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-                </a>
-            </article>
+        <!-- Categories -->
+        <div class="mt-6 flex flex-wrap gap-2">
+            <a href="{{ url_for('blog') }}"
+                class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors {% if not request.args.get('category') %}bg-ink-900 text-white dark:bg-white dark:text-ink-900{% else %}bg-ink-100 text-ink-700 hover:bg-ink-200 dark:bg-ink-800 dark:text-ink-300 dark:hover:bg-ink-700{% endif %}">
+                Barchasi
+            </a>
+            {% for cat in categories %}
+            <a href="{{ url_for('blog', category=cat) }}"
+                class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors {% if request.args.get('category') == cat %}bg-ink-900 text-white dark:bg-white dark:text-ink-900{% else %}bg-ink-100 text-ink-700 hover:bg-ink-200 dark:bg-ink-800 dark:text-ink-300 dark:hover:bg-ink-700{% endif %}">
+                {{ cat }}
+            </a>
+            {% endfor %}
         </div>
     </div>
 </section>
 
-<!-- LATEST POSTS -->
-{% if posts %}
-<section class="py-16 sm:py-24 bg-ink-50 dark:bg-ink-900/30">
-    <div class="container-wide">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <div>
-                <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-ink-900 dark:text-white">
-                    So'nggi maqolalar
-                </h2>
-                <p class="mt-3 text-ink-600 dark:text-ink-400">
-                    AI, IT va texnologiya bo'yicha o'zbek tilidagi yangiliklar
-                </p>
+<!-- POPULAR (sidebar-style) -->
+{% if popular_posts %}
+<section class="container-wide pt-12">
+    <h2 class="text-sm font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">Ko'p o'qilganlar</h2>
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+        {% for post in popular_posts %}
+        <a href="{{ url_for('post_by_slug', slug=post.slug) if post.slug else url_for('post', post_id=post.id) }}"
+            class="group flex items-start gap-3 p-3 rounded-lg hover:bg-ink-50 dark:hover:bg-ink-900 transition-colors">
+            <span class="text-2xl font-extrabold text-ink-300 dark:text-ink-700 leading-none shrink-0">{{ "%02d"|format(loop.index) }}</span>
+            <div class="min-w-0">
+                <h3 class="text-sm font-semibold text-ink-900 dark:text-white group-hover:text-brand-600 line-clamp-2">
+                    {{ post.title | truncate(70) }}
+                </h3>
+                <p class="mt-1 text-xs text-ink-500">{{ post.views|default(0) }} ko'rishlar</p>
             </div>
-            <a href="{{ url_for('blog') }}" class="btn-ghost text-sm">
-                Barcha maqolalar
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-            </a>
-        </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 
-        <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for post in posts[:6] %}
+<!-- POSTS GRID -->
+<section class="py-12 sm:py-16">
+    <div class="container-wide">
+        <h2 class="text-2xl font-bold tracking-tight text-ink-900 dark:text-white">
+            {% if request.args.get('category') %}{{ request.args.get('category') }}{% else %}Barcha maqolalar{% endif %}
+        </h2>
+
+        {% if posts %}
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for post in posts %}
             <article class="card overflow-hidden flex flex-col">
                 {% if post.image_url %}
                 <a href="{{ url_for('post_by_slug', slug=post.slug) if post.slug else url_for('post', post_id=post.id) }}"
@@ -172,13 +102,13 @@
                     <p class="mt-2 text-sm text-ink-600 dark:text-ink-400 line-clamp-2 flex-1">
                         {{ (post.content | markdown) | striptags | truncate(140) }}
                     </p>
-                    <div class="mt-4 flex items-center gap-3 text-xs text-ink-500 dark:text-ink-500">
+                    <div class="mt-4 flex items-center gap-3 text-xs text-ink-500">
                         <span>{{ post.created_at.strftime('%d.%m.%Y') if post.created_at else '' }}</span>
                         <span>·</span>
-                        <span>{{ post.reading_time or 5 }} daq o'qish</span>
+                        <span>{{ post.reading_time or 5 }} daq</span>
                         {% if post.views %}
                         <span>·</span>
-                        <span>{{ post.views }} ko'rishlar</span>
+                        <span>{{ post.views }} ko'rish</span>
                         {% endif %}
                     </div>
                 </div>
@@ -187,43 +117,47 @@
         </div>
 
         {% if pagination and pagination.pages > 1 %}
-        <div class="mt-10 flex items-center justify-center gap-2">
+        <div class="mt-10 flex items-center justify-center gap-3">
             {% if pagination.has_prev %}
-            <a href="{{ url_for('blog', page=pagination.prev_num) }}" class="btn-ghost text-sm">← Oldingi</a>
+            <a href="{{ url_for('blog', page=pagination.prev_num, category=request.args.get('category')) }}" class="btn-ghost text-sm">← Oldingi</a>
+            {% else %}
+            <span class="btn-ghost text-sm opacity-40 cursor-not-allowed">← Oldingi</span>
             {% endif %}
             <span class="text-sm text-ink-500">{{ pagination.page }} / {{ pagination.pages }}</span>
             {% if pagination.has_next %}
-            <a href="{{ url_for('blog', page=pagination.next_num) }}" class="btn-ghost text-sm">Keyingi →</a>
+            <a href="{{ url_for('blog', page=pagination.next_num, category=request.args.get('category')) }}" class="btn-ghost text-sm">Keyingi →</a>
+            {% else %}
+            <span class="btn-ghost text-sm opacity-40 cursor-not-allowed">Keyingi →</span>
             {% endif %}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="mt-10 text-center py-20 border border-dashed border-ink-300 dark:border-ink-700 rounded-xl">
+            <svg class="w-12 h-12 mx-auto text-ink-300 dark:text-ink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+            <h3 class="mt-4 text-lg font-semibold text-ink-900 dark:text-white">Hozircha maqolalar mavjud emas</h3>
+            <p class="mt-2 text-sm text-ink-600 dark:text-ink-400">Tez orada yangi maqolalar paydo bo'ladi.</p>
         </div>
         {% endif %}
     </div>
 </section>
-{% endif %}
 
-<!-- FINAL CTA -->
-<section class="py-20 sm:py-28">
-    <div class="container-narrow">
-        <div class="rounded-2xl bg-gradient-to-br from-ink-900 to-brand-900 dark:from-ink-900 dark:to-brand-900 px-8 sm:px-16 py-14 sm:py-20 text-center relative overflow-hidden">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(168,85,247,0.3),transparent_50%)] pointer-events-none"></div>
-            <div class="relative">
-                <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-                    Loyihangizni boshlashga tayyormisiz?
-                </h2>
-                <p class="mt-4 text-ink-300 max-w-xl mx-auto">
-                    15-20 daqiqalik bepul konsultatsiyada loyihangizga mos yechim va aniq narxni aytamiz.
-                </p>
-                <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-                    <a href="{{ url_for('order_page') }}"
-                        class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-ink-900 font-semibold text-sm hover:bg-ink-100 transition-colors">
-                        Buyurtma berish
-                    </a>
-                    <a href="https://t.me/TrendoAibot" target="_blank" rel="noopener"
-                        class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white/10 text-white font-semibold text-sm hover:bg-white/20 transition-colors backdrop-blur-sm">
-                        Telegram'da yozish
-                    </a>
-                </div>
-            </div>
+<!-- NEWSLETTER -->
+<section class="py-16 sm:py-20 bg-ink-50 dark:bg-ink-900/30">
+    <div class="container-narrow text-center">
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-ink-900 dark:text-white">
+            Yangiliklardan xabardor bo'ling
+        </h2>
+        <p class="mt-3 text-ink-600 dark:text-ink-400">
+            Telegram kanal va botimizga obuna bo'lib, eng so'nggi maqolalarni birinchi bo'lib o'qing.
+        </p>
+        <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a href="https://t.me/trendoai" target="_blank" rel="noopener" class="btn-primary">
+                Telegram kanal
+            </a>
+            <a href="https://t.me/TrendoAibot" target="_blank" rel="noopener" class="btn-ghost">
+                AI bot bilan suhbat
+            </a>
         </div>
     </div>
 </section>
