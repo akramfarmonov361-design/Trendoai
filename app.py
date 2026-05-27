@@ -2526,76 +2526,103 @@ def facebook_feed():
 
 @app.route('/sitemap.xml')
 def sitemap_xml():
-    """Dinamik sitemap.xml - barcha sahifalar va postlar"""
+    """Dinamik sitemap.xml - barcha sahifalar, postlar va image sitemap"""
     from datetime import datetime
-    
+    from xml.sax.saxutils import escape as xml_escape
+
+    today = datetime.now().strftime('%Y-%m-%d')
+
+    # Eng so'nggi kontent vaqti — static sahifalar uchun ishlatiladi
+    latest_post = Post.query.filter_by(is_published=True).order_by(Post.created_at.desc()).first()
+    latest_portfolio = Portfolio.query.filter_by(is_published=True).order_by(Portfolio.created_at.desc()).first()
+    candidates = [today]
+    if latest_post:
+        cand = latest_post.updated_at or latest_post.created_at
+        if cand:
+            candidates.append(cand.strftime('%Y-%m-%d'))
+    if latest_portfolio and latest_portfolio.created_at:
+        candidates.append(latest_portfolio.created_at.strftime('%Y-%m-%d'))
+    site_lastmod = max(candidates)
+
     pages = []
-    
-    # Asosiy sahifalar
+
+    # Asosiy sahifalar — lastmod = eng so'nggi kontent vaqti
     static_pages = [
-        ('/', '1.0', 'daily'),
-        ('/portfolio', '0.8', 'weekly'),
-        ('/blog', '0.9', 'daily'),
-        ('/about', '0.7', 'monthly'),
-        ('/order', '0.8', 'monthly'),
+        ('/', '1.0', 'weekly', site_lastmod),
+        ('/portfolio', '0.8', 'weekly', site_lastmod),
+        ('/blog', '0.9', 'daily', site_lastmod),
+        ('/about', '0.7', 'monthly', '2026-01-01'),
+        ('/order', '0.8', 'monthly', '2026-01-01'),
     ]
-    
-    for url, priority, changefreq in static_pages:
+    for url, priority, changefreq, lastmod in static_pages:
         pages.append({
             'loc': f'{SITE_URL}{url}',
             'priority': priority,
             'changefreq': changefreq,
-            'lastmod': datetime.now().strftime('%Y-%m-%d')
+            'lastmod': lastmod,
         })
-    
+
     # Xizmatlar sahifalari
     services = Service.query.filter_by(is_active=True).all()
     for service in services:
         pages.append({
             'loc': f'{SITE_URL}/services/{service.slug}',
             'priority': '0.8',
-            'changefreq': 'weekly',
-            'lastmod': datetime.now().strftime('%Y-%m-%d')
+            'changefreq': 'monthly',
+            'lastmod': '2026-01-01',
         })
-    
-    # Blog postlar
+
+    # Blog postlar (image bilan)
     posts = Post.query.filter_by(is_published=True).order_by(Post.created_at.desc()).all()
     for post in posts:
-        lastmod = post.updated_at or post.created_at
-        pages.append({
+        lastmod_dt = post.updated_at or post.created_at
+        page = {
             'loc': f'{SITE_URL}/blog/{post.slug}' if post.slug else f'{SITE_URL}/post/{post.id}',
             'priority': '0.7',
             'changefreq': 'monthly',
-            'lastmod': lastmod.strftime('%Y-%m-%d') if lastmod else datetime.now().strftime('%Y-%m-%d')
-        })
-    
-    # Portfolio loyihalar
+            'lastmod': lastmod_dt.strftime('%Y-%m-%d') if lastmod_dt else today,
+        }
+        if post.image_url:
+            page['image'] = {'loc': post.image_url, 'title': post.title}
+        pages.append(page)
+
+    # Portfolio loyihalar (image bilan)
     portfolios = Portfolio.query.filter_by(is_published=True).all()
     for p in portfolios:
         if not p.slug:
             continue
-        pages.append({
+        page = {
             'loc': f'{SITE_URL}/portfolio/project/{p.slug}',
             'priority': '0.6',
             'changefreq': 'monthly',
-            'lastmod': p.created_at.strftime('%Y-%m-%d') if p.created_at else datetime.now().strftime('%Y-%m-%d')
-        })
-    
-    # XML yaratish
-    xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
-    xml_content += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-    
+            'lastmod': p.created_at.strftime('%Y-%m-%d') if p.created_at else today,
+        }
+        if p.image_url:
+            page['image'] = {'loc': p.image_url, 'title': p.title}
+        pages.append(page)
+
+    # XML yaratish — image namespace bilan
+    parts = ['<?xml version="1.0" encoding="UTF-8"?>']
+    parts.append(
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
+        'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">'
+    )
     for page in pages:
-        xml_content += '  <url>\n'
-        xml_content += f'    <loc>{page["loc"]}</loc>\n'
-        xml_content += f'    <lastmod>{page["lastmod"]}</lastmod>\n'
-        xml_content += f'    <changefreq>{page["changefreq"]}</changefreq>\n'
-        xml_content += f'    <priority>{page["priority"]}</priority>\n'
-        xml_content += '  </url>\n'
-    
-    xml_content += '</urlset>'
-    
-    return Response(xml_content, mimetype='application/xml')
+        parts.append('  <url>')
+        parts.append(f'    <loc>{xml_escape(page["loc"])}</loc>')
+        parts.append(f'    <lastmod>{page["lastmod"]}</lastmod>')
+        parts.append(f'    <changefreq>{page["changefreq"]}</changefreq>')
+        parts.append(f'    <priority>{page["priority"]}</priority>')
+        img = page.get('image')
+        if img:
+            parts.append('    <image:image>')
+            parts.append(f'      <image:loc>{xml_escape(img["loc"])}</image:loc>')
+            parts.append(f'      <image:title>{xml_escape(img["title"] or "")}</image:title>')
+            parts.append('    </image:image>')
+        parts.append('  </url>')
+    parts.append('</urlset>')
+
+    return Response('\n'.join(parts), mimetype='application/xml')
 
 
 # ========== TELEGRAM WEBHOOK ==========
