@@ -1,7 +1,13 @@
 {% extends 'base.html' %}
 
 {% block title %}{{ config.SITE_NAME }} - Trending Texnologiyalar va Sun'iy Intellekt{% endblock %}
+{% block meta_description %}TrendoAI blog — sun'iy intellekt, Telegram botlar, web saytlar, IT yangiliklari va biznes avtomatlashtirish bo'yicha O'zbek tilidagi professional maqolalar.{% endblock %}
 {% block canonical_url %}{{ config.SITE_URL }}/blog{% if request.args.get('category') or request.args.get('page', '1') != '1' %}?{% if request.args.get('category') %}category={{ request.args.get('category') | urlencode }}{% endif %}{% if request.args.get('category') and request.args.get('page', '1') != '1' %}&{% endif %}{% if request.args.get('page', '1') != '1' %}page={{ request.args.get('page') }}{% endif %}{% endif %}{% endblock %}
+{% block og_url %}{{ config.SITE_URL }}/blog{% endblock %}
+{% block og_title %}{{ config.SITE_NAME }} - Trending Texnologiyalar va Sun'iy Intellekt{% endblock %}
+{% block og_description %}Sun'iy intellekt, Telegram botlar va IT yangiliklari bo'yicha O'zbek tilidagi professional blog.{% endblock %}
+{% block twitter_title %}{{ config.SITE_NAME }} - Trending Texnologiyalar va Sun'iy Intellekt{% endblock %}
+{% block twitter_description %}Sun'iy intellekt, Telegram botlar va IT yangiliklari bo'yicha O'zbek tilidagi professional blog.{% endblock %}
 
 {% block content %}
 <section class="hero">

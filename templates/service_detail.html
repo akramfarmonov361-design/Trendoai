@@ -15,6 +15,58 @@
 {% block extra_head %}
 <meta property="product:category" content="Software > IT Services">
 
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "{{ service.title }}",
+    "description": "{{ service.meta_desc or service.description }}",
+    "url": "{{ config.SITE_URL }}/services/{{ service.slug }}",
+    "image": "{{ service.image_url if service.image_url and service.image_url.startswith('http') else config.SITE_URL ~ '/static/img/og-image.png' }}",
+    "serviceType": "{{ service.title }}",
+    "areaServed": {
+        "@type": "Country",
+        "name": "Uzbekistan"
+    },
+    "provider": {
+        "@type": "Organization",
+        "name": "TrendoAI",
+        "url": "{{ config.SITE_URL }}",
+        "logo": "{{ config.SITE_URL }}/static/img/logo.png",
+        "telephone": "+998974771229",
+        "email": "info@trendoai.uz",
+        "priceRange": "$$"
+    }
+}
+</script>
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Bosh sahifa",
+            "item": "{{ config.SITE_URL }}/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Xizmatlar",
+            "item": "{{ config.SITE_URL }}/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{ service.title }}",
+            "item": "{{ config.SITE_URL }}/services/{{ service.slug }}"
+        }
+    ]
+}
+</script>
+
 <script>
     fbq('track', 'ViewContent', {
         content_name: '{{ service.title }}',

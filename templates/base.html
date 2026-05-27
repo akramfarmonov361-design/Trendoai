@@ -74,6 +74,9 @@
     <meta property="og:description"
         content="{% block og_description %}O'zbekistonda trending texnologiya yangiliklari va AI-powered professional blog{% endblock %}">
     <meta property="og:image" content="{% block og_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{% block og_image_alt %}TrendoAI - Trending Texnologiyalar{% endblock %}">
     <meta property="og:locale" content="uz_UZ">
     <meta property="og:site_name" content="TrendoAI">
 
@@ -93,6 +96,7 @@
         "name": "TrendoAI",
         "alternateName": ["Trendo AI", "Trendo.ai", "Trendo sun'iy intellekt", "Trendo.uz"],
         "url": "{{ config.SITE_URL }}",
+        "inLanguage": "uz",
         "description": "TrendoAI - O'zbekistonda IT, sun'iy intellekt, Telegram botlar, Web saytlar yaratish bo'yicha professional kompaniya va texnologiya blogi",
         "publisher": {
             "@type": "Organization",

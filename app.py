@@ -582,6 +582,7 @@ def inject_globals():
         
     return {
         'config': {
+            'SITE_URL': SITE_URL,
             'SITE_NAME': SITE_NAME,
             'SITE_DESCRIPTION': SITE_DESCRIPTION,
             'VAPID_PUBLIC_KEY': app.config.get('VAPID_PUBLIC_KEY')
