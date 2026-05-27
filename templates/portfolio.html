@@ -1,1917 +1,207 @@
-{% extends 'base.html' %}
+{% extends 'base_v2.html' %}
 
-{% block title %}Portfolio - TrendoAI | Telegram Bot, Web Sayt, AI Yechimlar{% endblock %}
-
-{% block meta_description %}TrendoAI portfolio: Professional Telegram botlar, zamonaviy web saytlar, AI yechimlar. 50+
-muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
+{% block title %}Portfolio — TrendoAI | Telegram bot, Web sayt, AI yechimlar{% endblock %}
+{% block meta_description %}TrendoAI portfolio — 50+ tugallangan loyiha: Telegram botlar, web saytlar, AI yechimlar va mobil ilovalar. Real mijozlar uchun yaratilgan ishlar.{% endblock %}
 {% block canonical_url %}{{ config.SITE_URL }}/portfolio{% endblock %}
 {% block og_url %}{{ config.SITE_URL }}/portfolio{% endblock %}
-{% block og_title %}TrendoAI Portfolio - Professional IT Xizmatlari{% endblock %}
-{% block og_description %}50+ muvaffaqiyatli loyihalar: Telegram botlar, web saytlar, AI yechimlar. Bepul konsultatsiya olish uchun bog'laning!{% endblock %}
-{% block og_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}
-{% block twitter_title %}TrendoAI Portfolio - Professional IT Xizmatlari{% endblock %}
-{% block twitter_description %}50+ muvaffaqiyatli loyihalar: Telegram botlar, web saytlar, AI yechimlar. Bepul konsultatsiya olish uchun bog'laning!{% endblock %}
-{% block twitter_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}
+{% block og_title %}Portfolio — TrendoAI | Professional IT loyihalari{% endblock %}
+{% block og_description %}50+ tugallangan loyiha: Telegram botlar, web saytlar, AI yechimlar.{% endblock %}
+{% block twitter_title %}Portfolio — TrendoAI{% endblock %}
+{% block twitter_description %}50+ tugallangan IT loyihasi.{% endblock %}
 
 {% block extra_head %}
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "TrendoAI Portfolio - Professional IT Xizmatlari",
-    "description": "50+ muvaffaqiyatli loyihalar: Telegram botlar, web saytlar, AI yechimlar.",
+    "name": "TrendoAI Portfolio",
+    "description": "50+ tugallangan loyihalar: Telegram botlar, web saytlar, AI yechimlar.",
     "url": "{{ config.SITE_URL }}/portfolio",
     "inLanguage": "uz",
-    "isPartOf": {
-        "@type": "WebSite",
-        "name": "TrendoAI",
-        "url": "{{ config.SITE_URL }}"
-    },
+    "isPartOf": { "@type": "WebSite", "name": "TrendoAI", "url": "{{ config.SITE_URL }}" },
     "mainEntity": {
         "@type": "ItemList",
         "numberOfItems": {{ portfolios|length if portfolios else 0 }},
-        "itemListOrder": "https://schema.org/ItemListOrderDescending",
         "itemListElement": [
             {% for item in portfolios %}
             {
                 "@type": "ListItem",
                 "position": {{ loop.index }},
                 "url": "{{ config.SITE_URL }}/portfolio/project/{{ item.slug }}",
-                "name": {{ item.title | tojson }}{% if item.description %},
-                "description": {{ item.description | truncate(160) | tojson }}{% endif %}
+                "name": {{ item.title | tojson }}
             }{% if not loop.last %},{% endif %}
             {% endfor %}
         ]
     }
 }
 </script>
-
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-        {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Bosh sahifa",
-            "item": "{{ config.SITE_URL }}/"
-        },
-        {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "Portfolio",
-            "item": "{{ config.SITE_URL }}/portfolio"
-        }
+        {"@type": "ListItem", "position": 1, "name": "Bosh sahifa", "item": "{{ config.SITE_URL }}/"},
+        {"@type": "ListItem", "position": 2, "name": "Portfolio", "item": "{{ config.SITE_URL }}/portfolio"}
     ]
 }
 </script>
 {% endblock %}
 
 {% block content %}
-<!-- Portfolio Hero -->
-<section class="portfolio-hero">
-    <div class="hero-content">
-        <h1>🚀 Bizning Portfolio</h1>
-        <p class="hero-subtitle">Muvaffaqiyatli yakunlangan loyihalar va mijozlarimiz uchun yaratilgan yechimlar</p>
-        <div class="hero-stats">
-            <div class="hero-stat">
-                <span class="stat-value">50+</span>
-                <span class="stat-label">Loyihalar</span>
+
+<!-- HEADER -->
+<section class="border-b border-ink-200 dark:border-ink-800">
+    <div class="container-wide py-12 sm:py-16">
+        <p class="text-sm font-semibold uppercase tracking-wider text-brand-600">Portfolio</p>
+        <h1 class="mt-2 text-4xl sm:text-5xl font-extrabold tracking-tight text-ink-900 dark:text-white">
+            Tugallangan loyihalar
+        </h1>
+        <p class="mt-4 text-lg text-ink-600 dark:text-ink-400 max-w-2xl">
+            Mijozlarimiz uchun yaratilgan real loyihalar — Telegram botlar, web saytlar va AI yechimlari.
+        </p>
+
+        <dl class="mt-8 flex flex-wrap gap-8">
+            <div>
+                <dt class="text-xs text-ink-500 dark:text-ink-400">Tugallangan</dt>
+                <dd class="text-2xl font-bold text-ink-900 dark:text-white">50+</dd>
             </div>
-            <div class="hero-stat">
-                <span class="stat-value">100+</span>
-                <span class="stat-label">Mijozlar</span>
+            <div>
+                <dt class="text-xs text-ink-500 dark:text-ink-400">Mamnun mijoz</dt>
+                <dd class="text-2xl font-bold text-ink-900 dark:text-white">100+</dd>
             </div>
-            <div class="hero-stat">
-                <span class="stat-value">5+</span>
-                <span class="stat-label">Yillik Tajriba</span>
+            <div>
+                <dt class="text-xs text-ink-500 dark:text-ink-400">Tajriba</dt>
+                <dd class="text-2xl font-bold text-ink-900 dark:text-white">5 yil</dd>
             </div>
-        </div>
+        </dl>
     </div>
 </section>
 
-<!-- Filter -->
-<section class="portfolio-filter">
-    <button class="filter-btn active" data-filter="all">Barchasi</button>
-    <button class="filter-btn" data-filter="bot">🤖 Telegram Botlar</button>
-    <button class="filter-btn" data-filter="web">🌐 Web Saytlar</button>
-    <button class="filter-btn" data-filter="ai">🧠 AI Yechimlar</button>
-    <button class="filter-btn" data-filter="mobile">📱 Mobile</button>
-</section>
+<!-- FILTER + GRID -->
+<section class="py-12 sm:py-16" x-data="{ filter: 'all' }">
+    <div class="container-wide">
 
-<!-- Portfolio Grid -->
-<section class="portfolio-grid">
-    {% if portfolios %}
-    {% for item in portfolios %}
-    <article class="portfolio-card {% if item.is_featured %}featured{% endif %}" data-category="{{ item.category }}"
-        onclick="openModal({{ item.id }})" style="cursor: pointer;">
-        {% if item.is_featured %}
-        <div class="card-badge">⭐ Featured</div>
-        {% endif %}
-        <div class="card-image">
-            <span class="card-emoji">{{ item.emoji }}</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" onclick="openModal({{ item.id }})">Modalda Ko'rish</button>
-                    {% if item.slug %}
-                    <a href="{{ url_for('portfolio_item', slug=item.slug) }}" class="view-btn full-page-btn"
-                        onclick="event.stopPropagation()">To'liq Sahifa →</a>
+        <!-- Filter tabs -->
+        <div class="flex flex-wrap gap-2 mb-8">
+            <template x-for="opt in [
+                {key: 'all', label: 'Barchasi'},
+                {key: 'bot', label: 'Telegram botlar'},
+                {key: 'web', label: 'Web saytlar'},
+                {key: 'ai', label: 'AI yechimlar'},
+                {key: 'mobile', label: 'Mobile'}
+            ]" :key="opt.key">
+                <button type="button" @click="filter = opt.key"
+                    :class="filter === opt.key
+                        ? 'bg-ink-900 text-white dark:bg-white dark:text-ink-900'
+                        : 'bg-ink-100 text-ink-700 hover:bg-ink-200 dark:bg-ink-800 dark:text-ink-300 dark:hover:bg-ink-700'"
+                    class="px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors"
+                    x-text="opt.label"></button>
+            </template>
+        </div>
+
+        {% if portfolios %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for item in portfolios %}
+            <article class="card overflow-hidden flex flex-col group"
+                x-show="filter === 'all' || filter === '{{ item.category }}'"
+                x-transition.opacity>
+
+                <a href="{% if item.slug %}{{ url_for('portfolio_item', slug=item.slug) }}{% else %}#{% endif %}"
+                    class="block aspect-[16/10] overflow-hidden bg-gradient-to-br from-brand-50 to-accent-500/5 dark:from-ink-800 dark:to-ink-900 relative">
+                    {% if item.image_url %}
+                    <img src="{{ item.image_url }}" alt="{{ item.title }}" loading="lazy"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-6xl opacity-60">
+                        {{ item.emoji or '🚀' }}
+                    </div>
                     {% endif %}
+                    {% if item.is_featured %}
+                    <span class="absolute top-3 right-3 px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-500 text-white shadow-soft">
+                        Featured
+                    </span>
+                    {% endif %}
+                </a>
+
+                <div class="p-5 flex flex-col flex-1">
+                    <span class="tag self-start">
+                        {% if item.category == 'bot' %}Telegram Bot
+                        {% elif item.category == 'web' %}Web Sayt
+                        {% elif item.category == 'ai' %}AI Yechim
+                        {% elif item.category == 'mobile' %}Mobile App
+                        {% else %}{{ item.category|capitalize }}
+                        {% endif %}
+                    </span>
+
+                    <h3 class="mt-3 text-lg font-semibold text-ink-900 dark:text-white leading-snug">
+                        {% if item.slug %}
+                        <a href="{{ url_for('portfolio_item', slug=item.slug) }}" class="hover:text-brand-600">{{ item.title }}</a>
+                        {% else %}
+                        {{ item.title }}
+                        {% endif %}
+                    </h3>
+
+                    <p class="mt-2 text-sm text-ink-600 dark:text-ink-400 line-clamp-2 flex-1">{{ item.description }}</p>
+
+                    {% if item.technologies %}
+                    <div class="mt-4 flex flex-wrap gap-1.5">
+                        {% for tech in (item.technologies or '').split(',')[:4] %}
+                        {% if tech and tech.strip() %}
+                        <span class="px-2 py-0.5 rounded text-xs font-medium bg-ink-100 dark:bg-ink-800 text-ink-600 dark:text-ink-400">{{ tech.strip() }}</span>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-5 pt-4 border-t border-ink-200 dark:border-ink-800 flex items-center justify-between gap-3 text-sm">
+                        {% if item.slug %}
+                        <a href="{{ url_for('portfolio_item', slug=item.slug) }}"
+                            class="inline-flex items-center gap-1.5 font-semibold text-brand-600 hover:text-brand-700">
+                            Batafsil
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                        </a>
+                        {% else %}
+                        <span></span>
+                        {% endif %}
+                        <a href="{{ url_for('order_page') }}?service={{ item.category }}"
+                            class="text-ink-500 hover:text-ink-900 dark:text-ink-400 dark:hover:text-white">
+                            Shunday loyiha →
+                        </a>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">
-                {% if item.category == 'bot' %}Telegram Bot
-                {% elif item.category == 'web' %}Web Sayt
-                {% elif item.category == 'ai' %}AI Yechim
-                {% elif item.category == 'mobile' %}Mobile App
-                {% else %}{{ item.category|capitalize }}
-                {% endif %}
-            </span>
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.description }}</p>
-            <div class="card-tech">
-                {% if item.technologies %}
-                {% for tech in (item.technologies or '').split(',') %}
-                {% if tech and tech.strip() %}
-                <span>{{ tech.strip() }}</span>
-                {% endif %}
-                {% endfor %}
-                {% endif %}
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service={{ item.category }}" class="btn-order"
-                    onclick="event.stopPropagation()">
-                    🚀 Buyurtma berish
-                </a>
-                {% if item.slug %}
-                <a href="{{ url_for('portfolio_item', slug=item.slug) }}" class="btn-detail"
-                    onclick="event.stopPropagation()">
-                    Batafsil ma'lumot →
-                </a>
-                {% endif %}
-            </div>
-        </div>
-    </article>
-    {% endfor %}
-    {% else %}
-    <!-- Fallback static content -->
-    <article class="portfolio-card" data-category="bot">
-        <div class="card-image">
-            <span class="card-emoji">🤖</span>
-            <div class="card-overlay">
-                <span class="view-btn">Ko'rish →</span>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Telegram Bot</span>
-            <h3>E-Commerce Bot</h3>
-            <p>Online do'kon uchun to'liq avtomatlashtirilgan Telegram bot. Buyurtma, to'lov, yetkazib berish.</p>
-            <div class="card-tech">
-                <span>Python</span>
-                <span>Aiogram</span>
-                <span>PostgreSQL</span>
-            </div>
-        </div>
-    </article>
-    {% endif %}
-
-    <!-- Project 2 -->
-    <article class="portfolio-card" data-category="web">
-        <div class="card-image">
-            <span class="card-emoji">🌐</span>
-            <div class="card-overlay">
-                <span class="view-btn">Ko'rish →</span>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Web Sayt</span>
-            <h3>Korporativ Sayt</h3>
-            <p>Zamonaviy dizaynli, SEO-optimallashtirilgan korporativ veb-sayt. Admin panel bilan.</p>
-            <div class="card-tech">
-                <span>React</span>
-                <span>Next.js</span>
-                <span>Tailwind</span>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 3 -->
-    <article class="portfolio-card featured" data-category="ai">
-        <div class="card-badge">⭐ Featured</div>
-        <div class="card-image">
-            <span class="card-emoji">🧠</span>
-            <div class="card-overlay">
-                <span class="view-btn">Ko'rish →</span>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">AI Yechim</span>
-            <h3>TrendoAI Blog</h3>
-            <p>Sun'iy intellekt yordamida avtomatik kontent generatsiya qiluvchi blog platformasi.</p>
-            <div class="card-tech">
-                <span>Python</span>
-                <span>Flask</span>
-                <span>Gemini AI</span>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 4 -->
-    <article class="portfolio-card" data-category="bot">
-        <div class="card-image">
-            <span class="card-emoji">📊</span>
-            <div class="card-overlay">
-                <span class="view-btn">Ko'rish →</span>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Telegram Bot</span>
-            <h3>CRM Bot</h3>
-            <p>Biznes uchun CRM tizimi Telegram botda. Mijozlar, buyurtmalar, hisobotlar.</p>
-            <div class="card-tech">
-                <span>Python</span>
-                <span>SQLite</span>
-                <span>Charts</span>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 5 -->
-    <article class="portfolio-card" data-category="web">
-        <div class="card-image">
-            <span class="card-emoji">🛒</span>
-            <div class="card-overlay">
-                <span class="view-btn">Ko'rish →</span>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Web Sayt</span>
-            <h3>Online Do'kon</h3>
-            <p>To'liq funksional e-commerce platforma. To'lov integratsiyasi, inventar boshqaruvi.</p>
-            <div class="card-tech">
-                <span>Next.js</span>
-                <span>Stripe</span>
-                <span>Prisma</span>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 6 -->
-    <article class="portfolio-card" data-category="ai">
-        <div class="card-image">
-            <span class="card-emoji">💬</span>
-            <div class="card-overlay">
-                <span class="view-btn">Ko'rish →</span>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">AI Yechim</span>
-            <h3>AI Chatbot</h3>
-            <p>Mijozlarga 24/7 xizmat ko'rsatuvchi sun'iy intellekt chatbot. Ko'p tilli qo'llab-quvvatlash.</p>
-            <div class="card-tech">
-                <span>OpenAI</span>
-                <span>LangChain</span>
-                <span>React</span>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 7 -->
-    <article class="portfolio-card" data-category="mobile">
-        <div class="card-image">
-            <span class="card-emoji">📱</span>
-            <div class="card-overlay">
-                <span class="view-btn">Ko'rish →</span>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Mobile App</span>
-            <h3>Fitness Tracker</h3>
-            <p>Sog'liq va fitness kuzatish ilovasi. Kaloriyalar, mashqlar, progress.</p>
-            <div class="card-tech">
-                <span>Flutter</span>
-                <span>Firebase</span>
-                <span>Charts</span>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 8 -->
-    <article class="portfolio-card" data-category="bot">
-        <div class="card-image">
-            <span class="card-emoji">🎓</span>
-            <div class="card-overlay">
-                <span class="view-btn">Ko'rish →</span>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Telegram Bot</span>
-            <h3>Ta'lim Boti</h3>
-            <p>Online kurslar platformasi Telegram botda. Testlar, sertifikatlar, to'lovlar.</p>
-            <div class="card-tech">
-                <span>Python</span>
-                <span>MongoDB</span>
-                <span>Payme</span>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 9 -->
-    <article class="portfolio-card" data-category="web" onclick="openModal('manual-kfc')" style="cursor: pointer;">
-        <div class="card-image">
-            <span class="card-emoji">🍗</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" onclick="event.stopPropagation(); openModal('manual-kfc')">Modalda Ko'rish</button>
-                    <a href="https://restorankfc-frontend.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn"
-                        onclick="event.stopPropagation()">Saytni ochish ↗</a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Web Sayt</span>
-            <h3>Restoran KFC Frontend</h3>
-            <p>Fast food restoran uchun zamonaviy frontend. Menyu, promo bloklar va onlayn buyurtmaga yo'naltirilgan interfeys.</p>
-            <div class="card-tech">
-                <span>Frontend</span>
-                <span>Responsive UI</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order" onclick="event.stopPropagation()">
-                    🚀 Buyurtma berish
-                </a>
-                <a href="https://restorankfc-frontend.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail"
-                    onclick="event.stopPropagation()">
-                    Loyihani ko'rish ↗
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 10 -->
-    <article class="portfolio-card" data-category="web" onclick="openModal('manual-realnews')" style="cursor: pointer;">
-        <div class="card-image">
-            <span class="card-emoji">📰</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" onclick="event.stopPropagation(); openModal('manual-realnews')">Modalda Ko'rish</button>
-                    <a href="https://realnewsuz.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn"
-                        onclick="event.stopPropagation()">Saytni ochish ↗</a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Web Sayt</span>
-            <h3>RealNewsUZ</h3>
-            <p>Yangiliklar va media kontent uchun tayyorlangan zamonaviy web interfeys. Kontentni tez o'qish va ko'rishga qulay struktura bilan ishlab chiqilgan.</p>
-            <div class="card-tech">
-                <span>Frontend</span>
-                <span>News UI</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order" onclick="event.stopPropagation()">
-                    🚀 Buyurtma berish
-                </a>
-                <a href="https://realnewsuz.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail"
-                    onclick="event.stopPropagation()">
-                    Loyihani ko'rish ↗
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 11 -->
-    <article class="portfolio-card" data-category="ai" onclick="openModal('manual-trendoaispeak')" style="cursor: pointer;">
-        <div class="card-image">
-            <span class="card-emoji">AI</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" onclick="event.stopPropagation(); openModal('manual-trendoaispeak')">Modalda Ko'rish</button>
-                    <a href="https://trendoaispeak-uzbek-english-tutor.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn"
-                        onclick="event.stopPropagation()">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">AI Yechim</span>
-            <h3>TrendoAI Speak</h3>
-            <p>O'zbek va ingliz tili uchun interaktiv tutor interfeysi. O'quvchini mashq va suhbat formatida til o'rganishga yo'naltiradigan yechim.</p>
-            <div class="card-tech">
-                <span>AI Tutor</span>
-                <span>Language Learning</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=ai_chatbot" class="btn-order" onclick="event.stopPropagation()">
-                    Buyurtma berish
-                </a>
-                <a href="https://trendoaispeak-uzbek-english-tutor.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail"
-                    onclick="event.stopPropagation()">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 12 -->
-    <article class="portfolio-card" data-category="ai" onclick="openModal('manual-shifo-nur-chatbot')" style="cursor: pointer;">
-        <div class="card-image">
-            <span class="card-emoji">MED</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" onclick="event.stopPropagation(); openModal('manual-shifo-nur-chatbot')">Modalda Ko'rish</button>
-                    <a href="https://shifo-nur-klinikasi-chatbot.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn"
-                        onclick="event.stopPropagation()">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">AI Yechim</span>
-            <h3>Shifo Nur Klinikasi Chatbot</h3>
-            <p>Klinika uchun mo'ljallangan chatbot interfeysi. Foydalanuvchiga xizmatlar, murojaat va tezkor aloqa jarayonini sodda ko'rsatadigan yechim.</p>
-            <div class="card-tech">
-                <span>Healthcare</span>
-                <span>AI Chatbot</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=ai_chatbot" class="btn-order" onclick="event.stopPropagation()">
-                    Buyurtma berish
-                </a>
-                <a href="https://shifo-nur-klinikasi-chatbot.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail"
-                    onclick="event.stopPropagation()">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 13 -->
-    <article class="portfolio-card" data-category="web" onclick="openModal('manual-ozbek-talaffuz-kontent')" style="cursor: pointer;">
-        <div class="card-image">
-            <span class="card-emoji">EDU</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" onclick="event.stopPropagation(); openModal('manual-ozbek-talaffuz-kontent')">Modalda Ko'rish</button>
-                    <a href="https://o-zbek-talaffuz-kontent.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn"
-                        onclick="event.stopPropagation()">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Web Sayt</span>
-            <h3>O'zbek Talaffuz Kontent</h3>
-            <p>O'zbek talaffuzi va o'quv kontenti uchun tayyorlangan web interfeys. Foydalanuvchiga materiallarni sodda va tushunarli ko'rinishda taqdim etadigan yechim.</p>
-            <div class="card-tech">
-                <span>Education</span>
-                <span>Content Platform</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order" onclick="event.stopPropagation()">
-                    Buyurtma berish
-                </a>
-                <a href="https://o-zbek-talaffuz-kontent.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail"
-                    onclick="event.stopPropagation()">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 14 -->
-    <article class="portfolio-card" data-category="ai" onclick="openModal('manual-ai-project-scoper')" style="cursor: pointer;">
-        <div class="card-image">
-            <span class="card-emoji">SCOPE</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" onclick="event.stopPropagation(); openModal('manual-ai-project-scoper')">Modalda Ko'rish</button>
-                    <a href="https://ai-project-scoper.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn"
-                        onclick="event.stopPropagation()">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">AI Yechim</span>
-            <h3>AI Project Scoper</h3>
-            <p>Loyiha scope va talablarni tez shakllantirish uchun tayyorlangan AI interfeys. Foydalanuvchiga task, deliverable va ish hajmini aniqroq belgilashga yordam beradi.</p>
-            <div class="card-tech">
-                <span>AI Planning</span>
-                <span>Project Scope</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=ai_chatbot" class="btn-order" onclick="event.stopPropagation()">
-                    Buyurtma berish
-                </a>
-                <a href="https://ai-project-scoper.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail"
-                    onclick="event.stopPropagation()">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 15 -->
-    <article class="portfolio-card" data-category="web" onclick="openModal('manual-texnomarket')" style="cursor: pointer;">
-        <div class="card-image">
-            <span class="card-emoji">SHOP</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" onclick="event.stopPropagation(); openModal('manual-texnomarket')">Modalda Ko'rish</button>
-                    <a href="https://texnomarket.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn"
-                        onclick="event.stopPropagation()">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Web Sayt</span>
-            <h3>Texnomarket</h3>
-            <p>Elektronika va texnika mahsulotlari uchun tayyorlangan e-commerce interfeys. Foydalanuvchiga katalog, mahsulot va xarid jarayonini sodda ko'rinishda taqdim etadigan yechim.</p>
-            <div class="card-tech">
-                <span>E-commerce</span>
-                <span>Frontend</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order" onclick="event.stopPropagation()">
-                    Buyurtma berish
-                </a>
-                <a href="https://texnomarket.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail"
-                    onclick="event.stopPropagation()">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 16 -->
-    <article class="portfolio-card" data-category="web" onclick="openModal('manual-paketshop')" style="cursor: pointer;">
-        <div class="card-image">
-            <span class="card-emoji">PKG</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" onclick="event.stopPropagation(); openModal('manual-paketshop')">Modalda Ko'rish</button>
-                    <a href="https://www.paketshop.uz/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn"
-                        onclick="event.stopPropagation()">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Web Sayt</span>
-            <h3>Paketshop</h3>
-            <p>Onlayn savdo va mahsulot ko'rish uchun tayyorlangan web interfeys. Foydalanuvchiga katalog va murojaat jarayonini sodda ko'rinishda taqdim etadigan yechim.</p>
-            <div class="card-tech">
-                <span>E-commerce</span>
-                <span>Catalog</span>
-                <span>Web Platform</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order" onclick="event.stopPropagation()">
-                    Buyurtma berish
-                </a>
-                <a href="https://www.paketshop.uz/" target="_blank" rel="noopener noreferrer" class="btn-detail"
-                    onclick="event.stopPropagation()">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 17 -->
-    <article class="portfolio-card" data-category="web" onclick="openModal('manual-restoran-kfc-site')" style="cursor: pointer;">
-        <div class="card-image">
-            <span class="card-emoji">FOOD</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" onclick="event.stopPropagation(); openModal('manual-restoran-kfc-site')">Modalda Ko'rish</button>
-                    <a href="https://restoran-kfc.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn"
-                        onclick="event.stopPropagation()">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Web Sayt</span>
-            <h3>Restoran KFC</h3>
-            <p>Restoran va fast food yo'nalishi uchun tayyorlangan web interfeys. Foydalanuvchiga menyu, promo bloklar va buyurtmaga o'tish jarayonini sodda ko'rinishda taqdim etadigan yechim.</p>
-            <div class="card-tech">
-                <span>Restaurant</span>
-                <span>Landing Page</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order" onclick="event.stopPropagation()">
-                    Buyurtma berish
-                </a>
-                <a href="https://restoran-kfc.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail"
-                    onclick="event.stopPropagation()">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 18 -->
-    <article class="portfolio-card" data-category="web" onclick="openModal('manual-nomoz-vaqtlari')" style="cursor: pointer;">
-        <div class="card-image">
-            <span class="card-emoji">TIME</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" onclick="event.stopPropagation(); openModal('manual-nomoz-vaqtlari')">Modalda Ko'rish</button>
-                    <a href="https://nomoz-vaqtlari-xi.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn"
-                        onclick="event.stopPropagation()">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Web Sayt</span>
-            <h3>Nomoz Vaqtlari</h3>
-            <p>Namoz vaqtlarini ko'rsatish uchun tayyorlangan web interfeys. Foydalanuvchiga vaqtlar, kunlik ko'rsatkichlar va kerakli ma'lumotlarni sodda ko'rinishda taqdim etadigan yechim.</p>
-            <div class="card-tech">
-                <span>Prayer Times</span>
-                <span>Utility App</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order" onclick="event.stopPropagation()">
-                    Buyurtma berish
-                </a>
-                <a href="https://nomoz-vaqtlari-xi.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail"
-                    onclick="event.stopPropagation()">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 19 -->
-    <article class="portfolio-card" data-category="bot" onclick="openModal('manual-botfactory')" style="cursor: pointer;">
-        <div class="card-image">
-            <span class="card-emoji">BOT</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" onclick="event.stopPropagation(); openModal('manual-botfactory')">Modalda Ko'rish</button>
-                    <a href="https://botfactory-am64.onrender.com/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn"
-                        onclick="event.stopPropagation()">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Telegram Bot</span>
-            <h3>BotFactory</h3>
-            <p>Bot yaratish va avtomatlashtirish uchun tayyorlangan platforma interfeysi. Foydalanuvchiga bot xizmatlari va ish jarayonini sodda ko'rinishda taqdim etadigan yechim.</p>
-            <div class="card-tech">
-                <span>Bot Platform</span>
-                <span>Automation</span>
-                <span>Render</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=telegram_bot" class="btn-order" onclick="event.stopPropagation()">
-                    Buyurtma berish
-                </a>
-                <a href="https://botfactory-am64.onrender.com/" target="_blank" rel="noopener noreferrer" class="btn-detail"
-                    onclick="event.stopPropagation()">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 20 -->
-    <article class="portfolio-card" data-category="ai" onclick="openModal('manual-instadub')" style="cursor: pointer;">
-        <div class="card-image">
-            <span class="card-emoji">DUB</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" onclick="event.stopPropagation(); openModal('manual-instadub')">Modalda Ko'rish</button>
-                    <a href="https://instadub.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn"
-                        onclick="event.stopPropagation()">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">AI Yechim</span>
-            <h3>InstaDub</h3>
-            <p>Kontentni dublyaj va media ishloviga yo'naltirilgan AI interfeys. Foydalanuvchiga ovoz, media va tezkor ishlov jarayonini sodda ko'rinishda taqdim etadigan yechim.</p>
-            <div class="card-tech">
-                <span>AI Media</span>
-                <span>Voice Tool</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=ai_chatbot" class="btn-order" onclick="event.stopPropagation()">
-                    Buyurtma berish
-                </a>
-                <a href="https://instadub.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail"
-                    onclick="event.stopPropagation()">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-</section>
-
-<!-- Testimonials -->
-<section class="testimonials-section">
-    <h2>💬 Mijozlarimiz Fikrlari</h2>
-    <div class="testimonials-grid">
-        <div class="testimonial-card">
-            <div class="testimonial-content">
-                <p>"TrendoAI jamoasi bizning Telegram botimizni mukammal darajada yaratdi. Professionallik va sifat!"
-                </p>
-            </div>
-            <div class="testimonial-author">
-                <span class="author-avatar">👨‍💼</span>
-                <div class="author-info">
-                    <strong>Sardor Aliyev</strong>
-                    <span>CEO, TechStore</span>
-                </div>
-            </div>
+            </article>
+            {% endfor %}
         </div>
 
-        <div class="testimonial-card">
-            <div class="testimonial-content">
-                <p>"Veb-saytimiz endi professional ko'rinishda. SEO natijalari ham a'lo. Tavsiya qilaman!"</p>
-            </div>
-            <div class="testimonial-author">
-                <span class="author-avatar">👩‍💻</span>
-                <div class="author-info">
-                    <strong>Nilufar Karimova</strong>
-                    <span>Founder, EduPlatform</span>
-                </div>
-            </div>
+        {% else %}
+        <div class="text-center py-20 border border-dashed border-ink-300 dark:border-ink-700 rounded-xl">
+            <svg class="w-12 h-12 mx-auto text-ink-300 dark:text-ink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            <h3 class="mt-4 text-lg font-semibold text-ink-900 dark:text-white">Loyihalar tez orada qo'shiladi</h3>
+            <p class="mt-2 text-sm text-ink-600 dark:text-ink-400">Hozircha aktiv loyihalar bilan band — keyinroq qaytib ko'ring.</p>
+            <a href="{{ url_for('order_page') }}" class="btn-accent mt-6 inline-flex">Loyihangiz haqida gaplashamiz</a>
         </div>
-
-        <div class="testimonial-card">
-            <div class="testimonial-content">
-                <p>"AI chatbot bizning mijozlarga xizmat ko'rsatishni 10 marta tezlashtirdi. Ajoyib yechim!"</p>
-            </div>
-            <div class="testimonial-author">
-                <span class="author-avatar">👨‍🔬</span>
-                <div class="author-info">
-                    <strong>Akmal Toshev</strong>
-                    <span>CTO, FinTech Co</span>
-                </div>
-            </div>
-        </div>
+        {% endif %}
     </div>
 </section>
 
 <!-- CTA -->
-<section class="cta-section">
-    <h3>🚀 Loyihangizni Boshlashga Tayyormisiz?</h3>
-    <p>Bepul konsultatsiya oling va g'oyangizni haqiqatga aylantiring!</p>
-    <div class="cta-buttons">
-        <a href="https://t.me/TrendoAibot" class="cta-button primary" target="_blank">🤖 AI Assistent bilan gaplashing</a>
-        <a href="https://t.me/trendoai" class="cta-button secondary" target="_blank">📱 Telegram kanalga o'tish</a>
-        <a href="{{ url_for('order_page') }}" class="cta-button secondary">🛠️ Buyurtma berish</a>
+<section class="py-16 sm:py-20 bg-ink-50 dark:bg-ink-900/30">
+    <div class="container-narrow text-center">
+        <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-ink-900 dark:text-white">
+            Sizning loyihangiz keyingi bo'ladimi?
+        </h2>
+        <p class="mt-4 text-ink-600 dark:text-ink-400 max-w-xl mx-auto">
+            Bepul konsultatsiyada loyihangizga mos yechim va aniq narxni aytamiz.
+        </p>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <a href="{{ url_for('order_page') }}" class="btn-accent">
+                Buyurtma berish
+            </a>
+            <a href="https://t.me/TrendoAibot" target="_blank" rel="noopener" class="btn-ghost">
+                Telegram orqali yozish
+            </a>
+        </div>
     </div>
 </section>
 
-<style>
-    /* Portfolio Hero */
-    .portfolio-hero {
-        background: var(--gradient-hero);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xl);
-        padding: 80px 50px;
-        margin-bottom: 40px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .portfolio-hero::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background:
-            radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(244, 114, 182, 0.2) 0%, transparent 50%);
-    }
-
-    .portfolio-hero .hero-content {
-        position: relative;
-        z-index: 1;
-    }
-
-    .portfolio-hero h1 {
-        font-size: 3rem;
-        font-weight: 800;
-        margin-bottom: 16px;
-        background: var(--gradient-text);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    /* Filter Buttons */
-    .portfolio-filter {
-        display: flex;
-        justify-content: center;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-bottom: 40px;
-    }
-
-    .filter-btn {
-        padding: 12px 24px;
-        background: var(--bg-elevated);
-        border: 1px solid var(--border);
-        border-radius: 50px;
-        color: var(--text-secondary);
-        font-weight: 600;
-        font-family: inherit;
-        cursor: pointer;
-        transition: var(--transition-smooth);
-    }
-
-    .filter-btn:hover,
-    .filter-btn.active {
-        background: var(--gradient-main);
-        border-color: transparent;
-        color: white;
-    }
-
-    /* Portfolio Grid */
-    .portfolio-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 28px;
-        margin-bottom: 60px;
-    }
-
-    /* Portfolio Card */
-    .portfolio-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        overflow: hidden;
-        transition: var(--transition-smooth);
-        position: relative;
-    }
-
-    .portfolio-card:hover {
-        transform: translateY(-10px);
-        border-color: var(--primary);
-        box-shadow: var(--shadow-glow);
-    }
-
-    .portfolio-card.featured {
-        border-color: var(--accent);
-    }
-
-    .card-badge {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        background: var(--gradient-main);
-        padding: 6px 14px;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        z-index: 10;
-    }
-
-    .card-image {
-        height: 200px;
-        background: var(--bg-elevated);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .card-emoji {
-        font-size: 5rem;
-        filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3));
-        transition: var(--transition-smooth);
-    }
-
-    .portfolio-card:hover .card-emoji {
-        transform: scale(1.2);
-    }
-
-    .card-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: var(--transition-smooth);
-    }
-
-    .portfolio-card:hover .card-overlay {
-        opacity: 1;
-    }
-
-    .view-btn {
-        padding: 12px 28px;
-        background: white;
-        color: var(--bg-dark);
-        border-radius: 50px;
-        font-weight: 700;
-    }
-
-    .card-content {
-        padding: 24px;
-    }
-
-    .card-category {
-        display: inline-block;
-        padding: 4px 12px;
-        background: var(--bg-elevated);
-        border-radius: 50px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--primary-light);
-        margin-bottom: 12px;
-    }
-
-    .card-content h3 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin-bottom: 10px;
-        color: var(--text-primary);
-    }
-
-    .card-content p {
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-        line-height: 1.6;
-        margin-bottom: 16px;
-    }
-
-    .card-tech {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .card-tech span {
-        padding: 4px 10px;
-        background: var(--bg-elevated);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        font-size: 0.75rem;
-        color: var(--text-muted);
-    }
-
-    /* Card Action Buttons */
-    .card-actions-bottom {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        margin-top: 16px;
-        flex-wrap: wrap;
-    }
-
-    .btn-order {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 10px 20px;
-        background: var(--gradient-main);
-        color: white;
-        text-decoration: none;
-        border-radius: 50px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        transition: var(--transition-smooth);
-        white-space: nowrap;
-    }
-
-    .btn-order:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
-    }
-
-    .btn-detail {
-        color: var(--primary);
-        text-decoration: none;
-        font-size: 0.85rem;
-        font-weight: 500;
-        transition: var(--transition-smooth);
-        white-space: nowrap;
-    }
-
-    .btn-detail:hover {
-        color: var(--secondary);
-    }
-
-    /* Detail button - visible on all screens now */
-    .card-detail-btn {
-        display: none;
-    }
-
-    /* Testimonials */
-    .testimonials-section {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xl);
-        padding: 50px;
-        margin-bottom: 40px;
-    }
-
-    .testimonials-section h2 {
-        text-align: center;
-        font-size: 2rem;
-        margin-bottom: 40px;
-        background: var(--gradient-text);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .testimonials-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 24px;
-    }
-
-    .testimonial-card {
-        background: var(--bg-elevated);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        padding: 28px;
-        transition: var(--transition-smooth);
-    }
-
-    .testimonial-card:hover {
-        border-color: var(--primary);
-        transform: translateY(-4px);
-    }
-
-    .testimonial-content p {
-        color: var(--text-secondary);
-        font-size: 1rem;
-        line-height: 1.7;
-        margin-bottom: 20px;
-        font-style: italic;
-    }
-
-    .testimonial-author {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-    }
-
-    .author-avatar {
-        width: 50px;
-        height: 50px;
-        background: var(--gradient-main);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-    }
-
-    .author-info strong {
-        display: block;
-        color: var(--text-primary);
-        font-size: 0.95rem;
-    }
-
-    .author-info span {
-        color: var(--text-muted);
-        font-size: 0.85rem;
-    }
-
-    /* CTA Buttons */
-    .cta-buttons {
-        display: flex;
-        gap: 16px;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .cta-button.primary {
-        background: white;
-        color: var(--primary-dark);
-    }
-
-    .cta-button.secondary {
-        background: transparent;
-        border: 2px solid white;
-        color: white;
-    }
-
-    .cta-button.secondary:hover {
-        background: white;
-        color: var(--primary-dark);
-    }
-
-    @media (max-width: 768px) {
-        .portfolio-hero {
-            padding: 24px 16px;
-            margin-bottom: 16px;
-        }
-
-        .portfolio-hero h1 {
-            font-size: 1.4rem;
-            margin-bottom: 8px;
-        }
-
-        .portfolio-hero .hero-subtitle {
-            font-size: 0.85rem;
-            margin-bottom: 16px;
-        }
-
-        .portfolio-hero .hero-stats {
-            flex-direction: row;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        .portfolio-hero .hero-stat .stat-value {
-            font-size: 1.4rem;
-        }
-
-        .portfolio-hero .hero-stat .stat-label {
-            font-size: 0.65rem;
-        }
-
-        .portfolio-filter {
-            gap: 6px;
-            margin-bottom: 16px;
-        }
-
-        .filter-btn {
-            padding: 8px 14px;
-            font-size: 0.75rem;
-        }
-
-        /* 2-Column Mobile Grid */
-        .portfolio-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 24px;
-            padding: 0 8px;
-        }
-
-        .card-image {
-            height: 100px;
-        }
-
-        .card-emoji {
-            font-size: 2.5rem;
-        }
-
-        /* Hide hover overlay on mobile */
-        .card-overlay {
-            display: none;
-        }
-
-        .card-content {
-            padding: 10px;
-        }
-
-        .card-category {
-            font-size: 0.6rem !important;
-            padding: 2px 6px !important;
-            margin-bottom: 4px !important;
-        }
-
-        .card-content h3 {
-            font-size: 0.85rem;
-            margin-bottom: 4px;
-            line-height: 1.3;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .card-content p {
-            display: none;
-            /* Hide description on mobile 2-col */
-        }
-
-        .card-tech {
-            display: none;
-            /* Hide tech tags on mobile 2-col */
-        }
-
-        /* Mobile action buttons */
-        .card-actions-bottom {
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .btn-order {
-            width: 100%;
-            justify-content: center;
-            padding: 8px 12px;
-            font-size: 0.75rem;
-        }
-
-        .btn-detail {
-            font-size: 0.75rem;
-            text-align: center;
-        }
-
-        /* Hide old card-detail-btn */
-        .card-detail-btn {
-            display: none;
-        }
-
-        .testimonials-section {
-            padding: 20px 14px;
-            margin-bottom: 16px;
-        }
-
-        .testimonials-section h2 {
-            font-size: 1.3rem;
-            margin-bottom: 20px;
-        }
-
-        .testimonial-card {
-            padding: 16px;
-        }
-
-        .cta-section {
-            padding: 24px 16px;
-        }
-
-        .cta-section h3 {
-            font-size: 1.2rem;
-        }
-    }
-
-    /* Very small mobile - single column fallback */
-    @media (max-width: 380px) {
-        .portfolio-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .card-content p {
-            display: block;
-            font-size: 0.8rem;
-            margin-bottom: 8px;
-        }
-    }
-</style>
-
-<!-- Project Detail Modal -->
-<div id="projectModal" class="modal-overlay">
-    <div class="modal-content glass">
-        <button class="modal-close" onclick="closeModal()">&times;</button>
-        <div class="modal-layout">
-            <div class="modal-image-side">
-                <span id="modalEmoji" class="modal-emoji">🚀</span>
-                <div id="modalCategory" class="modal-category-badge">Web Sayt</div>
-            </div>
-            <div class="modal-info-side">
-                <h2 id="modalTitle">Loyiha Nomi</h2>
-                <div id="modalTech" class="modal-tech-list">
-                    <!-- Tech badges here -->
-                </div>
-
-                <div class="modal-description-section">
-                    <h3>📝 Ma'lumot</h3>
-                    <p id="modalDescription">Loyiha haqida qisqacha tavsif...</p>
-                </div>
-
-                <div id="modalFeaturesSection" class="modal-features-section">
-                    <h3>✅ Imkoniyatlar</h3>
-                    <ul id="modalFeatures">
-                        <!-- Features list here -->
-                    </ul>
-                </div>
-
-                <div id="modalDetailsSection" class="modal-details-section">
-                    <h3>🔍 Batafsil</h3>
-                    <div id="modalDetails" class="modal-details-content">
-                        <!-- Full details here -->
-                    </div>
-                </div>
-
-                <div class="modal-cta-box">
-                    <h4>Sizga ham shunday loyiha kerakmi?</h4>
-                    <p>Mutaxassislarimiz bilan bog'laning va bepul konsultatsiya oling!</p>
-                    <div class="modal-actions">
-                        <a id="modalOrderBtn" href="{{ url_for('order_page') }}" class="modal-btn order-now">
-                            🚀 Buyurtma berish
-                        </a>
-                        <a id="modalLink" href="#" target="_blank" class="modal-btn primary">
-                            🌐 Ko'rish
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-    /* Modal Styles */
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-        padding: 20px;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .modal-overlay.active {
-        display: flex;
-        opacity: 1;
-    }
-
-    .modal-content {
-        width: 100%;
-        max-width: 900px;
-        max-height: 90vh;
-        background: var(--glass);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius-xl);
-        position: relative;
-        overflow-y: auto;
-        transform: scale(0.9);
-        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        scrollbar-width: thin;
-        scrollbar-color: var(--primary) transparent;
-    }
-
-    .modal-overlay.active .modal-content {
-        transform: scale(1);
-    }
-
-    .modal-close {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: rgba(255, 255, 255, 0.1);
-        border: none;
-        color: white;
-        font-size: 2rem;
-        cursor: pointer;
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: var(--transition-fast);
-        z-index: 10;
-    }
-
-    .modal-close:hover {
-        background: var(--primary);
-        transform: rotate(90deg);
-    }
-
-    .modal-layout {
-        display: grid;
-        grid-template-columns: 350px 1fr;
-        min-height: 500px;
-    }
-
-    .modal-image-side {
-        background: var(--bg-elevated);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 40px;
-        border-right: 1px solid var(--border);
-        position: relative;
-    }
-
-    .modal-emoji {
-        font-size: 8rem;
-        filter: drop-shadow(0 0 40px rgba(99, 102, 241, 0.4));
-        margin-bottom: 20px;
-    }
-
-    .modal-category-badge {
-        padding: 6px 16px;
-        background: var(--gradient-main);
-        border-radius: 50px;
-        font-weight: 700;
-        font-size: 0.9rem;
-    }
-
-    .modal-info-side {
-        padding: 40px;
-    }
-
-    .modal-info-side h2 {
-        font-size: 2.2rem;
-        font-weight: 800;
-        margin-bottom: 16px;
-        background: var(--gradient-text);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .modal-tech-list {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-bottom: 30px;
-    }
-
-    .modal-tech-list span {
-        padding: 6px 14px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        font-size: 0.85rem;
-        color: var(--text-muted);
-    }
-
-    .modal-info-side h3 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: 12px;
-        color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .modal-description-section p {
-        color: var(--text-secondary);
-        line-height: 1.7;
-        margin-bottom: 30px;
-        font-size: 1.05rem;
-    }
-
-    .modal-features-section {
-        margin-bottom: 30px;
-    }
-
-    .modal-features-section ul {
-        list-style: none;
-        padding: 0;
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 10px;
-    }
-
-    .modal-features-section li {
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-        padding-left: 24px;
-        position: relative;
-    }
-
-    .modal-features-section li::before {
-        content: '✓';
-        position: absolute;
-        left: 0;
-        color: var(--accent);
-        font-weight: bold;
-    }
-
-    .modal-details-section {
-        margin-bottom: 40px;
-        padding-top: 20px;
-        border-top: 1px solid var(--border);
-    }
-
-    .modal-details-content {
-        color: var(--text-secondary);
-        line-height: 1.7;
-    }
-
-    .modal-actions {
-        display: flex;
-        gap: 16px;
-    }
-
-    .modal-btn {
-        padding: 14px 28px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: var(--transition-smooth);
-        border: none;
-        text-align: center;
-        flex: 1;
-    }
-
-    .modal-btn.primary {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-
-    .modal-btn.order-now {
-        background: var(--gradient-main);
-        color: white;
-        animation: pulse-small 2s infinite;
-    }
-
-    .modal-cta-box {
-        margin-top: 40px;
-        padding: 24px;
-        background: rgba(99, 102, 241, 0.1);
-        border: 1px solid rgba(99, 102, 241, 0.2);
-        border-radius: var(--radius-lg);
-        text-align: center;
-    }
-
-    .modal-cta-box h4 {
-        margin-bottom: 8px;
-        font-size: 1.2rem;
-    }
-
-    .modal-cta-box p {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        margin-bottom: 20px;
-    }
-
-    @keyframes pulse-small {
-        0% {
-            transform: scale(1);
-        }
-
-        50% {
-            transform: scale(1.03);
-        }
-
-        100% {
-            transform: scale(1);
-        }
-    }
-
-    .modal-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    @media (max-width: 992px) {
-        .modal-layout {
-            grid-template-columns: 1fr;
-        }
-
-        .modal-image-side {
-            padding: 30px;
-            border-right: none;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .modal-emoji {
-            font-size: 5rem;
-        }
-
-        .modal-info-side {
-            padding: 30px;
-        }
-    }
-
-    @media (max-width: 600px) {
-        .modal-info-side h2 {
-            font-size: 1.6rem;
-        }
-
-        .modal-actions {
-            flex-direction: column;
-        }
-
-        .modal-features-section ul {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
-<script>
-    const modal = document.getElementById('projectModal');
-    const portfoliosData = [
-        {% for item in portfolios %}
-        {{ item.to_dict() | tojson | safe }},
-        {% endfor %}
-        {
-            id: 'manual-kfc',
-            slug: 'restoran-kfc-frontend',
-            title: 'Restoran KFC Frontend',
-            description: "Fast food restoran uchun zamonaviy frontend. Menyu, promo bloklar va onlayn buyurtmaga yo'naltirilgan interfeys.",
-            category: 'web',
-            emoji: '🍗',
-            technologies: ['Frontend', 'Responsive UI', 'Vercel'],
-            link: 'https://restorankfc-frontend.vercel.app/',
-            image_url: '',
-            is_featured: false,
-            details: "",
-            details_html: "<p>Fast food/restoran yo'nalishidagi landing sahifa. Foydalanuvchini menyu va promo bloklar orqali buyurtma jarayoniga olib kirishga mo'ljallangan.</p>",
-            features: ['Menyu ko\'rinishi', 'Responsive dizayn', 'Promo bloklar', 'Live demo link']
-        },
-        {
-            id: 'manual-realnews',
-            slug: 'realnewsuz',
-            title: 'RealNewsUZ',
-            description: "Yangiliklar va media kontent uchun tayyorlangan zamonaviy web interfeys. Kontentni tez o'qish va ko'rishga qulay struktura bilan ishlab chiqilgan.",
-            category: 'web',
-            emoji: '📰',
-            technologies: ['Frontend', 'News UI', 'Vercel'],
-            link: 'https://realnewsuz.vercel.app/',
-            image_url: '',
-            is_featured: false,
-            details: "",
-            details_html: "<p>Yangiliklar portali yo'nalishidagi web interfeys. Asosiy fokus kontentni toza ko'rsatish, sarlavhalarni ajratish va foydalanuvchi uchun qulay o'qish tajribasini berish.</p>",
-            features: ['Yangiliklar interfeysi', 'Responsive dizayn', 'Tez navigatsiya', 'Live demo link']
-        },
-        {
-            id: 'manual-trendoaispeak',
-            slug: 'trendoaispeak-uzbek-english-tutor',
-            title: 'TrendoAI Speak',
-            description: "O'zbek va ingliz tili uchun interaktiv tutor interfeysi. O'quvchini mashq va suhbat formatida til o'rganishga yo'naltiradigan yechim.",
-            category: 'ai',
-            emoji: 'AI',
-            technologies: ['AI Tutor', 'Language Learning', 'Vercel'],
-            link: 'https://trendoaispeak-uzbek-english-tutor.vercel.app/',
-            image_url: '',
-            is_featured: false,
-            details: "",
-            details_html: "<p>Til o'rganish uchun mo'ljallangan interaktiv AI tutor interfeysi. Asosiy fokus foydalanuvchiga o'zbek va ingliz tilida mashq qilish va suhbat orqali o'rganish imkonini berish.</p>",
-            features: ['Interaktiv tutor', 'Til mashqlari', 'Responsive dizayn', 'Live demo link']
-        },
-        {
-            id: 'manual-shifo-nur-chatbot',
-            slug: 'shifo-nur-klinikasi-chatbot',
-            title: 'Shifo Nur Klinikasi Chatbot',
-            description: "Klinika uchun mo'ljallangan chatbot interfeysi. Foydalanuvchiga xizmatlar, murojaat va tezkor aloqa jarayonini sodda ko'rsatadigan yechim.",
-            category: 'ai',
-            emoji: 'MED',
-            technologies: ['Healthcare', 'AI Chatbot', 'Vercel'],
-            link: 'https://shifo-nur-klinikasi-chatbot.vercel.app/',
-            image_url: '',
-            is_featured: false,
-            details: "",
-            details_html: "<p>Tibbiyot yo'nalishidagi chatbot interfeysi. Asosiy fokus foydalanuvchini klinika xizmatlari, savollar va tezkor murojaat jarayoniga yo'naltirish.</p>",
-            features: ['Klinika chatboti', 'Murojaat oqimi', 'Responsive dizayn', 'Live demo link']
-        },
-        {
-            id: 'manual-ozbek-talaffuz-kontent',
-            slug: 'ozbek-talaffuz-kontent',
-            title: "O'zbek Talaffuz Kontent",
-            description: "O'zbek talaffuzi va o'quv kontenti uchun tayyorlangan web interfeys. Foydalanuvchiga materiallarni sodda va tushunarli ko'rinishda taqdim etadigan yechim.",
-            category: 'web',
-            emoji: 'EDU',
-            technologies: ['Education', 'Content Platform', 'Vercel'],
-            link: 'https://o-zbek-talaffuz-kontent.vercel.app/',
-            image_url: '',
-            is_featured: false,
-            details: "",
-            details_html: "<p>Ta'lim yo'nalishidagi kontent platformasi. Asosiy fokus o'zbek talaffuzi bo'yicha materiallarni foydalanuvchi uchun qulay va tushunarli ko'rinishda berish.</p>",
-            features: ["Ta'lim kontenti", "Responsive dizayn", "Sodda navigatsiya", "Live demo link"]
-        },
-        {
-            id: 'manual-ai-project-scoper',
-            slug: 'ai-project-scoper',
-            title: 'AI Project Scoper',
-            description: "Loyiha scope va talablarni tez shakllantirish uchun tayyorlangan AI interfeys. Foydalanuvchiga task, deliverable va ish hajmini aniqroq belgilashga yordam beradi.",
-            category: 'ai',
-            emoji: 'SCOPE',
-            technologies: ['AI Planning', 'Project Scope', 'Vercel'],
-            link: 'https://ai-project-scoper.vercel.app/',
-            image_url: '',
-            is_featured: false,
-            details: "",
-            details_html: "<p>Loyiha scope va requirementlarni tezroq yig'ish uchun mo'ljallangan AI vosita. Asosiy fokus foydalanuvchiga vazifalar, deliverable va ish hajmini strukturali ko'rinishda shakllantirishga yordam berish.</p>",
-            features: ['Scope generator', 'Requirement tuzish', 'Responsive dizayn', 'Live demo link']
-        },
-        {
-            id: 'manual-texnomarket',
-            slug: 'texnomarket',
-            title: 'Texnomarket',
-            description: "Elektronika va texnika mahsulotlari uchun tayyorlangan e-commerce interfeys. Foydalanuvchiga katalog, mahsulot va xarid jarayonini sodda ko'rinishda taqdim etadigan yechim.",
-            category: 'web',
-            emoji: 'SHOP',
-            technologies: ['E-commerce', 'Frontend', 'Vercel'],
-            link: 'https://texnomarket.vercel.app/',
-            image_url: '',
-            is_featured: false,
-            details: "",
-            details_html: "<p>Texnika va elektronika savdosi uchun mo'ljallangan web interfeys. Asosiy fokus foydalanuvchiga mahsulot katalogi va xarid oqimini qulay ko'rinishda ko'rsatish.</p>",
-            features: ['Mahsulot katalogi', 'Responsive dizayn', 'Sodda navigatsiya', 'Live demo link']
-        },
-        {
-            id: 'manual-paketshop',
-            slug: 'paketshop',
-            title: 'Paketshop',
-            description: "Onlayn savdo va mahsulot ko'rish uchun tayyorlangan web interfeys. Foydalanuvchiga katalog va murojaat jarayonini sodda ko'rinishda taqdim etadigan yechim.",
-            category: 'web',
-            emoji: 'PKG',
-            technologies: ['E-commerce', 'Catalog', 'Web Platform'],
-            link: 'https://www.paketshop.uz/',
-            image_url: '',
-            is_featured: false,
-            details: "",
-            details_html: "<p>Onlayn savdo va katalog ko'rsatishga mo'ljallangan web interfeys. Asosiy fokus foydalanuvchiga mahsulotlarni qulay ko'rinishda taqdim etish va murojaat jarayonini soddalashtirish.</p>",
-            features: ['Mahsulot katalogi', 'Responsive dizayn', 'Sodda navigatsiya', 'Live demo link']
-        },
-        {
-            id: 'manual-restoran-kfc-site',
-            slug: 'restoran-kfc',
-            title: 'Restoran KFC',
-            description: "Restoran va fast food yo'nalishi uchun tayyorlangan web interfeys. Foydalanuvchiga menyu, promo bloklar va buyurtmaga o'tish jarayonini sodda ko'rinishda taqdim etadigan yechim.",
-            category: 'web',
-            emoji: 'FOOD',
-            technologies: ['Restaurant', 'Landing Page', 'Vercel'],
-            link: 'https://restoran-kfc.vercel.app/',
-            image_url: '',
-            is_featured: false,
-            details: "",
-            details_html: "<p>Restoran va fast food yo'nalishidagi landing sahifa. Asosiy fokus foydalanuvchiga menyu va promo bloklarni ko'rsatish hamda buyurtma oqimini soddalashtirish.</p>",
-            features: ['Menyu bloklari', 'Responsive dizayn', 'Promo section', 'Live demo link']
-        },
-        {
-            id: 'manual-nomoz-vaqtlari',
-            slug: 'nomoz-vaqtlari',
-            title: 'Nomoz Vaqtlari',
-            description: "Namoz vaqtlarini ko'rsatish uchun tayyorlangan web interfeys. Foydalanuvchiga vaqtlar, kunlik ko'rsatkichlar va kerakli ma'lumotlarni sodda ko'rinishda taqdim etadigan yechim.",
-            category: 'web',
-            emoji: 'TIME',
-            technologies: ['Prayer Times', 'Utility App', 'Vercel'],
-            link: 'https://nomoz-vaqtlari-xi.vercel.app/',
-            image_url: '',
-            is_featured: false,
-            details: "",
-            details_html: "<p>Namoz vaqtlarini ko'rsatishga mo'ljallangan web interfeys. Asosiy fokus foydalanuvchiga vaqtlar va kunlik ma'lumotlarni qulay ko'rinishda taqdim etish.</p>",
-            features: ['Vaqtlar ko'rinishi', 'Responsive dizayn', 'Sodda navigatsiya', 'Live demo link']
-        },
-        {
-            id: 'manual-botfactory',
-            slug: 'botfactory',
-            title: 'BotFactory',
-            description: "Bot yaratish va avtomatlashtirish uchun tayyorlangan platforma interfeysi. Foydalanuvchiga bot xizmatlari va ish jarayonini sodda ko'rinishda taqdim etadigan yechim.",
-            category: 'bot',
-            emoji: 'BOT',
-            technologies: ['Bot Platform', 'Automation', 'Render'],
-            link: 'https://botfactory-am64.onrender.com/',
-            image_url: '',
-            is_featured: false,
-            details: "",
-            details_html: "<p>Bot yaratish va avtomatlashtirishga mo'ljallangan platforma interfeysi. Asosiy fokus foydalanuvchiga bot xizmatlari va jarayonlarni qulay ko'rinishda taqdim etish.</p>",
-            features: ['Bot platforma', 'Automation oqimi', 'Responsive dizayn', 'Live demo link']
-        },
-        {
-            id: 'manual-instadub',
-            slug: 'instadub',
-            title: 'InstaDub',
-            description: "Kontentni dublyaj va media ishloviga yo'naltirilgan AI interfeys. Foydalanuvchiga ovoz, media va tezkor ishlov jarayonini sodda ko'rinishda taqdim etadigan yechim.",
-            category: 'ai',
-            emoji: 'DUB',
-            technologies: ['AI Media', 'Voice Tool', 'Vercel'],
-            link: 'https://instadub.vercel.app/',
-            image_url: '',
-            is_featured: false,
-            details: "",
-            details_html: "<p>Media va dublyaj ishloviga mo'ljallangan AI interfeys. Asosiy fokus foydalanuvchiga audio yoki media jarayonlarini qulay va tez boshqarish imkonini berish.</p>",
-            features: ['Media ishlov', 'Dublyaj oqimi', 'Responsive dizayn', 'Live demo link']
-        }
-    ];
-
-    function openModal(projectId) {
-        const project = portfoliosData.find(p => p.id === projectId);
-        if (!project) return;
-
-        document.getElementById('modalEmoji').textContent = project.emoji || '🚀';
-        document.getElementById('modalTitle').textContent = project.title;
-        document.getElementById('modalDescription').textContent = project.description;
-
-        // Category
-        const catMap = { 'bot': '🤖 Telegram Bot', 'web': '🌐 Web Sayt', 'ai': '🧠 AI Yechim', 'mobile': '📱 Mobile App' };
-        document.getElementById('modalCategory').textContent = catMap[project.category] || project.category;
-
-        // Tech
-        const techBox = document.getElementById('modalTech');
-        techBox.innerHTML = '';
-        project.technologies.forEach(tech => {
-            const span = document.createElement('span');
-            span.textContent = tech;
-            techBox.appendChild(span);
-        });
-
-        // Features
-        const featuresSection = document.getElementById('modalFeaturesSection');
-        const featuresList = document.getElementById('modalFeatures');
-        if (project.features && project.features.length > 0) {
-            featuresSection.style.display = 'block';
-            featuresList.innerHTML = '';
-            project.features.forEach(f => {
-                const li = document.createElement('li');
-                li.textContent = f;
-                featuresList.appendChild(li);
-            });
-        } else {
-            featuresSection.style.display = 'none';
-        }
-
-        // Details
-        const detailsSection = document.getElementById('modalDetailsSection');
-        const detailsContent = document.getElementById('modalDetails');
-        if (project.details_html) {
-            detailsSection.style.display = 'block';
-            detailsContent.innerHTML = project.details_html;
-        } else {
-            detailsSection.style.display = 'none';
-        }
-
-        // Pre-fill order link with category
-        const orderBtn = document.getElementById('modalOrderBtn');
-        const categoryMap = {
-            'bot': 'telegram_bot',
-            'web': 'web_site',
-            'ai': 'ai_chatbot',
-            'mobile': 'mobile_app'
-        };
-        const serviceKey = categoryMap[project.category] || '';
-        orderBtn.href = `{{ url_for('order_page') }}?service=${serviceKey}`;
-
-        // Link
-        const linkBtn = document.getElementById('modalLink');
-        if (project.link) {
-            linkBtn.style.display = 'block';
-            linkBtn.href = project.link;
-        } else {
-            linkBtn.style.display = 'none';
-        }
-
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-
-        // Facebook Pixel: Track ViewContent event for ads optimization
-        if (typeof fbq !== 'undefined') {
-            fbq('track', 'ViewContent', {
-                content_name: project.title,
-                content_category: project.category,
-                content_type: 'product',
-                content_ids: [project.id]
-            });
-        }
-    }
-
-    function closeModal() {
-        modal.classList.remove('active');
-        document.body.style.overflow = 'auto';
-    }
-
-    // Close on backdrop click
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-    });
-
-    // Portfolio Filter
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const filter = btn.dataset.filter;
-            document.querySelectorAll('.portfolio-card').forEach(card => {
-                if (filter === 'all' || card.dataset.category === filter) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        });
-    });
-
-    // Deep Deep Linking: Open modal if hash reflects a project slug
-    window.addEventListener('DOMContentLoaded', () => {
-        const hash = window.location.hash.substring(1);
-        if (hash) {
-            const project = portfoliosData.find(p => p.slug === hash);
-            if (project) {
-                openModal(project.id);
-            }
-        }
-    });
-
-    // Handle back/forward navigation for hash changes
-    window.addEventListener('hashchange', () => {
-        const hash = window.location.hash.substring(1);
-        if (hash) {
-            const project = portfoliosData.find(p => p.slug === hash);
-            if (project) openModal(project.id);
-        } else {
-            closeModal();
-        }
-    });
-</script>
 {% endblock %}
