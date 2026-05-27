@@ -147,6 +147,8 @@
 </head>
 
 <body>
+    <a class="skip-to-content" href="#main-content">Asosiy mazmunga o'tish</a>
+
     <!-- Main Content Start -->
     <header>
         <div class="header-content">
@@ -159,13 +161,13 @@
             <p class="tagline">Trending texnologiyalar va sun'iy intellekt</p>
 
             <!-- Mobile Hamburger Menu Button -->
-            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menyu">
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Asosiy menyu" aria-expanded="false" aria-controls="mainNav">
+                <span class="hamburger-line" aria-hidden="true"></span>
+                <span class="hamburger-line" aria-hidden="true"></span>
+                <span class="hamburger-line" aria-hidden="true"></span>
             </button>
 
-            <nav id="mainNav">
+            <nav id="mainNav" aria-label="Asosiy navigatsiya">
                 <a href="{{ url_for('index') }}"
                     class="{% if request.endpoint in ['index', 'services', 'service_detail'] %}active{% endif %}">🛠️
                     Xizmatlar</a>
@@ -201,9 +203,9 @@
                     </svg>
                 </a>
                 <!-- Theme Toggle -->
-                <button class="theme-toggle" id="themeToggle" title="Rejimni almashtirish">
-                    <span class="moon-icon">🌙</span>
-                    <span class="sun-icon">☀️</span>
+                <button class="theme-toggle" id="themeToggle" type="button" aria-label="Rejimni almashtirish (qorong'u/yorug')" title="Rejimni almashtirish">
+                    <span class="moon-icon" aria-hidden="true">🌙</span>
+                    <span class="sun-icon" aria-hidden="true">☀️</span>
                 </button>
                 <!-- Notification Toggle -->
                 <button class="theme-toggle" id="notify-btn" aria-label="Enable Notifications"
@@ -220,7 +222,7 @@
         </div>
     </header>
 
-    <main>
+    <main id="main-content" tabindex="-1">
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}
@@ -297,6 +299,50 @@
     </button>
 
     <style>
+        /* Accessibility utilities */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .skip-to-content {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #6366f1;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 0 0 8px 0;
+            text-decoration: none;
+            font-weight: 600;
+            z-index: 10001;
+            transition: top 0.2s ease;
+        }
+
+        .skip-to-content:focus {
+            top: 0;
+            outline: 3px solid #fff;
+            outline-offset: 2px;
+        }
+
+        /* Stronger keyboard focus visibility */
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        textarea:focus-visible,
+        select:focus-visible,
+        summary:focus-visible {
+            outline: 2px solid #a855f7;
+            outline-offset: 2px;
+        }
+
         /* Back to Top Button */
         .back-to-top {
             position: fixed;
@@ -848,29 +894,30 @@
         }
     </style>
     <!-- AI Chatbot Widget -->
-    <button class="chatbot-toggle" id="chatbotToggle" title="AI Yordamchi">
-        <span>🤖</span>
+    <button class="chatbot-toggle" id="chatbotToggle" type="button" aria-label="AI Yordamchini ochish" aria-expanded="false" aria-controls="chatbotWindow" title="AI Yordamchi">
+        <span aria-hidden="true">🤖</span>
     </button>
 
-    <div class="chatbot-window" id="chatbotWindow">
+    <div class="chatbot-window" id="chatbotWindow" role="dialog" aria-label="TrendoAI AI Yordamchi" aria-hidden="true">
         <div class="chatbot-header">
-            <span class="chatbot-header-icon">🤖</span>
+            <span class="chatbot-header-icon" aria-hidden="true">🤖</span>
             <div class="chatbot-header-info">
                 <h4>TrendoAI Yordamchi</h4>
                 <span>Online • Gemini AI</span>
             </div>
-            <button class="chatbot-close" id="chatbotClose">✕</button>
+            <button class="chatbot-close" id="chatbotClose" type="button" aria-label="Yordamchini yopish">✕</button>
         </div>
-        <div class="chatbot-messages" id="chatbotMessages">
+        <div class="chatbot-messages" id="chatbotMessages" role="log" aria-live="polite" aria-atomic="false">
             <div class="chat-message bot">
                 Salom! 👋 Men TrendoAI AI assistentiman. Sizga qanday yordam bera olaman? IT xizmatlar, web saytlar,
                 Telegram botlar yoki AI chatbotlar haqida so'rang!
             </div>
         </div>
         <div class="chatbot-input">
+            <label for="chatbotInput" class="visually-hidden">Xabar yozing</label>
             <input type="text" id="chatbotInput" placeholder="Xabar yozing..." autocomplete="off">
-            <button id="chatbotMic" class="chatbot-mic" title="Ovozli xabar">🎤</button>
-            <button id="chatbotSend">Yuborish</button>
+            <button id="chatbotMic" class="chatbot-mic" type="button" aria-label="Ovozli xabar yozish" title="Ovozli xabar">🎤</button>
+            <button id="chatbotSend" type="button">Yuborish</button>
         </div>
 
     </div>
@@ -884,10 +931,16 @@
         const mainNav = document.getElementById('mainNav');
 
         if (mobileMenuToggle && mainNav) {
+            const syncMenuState = () => {
+                const isOpen = mainNav.classList.contains('mobile-open');
+                mobileMenuToggle.setAttribute('aria-expanded', String(isOpen));
+            };
+
             mobileMenuToggle.addEventListener('click', function (e) {
                 e.stopPropagation();
                 mobileMenuToggle.classList.toggle('active');
                 mainNav.classList.toggle('mobile-open');
+                syncMenuState();
             });
 
             // Close menu when clicking a nav link
@@ -895,6 +948,7 @@
                 link.addEventListener('click', function () {
                     mobileMenuToggle.classList.remove('active');
                     mainNav.classList.remove('mobile-open');
+                    syncMenuState();
                 });
             });
 
@@ -903,6 +957,7 @@
                 if (!header.contains(e.target)) {
                     mobileMenuToggle.classList.remove('active');
                     mainNav.classList.remove('mobile-open');
+                    syncMenuState();
                 }
             });
         }
@@ -1122,6 +1177,8 @@
 
         function setChatbotOpen(isOpen) {
             chatbotWindow.classList.toggle('active', isOpen);
+            chatbotWindow.setAttribute('aria-hidden', String(!isOpen));
+            chatbotToggle.setAttribute('aria-expanded', String(isOpen));
             document.body.classList.toggle('chatbot-open', isOpen && window.innerWidth <= 768);
             if (isOpen) {
                 chatbotInput.focus();
