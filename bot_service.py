@@ -74,12 +74,22 @@ def get_ai_response(user_message):
 
 # --- KEYBOARDS ---
 def get_main_menu():
-    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    """Asosiy menyu — xabar tagidagi inline tugmalar."""
+    markup = telebot.types.InlineKeyboardMarkup(row_width=2)
     markup.add(
-        telebot.types.KeyboardButton("📋 Menyu"),
-        telebot.types.KeyboardButton("💬 AI Assistent"),
-        telebot.types.KeyboardButton("📦 Buyurtmalarim")
+        telebot.types.InlineKeyboardButton("📋 Menyu", callback_data="nav:menu"),
+        telebot.types.InlineKeyboardButton("💬 AI Assistent", callback_data="nav:ai"),
     )
+    markup.add(
+        telebot.types.InlineKeyboardButton("📦 Buyurtmalarim", callback_data="nav:orders"),
+    )
+    return markup
+
+
+def get_back_to_main():
+    """Boshqa xabarlarga qo'shiladigan 'Bosh menyu' tugmasi."""
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.add(telebot.types.InlineKeyboardButton("← Bosh menyu", callback_data="nav:main"))
     return markup
 
 # --- HANDLERS ---
@@ -113,33 +123,53 @@ def send_welcome(message):
         f"Men *TrendoAI* botman. Quyidagilarda yordam beraman:\n\n"
         f"📋 *Menyu* — xizmatlarimizni ko'rib chiqish va buyurtma berish\n"
         f"💬 *AI Assistent* — savollaringizga aqlli javob\n"
-        f"📦 *Buyurtmalarim* — buyurtma holatini kuzatish\n\n"
-        f"Pastdagi tugmalardan birini tanlang."
+        f"📦 *Buyurtmalarim* — buyurtma holatini kuzatish"
     )
-    bot.send_message(message.chat.id, welcome_text, parse_mode='Markdown', reply_markup=get_main_menu())
+    # Pastdagi reply keyboard endi ishlatilmaydi — uni yopib, inline tugmalarni
+    # xabarning o'zida ko'rsatamiz.
+    bot.send_message(
+        message.chat.id,
+        welcome_text,
+        parse_mode='Markdown',
+        reply_markup=telebot.types.ReplyKeyboardRemove(),
+    )
+    bot.send_message(
+        message.chat.id,
+        "Birini tanlang:",
+        reply_markup=get_main_menu(),
+    )
 
-@bot.message_handler(func=lambda message: message.text == "📋 Menyu") if bot else lambda f: f
-def show_categories(message):
-    update_user_state(message.from_user.id, 'idle')
+
+# --- INLINE NAVIGATION HANDLERS ---
+
+def _send_categories(chat_id, edit_message_id=None):
+    """📋 Menyu — kategoriyalar ro'yxati."""
     with app.app_context():
         cats = MenuCategory.query.filter_by(is_active=True).order_by(MenuCategory.order_index).all()
-        markup = telebot.types.InlineKeyboardMarkup(row_width=2)
-        
+        markup = telebot.types.InlineKeyboardMarkup(row_width=1)
         for cat in cats:
             # cat.name DB'da ko'pincha emoji bilan boshlanadi ("🤖 Telegram Botlar...").
-            # cat.emoji'ni qayta qo'shsak, emoji 2 marta chiqadi. Shuning uchun
-            # name boshidagi emoji'ni stripp qilamiz va keyin formatga qaytaramiz.
+            # cat.emoji'ni qayta qo'shsak, emoji 2 marta chiqadi.
             emoji = (cat.emoji or '').strip()
             name = cat.name or ''
             if emoji and name.startswith(emoji):
                 name = name[len(emoji):].lstrip()
             label = f"{emoji} {name}".strip() if emoji else name
             markup.add(telebot.types.InlineKeyboardButton(label, callback_data=f"cat_{cat.id}"))
+        markup.add(telebot.types.InlineKeyboardButton("← Bosh menyu", callback_data="nav:main"))
 
-        bot.send_message(message.chat.id, "Qaysi xizmatga qiziqasiz?", reply_markup=markup)
+        text = "Qaysi xizmatga qiziqasiz?"
+        if edit_message_id:
+            try:
+                bot.edit_message_text(text, chat_id, edit_message_id, reply_markup=markup)
+                return
+            except Exception:
+                pass
+        bot.send_message(chat_id, text, reply_markup=markup)
 
-@bot.message_handler(func=lambda message: message.text == "📦 Buyurtmalarim") if bot else lambda f: f
-def my_orders(message):
+
+def _send_orders(chat_id, tg_user_id, edit_message_id=None):
+    """📦 Buyurtmalarim — oxirgi buyurtmalar ro'yxati."""
     status_labels = {
         'new': '🟡 Yangi',
         'pending': '🟡 Kutilmoqda',
@@ -149,27 +179,35 @@ def my_orders(message):
         'cancelled': '🔴 Bekor qilindi',
     }
     with app.app_context():
-        orders = BotOrder.query.filter_by(tg_id=message.from_user.id).order_by(BotOrder.created_at.desc()).limit(5).all()
-        if not orders:
-            bot.send_message(
-                message.chat.id,
-                "Sizda hozircha buyurtmalar yo'q.\n\n"
-                "Yangi buyurtma berish uchun *📋 Menyu* tugmasini bosing.",
-                parse_mode='Markdown'
-            )
-            return
+        orders = BotOrder.query.filter_by(tg_id=tg_user_id).order_by(BotOrder.created_at.desc()).limit(5).all()
 
+    if not orders:
+        text = (
+            "Sizda hozircha buyurtmalar yo'q.\n\n"
+            "Yangi buyurtma berish uchun *📋 Menyu* tugmasini bosing."
+        )
+    else:
         lines = ["*So'nggi buyurtmalaringiz:*\n"]
         for o in orders:
             status = status_labels.get((o.status or '').lower(), o.status or '—')
             amount = f"{o.total_amount:,}".replace(',', ' ') if o.total_amount else '—'
             lines.append(f"#{o.order_number}  ·  {amount} so'm")
             lines.append(f"  {status}\n")
-        bot.send_message(message.chat.id, "\n".join(lines), parse_mode='Markdown')
+        text = "\n".join(lines)
 
-@bot.message_handler(func=lambda message: message.text == "💬 AI Assistent") if bot else lambda f: f
-def ai_assistant_mode(message):
-    update_user_state(message.from_user.id, 'ai_chat')
+    markup = get_back_to_main()
+    if edit_message_id:
+        try:
+            bot.edit_message_text(text, chat_id, edit_message_id, reply_markup=markup, parse_mode='Markdown')
+            return
+        except Exception:
+            pass
+    bot.send_message(chat_id, text, reply_markup=markup, parse_mode='Markdown')
+
+
+def _send_ai_intro(chat_id, tg_user_id, edit_message_id=None):
+    """💬 AI Assistent rejimini yoqish."""
+    update_user_state(tg_user_id, 'ai_chat')
     intro = (
         "🤖 *AI Assistent rejimi yoqildi*\n\n"
         "Menga IT, sun'iy intellekt, web ishlab chiqish va biznes avtomatlashtirish bo'yicha istalgan savolni bering.\n\n"
@@ -178,9 +216,55 @@ def ai_assistant_mode(message):
         "• Web saytim uchun qaysi texnologiya yaxshi?\n"
         "• AI chatbot biznesimga qanday foyda keltiradi?\n"
         "• To'lov tizimini qanday qo'shaman?\n\n"
-        "Chiqish uchun /start bosing."
+        "Chiqish uchun pastdagi tugmani bosing yoki /start yuboring."
     )
-    bot.send_message(message.chat.id, intro, parse_mode='Markdown')
+    markup = get_back_to_main()
+    if edit_message_id:
+        try:
+            bot.edit_message_text(intro, chat_id, edit_message_id, reply_markup=markup, parse_mode='Markdown')
+            return
+        except Exception:
+            pass
+    bot.send_message(chat_id, intro, reply_markup=markup, parse_mode='Markdown')
+
+
+def _send_main_menu(chat_id, edit_message_id=None):
+    """Bosh menyuga qaytish."""
+    text = "Asosiy menyu. Birini tanlang:"
+    markup = get_main_menu()
+    if edit_message_id:
+        try:
+            bot.edit_message_text(text, chat_id, edit_message_id, reply_markup=markup)
+            return
+        except Exception:
+            pass
+    bot.send_message(chat_id, text, reply_markup=markup)
+
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('nav:')) if bot else lambda f: f
+def nav_clicked(call):
+    action = call.data.split(':', 1)[1]
+    chat_id = call.message.chat.id
+    mid = call.message.message_id
+    user_id = call.from_user.id
+
+    if action == 'menu':
+        update_user_state(user_id, 'idle')
+        bot.answer_callback_query(call.id)
+        _send_categories(chat_id, edit_message_id=mid)
+    elif action == 'ai':
+        bot.answer_callback_query(call.id)
+        _send_ai_intro(chat_id, user_id, edit_message_id=mid)
+    elif action == 'orders':
+        update_user_state(user_id, 'idle')
+        bot.answer_callback_query(call.id)
+        _send_orders(chat_id, user_id, edit_message_id=mid)
+    elif action == 'main':
+        update_user_state(user_id, 'idle')
+        bot.answer_callback_query(call.id)
+        _send_main_menu(chat_id, edit_message_id=mid)
+    else:
+        bot.answer_callback_query(call.id, "Noma'lum buyruq")
 
 # --- CALLBACK HANDLERS ---
 @bot.callback_query_handler(func=lambda call: call.data.startswith('cat_')) if bot else lambda f: f
@@ -189,17 +273,27 @@ def category_clicked(call):
     with app.app_context():
         cat = MenuCategory.query.get(cat_id)
         items = MenuItem.query.filter_by(category=cat.name, is_available=True).order_by(MenuItem.order_index).all()
-        
+
         if not items:
             bot.answer_callback_query(call.id, "Bu kategoriyada mahsulot yo'q.")
             return
-            
+
+        # Sarlavhada emoji ikkilanmasin
+        cat_emoji = (cat.emoji or '').strip()
+        cat_name = cat.name or ''
+        if cat_emoji and cat_name.startswith(cat_emoji):
+            cat_name = cat_name[len(cat_emoji):].lstrip()
+        title = f"{cat_emoji} *{cat_name}*".strip() if cat_emoji else f"*{cat_name}*"
+
         markup = telebot.types.InlineKeyboardMarkup(row_width=1)
         for item in items:
-            p_range = get_price_range(cat.name)
             markup.add(telebot.types.InlineKeyboardButton(f"{item.emoji} {item.name}", callback_data=f"item_{item.id}"))
-            
-        bot.edit_message_text(f"📋 **{cat.name}** bo'limi", call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
+        markup.add(
+            telebot.types.InlineKeyboardButton("← Kategoriyalar", callback_data="nav:menu"),
+            telebot.types.InlineKeyboardButton("🏠 Bosh menyu", callback_data="nav:main"),
+        )
+
+        bot.edit_message_text(title, call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('item_')) if bot else lambda f: f
 def item_clicked(call):
@@ -209,22 +303,20 @@ def item_clicked(call):
         if not item:
             bot.answer_callback_query(call.id, "Mahsulot topilmadi.")
             return
-            
+
         p_range = get_price_range(item.category)
-        text = f"{item.emoji} **{item.name}**\n\n💰 Narxi: {p_range}\n"
+        text = f"{item.emoji} *{item.name}*\n\n💰 Narxi: {p_range}\n"
         if item.description:
             text += f"\n📝 {item.description}\n"
-            
-        markup = telebot.types.InlineKeyboardMarkup()
-        markup.add(telebot.types.InlineKeyboardButton("🚀 Buyurtma berish", callback_data=f"order_{item.id}"))
-        markup.add(telebot.types.InlineKeyboardButton("🔙 Orqaga", callback_data="menyu_back"))
-        
-        bot.edit_message_text(text, call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
 
-@bot.callback_query_handler(func=lambda call: call.data == "menyu_back") if bot else lambda f: f
-def menyu_back(call):
-    show_categories(call.message)
-    bot.delete_message(call.message.chat.id, call.message.message_id)
+        markup = telebot.types.InlineKeyboardMarkup(row_width=1)
+        markup.add(telebot.types.InlineKeyboardButton("🚀 Buyurtma berish", callback_data=f"order_{item.id}"))
+        markup.add(
+            telebot.types.InlineKeyboardButton("← Orqaga", callback_data="nav:menu"),
+            telebot.types.InlineKeyboardButton("🏠 Bosh menyu", callback_data="nav:main"),
+        )
+
+        bot.edit_message_text(text, call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode='Markdown')
 
 # --- DIRECT ORDER (savatsiz) ---
 @bot.callback_query_handler(func=lambda call: call.data.startswith('order_')) if bot else lambda f: f
@@ -352,26 +444,30 @@ def handle_all(message):
         if not message.text:
             bot.send_message(message.chat.id, "Iltimos, menga faqat matnli savol yuboring.")
             return
-            
+
         bot.send_chat_action(message.chat.id, 'typing')
         ai_reply = get_ai_response(message.text)
         try:
-            bot.reply_to(message, ai_reply, parse_mode='Markdown')
-        except:
-            bot.reply_to(message, ai_reply)
-        
+            bot.reply_to(message, ai_reply, parse_mode='Markdown', reply_markup=get_back_to_main())
+        except Exception:
+            bot.reply_to(message, ai_reply, reply_markup=get_back_to_main())
+
     else:
         # Default AI Chat Fallback
         if not message.text:
-            bot.send_message(message.chat.id, "Iltimos, faqat matn yuboring yoki menyudan kerakli bo'limni tanlang.")
+            bot.send_message(
+                message.chat.id,
+                "Iltimos, faqat matn yuboring yoki menyudan kerakli bo'limni tanlang.",
+                reply_markup=get_main_menu(),
+            )
             return
-            
+
         bot.send_chat_action(message.chat.id, 'typing')
         ai_reply = get_ai_response(message.text)
         try:
-            bot.reply_to(message, ai_reply, parse_mode='Markdown')
-        except:
-            bot.reply_to(message, ai_reply)
+            bot.reply_to(message, ai_reply, parse_mode='Markdown', reply_markup=get_main_menu())
+        except Exception:
+            bot.reply_to(message, ai_reply, reply_markup=get_main_menu())
 
 
 # ========== WEBHOOK SETUP ==========
