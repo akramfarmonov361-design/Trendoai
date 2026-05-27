@@ -531,19 +531,33 @@
                     try {
                         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                         this.audioChunks = [];
-                        this.mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                        
+                        // Cross-browser format checks (important for iOS Safari)
+                        let options = {};
+                        if (typeof MediaRecorder.isTypeSupported === 'function') {
+                            if (MediaRecorder.isTypeSupported('audio/webm')) {
+                                options = { mimeType: 'audio/webm' };
+                            } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                                options = { mimeType: 'audio/mp4' };
+                            } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
+                                options = { mimeType: 'audio/ogg' };
+                            }
+                        }
+                        
+                        this.mediaRecorder = new MediaRecorder(stream, options);
                         this.mediaRecorder.ondataavailable = (event) => {
                             if (event.data.size > 0) {
                                 this.audioChunks.push(event.data);
                             }
                         };
                         this.mediaRecorder.onstop = async () => {
-                            const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+                            const mimeType = this.mediaRecorder.mimeType || 'audio/webm';
+                            const audioBlob = new Blob(this.audioChunks, { type: mimeType });
                             const reader = new FileReader();
                             reader.readAsDataURL(audioBlob);
                             reader.onloadend = async () => {
                                 const base64Audio = reader.result.split(',')[1];
-                                await this.sendAudio(base64Audio);
+                                await this.sendAudio(base64Audio, mimeType);
                             };
                             stream.getTracks().forEach(track => track.stop());
                         };
@@ -559,7 +573,7 @@
                     this.mediaRecorder.stop();
                     this.recording = false;
                 },
-                async sendAudio(base64Audio) {
+                async sendAudio(base64Audio, mimeType) {
                     this.sending = true;
                     this.typing = true;
                     this.messages.push({ role: 'user', content: '🎤 Ovozli xabar...' });
@@ -567,7 +581,7 @@
                         const res = await fetch('/api/chat/audio', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ audio: base64Audio })
+                            body: JSON.stringify({ audio: base64Audio, mime_type: mimeType })
                         });
                         const data = await res.json();
                         if (data.success && data.response) {

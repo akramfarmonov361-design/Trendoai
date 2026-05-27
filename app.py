@@ -1743,6 +1743,7 @@ def api_chat_audio():
     try:
         data = request.get_json()
         audio_base64 = data.get('audio', '')
+        mime_type = data.get('mime_type', 'audio/webm')
         
         if not audio_base64:
             return jsonify({'error': 'Audio topilmadi'}), 400
@@ -1751,7 +1752,7 @@ def api_chat_audio():
         audio_bytes = base64.b64decode(audio_base64)
         
         # Gemini modelni sozlash
-        api_key = app.config.get('GEMINI_API_KEY')
+        api_key = app.config.get('GEMINI_API_KEY') or os.getenv('GEMINI_API_KEY')
         genai.configure(api_key=api_key)
         
         # GEMINI_MODEL env (default: gemini-3.1-flash-lite)
@@ -1768,39 +1769,57 @@ Aloqa: @Akramjon1984, trendoai.uz
 
 Javobni matn ko'rinishida yozing."""
 
-        # Vaqtinchalik faylga saqlash
-        with tempfile.NamedTemporaryFile(suffix='.webm', delete=False) as temp_audio:
-            temp_audio.write(audio_bytes)
-            temp_audio_path = temp_audio.name
-
+        response = None
+        
+        # 1-usul: Tezroq va eng xavfsiz inline audio (upload_file va wait talab qilmaydi)
         try:
-            # Faylni Gemini File API ga yuklash
-            uploaded_file = genai.upload_file(temp_audio_path, mime_type="audio/webm")
+            response = model.generate_content([
+                system_prompt,
+                {
+                    "mime_type": mime_type,
+                    "data": audio_bytes
+                }
+            ])
+            print("✅ Direct inline audio generation succeeded")
+        except Exception as inline_e:
+            print(f"⚠️ Inline audio failed ({inline_e}), trying File API upload fallback...")
             
-            # Fayl tayyor bo'lishini kutish
-            # Native model uchun ham fayl yuklash usuli ishlaydi
-            
-            # Javob olish
-            response = model.generate_content([system_prompt, uploaded_file])
-            
-            # Native Gemini 3.1 Audio generation
-            audio_b64 = get_audio_base64_from_text(response.text)
-            
-            # Faylni o'chirish
-            if os.path.exists(temp_audio_path):
-                os.unlink(temp_audio_path)
+            # 2-usul (Zaxira): Vaqtinchalik faylga saqlash va File API orqali yuklash
+            suffix = '.webm'
+            if 'mp4' in mime_type:
+                suffix = '.mp4'
+            elif 'ogg' in mime_type:
+                suffix = '.ogg'
+            elif 'wav' in mime_type:
+                suffix = '.wav'
+                
+            with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_audio:
+                temp_audio.write(audio_bytes)
+                temp_audio_path = temp_audio.name
 
-            return jsonify({
-                'success': True,
-                'response': response.text,
-                'audio_base64': audio_b64
-            })
-        except Exception as inner_e:
-            if os.path.exists(temp_audio_path):
-                os.unlink(temp_audio_path)
-            print(f"Gemini API Error: {inner_e}")
-            raise inner_e
-            
+            try:
+                uploaded_file = genai.upload_file(temp_audio_path, mime_type=mime_type)
+                response = model.generate_content([system_prompt, uploaded_file])
+                
+                try:
+                    uploaded_file.delete()
+                except:
+                    pass
+            finally:
+                if os.path.exists(temp_audio_path):
+                    os.unlink(temp_audio_path)
+
+        if not response:
+            raise RuntimeError("Gemini did not return a response")
+
+        # Native Gemini 3.1 Audio generation
+        audio_b64 = get_audio_base64_from_text(response.text)
+        
+        return jsonify({
+            'success': True,
+            'response': response.text,
+            'audio_base64': audio_b64
+        })
     except Exception as e:
         print(f"Audio chatbot error: {e}")
         return jsonify({
