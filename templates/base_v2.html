@@ -388,6 +388,121 @@
         </div>
     </footer>
 
+    <!-- ========== AI CHATBOT WIDGET ========== -->
+    <div x-data="chatbotApp()" x-init="init()">
+        <!-- Floating toggle button -->
+        <button type="button" @click="toggle()"
+            class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-brand-600 to-accent-600 text-white shadow-glow flex items-center justify-center hover:scale-105 active:scale-95 transition-transform z-40"
+            :aria-expanded="open.toString()" aria-controls="chatbotPanel" aria-label="AI Yordamchini ochish"
+            x-show="!open" x-transition.opacity>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        </button>
+
+        <!-- Chat panel -->
+        <div id="chatbotPanel" x-show="open" x-transition
+            class="fixed bottom-6 right-6 z-50 w-[calc(100vw-3rem)] sm:w-96 h-[min(620px,calc(100dvh-4rem))] flex flex-col rounded-2xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 shadow-2xl overflow-hidden"
+            role="dialog" aria-label="TrendoAI AI Yordamchi" :aria-hidden="(!open).toString()" style="display: none;">
+
+            <!-- Header -->
+            <div class="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-brand-600 to-accent-600 text-white">
+                <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="font-semibold text-sm">TrendoAI Yordamchi</div>
+                    <div class="text-xs text-white/80">Online · Gemini AI</div>
+                </div>
+                <button type="button" @click="toggle()"
+                    class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                    aria-label="Yordamchini yopish">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <!-- Messages -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-3" role="log" aria-live="polite" x-ref="messages">
+                <template x-for="(msg, i) in messages" :key="i">
+                    <div :class="msg.role === 'user'
+                        ? 'self-end bg-brand-600 text-white rounded-2xl rounded-br-sm'
+                        : 'self-start bg-ink-100 dark:bg-ink-800 text-ink-900 dark:text-ink-100 rounded-2xl rounded-bl-sm'"
+                        class="max-w-[85%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line"
+                        x-text="msg.content"></div>
+                </template>
+                <div x-show="typing" class="self-start bg-ink-100 dark:bg-ink-800 px-4 py-3 rounded-2xl rounded-bl-sm flex gap-1">
+                    <span class="w-2 h-2 rounded-full bg-ink-400 animate-bounce" style="animation-delay: 0ms"></span>
+                    <span class="w-2 h-2 rounded-full bg-ink-400 animate-bounce" style="animation-delay: 150ms"></span>
+                    <span class="w-2 h-2 rounded-full bg-ink-400 animate-bounce" style="animation-delay: 300ms"></span>
+                </div>
+            </div>
+
+            <!-- Input -->
+            <form @submit.prevent="send()" class="p-3 border-t border-ink-200 dark:border-ink-800 bg-ink-50 dark:bg-ink-950">
+                <div class="flex items-center gap-2">
+                    <label for="chatbotInput" class="visually-hidden">Xabar yozing</label>
+                    <input id="chatbotInput" type="text" x-model="input" :disabled="sending"
+                        placeholder="Xabar yozing..." autocomplete="off"
+                        class="flex-1 min-w-0 px-3.5 py-2.5 rounded-lg border border-ink-300 dark:border-ink-700 bg-white dark:bg-ink-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <button type="submit" :disabled="sending || !input.trim()"
+                        class="px-4 py-2.5 rounded-lg bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function chatbotApp() {
+            return {
+                open: false,
+                input: '',
+                sending: false,
+                typing: false,
+                messages: [
+                    { role: 'assistant', content: 'Salom! 👋 Men TrendoAI AI yordamchisiman. IT xizmatlar, web saytlar, Telegram botlar yoki AI chatbotlar haqida so\'rang.' }
+                ],
+                init() {
+                    this.$watch('messages', () => this.$nextTick(() => this.scrollToBottom()), { deep: true });
+                    this.$watch('typing', () => this.$nextTick(() => this.scrollToBottom()));
+                },
+                toggle() {
+                    this.open = !this.open;
+                    if (this.open) this.$nextTick(() => document.getElementById('chatbotInput')?.focus());
+                },
+                scrollToBottom() {
+                    const el = this.$refs.messages;
+                    if (el) el.scrollTop = el.scrollHeight;
+                },
+                async send() {
+                    const text = this.input.trim();
+                    if (!text || this.sending) return;
+                    this.messages.push({ role: 'user', content: text });
+                    this.input = '';
+                    this.sending = true;
+                    this.typing = true;
+                    try {
+                        const res = await fetch('/api/chat', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                message: text,
+                                messages: this.messages.map(m => ({ role: m.role, content: m.content }))
+                            })
+                        });
+                        const data = await res.json();
+                        const reply = data.reply || data.response || data.error || 'Xatolik yuz berdi';
+                        this.messages.push({ role: 'assistant', content: reply });
+                    } catch (err) {
+                        this.messages.push({ role: 'assistant', content: 'Tarmoq xatosi. Iltimos, qayta urinib ko\'ring.' });
+                    } finally {
+                        this.typing = false;
+                        this.sending = false;
+                    }
+                }
+            };
+        }
+    </script>
+
     <!-- Theme init (no flash) -->
     <script>
         (function () {
