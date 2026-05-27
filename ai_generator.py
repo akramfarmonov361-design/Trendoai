@@ -461,8 +461,8 @@ def _build_seo_prompt(topic, current_date_str, use_grounding):
     - 80% foydali va amaliy ma'lumot bering.
     - 20% TrendoAI haqida faqat oxirida yengil eslatma bo'lsin.
 
-    Maqola oxirida shunday yozing:
-    "Agar sizga ham [mavzu boyicha xizmat] kerak bolsa, TrendoAI jamoasi yordam beradi. Bepul konsultatsiya uchun: t.me/Akramjon1984"
+    Maqola oxirida shunday yozing (markdown link sintaksisi bilan):
+    "Agar sizga ham [mavzu boyicha xizmat] kerak bolsa, TrendoAI jamoasi yordam beradi. Bepul konsultatsiya uchun arizangizni qoldiring: [trendoai.uz/order](https://trendoai.uz/order)"
 
     === VAZIFA ===
     "{topic}" mavzusida professional maqola yozing.
