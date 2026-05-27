@@ -1659,18 +1659,16 @@ async def _generate_native_audio_chunks(context_text):
     keys_to_try = [
         os.getenv('GEMINI_API_KEY'),
         os.getenv('GEMINI_API_KEY2'),
-        os.getenv('GEMINI_API_KEY3')
+        os.getenv('GEMINI_API_KEY3'),
+        app.config.get('GEMINI_API_KEY')
     ]
     
-    model = 'gemini-3.1-flash-live-preview'
-    config = new_types.LiveConnectConfig(
-        response_modalities=[new_types.Modality.AUDIO],
-        speech_config=new_types.SpeechConfig(
-            voice_config=new_types.VoiceConfig(
-                prebuilt_voice_config=new_types.PrebuiltVoiceConfig(voice_name='Puck')
-            )
-        )
-    )
+    models_to_try = [
+        'gemini-3.1-flash-live-preview',
+        'gemini-3.1-flash-live',
+        'gemini-2.5-flash-live-preview',
+        'gemini-2.0-flash-exp'
+    ]
     
     audio_chunks = []
     
@@ -1678,24 +1676,37 @@ async def _generate_native_audio_chunks(context_text):
         if not key:
             continue
             
-        try:
-            client = new_genai.Client(api_key=key)
-            async with client.aio.live.connect(model=model, config=config) as session:
-                await session.send(input=context_text, end_of_turn=True)
-                async for response in session.receive():
-                    server_content = response.server_content
-                    if server_content is not None:
-                        model_turn = server_content.model_turn
-                        if model_turn is not None:
-                            for part in model_turn.parts:
-                                if part.inline_data:
-                                    audio_chunks.append(part.inline_data.data)
-            
-            # Agar muvaffaqiyatli olsa, tsiklni to'xtatish
-            if audio_chunks:
-                break
-        except Exception as e:
-            print(f"Native audio live connect xatosi (Key: {key[:5]}...): {e}")
+        for model in models_to_try:
+            try:
+                client = new_genai.Client(api_key=key)
+                config = new_types.LiveConnectConfig(
+                    response_modalities=[new_types.Modality.AUDIO],
+                    speech_config=new_types.SpeechConfig(
+                        voice_config=new_types.VoiceConfig(
+                            prebuilt_voice_config=new_types.PrebuiltVoiceConfig(voice_name='Puck')
+                        )
+                    )
+                )
+                async with client.aio.live.connect(model=model, config=config) as session:
+                    await session.send(input=context_text, end_of_turn=True)
+                    async for response in session.receive():
+                        server_content = response.server_content
+                        if server_content is not None:
+                            model_turn = server_content.model_turn
+                            if model_turn is not None:
+                                for part in model_turn.parts:
+                                    if part.inline_data:
+                                        audio_chunks.append(part.inline_data.data)
+                
+                # Agar muvaffaqiyatli olsa, tsikllarni to'xtatish
+                if audio_chunks:
+                    print(f"✅ Native audio generated using model: {model}")
+                    break
+            except Exception as e:
+                print(f"Native audio live connect xatosi (Model: {model}, Key: {key[:5]}...): {e}")
+        
+        if audio_chunks:
+            break
             
     return audio_chunks
 
