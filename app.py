@@ -1745,8 +1745,8 @@ def api_chat_audio():
         api_key = app.config.get('GEMINI_API_KEY')
         genai.configure(api_key=api_key)
         
-        # Gemini 2.5 Flash (User requested)
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        # GEMINI_MODEL env (default: gemini-3.1-flash-lite)
+        model = genai.GenerativeModel(GEMINI_MODEL)
         
         # TrendoAI konteksti
         system_prompt = """Siz TrendoAI AI assistentisiz. 
