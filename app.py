@@ -99,6 +99,8 @@ def security_headers(response):
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    if not DEBUG:
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     return response
 
 
@@ -682,6 +684,54 @@ def post_by_slug(slug):
     return render_template('post.html', post=post, related_posts=related_posts)
 
 
+@app.route('/rss')
+def rss_feed():
+    """Blog RSS 2.0 feed — Google News va RSS o'quvchilar uchun"""
+    from xml.sax.saxutils import escape
+
+    posts = Post.query.filter(
+        Post.is_published == True,
+        Post.slug.isnot(None)
+    ).order_by(Post.created_at.desc()).limit(30).all()
+
+    items = []
+    for p in posts:
+        link = f"{SITE_URL}/blog/{p.slug}"
+        # Kontentdan qisqa tavsif: markdown/html teglarsiz birinchi 300 belgi
+        plain = re.sub(r'<[^>]+>', '', markdown2.markdown(p.content or ''))
+        plain = re.sub(r'\s+', ' ', plain).strip()[:300]
+        pub_date = (p.created_at or datetime.utcnow()).strftime('%a, %d %b %Y %H:%M:%S +0000')
+
+        item = (
+            "  <item>\n"
+            f"    <title>{escape(p.title)}</title>\n"
+            f"    <link>{escape(link)}</link>\n"
+            f"    <guid isPermaLink=\"true\">{escape(link)}</guid>\n"
+            f"    <pubDate>{pub_date}</pubDate>\n"
+            f"    <category>{escape(p.category or 'Texnologiya')}</category>\n"
+            f"    <description>{escape(plain)}</description>\n"
+        )
+        if p.image_url:
+            item += f"    <enclosure url=\"{escape(p.image_url)}\" type=\"image/jpeg\"/>\n"
+        item += "  </item>\n"
+        items.append(item)
+
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n'
+        '<channel>\n'
+        f"  <title>{escape(SITE_NAME)} — Blog</title>\n"
+        f"  <link>{SITE_URL}/blog</link>\n"
+        f"  <description>{escape(SITE_DESCRIPTION)}</description>\n"
+        "  <language>uz</language>\n"
+        f"  <atom:link href=\"{SITE_URL}/rss\" rel=\"self\" type=\"application/rss+xml\"/>\n"
+        + "".join(items) +
+        '</channel>\n'
+        '</rss>\n'
+    )
+    return Response(xml, mimetype='application/rss+xml')
+
+
 @app.route('/search')
 def search():
     """Qidiruv sahifasi"""
@@ -847,24 +897,49 @@ def submit_order():
 
 # ========== ADMIN ROUTES ==========
 
+# Brute-force himoyasi: bitta IP'dan 15 daqiqada ko'pi bilan 5 ta xato urinish
+LOGIN_MAX_ATTEMPTS = 5
+LOGIN_WINDOW_SECONDS = 15 * 60
+_failed_logins = {}
+
+
+def _client_ip():
+    forwarded = request.headers.get('X-Forwarded-For', '')
+    if forwarded:
+        return forwarded.split(',')[0].strip()
+    return request.remote_addr or 'unknown'
+
+
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     """Admin login sahifasi"""
     if session.get('logged_in'):
         return redirect(url_for('admin_dashboard'))
-    
+
     if request.method == 'POST':
+        ip = _client_ip()
+        now = time.time()
+        attempts = [t for t in _failed_logins.get(ip, []) if now - t < LOGIN_WINDOW_SECONDS]
+
+        if len(attempts) >= LOGIN_MAX_ATTEMPTS:
+            _failed_logins[ip] = attempts
+            flash("Juda ko'p urinish. 15 daqiqadan so'ng qayta urinib ko'ring.", 'error')
+            return render_template('admin/login.html'), 429
+
         username = request.form.get('username')
         password = request.form.get('password')
-        
+
         if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            _failed_logins.pop(ip, None)
             session['logged_in'] = True
             session['username'] = username
             flash('Tizimga muvaffaqiyatli kirdingiz!', 'success')
             return redirect(url_for('admin_dashboard'))
         else:
+            attempts.append(now)
+            _failed_logins[ip] = attempts
             flash('Login yoki parol noto\'g\'ri!', 'error')
-    
+
     return render_template('admin/login.html')
 
 
@@ -1203,6 +1278,10 @@ def notify_all_subscribers(title, message, url):
 
         vapid_private_key_path = app.config['VAPID_PRIVATE_KEY']
         temp_pem_path = None
+
+        if not str(vapid_private_key_path).strip():
+            print("[push] VAPID_PRIVATE_KEY sozlanmagan — push yuborilmadi")
+            return 0
 
         if not os.path.exists(str(vapid_private_key_path)):
             try:

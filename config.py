@@ -20,7 +20,8 @@ def _require_production_secret(env_name, value, default_value):
 
 # ========== SAYT SOZLAMALARI ==========
 # Render da SITE_URL env o'zgaruvchisini ishlatish
-SITE_URL = os.getenv("SITE_URL", "https://www.trendoai.uz")
+# Jonli saytda www -> apex redirect bor, shuning uchun kanonik manzil www'siz
+SITE_URL = os.getenv("SITE_URL", "https://trendoai.uz")
 
 SITE_NAME = "TrendoAI (Trendo AI)"
 SITE_DESCRIPTION = "TrendoAI (Trendo AI) - O'zbekistonda IT, sun'iy intellekt, Telegram botlar, Web saytlar yaratish va biznes avtomatlashtirish bo'yicha professional IT kompaniya hamda texnologiya blogi"
@@ -99,8 +100,10 @@ SECRET_KEY = _require_production_secret(
 )
 
 # ========== PUSH NOTIFICATION SOZLAMALARI ==========
-VAPID_PUBLIC_KEY = os.getenv("VAPID_PUBLIC_KEY", "BJt75bqZyZdfqtfNkvQUT3uZpg6ytWSi0mg9riLZl2zOTIarMwxvxJNHCc8OvfVwh8Xe2o60cYXzqa3MBKYOT8s")
-VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY", "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgctR2TTZXKwU2B62L6mQUTlyqjdEeWBWOMD97+9Q6yjOhRANCAASbe+W6mcmXX6rXzZL0FE97maYOsrVkotJoPa4i2ZdszkyGqzMMb8STRwnPDr31cIfF3tqOtHGF86mtzASmDk/L")
+# Maxfiy kalit hech qachon kodga yozilmaydi — faqat muhit o'zgaruvchisidan olinadi.
+# Yangi juftlik yaratish: python scripts/generate_vapid.py
+VAPID_PUBLIC_KEY = os.getenv("VAPID_PUBLIC_KEY", "")
+VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY", "")
 VAPID_CLAIMS_SUB = "mailto:admin@trendoai.uz"
 
 # ========== SCHEDULER SOZLAMALARI ==========

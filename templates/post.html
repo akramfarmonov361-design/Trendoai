@@ -8,8 +8,8 @@
 {% block og_description %}{{ post.content | striptags | truncate(200) }}{% endblock %}
 {% block og_type %}article{% endblock %}
 {% block og_url %}{% if post.slug %}{{ config.SITE_URL }}/blog/{{ post.slug }}{% else %}{{ config.SITE_URL }}/post/{{ post.id }}{% endif %}{% endblock %}
-{% block og_image %}{% if post.image_url %}{{ post.image_url }}{% else %}{{ config.SITE_URL }}/static/img/og-image.png{% endif %}{% endblock %}
-{% block twitter_image %}{% if post.image_url %}{{ post.image_url }}{% else %}{{ config.SITE_URL }}/static/img/og-image.png{% endif %}{% endblock %}
+{% block og_image %}{% if post.image_url %}{{ post.image_url }}{% else %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endif %}{% endblock %}
+{% block twitter_image %}{% if post.image_url %}{{ post.image_url }}{% else %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endif %}{% endblock %}
 
 {% block extra_head %}
 <script type="application/ld+json">

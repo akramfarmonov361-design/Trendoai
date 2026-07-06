@@ -69,7 +69,7 @@
     <meta property="og:title" content="{% block og_title %}TrendoAI — IT xizmatlar va sun'iy intellekt{% endblock %}">
     <meta property="og:description"
         content="{% block og_description %}Telegram botlar, web saytlar va AI yechimlar — O'zbekistonda professional IT studiyasi{% endblock %}">
-    <meta property="og:image" content="{% block og_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endblock %}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="{% block og_image_alt %}TrendoAI — IT xizmatlar{% endblock %}">
@@ -82,7 +82,7 @@
     <meta name="twitter:description"
         content="{% block twitter_description %}Telegram botlar, web saytlar va AI yechimlar{% endblock %}">
     <meta name="twitter:image"
-        content="{% block twitter_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}">
+        content="{% block twitter_image %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endblock %}">
 
     <!-- JSON-LD -->
     <script type="application/ld+json">
@@ -112,6 +112,9 @@
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <meta name="theme-color" content="#6366f1">
+
+    <!-- RSS -->
+    <link rel="alternate" type="application/rss+xml" title="TrendoAI Blog RSS" href="{{ url_for('rss_feed') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
