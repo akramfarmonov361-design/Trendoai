@@ -572,6 +572,17 @@ def markdown_filter(s):
     return markdown2.markdown(s, extras=["fenced-code-blocks", "tables", "break-on-newline"])
 
 
+_LEADING_H1_RE = re.compile(r"^\s*#\s+[^\n]+\n+")
+
+
+@app.template_filter('markdown_body')
+def markdown_body_filter(s):
+    """Maqola tanasi uchun markdown: sahifada sarlavha alohida ko'rsatilgani
+    sababli kontent boshidagi H1 takrorlanmasligi uchun olib tashlanadi."""
+    cleaned = _LEADING_H1_RE.sub("", s or "", count=1)
+    return markdown2.markdown(cleaned, extras=["fenced-code-blocks", "tables", "break-on-newline"])
+
+
 # ========== CONTEXT PROCESSORS ==========
 
 @app.context_processor
