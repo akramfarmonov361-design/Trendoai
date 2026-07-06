@@ -1,15 +1,15 @@
 {% extends 'base_v2.html' %}
 
 {% block title %}{{ post.title }} — TrendoAI{% endblock %}
-{% block meta_description %}{{ post.content | striptags | truncate(160) }}{% endblock %}
+{% block meta_description %}{{ (post.content | markdown_body | striptags) | truncate(160) }}{% endblock %}
 {% block meta_keywords %}{{ post.keywords }}{% endblock %}
 {% block canonical_url %}{% if post.slug %}{{ config.SITE_URL }}/blog/{{ post.slug }}{% else %}{{ config.SITE_URL }}/post/{{ post.id }}{% endif %}{% endblock %}
 {% block og_title %}{{ post.title }}{% endblock %}
-{% block og_description %}{{ post.content | striptags | truncate(200) }}{% endblock %}
+{% block og_description %}{{ (post.content | markdown_body | striptags) | truncate(200) }}{% endblock %}
 {% block og_type %}article{% endblock %}
 {% block og_url %}{% if post.slug %}{{ config.SITE_URL }}/blog/{{ post.slug }}{% else %}{{ config.SITE_URL }}/post/{{ post.id }}{% endif %}{% endblock %}
-{% block og_image %}{% if post.image_url %}{{ post.image_url }}{% else %}{{ config.SITE_URL }}/static/img/og-image.png{% endif %}{% endblock %}
-{% block twitter_image %}{% if post.image_url %}{{ post.image_url }}{% else %}{{ config.SITE_URL }}/static/img/og-image.png{% endif %}{% endblock %}
+{% block og_image %}{% if post.image_url %}{{ post.image_url }}{% else %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endif %}{% endblock %}
+{% block twitter_image %}{% if post.image_url %}{{ post.image_url }}{% else %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endif %}{% endblock %}
 
 {% block extra_head %}
 <script type="application/ld+json">
@@ -17,7 +17,7 @@
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": {{ post.title | tojson }},
-    "description": {{ (post.content | striptags | truncate(200)) | tojson }},
+    "description": {{ ((post.content | markdown_body | striptags) | truncate(200)) | tojson }},
     {% if post.image_url %}"image": {
         "@type": "ImageObject",
         "url": "{{ post.image_url }}",
@@ -143,7 +143,7 @@ html.dark .article-body th { background: #1e293b; }
 
             <!-- Article body -->
             <div class="article-body" id="article-body">
-                {{ post.content | markdown | safe }}
+                {{ post.content | markdown_body | safe }}
             </div>
 
             <!-- Tags -->

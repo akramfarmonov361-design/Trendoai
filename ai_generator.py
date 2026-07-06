@@ -324,6 +324,13 @@ def _coerce_post_payload(response_text, topic):
     if not body:
         return None
 
+    # Agar javob buzuq JSON bo'lsa (masalan, kesilib qolgan), uni markdown post
+    # deb qabul qilish mumkin emas — aks holda sarlavhasi "{" bo'lgan xom JSON
+    # post bo'lib chiqib ketadi.
+    if body.startswith("{") or body.startswith("```"):
+        print("[ai] Javob buzuq JSON'ga o'xshaydi — markdown deb qabul qilinmadi")
+        return None
+
     lines = [line.strip() for line in body.splitlines() if line.strip()]
     if not lines:
         return None
@@ -536,6 +543,11 @@ def generate_post_for_seo(topic):
         parsed = _parse_json_response(response_text)
         if not parsed:
             parsed = _coerce_post_payload(response_text, topic)
+
+        if not parsed:
+            # Yaroqsiz javob — exception orqali _retry_with_backoff qayta urinadi
+            preview = response_text.strip().replace("\n", " ")[:160]
+            raise ValueError(f"AI javobi yaroqsiz formatda: {preview}")
 
         return {
             "parsed": parsed,

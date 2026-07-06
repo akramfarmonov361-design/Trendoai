@@ -8,3 +8,10 @@ instance/
 .DS_Store
 node_modules/
 package-lock.json
+
+# Maxfiy kalitlar va lokal fayllar
+vapid_private.pem
+vapid_public.txt
+vapid_keys_env.txt
+*.log
+*.db
