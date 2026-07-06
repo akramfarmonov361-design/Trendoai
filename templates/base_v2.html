@@ -107,9 +107,10 @@
     </script>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32.png') }}">
-    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='favicon.png') }}">
-    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg', v=2) }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32.png', v=2) }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='favicon.png', v=2) }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png', v=2) }}">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <meta name="theme-color" content="#6366f1">
 
@@ -140,7 +141,7 @@
             <div class="flex h-16 items-center justify-between gap-4">
                 <!-- Logo -->
                 <a href="{{ url_for('index') }}" class="flex items-center gap-2.5 shrink-0">
-                    <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="TrendoAI"
+                    <img src="{{ url_for('static', filename='img/logo-icon.png', v=2) }}" alt="TrendoAI"
                         width="32" height="32" decoding="async" fetchpriority="high"
                         class="w-8 h-8">
                     <span class="font-bold text-lg tracking-tight">
@@ -244,7 +245,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                 <div class="col-span-2">
                     <div class="flex items-center gap-2.5">
-                        <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="TrendoAI" class="w-8 h-8" width="32" height="32">
+                        <img src="{{ url_for('static', filename='img/logo-icon.png', v=2) }}" alt="TrendoAI" class="w-8 h-8" width="32" height="32">
                         <span class="font-bold text-lg">Trendo<span class="text-brand-600">AI</span></span>
                     </div>
                     <p class="mt-3 text-sm text-ink-600 dark:text-ink-400 max-w-sm">

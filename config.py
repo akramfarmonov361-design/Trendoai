@@ -23,7 +23,7 @@ def _require_production_secret(env_name, value, default_value):
 # Jonli saytda www -> apex redirect bor, shuning uchun kanonik manzil www'siz
 SITE_URL = os.getenv("SITE_URL", "https://trendoai.uz")
 
-SITE_NAME = "TrendoAI (Trendo AI)"
+SITE_NAME = "TrendoAI"
 SITE_DESCRIPTION = "TrendoAI (Trendo AI) - O'zbekistonda IT, sun'iy intellekt, Telegram botlar, Web saytlar yaratish va biznes avtomatlashtirish bo'yicha professional IT kompaniya hamda texnologiya blogi"
 SITE_TAGLINE = "Trendo AI - Sun'iy intellekt, Telegram botlar va Raqamli biznes yechimlari"
 
