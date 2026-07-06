@@ -3038,12 +3038,16 @@ def migrate_remove_post_freshness_notes():
 def _boot_sequence():
     """Background boot sequence to prevent blocking Gunicorn worker start"""
     try:
-        # Run database initialization
-        init_database()
-        with app.app_context():
-            migrate_service_discount_dates()
-            migrate_remove_post_freshness_notes()
-            
+        # Baza init/migratsiya xatosi scheduler'ni to'xtatib qo'ymasligi kerak —
+        # har bir bosqich o'z try blokida
+        try:
+            init_database()
+            with app.app_context():
+                migrate_service_discount_dates()
+                migrate_remove_post_freshness_notes()
+        except Exception as e:
+            print(f"❌ DB init/migratsiya xatosi: {e}")
+
         # ===== 1. Schedulerni ishga tushirish =====
         try:
             from scheduler import scheduler

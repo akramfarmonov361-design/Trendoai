@@ -286,7 +286,8 @@ def get_scheduled_jobs():
             {
                 "id": job.id,
                 "name": job.name,
-                "next_run": str(job.next_run_time),
+                # Scheduler hali start qilinmagan bo'lsa next_run_time mavjud emas
+                "next_run": str(getattr(job, "next_run_time", "pending (scheduler ishga tushmagan)")),
             }
         )
     return jobs
