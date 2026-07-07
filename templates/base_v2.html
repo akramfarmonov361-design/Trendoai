@@ -290,7 +290,11 @@
 
             <div class="mt-12 pt-6 border-t border-ink-200 dark:border-ink-800 flex flex-col sm:flex-row justify-between gap-4 text-sm text-ink-500">
                 <p>&copy; 2026 TrendoAI. Barcha huquqlar himoyalangan.</p>
-                <p>Toshkent, O'zbekiston</p>
+                <div class="flex gap-4">
+                    <a href="{{ url_for('about') }}" class="hover:text-brand-600">Biz haqimizda</a>
+                    <a href="{{ url_for('privacy') }}" class="hover:text-brand-600">Maxfiylik siyosati</a>
+                    <span>Toshkent, O'zbekiston</span>
+                </div>
             </div>
         </div>
     </footer>

@@ -695,6 +695,12 @@ def post_by_slug(slug):
     return render_template('post.html', post=post, related_posts=related_posts)
 
 
+@app.route('/maxfiylik')
+def privacy():
+    """Maxfiylik siyosati sahifasi"""
+    return render_template('privacy.html')
+
+
 @app.route('/rss')
 def rss_feed():
     """Blog RSS 2.0 feed — Google News va RSS o'quvchilar uchun"""
@@ -2813,6 +2819,7 @@ def sitemap_xml():
         ('/blog', '0.9', 'daily', site_lastmod),
         ('/about', '0.7', 'monthly', '2026-01-01'),
         ('/order', '0.8', 'monthly', '2026-01-01'),
+        ('/maxfiylik', '0.3', 'yearly', '2026-07-07'),
     ]
     for url, priority, changefreq, lastmod in static_pages:
         pages.append({

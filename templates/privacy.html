@@ -1,0 +1,75 @@
+{% extends 'base_v2.html' %}
+
+{% block title %}Maxfiylik siyosati — TrendoAI{% endblock %}
+{% block meta_description %}TrendoAI saytining maxfiylik siyosati: qanday ma'lumotlar to'planishi, cookie, analitika va reklama xizmatlari haqida.{% endblock %}
+{% block meta_robots %}index, follow{% endblock %}
+{% block canonical_url %}{{ config.SITE_URL }}/maxfiylik{% endblock %}
+{% block og_url %}{{ config.SITE_URL }}/maxfiylik{% endblock %}
+{% block og_title %}Maxfiylik siyosati — TrendoAI{% endblock %}
+{% block og_description %}TrendoAI saytining maxfiylik siyosati.{% endblock %}
+
+{% block content %}
+<section class="border-b border-ink-200 dark:border-ink-800">
+    <div class="container-narrow py-16 sm:py-20">
+        <p class="text-sm font-semibold uppercase tracking-wider text-brand-600">Huquqiy ma'lumot</p>
+        <h1 class="mt-3 text-4xl font-extrabold tracking-tight text-ink-900 dark:text-white">Maxfiylik siyosati</h1>
+        <p class="mt-4 text-sm text-ink-500">Oxirgi yangilanish: 2026-yil 7-iyul</p>
+    </div>
+</section>
+
+<section class="py-16">
+    <div class="container-narrow space-y-10 text-ink-700 dark:text-ink-300 leading-relaxed">
+
+        <div>
+            <h2 class="text-2xl font-bold text-ink-900 dark:text-white mb-3">1. Umumiy qoidalar</h2>
+            <p>
+                Ushbu sahifa trendoai.uz sayti (keyingi o'rinlarda — «TrendoAI», «biz») foydalanuvchilarning
+                qanday ma'lumotlarini to'plashi va ulardan qanday foydalanishini tushuntiradi. Saytdan
+                foydalanish orqali siz ushbu siyosatga rozilik bildirasiz.
+            </p>
+        </div>
+
+        <div>
+            <h2 class="text-2xl font-bold text-ink-900 dark:text-white mb-3">2. Siz bizga beradigan ma'lumotlar</h2>
+            <ul class="list-disc pl-6 space-y-2">
+                <li><strong class="text-ink-900 dark:text-white">Buyurtma formasi</strong> — ismingiz, telefon raqamingiz va loyiha tavsifi. Bu ma'lumotlar faqat buyurtmangizni ko'rib chiqish va siz bilan bog'lanish uchun ishlatiladi, uchinchi shaxslarga sotilmaydi.</li>
+                <li><strong class="text-ink-900 dark:text-white">AI chatbot</strong> — chat oynasiga yozgan xabarlaringiz javob tayyorlash uchun Google Gemini xizmatiga yuboriladi. Chatga shaxsiy yoki maxfiy ma'lumot yozmaslikni tavsiya qilamiz.</li>
+                <li><strong class="text-ink-900 dark:text-white">Push-xabarnoma obunasi</strong> — rozilik bersangiz, brauzeringizning texnik obuna manzili saqlanadi. Obunani brauzer sozlamalaridan istalgan vaqtda bekor qilishingiz mumkin.</li>
+            </ul>
+        </div>
+
+        <div>
+            <h2 class="text-2xl font-bold text-ink-900 dark:text-white mb-3">3. Avtomatik to'planadigan ma'lumotlar</h2>
+            <p class="mb-3">Saytda quyidagi uchinchi tomon xizmatlari ishlatiladi va ular o'z cookie'laridan foydalanishi mumkin:</p>
+            <ul class="list-disc pl-6 space-y-2">
+                <li><strong class="text-ink-900 dark:text-white">Google Analytics</strong> — tashriflar statistikasi (anonim ko'rinishda).</li>
+                <li><strong class="text-ink-900 dark:text-white">Google AdSense</strong> — reklama ko'rsatish; Google reklamani moslashtirish uchun cookie ishlatishi mumkin. Batafsil: <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener" class="text-brand-600 hover:underline">Google reklama texnologiyalari</a>.</li>
+                <li><strong class="text-ink-900 dark:text-white">Facebook Pixel</strong> — reklama samaradorligini o'lchash.</li>
+            </ul>
+            <p class="mt-3">
+                Brauzeringiz sozlamalari orqali cookie'larni o'chirishingiz yoki cheklashingiz mumkin —
+                bu saytning asosiy funksiyalariga ta'sir qilmaydi.
+            </p>
+        </div>
+
+        <div>
+            <h2 class="text-2xl font-bold text-ink-900 dark:text-white mb-3">4. Ma'lumotlar qancha saqlanadi</h2>
+            <p>
+                Buyurtma ma'lumotlari xizmat ko'rsatish davri va qonunchilikda belgilangan muddat davomida
+                saqlanadi. Ma'lumotlaringizni o'chirishni so'rash huquqiga egasiz — buning uchun quyidagi
+                manzilga murojaat qiling.
+            </p>
+        </div>
+
+        <div>
+            <h2 class="text-2xl font-bold text-ink-900 dark:text-white mb-3">5. Murojaat</h2>
+            <p>
+                Maxfiylik bo'yicha savollar uchun:
+                <a href="mailto:info@trendoai.uz" class="text-brand-600 hover:underline">info@trendoai.uz</a>
+                yoki <a href="tel:+998974771229" class="text-brand-600 hover:underline">+998 97 477 12 29</a>.
+            </p>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
