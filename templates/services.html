@@ -560,12 +560,15 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
     /* ========== CARD STYLES ========== */
     .service-card-new {
         position: relative;
-        background: var(--bg-card, #1a1a2e);
-        border: 1px solid rgba(255,255,255,0.06);
+        display: flex;
+        flex-direction: column;
+        background: linear-gradient(145deg, var(--bg-card, #1a1a2e), var(--bg-elevated, #20202c));
+        border: 1px solid var(--border-light, rgba(255,255,255,0.14));
         border-radius: 20px;
         padding: 36px 30px;
         overflow: hidden;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 12px 36px rgba(0,0,0,0.22);
         opacity: 0;
         transform: translateY(30px);
     }
@@ -635,15 +638,15 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
         color: var(--text-primary, #fff);
     }
     .card-subtitle {
-        color: var(--text-muted, #888);
+        color: var(--text-secondary, #c4c4cc);
         font-size: 0.9rem;
         margin-bottom: 14px;
         font-weight: 500;
     }
     .card-desc {
         color: var(--text-secondary, #aaa);
-        font-size: 0.95rem;
-        line-height: 1.6;
+        font-size: 1rem;
+        line-height: 1.7;
         margin-bottom: 20px;
     }
 
@@ -654,8 +657,8 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
         margin: 0 0 24px;
     }
     .card-features li {
-        padding: 6px 0;
-        font-size: 0.9rem;
+        padding: 7px 0;
+        font-size: 0.95rem;
         color: var(--text-secondary, #bbb);
         display: flex;
         align-items: center;
@@ -673,9 +676,10 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
     /* Price */
     .card-price {
         background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.08);
+        border: 1px solid var(--border, rgba(255,255,255,0.1));
         border-radius: 14px;
         padding: 18px 20px;
+        margin-top: auto;
         margin-bottom: 24px;
         text-align: center;
     }
@@ -756,7 +760,7 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
         font-size: 0.85rem;
         text-decoration: none;
         color: var(--text-secondary, #bbb);
-        border: 1px solid rgba(255,255,255,0.1);
+        border: 1px solid var(--border-light, rgba(255,255,255,0.14));
         background: rgba(255,255,255,0.04);
         transition: all 0.3s;
     }

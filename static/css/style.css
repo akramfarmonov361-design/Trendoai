@@ -25,13 +25,13 @@
 
     /* Dark Theme Colors (Default) */
     --bg-dark: #0a0a0f;
-    --bg-card: #12121a;
+    --bg-card: #15151f;
     --bg-elevated: #1a1a24;
     --text-primary: #ffffff;
-    --text-secondary: #a1a1aa;
-    --text-muted: #71717a;
-    --border: rgba(255, 255, 255, 0.08);
-    --border-light: rgba(255, 255, 255, 0.12);
+    --text-secondary: #c4c4cc;
+    --text-muted: #9696a3;
+    --border: rgba(255, 255, 255, 0.11);
+    --border-light: rgba(255, 255, 255, 0.17);
 
     /* Effects */
     --glass: rgba(255, 255, 255, 0.05);

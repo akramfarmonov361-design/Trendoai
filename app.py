@@ -1727,8 +1727,14 @@ def api_chat():
 
     api_key = app.config.get('GEMINI_API_KEY') or os.getenv('GEMINI_API_KEY')
     if not api_key:
-        fallback = "Uzr, AI yordamchi hozircha sozlanmagan. Telegram orqali yozing: @trendoai"
-        return jsonify({'success': False, 'reply': fallback, 'response': fallback, 'error': 'GEMINI_API_KEY topilmadi'}), 503
+        fallback = _local_chat_fallback(last_user_msg)
+        return jsonify({
+            'success': True,
+            'reply': fallback,
+            'response': fallback,
+            'ai_fallback': True,
+            'error': 'AI provider sozlanmagan, lokal javob ishlatildi.',
+        })
 
     try:
         genai.configure(api_key=api_key)
