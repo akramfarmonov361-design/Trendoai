@@ -144,6 +144,41 @@ PUBLIC_SERVICE_PRICING = {
 }
 
 
+# ========== YENGIL IN-MEMORY CACHE (blog/portfolio ro'yxatlari uchun) ==========
+# HTML emas, faqat query natijalarini qisqa muddatga saqlaymiz — shu bois
+# sahifadagi CSRF token hech qachon cache orqali tarqalmaydi.
+_LIST_CACHE = {}
+_LIST_CACHE_LOCK = threading.Lock()
+LIST_CACHE_TTL_SECONDS = 60
+
+
+def _cache_get(key):
+    if app.config.get('TESTING'):
+        return None
+    with _LIST_CACHE_LOCK:
+        entry = _LIST_CACHE.get(key)
+        if entry is None:
+            return None
+        stored_at, value = entry
+        if time.time() - stored_at >= LIST_CACHE_TTL_SECONDS:
+            _LIST_CACHE.pop(key, None)
+            return None
+        return value
+
+
+def _cache_set(key, value):
+    if app.config.get('TESTING'):
+        return
+    with _LIST_CACHE_LOCK:
+        _LIST_CACHE[key] = (time.time(), value)
+
+
+def clear_list_cache():
+    """Post/portfolio o'zgarganda ro'yxat cache'ini tozalash uchun (ixtiyoriy)."""
+    with _LIST_CACHE_LOCK:
+        _LIST_CACHE.clear()
+
+
 # ========== SERVICE DATA (For Landing Pages) ==========
 SERVICES_DATA = {
     'ai_content': {
@@ -670,22 +705,29 @@ def blog():
     page = request.args.get('page', 1, type=int)
     category = request.args.get('category', None)
     
-    query = Post.query.filter_by(is_published=True)
-    
-    if category:
-        query = query.filter_by(category=category)
-    
-    pagination = query.order_by(Post.created_at.desc()).paginate(
-        page=page, per_page=POSTS_PER_PAGE, error_out=False
-    )
-    
-    # Eng ko'p o'qilgan postlar (Top 5)
-    popular_posts = Post.query.filter_by(is_published=True).order_by(
-        Post.views.desc()
-    ).limit(5).all()
-    
-    return render_template('index.html', 
-                          posts=pagination.items, 
+    cache_key = ('blog', page, category or '')
+    cached = _cache_get(cache_key)
+    if cached is not None:
+        pagination, popular_posts = cached
+    else:
+        query = Post.query.filter_by(is_published=True)
+
+        if category:
+            query = query.filter_by(category=category)
+
+        pagination = query.order_by(Post.created_at.desc()).paginate(
+            page=page, per_page=POSTS_PER_PAGE, error_out=False
+        )
+
+        # Eng ko'p o'qilgan postlar (Top 5)
+        popular_posts = Post.query.filter_by(is_published=True).order_by(
+            Post.views.desc()
+        ).limit(5).all()
+
+        _cache_set(cache_key, (pagination, popular_posts))
+
+    return render_template('index.html',
+                          posts=pagination.items,
                           pagination=pagination,
                           popular_posts=popular_posts)
 
@@ -860,17 +902,22 @@ def portfolio():
     category = (request.args.get('category') or '').strip().lower()
     allowed_categories = {'bot', 'web', 'ai', 'mobile'}
 
-    query = Portfolio.query.filter_by(is_published=True)
-    if category in allowed_categories:
-        query = query.filter_by(category=category)
-    else:
+    if category not in allowed_categories:
         category = ''
 
-    pagination = query.order_by(Portfolio.created_at.desc()).paginate(
-        page=page,
-        per_page=12,
-        error_out=False,
-    )
+    cache_key = ('portfolio', page, category)
+    pagination = _cache_get(cache_key)
+    if pagination is None:
+        query = Portfolio.query.filter_by(is_published=True)
+        if category:
+            query = query.filter_by(category=category)
+
+        pagination = query.order_by(Portfolio.created_at.desc()).paginate(
+            page=page,
+            per_page=12,
+            error_out=False,
+        )
+        _cache_set(cache_key, pagination)
 
     return render_template(
         'portfolio.html',
