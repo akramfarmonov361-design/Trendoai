@@ -117,7 +117,7 @@
             <!-- Featured Image -->
             {% if post.image_url %}
             <div class="article-featured-image">
-                <img src="{{ post.image_url }}" alt="{{ post.title }}" loading="lazy">
+                <img src="{{ post.image_url }}" alt="{{ post.title }}" width="1280" height="720" fetchpriority="high" decoding="async">
             </div>
             {% endif %}
 

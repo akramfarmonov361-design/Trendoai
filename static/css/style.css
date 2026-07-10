@@ -1057,8 +1057,19 @@ main {
 .article-featured-image img {
     width: 100%;
     height: auto;
+    aspect-ratio: 16 / 9;
     max-height: 550px;
     object-fit: cover;
+}
+
+/* O'xshash loyihalar (sidebar) rasmlari — layout siljishining oldini olish */
+.related-project-sidebar img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    display: block;
 }
 
 /* Content Typography */
