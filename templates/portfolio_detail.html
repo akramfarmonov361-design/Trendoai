@@ -1,19 +1,23 @@
-{% extends 'base_v2.html' %}
+{% extends "base.html" %}
 
-{% block title %}{{ item.title }} — TrendoAI Portfolio{% endblock %}
+{% block title %}{{ item.title }} - TrendoAI Portfolio{% endblock %}
 {% block meta_description %}{{ item.description | truncate(160) }}{% endblock %}
 {% block canonical_url %}{{ config.SITE_URL }}/portfolio/project/{{ item.slug }}{% endblock %}
 {% block og_url %}{{ config.SITE_URL }}/portfolio/project/{{ item.slug }}{% endblock %}
-{% block og_title %}{{ item.title }} — TrendoAI{% endblock %}
+{% block og_title %}{{ item.title }} - TrendoAI{% endblock %}
 {% block og_description %}{{ item.description | truncate(160) }}{% endblock %}
-{% block og_type %}article{% endblock %}
-{% block og_image %}{{ item.image_url or config.SITE_URL ~ '/static/img/og-image.jpg' }}{% endblock %}
-{% block twitter_title %}{{ item.title }} — TrendoAI{% endblock %}
+{% block og_type %}product{% endblock %}
+{% block og_image %}{{ item.image_url or config.SITE_URL ~ '/static/img/og-image.png' }}{% endblock %}
+{% block twitter_title %}{{ item.title }} - TrendoAI{% endblock %}
 {% block twitter_description %}{{ item.description | truncate(160) }}{% endblock %}
-{% block twitter_image %}{{ item.image_url or config.SITE_URL ~ '/static/img/og-image.jpg' }}{% endblock %}
+{% block twitter_image %}{{ item.image_url or config.SITE_URL ~ '/static/img/og-image.png' }}{% endblock %}
 
 {% block extra_head %}
 <meta property="product:category" content="{{ item.category }}">
+{% if item.price %}
+<meta property="product:price:amount" content="{{ item.price | replace('$', '') | replace(' ', '') }}">
+<meta property="product:price:currency" content="USD">
+{% endif %}
 
 <script type="application/ld+json">
 {
@@ -23,9 +27,22 @@
     "description": "{{ item.description | replace('"', '\\"') | truncate(500) }}",
     "image": "{{ item.image_url }}",
     "url": "{{ config.SITE_URL }}/portfolio/project/{{ item.slug }}",
-    "brand": {"@type": "Brand", "name": "TrendoAI"},
+    "brand": {
+        "@type": "Brand",
+        "name": "TrendoAI"
+    },
     "category": "{{ item.category }}",
-    "sku": "portfolio_{{ item.id }}"
+    {% if item.price %}
+    "offers": {
+        "@type": "Offer",
+        "price": "{{ item.price | replace('$', '') | replace(' ', '') }}",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "url": "{{ config.SITE_URL }}/portfolio/project/{{ item.slug }}"
+    },
+    {% endif %}
+    "sku": "portfolio_{{ item.id }}",
+    "mpn": "TRND-{{ item.id }}"
 }
 </script>
 
@@ -34,186 +51,430 @@
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Bosh sahifa", "item": "{{ config.SITE_URL }}/"},
-        {"@type": "ListItem", "position": 2, "name": "Portfolio", "item": "{{ config.SITE_URL }}/portfolio"},
-        {"@type": "ListItem", "position": 3, "name": {{ item.title | tojson }}, "item": "{{ config.SITE_URL }}/portfolio/project/{{ item.slug }}"}
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Bosh sahifa",
+            "item": "{{ config.SITE_URL }}/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Portfolio",
+            "item": "{{ config.SITE_URL }}/portfolio"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": {{ item.title | tojson }},
+            "item": "{{ config.SITE_URL }}/portfolio/project/{{ item.slug }}"
+        }
     ]
 }
+</script>
+
+<script>
+    var viewContentData = {
+        content_name: '{{ item.title }}',
+        content_category: '{{ item.category }}',
+        content_ids: ['portfolio_{{ item.id }}'],
+        content_type: 'product'
+    };
+    {% if item.price %}
+    viewContentData.value = {{ item.price | replace('$', '') | replace(' ', '') | int | default(0) }};
+    viewContentData.currency = 'USD';
+    {% endif %}
+    fbq('track', 'ViewContent', viewContentData);
+
+    function trackAddToCart() {
+        var addToCartData = {
+            content_name: '{{ item.title }}',
+            content_category: '{{ item.category }}',
+            content_ids: ['portfolio_{{ item.id }}'],
+            content_type: 'product'
+        };
+        {% if item.price %}
+        addToCartData.value = {{ item.price | replace('$', '') | replace(' ', '') | int | default(0) }};
+        addToCartData.currency = 'USD';
+        {% endif %}
+        fbq('track', 'AddToCart', addToCartData);
+    }
 </script>
 {% endblock %}
 
 {% block content %}
+<div class="article-container">
+    <main class="article-main">
+        <article class="article-page portfolio-detail">
+            <!-- Breadcrumbs -->
+            <nav class="breadcrumb-nav">
+                <a href="{{ url_for('index') }}">Bosh sahifa</a>
+                <span class="sep">/</span>
+                <a href="{{ url_for('portfolio') }}">Portfolio</a>
+                <span class="sep">/</span>
+                <span class="current">{{ item.title }}</span>
+            </nav>
 
-<article class="container-wide py-10 sm:py-14">
-    <!-- Breadcrumb -->
-    <nav class="flex items-center gap-2 text-sm text-ink-500 dark:text-ink-400 mb-6" aria-label="Breadcrumb">
-        <a href="{{ url_for('index') }}" class="hover:text-ink-900 dark:hover:text-white">Bosh sahifa</a>
-        <span>/</span>
-        <a href="{{ url_for('portfolio') }}" class="hover:text-ink-900 dark:hover:text-white">Portfolio</a>
-        <span>/</span>
-        <span class="text-ink-900 dark:text-white font-medium truncate">{{ item.title }}</span>
-    </nav>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        <!-- Main column -->
-        <div class="lg:col-span-2">
-
-            <!-- Header -->
-            <header class="mb-8">
-                <span class="tag self-start">
-                    {% if item.category == 'bot' %}Telegram Bot
-                    {% elif item.category == 'web' %}Web Sayt
-                    {% elif item.category == 'ai' %}AI Yechim
-                    {% elif item.category == 'mobile' %}Mobile App
-                    {% else %}{{ item.category|capitalize }}
-                    {% endif %}
-                </span>
-                <h1 class="mt-3 text-3xl sm:text-5xl font-extrabold tracking-tight text-ink-900 dark:text-white leading-tight">
-                    {{ item.title }}
-                </h1>
-                {% if item.technologies %}
-                <div class="mt-5 flex flex-wrap gap-1.5">
+            <header class="portfolio-detail-header">
+                <div class="portfolio-cat-badge">{{ item.category | upper }}</div>
+                <h1>{{ item.title }}</h1>
+                <div class="portfolio-meta-tags">
+                    {% if item.technologies %}
                     {% for tech in (item.technologies or '').split(',') %}
                     {% if tech and tech.strip() %}
-                    <span class="px-2.5 py-1 rounded-md text-xs font-medium bg-ink-100 dark:bg-ink-800 text-ink-700 dark:text-ink-300">{{ tech.strip() }}</span>
+                    <span class="tech-tag">{{ tech.strip() }}</span>
                     {% endif %}
                     {% endfor %}
+                    {% endif %}
                 </div>
-                {% endif %}
             </header>
 
-            <!-- Featured image -->
-            {% if item.image_url %}
-            <figure class="rounded-2xl overflow-hidden border border-ink-200 dark:border-ink-800 shadow-soft bg-ink-100 dark:bg-ink-900 aspect-video">
-                <img src="{{ item.image_url }}" alt="{{ item.title }}"
-                    width="1200" height="630"
-                    loading="eager" fetchpriority="high" decoding="async"
-                    class="w-full h-full object-cover">
-            </figure>
-            {% endif %}
-
-            <!-- Brief -->
-            <div class="mt-10 rounded-xl bg-brand-50 dark:bg-brand-950/30 border-l-4 border-brand-600 px-6 py-5">
-                <h2 class="text-lg font-semibold text-ink-900 dark:text-white">Loyiha haqida</h2>
-                <p class="mt-2 text-ink-700 dark:text-ink-300 leading-relaxed">{{ item.description }}</p>
+            <div class="article-featured-image">
+                <img src="{{ item.image_url }}" alt="{{ item.title }}" class="main-project-img" loading="lazy">
             </div>
 
-            <!-- Details -->
-            {% if item.details_html %}
-            <div class="mt-10 prose prose-ink dark:prose-invert max-w-none
-                        prose-headings:font-bold prose-headings:text-ink-900 dark:prose-headings:text-white
-                        prose-p:text-ink-700 dark:prose-p:text-ink-300
-                        prose-a:text-brand-600 prose-a:no-underline hover:prose-a:underline
-                        prose-li:text-ink-700 dark:prose-li:text-ink-300">
-                <h2 class="text-2xl">Batafsil ma'lumot</h2>
-                {{ item.details_html | safe }}
-            </div>
-            {% endif %}
+            <div class="article-content">
+                <div class="project-brief">
+                    <h3>Loyiha haqida</h3>
+                    <p>{{ item.description }}</p>
+                </div>
 
-            <!-- Features -->
-            {% if item.features %}
-            <div class="mt-10">
-                <h2 class="text-2xl font-bold text-ink-900 dark:text-white">Asosiy imkoniyatlar</h2>
-                <ul class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {% for feature in (item.features or '').split(',') %}
-                    {% if feature and feature.strip() %}
-                    <li class="flex items-start gap-3 p-4 rounded-lg bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800">
-                        <svg class="w-5 h-5 mt-0.5 text-brand-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                        <span class="text-sm text-ink-700 dark:text-ink-300">{{ feature.strip() }}</span>
-                    </li>
-                    {% endif %}
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
+                {% if item.details %}
+                <div class="project-details-content">
+                    <h3>Batafsil ma'lumot</h3>
+                    {{ item.details_html | safe }}
+                </div>
+                {% endif %}
 
-            <!-- CTA -->
-            <div class="mt-12 rounded-2xl bg-gradient-to-br from-ink-900 to-brand-900 px-8 py-10 sm:px-12 sm:py-14 text-center relative overflow-hidden">
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(168,85,247,0.3),transparent_50%)] pointer-events-none"></div>
-                <div class="relative">
-                    <h2 class="text-2xl sm:text-3xl font-bold text-white">Sizga ham shunday loyiha kerakmi?</h2>
-                    <p class="mt-3 text-ink-300 max-w-md mx-auto">
-                        Biz aynan sizning biznesingiz uchun moslashtirilgan yechimni ishlab chiqamiz.
-                    </p>
-                    <div class="mt-7 flex flex-wrap items-center justify-center gap-3">
-                        <a href="{{ url_for('order_page') }}?service={{ item.category }}"
-                            onclick="trackAddToCart()"
-                            class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-ink-900 font-semibold text-sm hover:bg-ink-100 transition-colors">
-                            Buyurtma berish
+                {% if item.features %}
+                <div class="project-features-list">
+                    <h3>Imkoniyatlar</h3>
+                    <div class="features-grid-landing">
+                        {% for feature in (item.features or '').split(',') %}
+                        {% if feature and feature.strip() %}
+                        <div class="feature-landing-card">
+                            <i class="fas fa-check-circle"></i>
+                            <span>{{ feature.strip() }}</span>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="service-cta-box portfolio-cta">
+                    <h3>Sizga ham shunday loyiha kerakmi?</h3>
+                    <p>Biz aynan sizning biznesingiz uchun moslashtirilgan yechimni ishlab chiqamiz.</p>
+                    <div class="cta-actions">
+                        <a href="{{ url_for('order_page') }}?service={{ item.category }}" class="primary-btn pulse-glow"
+                            onclick="trackAddToCart()">
+                            🚀 Buyurtma berish
                         </a>
                         {% if item.link %}
-                        <a href="{{ item.link }}" target="_blank" rel="noopener"
-                            class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white/10 text-white font-semibold text-sm hover:bg-white/20 transition-colors backdrop-blur-sm">
-                            Loyihani ko'rish
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        <a href="{{ item.link }}" target="_blank" class="secondary-btn">
+                            🌐 Loyihani ko'rish
                         </a>
                         {% endif %}
                     </div>
                 </div>
             </div>
+        </article>
+    </main>
+
+    <aside class="article-sidebar">
+        <div class="sidebar-card">
+            <h3>O'xshash loyihalar</h3>
+            <div class="related-portfolio-sidebar">
+                {% for related in related_items %}
+                <a href="{{ url_for('portfolio_item', slug=related.slug) }}" class="related-project-sidebar">
+                    <img src="{{ related.image_url }}" alt="{{ related.title }}" loading="lazy">
+                    <div class="rp-info">
+                        <span class="rp-title">{{ related.title }}</span>
+                        <span class="rp-cat">{{ related.category }}</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
         </div>
 
-        <!-- Sidebar -->
-        <aside class="lg:col-span-1 space-y-6 lg:sticky lg:top-24 lg:self-start">
-            <!-- Related -->
-            {% if related_items %}
-            <div class="rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 p-5">
-                <h3 class="text-sm font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">O'xshash loyihalar</h3>
-                <div class="mt-4 space-y-3">
-                    {% for related in related_items %}
-                    <a href="{{ url_for('portfolio_item', slug=related.slug) }}"
-                        class="flex items-center gap-3 p-2 rounded-lg hover:bg-ink-50 dark:hover:bg-ink-800 transition-colors group">
-                        {% if related.image_url %}
-                        <img src="{{ related.image_url }}" alt="{{ related.title }}" loading="lazy"
-                            class="w-14 h-14 rounded-lg object-cover bg-ink-100 dark:bg-ink-800 shrink-0">
-                        {% else %}
-                        <div class="w-14 h-14 rounded-lg bg-ink-100 dark:bg-ink-800 flex items-center justify-center text-2xl shrink-0">{{ related.emoji or '🚀' }}</div>
-                        {% endif %}
-                        <div class="min-w-0">
-                            <div class="text-sm font-semibold text-ink-900 dark:text-white group-hover:text-brand-600 line-clamp-1">{{ related.title }}</div>
-                            <div class="text-xs text-ink-500 mt-0.5">{{ related.category }}</div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
+        <div class="sidebar-card contact-sidebar">
+            <h3>Maxsus yechim kerakmi?</h3>
+            <p>Biz har bir loyihaga individual yondashamiz.</p>
+            <a href="https://t.me/Akramjon1984" class="tg-contact-btn">
+                <i class="fab fa-telegram"></i> Savol berish
+            </a>
+        </div>
+    </aside>
+</div>
 
-            <!-- Contact -->
-            <div class="rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 p-5">
-                <h3 class="text-sm font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">Savolingiz bormi?</h3>
-                <p class="mt-3 text-sm text-ink-600 dark:text-ink-400">Telegram orqali to'g'ridan-to'g'ri bog'laning — 24 soat ichida javob beramiz.</p>
-                <a href="https://t.me/TrendoAibot" target="_blank" rel="noopener" class="btn-primary mt-4 w-full">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                    Telegram'da yozish
-                </a>
-            </div>
-        </aside>
-    </div>
-</article>
-
-{% endblock %}
-
-{% block extra_scripts %}
-<script>
-    if (typeof fbq !== 'undefined') {
-        fbq('track', 'ViewContent', {
-            content_name: '{{ item.title }}',
-            content_category: '{{ item.category }}',
-            content_ids: ['portfolio_{{ item.id }}'],
-            content_type: 'product'
-        });
+<style>
+    .portfolio-detail-header {
+        margin-bottom: 30px;
     }
 
-    function trackAddToCart() {
-        if (typeof fbq !== 'undefined') {
-            fbq('track', 'AddToCart', {
-                content_name: '{{ item.title }}',
-                content_category: '{{ item.category }}',
-                content_ids: ['portfolio_{{ item.id }}'],
-                content_type: 'product'
-            });
+    .portfolio-cat-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        background: var(--bg-elevated);
+        border: 1px solid var(--primary);
+        color: var(--primary-light);
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .portfolio-meta-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    .tech-tag {
+        padding: 4px 10px;
+        background: var(--bg-elevated);
+        border-radius: 4px;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .main-project-img {
+        width: 100%;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .project-brief {
+        background: var(--bg-elevated);
+        padding: 25px;
+        border-radius: var(--radius-md);
+        margin-bottom: 40px;
+        border-left: 4px solid var(--primary);
+    }
+
+    .project-brief h3 {
+        margin-bottom: 12px;
+    }
+
+    .project-details-content ul {
+        list-style: none;
+        padding: 0;
+        margin: 20px 0;
+    }
+
+    .project-details-content li {
+        padding: 8px 0;
+        padding-left: 25px;
+        position: relative;
+    }
+
+    .project-details-content li::before {
+        content: '•';
+        color: var(--primary);
+        position: absolute;
+        left: 0;
+        font-weight: bold;
+    }
+
+    .related-portfolio-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .related-project-sidebar {
+        display: flex;
+        gap: 12px;
+        text-decoration: none;
+        color: var(--text-primary);
+        padding: 8px;
+        border-radius: var(--radius-sm);
+        transition: background 0.3s;
+    }
+
+    .related-project-sidebar:hover {
+        background: var(--bg-elevated);
+    }
+
+    .related-project-sidebar img {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .rp-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .rp-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    .rp-cat {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 4px;
+    }
+
+    .cta-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    /* ========== MOBILE RESPONSIVE ========== */
+    @media (max-width: 768px) {
+        .article-container {
+            flex-direction: column;
+            padding: 0 12px;
+        }
+
+        .article-main {
+            width: 100%;
+            margin-right: 0;
+        }
+
+        .article-sidebar {
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .portfolio-detail-header {
+            margin-bottom: 20px;
+        }
+
+        .portfolio-detail-header h1 {
+            font-size: 1.4rem;
+            line-height: 1.3;
+        }
+
+        .portfolio-cat-badge {
+            font-size: 0.7rem;
+            padding: 3px 10px;
+        }
+
+        .portfolio-meta-tags {
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .tech-tag {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+        }
+
+        .article-featured-image {
+            margin-bottom: 20px;
+        }
+
+        .main-project-img {
+            border-radius: var(--radius-md);
+        }
+
+        .project-brief {
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .project-brief h3 {
+            font-size: 1.1rem;
+        }
+
+        .project-brief p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .project-details-content h3,
+        .project-features-list h3 {
+            font-size: 1.1rem;
+        }
+
+        .features-grid-landing {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .feature-landing-card {
+            padding: 12px;
+            font-size: 0.9rem;
+        }
+
+        .service-cta-box.portfolio-cta {
+            padding: 20px 16px;
+            border-radius: var(--radius-md);
+        }
+
+        .service-cta-box h3 {
+            font-size: 1.2rem;
+        }
+
+        .service-cta-box p {
+            font-size: 0.9rem;
+        }
+
+        .cta-actions {
+            flex-direction: column;
+        }
+
+        .cta-actions .primary-btn,
+        .cta-actions .secondary-btn {
+            width: 100%;
+            text-align: center;
+            padding: 14px 20px;
+        }
+
+        .sidebar-card {
+            padding: 16px;
+        }
+
+        .sidebar-card h3 {
+            font-size: 1rem;
+        }
+
+        .related-project-sidebar {
+            padding: 6px;
+        }
+
+        .related-project-sidebar img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .rp-title {
+            font-size: 0.8rem;
+        }
+
+        .rp-cat {
+            font-size: 0.7rem;
+        }
+
+        .breadcrumb-nav {
+            font-size: 0.75rem;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
         }
     }
-</script>
+
+    @media (max-width: 480px) {
+        .portfolio-detail-header h1 {
+            font-size: 1.25rem;
+        }
+
+        .project-brief {
+            padding: 12px;
+        }
+
+        .service-cta-box.portfolio-cta {
+            padding: 16px 12px;
+        }
+    }
+</style>
 {% endblock %}

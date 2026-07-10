@@ -1,81 +1,67 @@
-{% extends 'base_v2.html' %}
+{% extends 'base.html' %}
 
-{% block title %}Blog — TrendoAI | AI, IT va texnologiya yangiliklari{% endblock %}
-{% block meta_description %}TrendoAI blog — sun'iy intellekt, Telegram botlar, web ishlab chiqish va biznesni avtomatlashtirish bo'yicha o'zbek tilidagi professional maqolalar.{% endblock %}
+{% block title %}{{ config.SITE_NAME }} - Trending Texnologiyalar va Sun'iy Intellekt{% endblock %}
+{% block meta_description %}TrendoAI blog — sun'iy intellekt, Telegram botlar, web saytlar, IT yangiliklari va biznes avtomatlashtirish bo'yicha O'zbek tilidagi professional maqolalar.{% endblock %}
 {% block canonical_url %}{{ config.SITE_URL }}/blog{% if request.args.get('category') or request.args.get('page', '1') != '1' %}?{% if request.args.get('category') %}category={{ request.args.get('category') | urlencode }}{% endif %}{% if request.args.get('category') and request.args.get('page', '1') != '1' %}&{% endif %}{% if request.args.get('page', '1') != '1' %}page={{ request.args.get('page') }}{% endif %}{% endif %}{% endblock %}
 {% block og_url %}{{ config.SITE_URL }}/blog{% endblock %}
-{% block og_title %}Blog — TrendoAI | AI va IT yangiliklari{% endblock %}
-{% block og_description %}AI, IT va texnologiya bo'yicha o'zbek tilidagi professional maqolalar.{% endblock %}
-{% block twitter_title %}Blog — TrendoAI{% endblock %}
-{% block twitter_description %}AI va IT bo'yicha o'zbek tilidagi blog.{% endblock %}
-
-{% block extra_head %}
-{%- set _cat = request.args.get('category') -%}
-{%- set _qs_base = ('?category=' ~ (_cat | urlencode)) if _cat else '' -%}
-{%- set _sep = '&' if _cat else '?' -%}
-{% if pagination and pagination.has_prev %}
-<link rel="prev" href="{{ config.SITE_URL }}/blog{% if pagination.prev_num == 1 %}{{ _qs_base }}{% else %}{{ _qs_base }}{{ _sep }}page={{ pagination.prev_num }}{% endif %}">
-{% endif %}
-{% if pagination and pagination.has_next %}
-<link rel="next" href="{{ config.SITE_URL }}/blog{{ _qs_base }}{{ _sep }}page={{ pagination.next_num }}">
-{% endif %}
-{% endblock %}
+{% block og_title %}{{ config.SITE_NAME }} - Trending Texnologiyalar va Sun'iy Intellekt{% endblock %}
+{% block og_description %}Sun'iy intellekt, Telegram botlar va IT yangiliklari bo'yicha O'zbek tilidagi professional blog.{% endblock %}
+{% block twitter_title %}{{ config.SITE_NAME }} - Trending Texnologiyalar va Sun'iy Intellekt{% endblock %}
+{% block twitter_description %}Sun'iy intellekt, Telegram botlar va IT yangiliklari bo'yicha O'zbek tilidagi professional blog.{% endblock %}
 
 {% block content %}
-
-<!-- BLOG HEADER -->
-<section class="border-b border-ink-200 dark:border-ink-800">
-    <div class="container-wide py-12 sm:py-16">
-        <div class="max-w-3xl">
-            <p class="text-sm font-semibold uppercase tracking-wider text-brand-600">Blog</p>
-            <h1 class="mt-2 text-4xl sm:text-5xl font-extrabold tracking-tight text-ink-900 dark:text-white">
-                AI va texnologiya
-            </h1>
-            <p class="mt-4 text-lg text-ink-600 dark:text-ink-400">
-                Sun'iy intellekt, web ishlab chiqish va biznesni avtomatlashtirish bo'yicha o'zbek tilidagi professional maqolalar.
-            </p>
-        </div>
-
-        <!-- Search -->
-        <form action="{{ url_for('search') }}" method="GET" class="mt-8 max-w-xl">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <div class="relative">
-                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                <input type="text" name="q" placeholder="Maqola qidirish..." value="{{ request.args.get('q', '') }}"
-                    class="w-full pl-11 pr-4 py-3 rounded-lg border border-ink-300 dark:border-ink-700 bg-white dark:bg-ink-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+<section class="hero">
+    <div class="hero-content">
+        <h1>Trending Texnologiyalar</h1>
+        <p class="hero-subtitle">Sun'iy intellekt yordamida yaratilgan professional IT maqolalar</p>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <span class="stat-value">{{ posts|length }}</span>
+                <span class="stat-label">Maqolalar</span>
             </div>
-        </form>
-
-        <!-- Categories -->
-        <div class="mt-6 flex flex-wrap gap-2">
-            <a href="{{ url_for('blog') }}"
-                class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors {% if not request.args.get('category') %}bg-ink-900 text-white dark:bg-white dark:text-ink-900{% else %}bg-ink-100 text-ink-700 hover:bg-ink-200 dark:bg-ink-800 dark:text-ink-300 dark:hover:bg-ink-700{% endif %}">
-                Barchasi
-            </a>
-            {% for cat in categories %}
-            <a href="{{ url_for('blog', category=cat) }}"
-                class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors {% if request.args.get('category') == cat %}bg-ink-900 text-white dark:bg-white dark:text-ink-900{% else %}bg-ink-100 text-ink-700 hover:bg-ink-200 dark:bg-ink-800 dark:text-ink-300 dark:hover:bg-ink-700{% endif %}">
-                {{ cat }}
-            </a>
-            {% endfor %}
+            <div class="hero-stat">
+                <span class="stat-value">AI</span>
+                <span class="stat-label">Powered</span>
+            </div>
+            <div class="hero-stat">
+                <span class="stat-value">24/7</span>
+                <span class="stat-label">Yangilanadi</span>
+            </div>
         </div>
+    </div>
+    <div class="hero-cta" style="margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <a href="https://t.me/TrendoAibot" target="_blank" class="cta-button" style="display: inline-flex; align-items: center; gap: 8px;">🤖 AI Assistent bilan gaplashing</a>
+        <a href="https://t.me/trendoai" target="_blank" class="cta-button secondary" style="display: inline-flex; align-items: center; gap: 8px;">📢 Kanalga obuna bo'ling</a>
     </div>
 </section>
 
-<!-- POPULAR (sidebar-style) -->
+<section class="search-section">
+    <form action="{{ url_for('search') }}" method="GET" class="search-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="text" name="q" placeholder="Maqola qidirish..." value="{{ request.args.get('q', '') }}">
+        <button type="submit">Qidirish</button>
+    </form>
+
+    <div class="categories-filter">
+        <a href="{{ url_for('blog') }}"
+            class="category-tag {% if not request.args.get('category') %}active{% endif %}">Barchasi</a>
+        {% for cat in categories %}
+        <a href="{{ url_for('blog', category=cat) }}"
+            class="category-tag {% if request.args.get('category') == cat %}active{% endif %}">{{ cat }}</a>
+        {% endfor %}
+    </div>
+</section>
+
 {% if popular_posts %}
-<section class="container-wide pt-12">
-    <h2 class="text-sm font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">Ko'p o'qilganlar</h2>
-    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+<section class="popular-section">
+    <h2>Ko'p O'qilganlar</h2>
+    <div class="popular-posts-grid">
         {% for post in popular_posts %}
-        <a href="{{ url_for('post_by_slug', slug=post.slug) if post.slug else url_for('post', post_id=post.id) }}"
-            class="group flex items-start gap-3 p-3 rounded-lg hover:bg-ink-50 dark:hover:bg-ink-900 transition-colors">
-            <span class="text-2xl font-extrabold text-ink-300 dark:text-ink-700 leading-none shrink-0">{{ "%02d"|format(loop.index) }}</span>
-            <div class="min-w-0">
-                <h3 class="text-sm font-semibold text-ink-900 dark:text-white group-hover:text-brand-600 line-clamp-2">
-                    {{ post.title | truncate(70) }}
-                </h3>
-                <p class="mt-1 text-xs text-ink-500">{{ post.views|default(0) }} ko'rishlar</p>
+        <a href="{{ url_for('post_by_slug', slug=post.slug) if post.slug else url_for('post', post_id=post.id) }}" class="popular-post-card">
+            <span class="popular-rank">{{ loop.index }}</span>
+            <div class="popular-info">
+                <h4>{{ post.title | truncate(50) }}</h4>
+                <span class="popular-meta">{{ post.views|default(0) }} ko'rish</span>
             </div>
         </a>
         {% endfor %}
@@ -83,95 +69,63 @@
 </section>
 {% endif %}
 
-<!-- POSTS GRID -->
-<section class="py-12 sm:py-16">
-    <div class="container-wide">
-        <h2 class="text-2xl font-bold tracking-tight text-ink-900 dark:text-white">
-            {% if request.args.get('category') %}{{ request.args.get('category') }}{% else %}Barcha maqolalar{% endif %}
-        </h2>
+<section class="posts-section">
+    <h2>So'nggi Maqolalar</h2>
 
-        {% if posts %}
-        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for post in posts %}
-            <article class="card overflow-hidden flex flex-col">
-                {% if post.image_url %}
-                <a href="{{ url_for('post_by_slug', slug=post.slug) if post.slug else url_for('post', post_id=post.id) }}"
-                    class="block aspect-[16/10] overflow-hidden bg-ink-100 dark:bg-ink-800">
-                    <img src="{{ post.image_url }}" alt="{{ post.title }}" loading="lazy"
-                        class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+    {% if posts %}
+    <div class="posts-grid">
+        {% for post in posts %}
+        <article class="post-card">
+            {% if post.image_url %}
+            <div class="post-image">
+                <a href="{{ url_for('post_by_slug', slug=post.slug) if post.slug else url_for('post', post_id=post.id) }}">
+                    <img src="{{ post.image_url }}" alt="{{ post.title }}" loading="lazy">
                 </a>
-                {% endif %}
-                <div class="p-5 flex flex-col flex-1">
-                    {% if post.category %}
-                    <span class="tag self-start">{{ post.category }}</span>
-                    {% endif %}
-                    <h3 class="mt-3 text-lg font-semibold text-ink-900 dark:text-white leading-snug">
-                        <a href="{{ url_for('post_by_slug', slug=post.slug) if post.slug else url_for('post', post_id=post.id) }}"
-                            class="hover:text-brand-600 dark:hover:text-brand-400">
-                            {{ post.title }}
-                        </a>
-                    </h3>
-                    <p class="mt-2 text-sm text-ink-600 dark:text-ink-400 line-clamp-2 flex-1">
-                        {{ (post.content | markdown_body) | striptags | truncate(140) }}
-                    </p>
-                    <div class="mt-4 flex items-center gap-3 text-xs text-ink-500">
-                        <span>{{ post.created_at.strftime('%d.%m.%Y') if post.created_at else '' }}</span>
-                        <span>·</span>
-                        <span>{{ post.reading_time or 5 }} daq</span>
-                        {% if post.views %}
-                        <span>·</span>
-                        <span>{{ post.views }} ko'rish</span>
-                        {% endif %}
-                    </div>
+            </div>
+            {% endif %}
+            <div class="post-content">
+                <div class="post-category">{{ post.category or 'Texnologiya' }}</div>
+                <h3><a href="{{ url_for('post_by_slug', slug=post.slug) if post.slug else url_for('post', post_id=post.id) }}">{{ post.title }}</a></h3>
+                <div class="post-meta">
+                    <span class="post-date">{{ post.created_at.strftime('%d.%m.%Y') if post.created_at else '' }}</span>
+                    <span class="post-reading-time">{{ post.reading_time or 5 }} daqiqa</span>
+                    <span class="post-views">{{ post.views or 0 }}</span>
                 </div>
-            </article>
-            {% endfor %}
-        </div>
+                <p class="post-excerpt">{{ (post.content | markdown) | striptags | truncate(150) }}</p>
+                <a href="{{ url_for('post_by_slug', slug=post.slug) if post.slug else url_for('post', post_id=post.id) }}" class="read-more">Davomini o'qish -></a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
 
-        {% if pagination and pagination.pages > 1 %}
-        <div class="mt-10 flex items-center justify-center gap-3">
-            {% if pagination.has_prev %}
-            <a href="{{ url_for('blog', page=pagination.prev_num, category=request.args.get('category')) }}" class="btn-ghost text-sm">← Oldingi</a>
-            {% else %}
-            <span class="btn-ghost text-sm opacity-40 cursor-not-allowed">← Oldingi</span>
-            {% endif %}
-            <span class="text-sm text-ink-500">{{ pagination.page }} / {{ pagination.pages }}</span>
-            {% if pagination.has_next %}
-            <a href="{{ url_for('blog', page=pagination.next_num, category=request.args.get('category')) }}" class="btn-ghost text-sm">Keyingi →</a>
-            {% else %}
-            <span class="btn-ghost text-sm opacity-40 cursor-not-allowed">Keyingi →</span>
-            {% endif %}
-        </div>
+    {% if pagination %}
+    <div class="pagination">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('blog', page=pagination.prev_num, category=request.args.get('category')) }}" class="page-link"><- Oldingi</a>
         {% endif %}
 
-        {% else %}
-        <div class="mt-10 text-center py-20 border border-dashed border-ink-300 dark:border-ink-700 rounded-xl">
-            <svg class="w-12 h-12 mx-auto text-ink-300 dark:text-ink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
-            <h3 class="mt-4 text-lg font-semibold text-ink-900 dark:text-white">Hozircha maqolalar mavjud emas</h3>
-            <p class="mt-2 text-sm text-ink-600 dark:text-ink-400">Tez orada yangi maqolalar paydo bo'ladi.</p>
-        </div>
+        <span class="page-info">Sahifa {{ pagination.page }} / {{ pagination.pages }}</span>
+
+        {% if pagination.has_next %}
+        <a href="{{ url_for('blog', page=pagination.next_num, category=request.args.get('category')) }}" class="page-link">Keyingi -></a>
         {% endif %}
     </div>
+    {% endif %}
+    {% else %}
+    <div class="empty-state">
+        <span class="empty-icon">Maqola</span>
+        <h3>Hozircha maqolalar mavjud emas</h3>
+        <p>Tez orada yangi maqolalar paydo bo'ladi.</p>
+    </div>
+    {% endif %}
 </section>
 
-<!-- NEWSLETTER -->
-<section class="py-16 sm:py-20 bg-ink-50 dark:bg-ink-900/30">
-    <div class="container-narrow text-center">
-        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-ink-900 dark:text-white">
-            Yangiliklardan xabardor bo'ling
-        </h2>
-        <p class="mt-3 text-ink-600 dark:text-ink-400">
-            Telegram kanal va botimizga obuna bo'lib, eng so'nggi maqolalarni birinchi bo'lib o'qing.
-        </p>
-        <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <a href="https://t.me/trendoai" target="_blank" rel="noopener" class="btn-primary">
-                Telegram kanal
-            </a>
-            <a href="https://t.me/TrendoAibot" target="_blank" rel="noopener" class="btn-ghost">
-                AI bot bilan suhbat
-            </a>
-        </div>
+<section class="newsletter-section">
+    <h3>Yangiliklardan xabardor bo'ling</h3>
+    <p>Telegram kanalimizga obuna bo'ling va eng so'nggi maqolalarni birinchilardan bo'lib o'qing</p>
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <a href="https://t.me/trendoai" class="newsletter-button" target="_blank">📢 Telegram kanalga o'tish</a>
+        <a href="https://t.me/TrendoAibot" class="newsletter-button" target="_blank" style="background: linear-gradient(135deg, #10b981, #059669);">🤖 AI Bot bilan suhbat</a>
     </div>
 </section>
-
 {% endblock %}

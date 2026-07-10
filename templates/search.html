@@ -1,82 +1,65 @@
-{% extends 'base_v2.html' %}
+{% extends 'base.html' %}
 
-{% block title %}Qidiruv: {{ query }} — TrendoAI{% endblock %}
+{% block title %}Qidiruv: {{ query }} - TrendoAI{% endblock %}
 {% block meta_robots %}noindex, follow{% endblock %}
 {% block canonical_url %}{{ config.SITE_URL }}/search{% endblock %}
 
 {% block content %}
+<section class="search-page">
+    <h1>Qidiruv Natijalari</h1>
 
-<section class="border-b border-ink-200 dark:border-ink-800">
-    <div class="container-wide py-12 sm:py-16">
-        <p class="text-sm font-semibold uppercase tracking-wider text-brand-600">Qidiruv</p>
-        <h1 class="mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight text-ink-900 dark:text-white">
-            {% if query %}"{{ query }}"{% else %}Maqolalar qidiruvi{% endif %}
-        </h1>
+    <form action="{{ url_for('search') }}" method="GET" class="search-form large">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="text" name="q" placeholder="Maqola qidirish..." value="{{ query }}">
+        <button type="submit">Qidirish</button>
+    </form>
 
-        <form action="{{ url_for('search') }}" method="GET" class="mt-6 max-w-xl">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <div class="relative">
-                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                <input type="text" name="q" placeholder="Maqola qidirish..." value="{{ query }}" autofocus
-                    class="w-full pl-11 pr-4 py-3 rounded-lg border border-ink-300 dark:border-ink-700 bg-white dark:bg-ink-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+    {% if query %}
+    {% if posts and posts.items %}
+    <p class="results-count">{{ posts.total }} ta natija topildi: "{{ query }}"</p>
+
+    <div class="posts-grid">
+        {% for post in posts.items %}
+        <article class="post-card">
+            <div class="post-category">{{ post.category or 'Texnologiya' }}</div>
+            <h3><a href="{{ url_for('post_by_slug', slug=post.slug) if post.slug else url_for('post', post_id=post.id) }}">{{ post.title }}</a></h3>
+            <div class="post-meta">
+                <span class="post-date">{{ post.created_at.strftime('%d.%m.%Y') }}</span>
+                <span class="post-reading-time">{{ post.reading_time or 5 }} daqiqa</span>
             </div>
-        </form>
+            <p class="post-excerpt">{{ (post.content | markdown) | striptags | truncate(150) }}</p>
+            <a href="{{ url_for('post_by_slug', slug=post.slug) if post.slug else url_for('post', post_id=post.id) }}" class="read-more">Davomini o'qish -></a>
+        </article>
+        {% endfor %}
     </div>
-</section>
 
-<section class="py-12 sm:py-16">
-    <div class="container-wide">
-        {% if query %}
-            {% if posts and posts.items %}
-            <p class="text-sm text-ink-500 dark:text-ink-400 mb-6">{{ posts.total }} ta natija topildi</p>
+    {% if posts.pages > 1 %}
+    <div class="pagination">
+        {% if posts.has_prev %}
+        <a href="{{ url_for('search', q=query, page=posts.prev_num) }}" class="page-link"><- Oldingi</a>
+        {% endif %}
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {% for post in posts.items %}
-                <article class="card overflow-hidden flex flex-col">
-                    <div class="p-5 flex flex-col flex-1">
-                        {% if post.category %}<span class="tag self-start">{{ post.category }}</span>{% endif %}
-                        <h3 class="mt-3 text-lg font-semibold text-ink-900 dark:text-white leading-snug">
-                            <a href="{{ url_for('post_by_slug', slug=post.slug) if post.slug else url_for('post', post_id=post.id) }}" class="hover:text-brand-600">{{ post.title }}</a>
-                        </h3>
-                        <p class="mt-2 text-sm text-ink-600 dark:text-ink-400 line-clamp-3 flex-1">
-                            {{ (post.content | markdown_body) | striptags | truncate(160) }}
-                        </p>
-                        <div class="mt-4 flex items-center gap-3 text-xs text-ink-500">
-                            <span>{{ post.created_at.strftime('%d.%m.%Y') if post.created_at else '' }}</span>
-                            <span>·</span>
-                            <span>{{ post.reading_time or 5 }} daq</span>
-                        </div>
-                    </div>
-                </article>
-                {% endfor %}
-            </div>
+        <span class="page-info">Sahifa {{ posts.page }} / {{ posts.pages }}</span>
 
-            {% if posts.pages > 1 %}
-            <div class="mt-10 flex items-center justify-center gap-3">
-                {% if posts.has_prev %}
-                <a href="{{ url_for('search', q=query, page=posts.prev_num) }}" class="btn-ghost text-sm">← Oldingi</a>
-                {% endif %}
-                <span class="text-sm text-ink-500">{{ posts.page }} / {{ posts.pages }}</span>
-                {% if posts.has_next %}
-                <a href="{{ url_for('search', q=query, page=posts.next_num) }}" class="btn-ghost text-sm">Keyingi →</a>
-                {% endif %}
-            </div>
-            {% endif %}
-
-            {% else %}
-            <div class="text-center py-20 border border-dashed border-ink-300 dark:border-ink-700 rounded-xl">
-                <svg class="w-12 h-12 mx-auto text-ink-300 dark:text-ink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                <h3 class="mt-4 text-lg font-semibold text-ink-900 dark:text-white">"{{ query }}" bo'yicha hech narsa topilmadi</h3>
-                <p class="mt-2 text-sm text-ink-600 dark:text-ink-400">Boshqa so'zlar bilan qidiring yoki barcha maqolalarni ko'ring.</p>
-                <a href="{{ url_for('blog') }}" class="btn-accent mt-6 inline-flex">Barcha maqolalar</a>
-            </div>
-            {% endif %}
-        {% else %}
-        <div class="text-center py-20">
-            <p class="text-ink-500">Yuqoridagi maydonga qidiruv so'zini kiriting</p>
-        </div>
+        {% if posts.has_next %}
+        <a href="{{ url_for('search', q=query, page=posts.next_num) }}" class="page-link">Keyingi -></a>
         {% endif %}
     </div>
+    {% endif %}
+    {% else %}
+    <div class="empty-state">
+        <span class="empty-icon">Qidiruv</span>
+        <h3>"{{ query }}" bo'yicha hech narsa topilmadi</h3>
+        <p>Boshqa so'zlar bilan qidiring yoki barcha maqolalarni ko'ring</p>
+        <a href="{{ url_for('blog') }}" class="cta-button">Barcha maqolalar</a>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="empty-state">
+        <span class="empty-icon">Qidiruv</span>
+        <h3>Qidiruv so'zini kiriting</h3>
+        <p>Maqola sarlavhasi, kontent yoki kalit so'zlar bo'yicha qidiring</p>
+    </div>
+    {% endif %}
 </section>
-
 {% endblock %}

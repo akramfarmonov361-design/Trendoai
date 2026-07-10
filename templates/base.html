@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TrendoAI{% endblock %}</title>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1146706486959725"
+        crossorigin="anonymous"></script>
+
+    <!-- Google Search Console Verification -->
+    <meta name="google-site-verification" content="BnJZnGGA7KoE18N7Hje5e8TmXFSZcJMYla_0vDyWwEc">
+
+    <!-- Facebook Domain Verification -->
+    <meta name="facebook-domain-verification" content="ccxnu91a8fcr43l9x3iffm0hhpseop" />
+
+    <!-- Google Analytics 4 (GA4) -->
+    {% if GA4_ID %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ GA4_ID }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', '{{ GA4_ID }}');
+    </script>
+    {% endif %}
+
+    <!-- Google Ads Remarketing Tag -->
+    {% if GOOGLE_ADS_ID %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ GOOGLE_ADS_ID }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', '{{ GOOGLE_ADS_ID }}');
+    </script>
+    {% endif %}
+
+    <!-- Facebook Pixel -->
+    {% if FACEBOOK_PIXEL_ID %}
+    <script>
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+            n.queue = []; t = b.createElement(e); t.async = !0;
+            t.src = v; s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '{{ FACEBOOK_PIXEL_ID }}');
+        fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id={{ FACEBOOK_PIXEL_ID }}&ev=PageView&noscript=1" /></noscript>
+    {% endif %}
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="{% block meta_description %}{{ config.SITE_DESCRIPTION }}{% endblock %}">
+    <meta name="keywords"
+        content="{% block meta_keywords %}trendoai, trendo ai, trendo.ai, trendo.uz, trendo uz, trendo sun'iy intellekt, o'zbekistonda ai, chatbot, chat-bot yaratish, telegrambot, telegram bot, ai agent, ai agentlar, biznesni avtomatlashtirish, avtomatizatsiya, sun'iy intellekt, AI yechimlar, dasturlash, telegram bot yaratish, IT yangiliklar, ai loyihalar, ai bilan pul ishlash, sun'iy intellekt orqali, ai loyiha qilish{% endblock %}">
+    <meta name="author" content="TrendoAI">
+    <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
+    <link rel="canonical" href="{% block canonical_url %}{{ config.SITE_URL }}{{ request.path }}{% endblock %}">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}{{ config.SITE_URL }}{{ request.path }}{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}TrendoAI - Trending Texnologiyalar{% endblock %}">
+    <meta property="og:description"
+        content="{% block og_description %}O'zbekistonda trending texnologiya yangiliklari va AI-powered professional blog{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{% block og_image_alt %}TrendoAI - Trending Texnologiyalar{% endblock %}">
+    <meta property="og:locale" content="uz_UZ">
+    <meta property="og:site_name" content="TrendoAI">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}TrendoAI - Trending Texnologiyalar{% endblock %}">
+    <meta name="twitter:description"
+        content="{% block twitter_description %}Trending texnologiyalar va sun'iy intellekt{% endblock %}">
+    <meta name="twitter:image"
+        content="{% block twitter_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "{% block schema_type %}WebSite{% endblock %}",
+        "name": "TrendoAI",
+        "alternateName": ["Trendo AI", "Trendo.ai", "Trendo sun'iy intellekt", "Trendo.uz"],
+        "url": "{{ config.SITE_URL }}",
+        "inLanguage": "uz",
+        "description": "TrendoAI - O'zbekistonda IT, sun'iy intellekt, Telegram botlar, Web saytlar yaratish bo'yicha professional kompaniya va texnologiya blogi",
+        "publisher": {
+            "@type": "Organization",
+            "name": "TrendoAI",
+            "alternateName": ["Trendo AI", "Trendo.ai", "Trendo sun'iy intellekt", "Trendobot"],
+            "logo": {
+                "@type": "ImageObject",
+                "url": "{{ config.SITE_URL }}/static/img/logo.png"
+            }
+        },
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{{ config.SITE_URL }}/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+        {% block schema_extra %}{% endblock %}
+    }
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='favicon.png') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon-32.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+
+    <!-- PWA -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome (async to avoid render-blocking) -->
+    <link rel="preload" as="style"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+            integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </noscript>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+
+    <!-- Extra Head (for child templates) -->
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+    <a class="skip-to-content" href="#main-content">Asosiy mazmunga o'tish</a>
+
+    <!-- Main Content Start -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <a href="{{ url_for('index') }}">
+                    <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="TrendoAI" class="logo-img" width="40" height="40" decoding="async" fetchpriority="high">
+                    <span class="logo-text">Trendo<span class="logo-highlight">AI</span></span>
+                </a>
+            </div>
+            <p class="tagline">Trending texnologiyalar va sun'iy intellekt</p>
+
+            <!-- Mobile Hamburger Menu Button -->
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Asosiy menyu" aria-expanded="false" aria-controls="mainNav">
+                <span class="hamburger-line" aria-hidden="true"></span>
+                <span class="hamburger-line" aria-hidden="true"></span>
+                <span class="hamburger-line" aria-hidden="true"></span>
+            </button>
+
+            <nav id="mainNav" aria-label="Asosiy navigatsiya">
+                <a href="{{ url_for('index') }}"
+                    class="{% if request.endpoint in ['index', 'services', 'service_detail'] %}active{% endif %}">🛠️
+                    Xizmatlar</a>
+                <a href="{{ url_for('blog') }}" class="{% if request.endpoint in ['blog', 'post', 'post_by_slug', 'search'] %}active{% endif %}">📝
+                    Blog</a>
+                <a href="{{ url_for('portfolio') }}"
+                    class="{% if request.endpoint in ['portfolio', 'portfolio_item'] %}active{% endif %}">🎨 Portfolio</a>
+                <a href="{{ url_for('about') }}" class="{% if request.endpoint == 'about' %}active{% endif %}">ℹ️ Biz
+                    haqimizda</a>
+            </nav>
+            <div class="social-icons">
+                <a href="https://www.youtube.com/@Trendoaiuz?sub_confirmation=1" target="_blank"
+                    class="social-icon youtube" title="YouTube">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                        fill="currentColor">
+                        <path
+                            d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                    </svg>
+                </a>
+                <a href="https://www.instagram.com/trendoaiuz/" target="_blank" class="social-icon instagram"
+                    title="Instagram">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                        fill="currentColor">
+                        <path
+                            d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                    </svg>
+                </a>
+                <a href="https://t.me/trendoai" target="_blank" class="social-icon telegram" title="Telegram">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                        fill="currentColor">
+                        <path
+                            d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+                    </svg>
+                </a>
+                <!-- Theme Toggle -->
+                <button class="theme-toggle" id="themeToggle" type="button" aria-label="Rejimni almashtirish (qorong'u/yorug')" title="Rejimni almashtirish">
+                    <span class="moon-icon" aria-hidden="true">🌙</span>
+                    <span class="sun-icon" aria-hidden="true">☀️</span>
+                </button>
+                <!-- Notification Toggle -->
+                <button class="theme-toggle" id="notify-btn" aria-label="Enable Notifications"
+                    style="margin-left: 10px;">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <!-- PWA Install Button -->
+                <button class="theme-toggle" id="install-btn" aria-label="Install App"
+                    style="display: none; margin-left: 10px;">
+                    <i class="fas fa-download"></i>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <main id="main-content" tabindex="-1">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="logo-icon">🔥</span>
+                <strong>TrendoAI</strong>
+            </div>
+            <p>Trending texnologiyalar va sun'iy intellekt haqida professional blog</p>
+            <div class="footer-links">
+                <a href="https://t.me/TrendoAibot" target="_blank">📱 Bot: @TrendoAibot</a>
+                <a href="tel:+998974771229">📞 +998 97 477 12 29</a>
+                <a href="mailto:info@trendoai.uz">📧 Email</a>
+                <a href="{{ url_for('api_health') }}">🔧 API</a>
+                <a href="{{ url_for('privacy') }}">Maxfiylik siyosati</a>
+            </div>
+            <div class="footer-social">
+                <a href="https://youtube.com/@trendoai" target="_blank" class="footer-social-icon" aria-label="YouTube">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20"
+                        height="20">
+                        <path
+                            d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                    </svg>
+                </a>
+                <a href="https://instagram.com/trendoai" target="_blank" class="footer-social-icon"
+                    aria-label="Instagram">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20"
+                        height="20">
+                        <path
+                            d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                    </svg>
+                </a>
+                <a href="https://t.me/trendoai" target="_blank" class="footer-social-icon" aria-label="Telegram">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20"
+                        height="20">
+                        <path
+                            d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+                    </svg>
+                </a>
+            </div>
+            <p class="copyright">&copy; 2026 TrendoAI. Barcha huquqlar himoyalangan.</p>
+        </div>
+    </footer>
+
+    <!-- Telegram Subscription Popup -->
+    <div id="tg-popup" class="tg-popup-overlay">
+        <div class="tg-popup-content">
+            <button class="tg-popup-close" onclick="closeTgPopup()">X</button>
+            <div class="tg-popup-icon">📢</div>
+            <h3>TrendoAI Kanalga A'zo Bo'ling!</h3>
+            <p>Eng so'nggi texnologiya yangiliklari, AI haqida maqolalar va foydali ma'lumotlarni birinchi bo'lib oling!
+            </p>
+            <a href="https://t.me/trendoai" target="_blank" class="tg-popup-btn">
+                <span class="tg-icon">✈️</span> Telegram Kanalga O'tish
+            </a>
+            <button class="tg-popup-later" onclick="closeTgPopup()">Keyinroq</button>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="back-to-top" aria-label="Yuqoriga qaytish" title="Yuqoriga qaytish">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 15l-6-6-6 6" />
+        </svg>
+    </button>
+
+    <style>
+        /* Accessibility utilities */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .skip-to-content {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #6366f1;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 0 0 8px 0;
+            text-decoration: none;
+            font-weight: 600;
+            z-index: 10001;
+            transition: top 0.2s ease;
+        }
+
+        .skip-to-content:focus {
+            top: 0;
+            outline: 3px solid #fff;
+            outline-offset: 2px;
+        }
+
+        /* Stronger keyboard focus visibility */
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        textarea:focus-visible,
+        select:focus-visible,
+        summary:focus-visible {
+            outline: 2px solid #a855f7;
+            outline-offset: 2px;
+        }
+
+        /* Prevent layout shift for content images of unknown dimensions */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .post-card img,
+        .portfolio-card img,
+        article img:not(.logo-img) {
+            content-visibility: auto;
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5);
+        }
+
+        .back-to-top:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+
+    <style>
+        /* Telegram Popup Styles */
+        .tg-popup-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .tg-popup-overlay.active {
+            display: flex;
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .tg-popup-content {
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.95), rgba(20, 20, 40, 0.98));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 24px;
+            padding: 40px 32px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 25px 80px rgba(99, 102, 241, 0.3);
+        }
+
+        .tg-popup-overlay.active .tg-popup-content {
+            transform: translateY(0) scale(1);
+        }
+
+        .tg-popup-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            line-height: 1;
+        }
+
+        .tg-popup-close:hover {
+            background: rgba(239, 68, 68, 0.8);
+            transform: rotate(90deg);
+        }
+
+        .tg-popup-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .tg-popup-content h3 {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tg-popup-content p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .tg-popup-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #0088cc, #00aaee);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 136, 204, 0.4);
+        }
+
+        .tg-popup-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 136, 204, 0.5);
+        }
+
+        .tg-icon {
+            font-size: 1.2rem;
+        }
+
+        .tg-popup-later {
+            display: block;
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 12px;
+            margin-top: 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .tg-popup-later:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        @media (max-width: 480px) {
+            .tg-popup-content {
+                padding: 32px 20px;
+            }
+
+            .tg-popup-icon {
+                font-size: 3rem;
+            }
+
+            .tg-popup-content h3 {
+                font-size: 1.3rem;
+            }
+        }
+
+                /* ========== AI CHATBOT WIDGET ========== */
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 90px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+            z-index: 1000;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+        }
+
+        .chatbot-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.6);
+        }
+
+        .chatbot-toggle span {
+            font-size: 1.8rem;
+        }
+
+        .chatbot-window {
+            position: fixed;
+            bottom: 160px;
+            right: 24px;
+            width: 380px;
+            max-width: calc(100vw - 48px);
+            height: min(500px, calc(100dvh - 200px));
+            max-height: calc(100dvh - 200px);
+            min-height: 320px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            display: none;
+            flex-direction: column;
+            z-index: 1001;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .chatbot-window.active {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+
+        .chatbot-header {
+            background: var(--gradient-main);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chatbot-header-icon {
+            font-size: 1.5rem;
+        }
+
+        .chatbot-header-info {
+            flex: 1;
+        }
+
+        .chatbot-header-info h4 {
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .chatbot-header-info span {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+        }
+
+        .chatbot-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            min-height: 0;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .chat-message.bot {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-message.user {
+            background: var(--gradient-main);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.typing {
+            display: flex;
+            gap: 4px;
+            padding: 16px 20px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .chatbot-input {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto auto;
+            align-items: center;
+            padding: 16px;
+            gap: 12px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-elevated);
+        }
+
+        .chatbot-input input {
+            width: 100%;
+            min-width: 0;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        .chatbot-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .chatbot-input button {
+            min-height: 48px;
+            padding: 12px 20px;
+            background: var(--gradient-main);
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .chatbot-input button:hover {
+            transform: scale(1.05);
+        }
+
+        .chatbot-input button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .chatbot-mic {
+            min-width: 48px;
+            padding: 12px 14px !important;
+            background: var(--bg-elevated) !important;
+            border: 1px solid var(--border) !important;
+            font-size: 1.2rem;
+        }
+
+        .chatbot-mic:hover {
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+
+        .chatbot-mic.recording {
+            background: #ef4444 !important;
+            border-color: #ef4444 !important;
+            animation: pulse-red 1s infinite;
+        }
+
+        @keyframes pulse-red {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body.chatbot-open {
+                overflow: hidden;
+            }
+
+            .chatbot-window {
+                left: 12px;
+                right: 12px;
+                bottom: calc(12px + env(safe-area-inset-bottom));
+                width: auto;
+                max-width: none;
+                height: min(78dvh, 620px);
+                max-height: calc(100dvh - 24px - env(safe-area-inset-bottom));
+                border-radius: 24px;
+            }
+
+            .chatbot-header {
+                padding: 14px 16px;
+            }
+
+            .chatbot-header-info h4 {
+                font-size: 0.98rem;
+            }
+
+            .chatbot-header-info span {
+                font-size: 0.78rem;
+            }
+
+            .chatbot-messages {
+                padding: 14px;
+                gap: 10px;
+            }
+
+            .chat-message {
+                font-size: 0.94rem;
+                padding: 12px 14px;
+                max-width: 92%;
+            }
+
+            .chatbot-input {
+                grid-template-columns: minmax(0, 1fr) 48px 88px;
+                padding: 12px;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom));
+                gap: 8px;
+                background: var(--bg-card);
+            }
+
+            .chatbot-input input {
+                padding: 14px 16px;
+                font-size: 16px;
+            }
+
+            .chatbot-input button#chatbotSend {
+                min-width: 88px;
+                padding: 12px 14px;
+                font-size: 0.9rem;
+                font-weight: 700;
+                white-space: nowrap;
+            }
+
+            .chatbot-mic {
+                min-width: 48px;
+                padding: 0 !important;
+                border-radius: var(--radius-md) !important;
+            }
+
+            .chatbot-toggle {
+                bottom: calc(20px + env(safe-area-inset-bottom));
+                right: 16px;
+                width: 56px;
+                height: 56px;
+            }
+
+            .chatbot-toggle span {
+                font-size: 1.6rem;
+            }
+
+            .chatbot-close {
+                width: 34px;
+                height: 34px;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .chatbot-window {
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: 100dvh;
+                max-height: 100dvh;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+                border-bottom: none;
+            }
+
+            .chatbot-input {
+                grid-template-columns: minmax(0, 1fr) 46px 82px;
+            }
+
+            .chatbot-input button#chatbotSend {
+                min-width: 82px;
+                padding-inline: 10px;
+            }
+        }
+    </style>
+    <!-- AI Chatbot Widget -->
+    <button class="chatbot-toggle" id="chatbotToggle" type="button" aria-label="AI Yordamchini ochish" aria-expanded="false" aria-controls="chatbotWindow" title="AI Yordamchi">
+        <span aria-hidden="true">🤖</span>
+    </button>
+
+    <div class="chatbot-window" id="chatbotWindow" role="dialog" aria-label="TrendoAI AI Yordamchi" aria-hidden="true">
+        <div class="chatbot-header">
+            <span class="chatbot-header-icon" aria-hidden="true">🤖</span>
+            <div class="chatbot-header-info">
+                <h4>TrendoAI Yordamchi</h4>
+                <span>Online • Gemini AI</span>
+            </div>
+            <button class="chatbot-close" id="chatbotClose" type="button" aria-label="Yordamchini yopish">✕</button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages" role="log" aria-live="polite" aria-atomic="false">
+            <div class="chat-message bot">
+                Salom! 👋 Men TrendoAI AI assistentiman. Sizga qanday yordam bera olaman? IT xizmatlar, web saytlar,
+                Telegram botlar yoki AI chatbotlar haqida so'rang!
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <label for="chatbotInput" class="visually-hidden">Xabar yozing</label>
+            <input type="text" id="chatbotInput" placeholder="Xabar yozing..." autocomplete="off">
+            <button id="chatbotMic" class="chatbot-mic" type="button" aria-label="Ovozli xabar yozish" title="Ovozli xabar">🎤</button>
+            <button id="chatbotSend" type="button">Yuborish</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Header scrolls normally with the page (no auto-hide)
+        const header = document.querySelector('header');
+
+        // ========== MOBILE HAMBURGER MENU ==========
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mainNav = document.getElementById('mainNav');
+
+        if (mobileMenuToggle && mainNav) {
+            const syncMenuState = () => {
+                const isOpen = mainNav.classList.contains('mobile-open');
+                mobileMenuToggle.setAttribute('aria-expanded', String(isOpen));
+            };
+
+            mobileMenuToggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                mobileMenuToggle.classList.toggle('active');
+                mainNav.classList.toggle('mobile-open');
+                syncMenuState();
+            });
+
+            // Close menu when clicking a nav link
+            mainNav.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function () {
+                    mobileMenuToggle.classList.remove('active');
+                    mainNav.classList.remove('mobile-open');
+                    syncMenuState();
+                });
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!header.contains(e.target)) {
+                    mobileMenuToggle.classList.remove('active');
+                    mainNav.classList.remove('mobile-open');
+                    syncMenuState();
+                }
+            });
+        }
+
+        // Telegram Popup Logic
+        function showTgPopup() {
+            document.getElementById('tg-popup').classList.add('active');
+        }
+
+        function closeTgPopup() {
+            document.getElementById('tg-popup').classList.remove('active');
+            localStorage.setItem('tg_popup_shown', 'true');
+        }
+
+        // Show popup after 1 minute if not already shown
+        if (!localStorage.getItem('tg_popup_shown')) {
+            setTimeout(showTgPopup, 60000); // 60 seconds = 1 minute
+        }
+
+        // Back to Top Button Logic
+        const backToTopBtn = document.getElementById('back-to-top');
+
+        window.addEventListener('scroll', function () {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', function () {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+
+        // Apply saved theme on load
+        if (savedTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+
+        themeToggle.addEventListener('click', function () {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            document.documentElement.setAttribute('data-theme', newTheme === 'light' ? 'light' : '');
+            localStorage.setItem('theme', newTheme);
+        });
+
+
+        // Service Worker & Push Notifications
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('SW registered:', registration);
+                    const readyRegistration = await navigator.serviceWorker.ready;
+                    initializeUI(readyRegistration);
+                } catch (error) {
+                    console.log('SW registration failed:', error);
+                }
+            });
+        }
+
+        function initializeUI(registration) {
+            const notifyBtn = document.getElementById('notify-btn');
+            if (!notifyBtn || !('PushManager' in window)) {
+                return;
+            }
+
+            syncExistingSubscription(registration);
+
+            if (Notification.permission === 'granted') {
+                notifyBtn.style.display = 'none';
+            } else if (Notification.permission !== 'denied') {
+                notifyBtn.style.display = 'inline-block';
+            }
+
+            notifyBtn.addEventListener('click', async () => {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    await subscribeUser(registration);
+                    notifyBtn.style.display = 'none';
+                }
+            });
+        }
+
+        const VAPID_PUBLIC_KEY = "{{ config['VAPID_PUBLIC_KEY'] }}";
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/\-/g, '+')
+                .replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        async function syncExistingSubscription(registration) {
+            try {
+                const existingSubscription = await registration.pushManager.getSubscription();
+                if (existingSubscription) {
+                    await sendSubscriptionToBackEnd(existingSubscription);
+                    return existingSubscription;
+                }
+
+                if (Notification.permission === 'granted') {
+                    return await subscribeUser(registration);
+                }
+            } catch (error) {
+                console.error('Push subscription sync failed:', error);
+            }
+            return null;
+        }
+
+        async function subscribeUser(registration) {
+            const subscribeOptions = {
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+            };
+
+            try {
+                const existingSubscription = await registration.pushManager.getSubscription();
+                if (existingSubscription) {
+                    await sendSubscriptionToBackEnd(existingSubscription);
+                    return existingSubscription;
+                }
+
+                const pushSubscription = await registration.pushManager.subscribe(subscribeOptions);
+                console.log('Received PushSubscription:', JSON.stringify(pushSubscription));
+                await sendSubscriptionToBackEnd(pushSubscription);
+                return pushSubscription;
+            } catch (err) {
+                console.log('Subscription failed: ', err);
+                return null;
+            }
+        }
+
+        function sendSubscriptionToBackEnd(subscription) {
+            const payload = typeof subscription.toJSON === 'function'
+                ? subscription.toJSON()
+                : subscription;
+
+            return fetch('/api/push/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Bad status code from server.');
+                    }
+                    return response.json();
+                })
+                .then(function (responseData) {
+                    return responseData;
+                })
+                .catch(function (error) {
+                    console.error('Error sending subscription to backend:', error);
+                    throw error;
+                });
+        }
+        // PWA Install Logic
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            // Update UI to notify the user they can add to home screen
+            installBtn.style.display = 'inline-block';
+
+            installBtn.addEventListener('click', (e) => {
+                // Hide our user interface that shows our A2HS button
+                installBtn.style.display = 'none';
+                // Show the prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the A2HS prompt');
+                    } else {
+                        console.log('User dismissed the A2HS prompt');
+                    }
+                    deferredPrompt = null;
+                });
+            });
+        });
+
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('a2hs installed');
+            installBtn.style.display = 'none';
+        });
+    </script>
+
+    <script>
+                // ========== AI CHATBOT LOGIC ==========
+        const chatbotToggle = document.getElementById('chatbotToggle');
+        const chatbotWindow = document.getElementById('chatbotWindow');
+        const chatbotClose = document.getElementById('chatbotClose');
+        const chatbotMessages = document.getElementById('chatbotMessages');
+        const chatbotInput = document.getElementById('chatbotInput');
+        const chatbotSend = document.getElementById('chatbotSend');
+
+        function setChatbotOpen(isOpen) {
+            chatbotWindow.classList.toggle('active', isOpen);
+            chatbotWindow.setAttribute('aria-hidden', String(!isOpen));
+            chatbotToggle.setAttribute('aria-expanded', String(isOpen));
+            document.body.classList.toggle('chatbot-open', isOpen && window.innerWidth <= 768);
+            if (isOpen) {
+                chatbotInput.focus();
+            }
+        }
+
+        chatbotToggle.addEventListener('click', function () {
+            setChatbotOpen(!chatbotWindow.classList.contains('active'));
+        });
+
+        chatbotClose.addEventListener('click', function () {
+            setChatbotOpen(false);
+        });
+
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 768) {
+                document.body.classList.remove('chatbot-open');
+            } else if (chatbotWindow.classList.contains('active')) {
+                document.body.classList.add('chatbot-open');
+            }
+        });
+
+        let chatHistory = [];
+
+        async function sendChatMessage() {
+            const message = chatbotInput.value.trim();
+            if (!message) return;
+
+            chatHistory.push({ role: 'user', content: message });
+
+            chatbotInput.disabled = true;
+            chatbotSend.disabled = true;
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'chat-message user';
+            userDiv.textContent = message;
+            chatbotMessages.appendChild(userDiv);
+
+            chatbotInput.value = '';
+
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'chat-message bot typing';
+            typingDiv.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+            chatbotMessages.appendChild(typingDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, messages: chatHistory })
+                });
+
+                const data = await response.json();
+                if (data.reply) {
+                    chatHistory.push({ role: 'assistant', content: data.reply });
+                }
+
+                typingDiv.remove();
+
+                const botDiv = document.createElement('div');
+                botDiv.className = 'chat-message bot';
+                botDiv.textContent = data.reply || data.response || data.error || 'Xatolik yuz berdi';
+                chatbotMessages.appendChild(botDiv);
+            } catch (error) {
+                typingDiv.remove();
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'chat-message bot';
+                errorDiv.textContent = 'Tarmoq xatosi. Iltimos, qayta urinib ko\'ring.';
+                chatbotMessages.appendChild(errorDiv);
+            }
+
+            chatbotInput.disabled = false;
+            chatbotSend.disabled = false;
+            chatbotInput.focus();
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        chatbotSend.addEventListener('click', sendChatMessage);
+
+        chatbotInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+
+        // ========== VOICE RECORDING ==========
+        const chatbotMic = document.getElementById('chatbotMic');
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+
+        chatbotMic.addEventListener('click', async function () {
+            if (isRecording) {
+                // Stop recording
+                mediaRecorder.stop();
+                chatbotMic.classList.remove('recording');
+                chatbotMic.textContent = '🎤';
+                isRecording = false;
+            } else {
+                // Start recording
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        stream.getTracks().forEach(track => track.stop());
+
+                        // Send audio to server
+                        await sendAudioMessage(audioBlob);
+                    };
+
+                    mediaRecorder.start();
+                    chatbotMic.classList.add('recording');
+                    chatbotMic.textContent = '⏹️';
+                    isRecording = true;
+
+                    // Add recording indicator
+                    chatbotInput.placeholder = '🔴 Yozib olinmoqda...';
+                } catch (error) {
+                    alert('Mikrofonga ruxsat berilmadi. Iltimos, brauzer sozlamalarini tekshiring.');
+                }
+            }
+        });
+
+        async function sendAudioMessage(audioBlob) {
+            chatbotInput.placeholder = 'Xabar yozing...';
+
+            // Show user message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'chat-message user';
+            userDiv.textContent = '🎤 Ovozli xabar yuborildi';
+            chatbotMessages.appendChild(userDiv);
+
+            // Add typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'chat-message bot typing';
+            typingDiv.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+            chatbotMessages.appendChild(typingDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            try {
+                // Convert to base64
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+
+                reader.onloadend = async () => {
+                    const base64Audio = reader.result.split(',')[1];
+
+                    const response = await fetch('/api/chat/audio', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ audio: base64Audio })
+                    });
+
+                    const data = await response.json();
+                    typingDiv.remove();
+
+                    const botDiv = document.createElement('div');
+                    botDiv.className = 'chat-message bot';
+                    botDiv.textContent = data.response || data.error || 'Xatolik yuz berdi';
+                    chatbotMessages.appendChild(botDiv);
+                    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+                    // Ovozli javobni ijro etish
+                    if (data.audio_base64) {
+                        try {
+                            const audio = new Audio("data:audio/wav;base64," + data.audio_base64);
+                            audio.play().catch(e => console.log("Audio play error:", e));
+                        } catch (e) {
+                            console.log("Audio creation error:", e);
+                        }
+                    }
+                };
+            } catch (error) {
+                typingDiv.remove();
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'chat-message bot';
+                errorDiv.textContent = 'Audio yuborishda xatolik.';
+                chatbotMessages.appendChild(errorDiv);
+            }
+        }
+    </script>
+
+
+</body>
+
+</html>

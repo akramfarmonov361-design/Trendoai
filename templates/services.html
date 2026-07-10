@@ -1,22 +1,15 @@
-{% extends 'base_v2.html' %}
+{% extends 'base.html' %}
 
-{% block title %}TrendoAI — IT xizmatlar, Telegram bot, AI chatbot, Web sayt{% endblock %}
-{% block meta_description %}TrendoAI — O'zbekistonda professional IT studiyasi. Telegram botlar, web saytlar, AI chatbotlar va target reklama. 50+ tugallangan loyiha, bepul konsultatsiya.{% endblock %}
-{% block canonical_url %}{{ config.SITE_URL }}/{% endblock %}
-{% block og_url %}{{ config.SITE_URL }}/{% endblock %}
-{% block og_title %}TrendoAI — IT xizmatlar va sun'iy intellekt yechimlari{% endblock %}
-{% block og_description %}Telegram botlar, web saytlar va AI chatbotlar — O'zbekistonda professional IT studiyasi.{% endblock %}
-{% block twitter_title %}TrendoAI — IT xizmatlar va sun'iy intellekt{% endblock %}
-{% block twitter_description %}Telegram botlar, web saytlar va AI yechimlar.{% endblock %}
+{% block title %}Xizmatlar - TrendoAI{% endblock %}
 
-{% block schema_extra %}
-,
-"potentialAction": {
-    "@type": "SearchAction",
-    "target": "{{ config.SITE_URL }}/search?q={search_term_string}",
-    "query-input": "required name=search_term_string"
-}
-{% endblock %}
+{% block meta_description %}TrendoAI xizmatlari: Telegram botlar, veb-saytlar, AI chatbotlar va target reklama.
+Professional IT xizmatlar O'zbekistonda.{% endblock %}
+{% block canonical_url %}{{ config.SITE_URL }}{% endblock %}
+{% block og_url %}{{ config.SITE_URL }}{% endblock %}
+{% block og_title %}Xizmatlar - TrendoAI | Telegram bot, Web sayt, AI chatbot{% endblock %}
+{% block og_description %}TrendoAI professional IT xizmatlari: Telegram botlar, veb-saytlar, AI chatbotlar va target reklama O'zbekistonda.{% endblock %}
+{% block twitter_title %}Xizmatlar - TrendoAI | Telegram bot, Web sayt, AI chatbot{% endblock %}
+{% block twitter_description %}TrendoAI professional IT xizmatlari: Telegram botlar, veb-saytlar, AI chatbotlar va target reklama.{% endblock %}
 
 {% block extra_head %}
 <!-- LocalBusiness Schema -->
@@ -42,14 +35,21 @@
     },
     "openingHoursSpecification": {
         "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+        "dayOfWeek": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+        ],
         "opens": "09:00",
         "closes": "18:00"
     },
     "sameAs": [
         "https://t.me/trendoai",
-        "https://www.instagram.com/trendoaiuz/",
-        "https://www.youtube.com/@Trendoaiuz"
+        "https://instagram.com/trendoaiuz",
+        "https://youtube.com/@trendoaiuz"
     ]
 }
 </script>
@@ -60,399 +60,405 @@
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
-        {"@type": "Question", "name": "Loyiha narxi qancha turadi?", "acceptedAnswer": {"@type": "Answer", "text": "Narx loyiha murakkabligiga bog'liq. Telegram bot 300 000 so'mdan, korporativ web-sayt 2 000 000 so'mdan, AI yechimlar individual hisoblanadi."}},
-        {"@type": "Question", "name": "Loyiha qancha vaqtda tayyor bo'ladi?", "acceptedAnswer": {"@type": "Answer", "text": "Telegram bot — 3-10 kun, landing page — 5-7 kun, korporativ web-sayt — 2-4 hafta, AI chatbot — 1-3 hafta."}},
-        {"@type": "Question", "name": "Texnik qo'llab-quvvatlash bormi?", "acceptedAnswer": {"@type": "Answer", "text": "Ha. Har bir loyiha 1 oylik bepul kafolat bilan keladi. Keyin oylik texnik xizmat shartnomasi mavjud."}},
-        {"@type": "Question", "name": "Qaysi to'lov tizimlari integratsiya qilinadi?", "acceptedAnswer": {"@type": "Answer", "text": "Mahalliy: Payme, Click, Uzum Bank, Apelsin. Xalqaro: Stripe, PayPal."}},
-        {"@type": "Question", "name": "Bepul konsultatsiya olish mumkinmi?", "acceptedAnswer": {"@type": "Answer", "text": "Ha. Telegram (@TrendoAibot) yoki +998 97 477 12 29 orqali bog'laning."}}
+        {
+            "@type": "Question",
+            "name": "Loyiha narxi qancha turadi?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Narx loyiha murakkabligiga bog'liq. Oddiy Telegram bot 300 000 so'mdan boshlanadi, korporativ web-sayt 2 000 000 so'mdan, murakkab AI yechimlar esa loyihaga qarab individual hisoblanadi. Bepul konsultatsiya so'rab, aniq narxni bilib olishingiz mumkin."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Loyiha qancha vaqtda tayyor bo'ladi?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "O'rtacha muddatlar: Telegram bot — 3–10 kun, landing page — 5–7 kun, korporativ web-sayt — 2–4 hafta, AI chatbot — 1–3 hafta. Aniq muddat texnik topshiriqdan keyin belgilanadi."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Loyihadan keyin texnik qo'llab-quvvatlash bormi?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ha. Har bir loyiha 1 oylik bepul kafolat bilan keladi (hosting va xato tuzatish). Undan keyin oylik texnik xizmat shartnomasi tuzish mumkin: kichik o'zgartirishlar, yangi funksiyalar, monitoring."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Qaysi to'lov tizimlari integratsiya qilinadi?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Mahalliy: Payme, Click, Uzum Bank, Apelsin. Xalqaro: Stripe, PayPal. Telegram bot va web-saytlarga to'liq integratsiya qilamiz, shu jumladan webhook va admin panel orqali to'lovlarni boshqarish."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Bepul konsultatsiya olish mumkinmi?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Albatta. Telegram (@TrendoAibot) yoki +998 97 477 12 29 orqali bog'laning — 15–20 daqiqalik bepul konsultatsiyada loyihangizga mos yechim va taxminiy narx aytib beramiz."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Ishlaringizning namunalarini ko'rsa bo'ladimi?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ha. Portfolio sahifamizda 50+ tugallangan loyihani ko'rishingiz mumkin — Telegram botlar, web-saytlar, AI yechimlar va mobil ilovalar bo'yicha real misollar."
+            }
+        }
     ]
 }
 </script>
 {% endblock %}
 
 {% block content %}
+<section class="services-hero">
+    <div class="hero-glow"></div>
+    <h2>🚀 Bizning Xizmatlar</h2>
+    <p class="lead">Biznesingizni texnologiya kuchi bilan yangi bosqichga olib chiqing</p>
+</section>
 
-<!-- HERO -->
-<section class="relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-b from-brand-50/60 via-transparent to-transparent dark:from-brand-950/30 dark:via-transparent pointer-events-none"></div>
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-radial from-brand-200/40 to-transparent blur-3xl pointer-events-none dark:from-brand-500/10"></div>
+<!-- ========== HAQIQIY XIZMATLAR ========== -->
+<div class="services-grid-new">
 
-    <div class="container-narrow relative pt-20 pb-16 sm:pt-28 sm:pb-20 text-center">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800 text-xs font-medium text-ink-700 dark:text-ink-300 mb-6 shadow-soft">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            Loyihalar qabul qilinmoqda · Bepul konsultatsiya
+    <!-- 🤖 TELEGRAM BOTLAR -->
+    <article class="service-card-new card-bot" id="telegram-botlar">
+        <div class="card-glow"></div>
+        <div class="card-badge">🔥 Eng ommabop</div>
+        <div class="card-icon">🤖</div>
+        <h3>Telegram Botlar</h3>
+        <p class="card-subtitle">Do'kon, Katalog, Menyu va boshqa botlar</p>
+        <p class="card-desc">Biznesingiz uchun to'liq avtomatlashtirilgan Telegram bot — do'kon, katalog, 
+        to'lov tizimi (Payme/Click), savat va admin panel bilan.</p>
+        
+        <ul class="card-features">
+            <li><span class="check">✓</span> Do'kon boti (E-commerce)</li>
+            <li><span class="check">✓</span> Katalog / Menyu bot</li>
+            <li><span class="check">✓</span> To'lov tizimi integratsiyasi</li>
+            <li><span class="check">✓</span> Admin panel va statistika</li>
+            <li><span class="check">✓</span> 24/7 avtomatik ishlash</li>
+        </ul>
+        
+        <div class="card-price">
+            <span class="price-label">Narxi:</span>
+            <div class="price-range">
+                <span class="price-from">300,000</span>
+                <span class="price-sep">—</span>
+                <span class="price-to">3,000,000 so'm</span>
+            </div>
+            <span class="price-note">*Loyiha murakkabligiga qarab</span>
         </div>
-
-        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-ink-900 dark:text-white leading-[1.05]">
-            Biznesingizni
-            <span class="block sm:inline bg-gradient-to-r from-brand-600 to-accent-600 bg-clip-text text-transparent">
-                avtomatlashtiramiz
-            </span>
-        </h1>
-
-        <p class="mt-6 text-lg sm:text-xl text-ink-600 dark:text-ink-400 max-w-2xl mx-auto leading-relaxed">
-            Telegram botlar, web saytlar va AI chatbotlar — sizning biznesingizni 24/7 ishlashga o'rgatamiz.
-            50+ tugallangan loyiha, O'zbekistonda 5 yillik tajriba.
-        </p>
-
-        <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <a href="#order" class="btn-accent text-base px-7 py-3.5">
-                Bepul konsultatsiya olish
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        
+        <div class="card-actions">
+            <a href="{{ url_for('order_page') }}?service=telegram_bot" class="btn-order"
+                onclick="typeof fbq!=='undefined' && fbq('track', 'AddToCart', {content_ids: ['service_telegram-bot'], content_type: 'product'})">
+                🚀 Buyurtma berish
             </a>
-            <a href="#services" class="btn-ghost text-base px-7 py-3.5">
-                Xizmatlarni ko'rish
+            <a href="{{ url_for('portfolio') }}" class="btn-demo">💼 Namuna ko'rish</a>
+        </div>
+    </article>
+
+    <!-- 🌐 VEB-SAYTLAR -->
+    <article class="service-card-new card-web" id="veb-saytlar">
+        <div class="card-glow"></div>
+        <div class="card-icon">🌐</div>
+        <h3>Veb-saytlar</h3>
+        <p class="card-subtitle">Landing Page va Korporativ saytlar</p>
+        <p class="card-desc">Zamonaviy dizayn, mobil moslashuvchan, SEO-optimizatsiya qilingan 
+        professional veb-saytlar. Biznesingiz uchun onlayn vitrina.</p>
+        
+        <ul class="card-features">
+            <li><span class="check">✓</span> Landing Page (1 betlik sayt)</li>
+            <li><span class="check">✓</span> Korporativ ko'p sahifali sayt</li>
+            <li><span class="check">✓</span> SEO va Google indeksatsiya</li>
+            <li><span class="check">✓</span> Mobil moslashuvchan dizayn</li>
+            <li><span class="check">✓</span> Hosting va domen sozlash</li>
+        </ul>
+        
+        <div class="card-price">
+            <span class="price-label">Narxi:</span>
+            <div class="price-range">
+                <span class="price-from">500,000</span>
+                <span class="price-sep">—</span>
+                <span class="price-to">3,000,000 so'm</span>
+            </div>
+            <span class="price-note">*Sahifalar soni va murakkablikka qarab</span>
+        </div>
+        
+        <div class="card-actions">
+            <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order"
+                onclick="typeof fbq!=='undefined' && fbq('track', 'AddToCart', {content_ids: ['service_web-site'], content_type: 'product'})">
+                🚀 Buyurtma berish
             </a>
+            <a href="{{ url_for('portfolio') }}" class="btn-demo">💼 Namuna ko'rish</a>
         </div>
+    </article>
 
-        <dl class="mt-16 grid grid-cols-3 gap-6 sm:gap-12 max-w-2xl mx-auto">
-            <div>
-                <dt class="text-xs sm:text-sm text-ink-500 dark:text-ink-400">Loyiha</dt>
-                <dd class="mt-1 text-2xl sm:text-3xl font-bold text-ink-900 dark:text-white">50+</dd>
+    <!-- 🧠 AI XIZMATLAR -->
+    <article class="service-card-new card-ai" id="ai-xizmatlar">
+        <div class="card-glow"></div>
+        <div class="card-badge badge-ai">🧠 Premium</div>
+        <div class="card-icon">🧠</div>
+        <h3>AI Xizmatlar</h3>
+        <p class="card-subtitle">AI Chatbot va Sun'iy Intellekt yechimlari</p>
+        <p class="card-desc">Mijozlaringizga 24/7 avtomatik javob qaytaruvchi aqlli AI chatbot. 
+        ChatGPT asosida ishlovchi, xatorini bilmaydigan virtual yordamchi.</p>
+        
+        <ul class="card-features">
+            <li><span class="check">✓</span> AI Chatbot (24/7 avto-javob)</li>
+            <li><span class="check">✓</span> ChatGPT / Gemini integratsiya</li>
+            <li><span class="check">✓</span> Kompaniya haqida o'rgatish</li>
+            <li><span class="check">✓</span> Ko'p tilli qo'llab-quvvatlash</li>
+            <li><span class="check">✓</span> Sayt va Telegramga ulash</li>
+        </ul>
+        
+        <div class="card-price">
+            <span class="price-label">Narxi:</span>
+            <div class="price-range">
+                <span class="price-from">1,000,000</span>
+                <span class="price-sep">—</span>
+                <span class="price-to">5,000,000 so'm</span>
             </div>
-            <div>
-                <dt class="text-xs sm:text-sm text-ink-500 dark:text-ink-400">Mamnun mijoz</dt>
-                <dd class="mt-1 text-2xl sm:text-3xl font-bold text-ink-900 dark:text-white">100+</dd>
-            </div>
-            <div>
-                <dt class="text-xs sm:text-sm text-ink-500 dark:text-ink-400">Tajriba</dt>
-                <dd class="mt-1 text-2xl sm:text-3xl font-bold text-ink-900 dark:text-white">5 yil</dd>
-            </div>
-        </dl>
-    </div>
-</section>
-
-<!-- SERVICES GRID -->
-<section id="services" class="py-16 sm:py-24 scroll-mt-20">
-    <div class="container-wide">
-        <div class="max-w-2xl mx-auto text-center">
-            <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-ink-900 dark:text-white">
-                Bizning xizmatlarimiz
-            </h2>
-            <p class="mt-3 text-ink-600 dark:text-ink-400">
-                Biznesingiz uchun mos yechimni tanlang. Har bir loyiha 1 oylik kafolat bilan.
-            </p>
+            <span class="price-note">*AI model va funksionallikka qarab</span>
         </div>
-
-        <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6">
-            <!-- TELEGRAM BOT -->
-            <article id="telegram-botlar" class="card p-7 sm:p-8 flex flex-col scroll-mt-20">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 flex items-center justify-center">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-                    </div>
-                    <span class="tag bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">Eng ommabop</span>
-                </div>
-                <h3 class="mt-5 text-xl font-bold text-ink-900 dark:text-white">Telegram botlar</h3>
-                <p class="mt-2 text-sm text-ink-600 dark:text-ink-400">
-                    Do'kon, katalog, menyu va CRM botlari. To'lov tizimi, admin panel va 24/7 avtomatik ishlash.
-                </p>
-                <ul class="mt-5 space-y-2.5 text-sm text-ink-700 dark:text-ink-300">
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-brand-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Do'kon boti (E-commerce)</li>
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-brand-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Payme/Click integratsiya</li>
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-brand-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Admin panel va statistika</li>
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-brand-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Webhook va notification</li>
-                </ul>
-                <div class="mt-6 pt-5 border-t border-ink-200 dark:border-ink-800 flex items-center justify-between gap-3">
-                    <div>
-                        <div class="text-xs text-ink-500 dark:text-ink-400">Narx</div>
-                        <div class="text-lg font-bold text-ink-900 dark:text-white">300 000 — 3 000 000 so'm</div>
-                    </div>
-                    <a href="{{ url_for('order_page') }}?service=telegram_bot" class="btn-accent shrink-0">Buyurtma</a>
-                </div>
-            </article>
-
-            <!-- WEBSITE -->
-            <article id="veb-saytlar" class="card p-7 sm:p-8 flex flex-col scroll-mt-20">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
-                    </div>
-                </div>
-                <h3 class="mt-5 text-xl font-bold text-ink-900 dark:text-white">Veb-saytlar</h3>
-                <p class="mt-2 text-sm text-ink-600 dark:text-ink-400">
-                    Landing, korporativ saytlar, e-commerce. SEO-optimallashtirish, mobile-first dizayn.
-                </p>
-                <ul class="mt-5 space-y-2.5 text-sm text-ink-700 dark:text-ink-300">
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Landing va korporativ saytlar</li>
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>SEO va Google Analytics</li>
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Admin panel (CMS)</li>
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>SSL, hosting, domen</li>
-                </ul>
-                <div class="mt-6 pt-5 border-t border-ink-200 dark:border-ink-800 flex items-center justify-between gap-3">
-                    <div>
-                        <div class="text-xs text-ink-500 dark:text-ink-400">Narx</div>
-                        <div class="text-lg font-bold text-ink-900 dark:text-white">2 000 000 — 10 000 000 so'm</div>
-                    </div>
-                    <a href="{{ url_for('order_page') }}?service=web_site" class="btn-accent shrink-0">Buyurtma</a>
-                </div>
-            </article>
-
-            <!-- AI CHATBOT -->
-            <article id="ai-xizmatlar" class="card p-7 sm:p-8 flex flex-col scroll-mt-20">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-accent-500/10 text-accent-600 dark:text-accent-500 flex items-center justify-center">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-                    </div>
-                    <span class="tag bg-accent-500/10 text-accent-600 dark:text-accent-500">Premium</span>
-                </div>
-                <h3 class="mt-5 text-xl font-bold text-ink-900 dark:text-white">AI chatbotlar</h3>
-                <p class="mt-2 text-sm text-ink-600 dark:text-ink-400">
-                    Gemini/ChatGPT asosida o'zbek tilini tushunadigan aqlli yordamchilar.
-                </p>
-                <ul class="mt-5 space-y-2.5 text-sm text-ink-700 dark:text-ink-300">
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-accent-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>24/7 avtomatik javob</li>
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-accent-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Kompaniya kontentida o'rgatish</li>
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-accent-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Ko'p tilli (uz, ru, en)</li>
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-accent-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Sayt va Telegram'ga ulanadi</li>
-                </ul>
-                <div class="mt-6 pt-5 border-t border-ink-200 dark:border-ink-800 flex items-center justify-between gap-3">
-                    <div>
-                        <div class="text-xs text-ink-500 dark:text-ink-400">Narx</div>
-                        <div class="text-lg font-bold text-ink-900 dark:text-white">1 000 000 — 5 000 000 so'm</div>
-                    </div>
-                    <a href="{{ url_for('order_page') }}?service=ai_chatbot" class="btn-accent shrink-0">Buyurtma</a>
-                </div>
-            </article>
-
-            <!-- TARGET ADS -->
-            <article id="target-reklama" class="card p-7 sm:p-8 flex flex-col scroll-mt-20">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                    </div>
-                </div>
-                <h3 class="mt-5 text-xl font-bold text-ink-900 dark:text-white">Target reklama</h3>
-                <p class="mt-2 text-sm text-ink-600 dark:text-ink-400">
-                    Facebook va Instagram Ads — aniq maqsadli auditoriyangizga reklamangizni ko'rsating.
-                </p>
-                <ul class="mt-5 space-y-2.5 text-sm text-ink-700 dark:text-ink-300">
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Facebook va Instagram Ads</li>
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Pixel va konversiya sozlash</li>
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>A/B test va optimallashtirish</li>
-                    <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Haftalik hisobotlar</li>
-                </ul>
-                <div class="mt-6 pt-5 border-t border-ink-200 dark:border-ink-800 flex items-center justify-between gap-3">
-                    <div>
-                        <div class="text-xs text-ink-500 dark:text-ink-400">Xizmat narxi</div>
-                        <div class="text-lg font-bold text-ink-900 dark:text-white">600 000 — 1 000 000 so'm/oy</div>
-                    </div>
-                    <a href="{{ url_for('order_page') }}?service=target_ads" class="btn-accent shrink-0">Buyurtma</a>
-                </div>
-            </article>
+        
+        <div class="card-actions">
+            <a href="{{ url_for('order_page') }}?service=ai_chatbot" class="btn-order"
+                onclick="typeof fbq!=='undefined' && fbq('track', 'AddToCart', {content_ids: ['service_ai-chatbot'], content_type: 'product'})">
+                🚀 Buyurtma berish
+            </a>
+            <a href="{{ url_for('portfolio') }}" class="btn-demo">💼 Namuna ko'rish</a>
         </div>
-    </div>
-</section>
+    </article>
 
-<!-- PROCESS -->
-<section class="py-16 sm:py-24 bg-ink-50 dark:bg-ink-900/30">
-    <div class="container-wide">
-        <div class="max-w-2xl mx-auto text-center">
-            <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-ink-900 dark:text-white">
-                Qanday ishlaymiz
-            </h2>
-            <p class="mt-3 text-ink-600 dark:text-ink-400">
-                Loyiha boshlanishidan tugashigacha — 4 ta sodda qadam
-            </p>
+    <!-- 🎯 TARGET REKLAMA -->
+    <article class="service-card-new card-target" id="target-reklama">
+        <div class="card-glow"></div>
+        <div class="card-icon">🎯</div>
+        <h3>Target Reklama</h3>
+        <p class="card-subtitle">Facebook va Instagram Ads sozlash</p>
+        <p class="card-desc">Aniq maqsadli auditoriyangizga reklamangizni ko'rsating. 
+        Facebook va Instagram orqali eng ko'p haridor topuvchi professional reklama kampaniyalari.</p>
+        
+        <ul class="card-features">
+            <li><span class="check">✓</span> Facebook Ads sozlash</li>
+            <li><span class="check">✓</span> Instagram reklama</li>
+            <li><span class="check">✓</span> Pixel va konversiya sozlash</li>
+            <li><span class="check">✓</span> A/B test va optimallashtirish</li>
+            <li><span class="check">✓</span> Haftalik hisobotlar</li>
+        </ul>
+        
+        <div class="card-price">
+            <span class="price-label">Narxi:</span>
+            <div class="price-range">
+                <span class="price-from">600,000</span>
+                <span class="price-sep">—</span>
+                <span class="price-to">1,000,000 so'm</span>
+            </div>
+            <span class="price-note">*Reklama byudjetisiz</span>
         </div>
-
-        <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="relative">
-                <div class="text-5xl font-extrabold text-brand-200 dark:text-brand-900/60">01</div>
-                <h3 class="mt-2 text-lg font-semibold text-ink-900 dark:text-white">Konsultatsiya</h3>
-                <p class="mt-2 text-sm text-ink-600 dark:text-ink-400">
-                    15-20 daqiqalik suhbatda loyihangiz haqida gaplashamiz, taxminiy narxni aytamiz.
-                </p>
-            </div>
-            <div class="relative">
-                <div class="text-5xl font-extrabold text-brand-200 dark:text-brand-900/60">02</div>
-                <h3 class="mt-2 text-lg font-semibold text-ink-900 dark:text-white">Texnik topshiriq</h3>
-                <p class="mt-2 text-sm text-ink-600 dark:text-ink-400">
-                    Aniq talablar yoziladi, dizayn maketlari tayyorlanadi, narx va muddat tasdiqlash.
-                </p>
-            </div>
-            <div class="relative">
-                <div class="text-5xl font-extrabold text-brand-200 dark:text-brand-900/60">03</div>
-                <h3 class="mt-2 text-lg font-semibold text-ink-900 dark:text-white">Ishlab chiqish</h3>
-                <p class="mt-2 text-sm text-ink-600 dark:text-ink-400">
-                    Loyiha bosqichma-bosqich ishlab chiqiladi, har hafta progress ko'rsatamiz.
-                </p>
-            </div>
-            <div class="relative">
-                <div class="text-5xl font-extrabold text-brand-200 dark:text-brand-900/60">04</div>
-                <h3 class="mt-2 text-lg font-semibold text-ink-900 dark:text-white">Topshirish + kafolat</h3>
-                <p class="mt-2 text-sm text-ink-600 dark:text-ink-400">
-                    Loyiha topshiriladi va 1 oylik bepul texnik qo'llab-quvvatlash beriladi.
-                </p>
-            </div>
+        
+        <div class="card-actions">
+            <a href="{{ url_for('order_page') }}?service=target_ads" class="btn-order"
+                onclick="typeof fbq!=='undefined' && fbq('track', 'AddToCart', {content_ids: ['service_target-ads'], content_type: 'product'})">
+                🚀 Buyurtma berish
+            </a>
+            <a href="{{ url_for('portfolio') }}" class="btn-demo">💼 Namuna ko'rish</a>
         </div>
-    </div>
-</section>
+    </article>
 
-<!-- FAQ -->
-<section id="faq" class="py-16 sm:py-24 scroll-mt-20">
-    <div class="container-narrow">
-        <div class="text-center">
-            <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-ink-900 dark:text-white">
-                Tez-tez so'raladigan savollar
-            </h2>
-            <p class="mt-3 text-ink-600 dark:text-ink-400">
-                Mijozlarimiz ko'pincha quyidagi savollar bilan murojaat qilishadi
-            </p>
-        </div>
+</div>
 
-        <div class="mt-10 space-y-3">
-            <details class="group rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 px-5 py-4 open:shadow-soft">
-                <summary class="flex items-center justify-between cursor-pointer font-semibold text-ink-900 dark:text-white list-none">
-                    Loyiha narxi qancha turadi?
-                    <svg class="w-5 h-5 text-ink-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </summary>
-                <p class="mt-3 text-sm text-ink-600 dark:text-ink-400 leading-relaxed">
-                    Narx loyiha murakkabligiga bog'liq. Oddiy Telegram bot 300 000 so'mdan boshlanadi, korporativ web-sayt 2 000 000 so'mdan, murakkab AI yechimlar esa loyihaga qarab individual hisoblanadi. Bepul konsultatsiya so'rab, aniq narxni bilib olishingiz mumkin.
-                </p>
+<!-- ========== FAQ SECTION ========== -->
+<section class="faq-section" id="faq" aria-labelledby="faq-heading">
+    <div class="faq-container">
+        <h2 id="faq-heading">❓ Tez-tez so'raladigan savollar</h2>
+        <p class="faq-lead">Mijozlarimiz ko'pincha quyidagi savollar bilan murojaat qilishadi</p>
+
+        <div class="faq-list">
+            <details class="faq-item">
+                <summary>Loyiha narxi qancha turadi?</summary>
+                <p>Narx loyiha murakkabligiga bog'liq. Oddiy Telegram bot 300 000 so'mdan boshlanadi, korporativ web-sayt 2 000 000 so'mdan, murakkab AI yechimlar esa loyihaga qarab individual hisoblanadi. Bepul konsultatsiya so'rab, aniq narxni bilib olishingiz mumkin.</p>
             </details>
 
-            <details class="group rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 px-5 py-4 open:shadow-soft">
-                <summary class="flex items-center justify-between cursor-pointer font-semibold text-ink-900 dark:text-white list-none">
-                    Loyiha qancha vaqtda tayyor bo'ladi?
-                    <svg class="w-5 h-5 text-ink-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </summary>
-                <p class="mt-3 text-sm text-ink-600 dark:text-ink-400 leading-relaxed">
-                    O'rtacha muddatlar: Telegram bot — 3-10 kun, landing page — 5-7 kun, korporativ web-sayt — 2-4 hafta, AI chatbot — 1-3 hafta. Aniq muddat texnik topshiriqdan keyin belgilanadi.
-                </p>
+            <details class="faq-item">
+                <summary>Loyiha qancha vaqtda tayyor bo'ladi?</summary>
+                <p>O'rtacha muddatlar: Telegram bot — 3–10 kun, landing page — 5–7 kun, korporativ web-sayt — 2–4 hafta, AI chatbot — 1–3 hafta. Aniq muddat texnik topshiriqdan keyin belgilanadi.</p>
             </details>
 
-            <details class="group rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 px-5 py-4 open:shadow-soft">
-                <summary class="flex items-center justify-between cursor-pointer font-semibold text-ink-900 dark:text-white list-none">
-                    Loyihadan keyin texnik qo'llab-quvvatlash bormi?
-                    <svg class="w-5 h-5 text-ink-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </summary>
-                <p class="mt-3 text-sm text-ink-600 dark:text-ink-400 leading-relaxed">
-                    Ha. Har bir loyiha 1 oylik bepul kafolat bilan keladi (hosting va xato tuzatish). Undan keyin oylik texnik xizmat shartnomasi tuzish mumkin: kichik o'zgartirishlar, yangi funksiyalar, monitoring.
-                </p>
+            <details class="faq-item">
+                <summary>Loyihadan keyin texnik qo'llab-quvvatlash bormi?</summary>
+                <p>Ha. Har bir loyiha 1 oylik bepul kafolat bilan keladi (hosting va xato tuzatish). Undan keyin oylik texnik xizmat shartnomasi tuzish mumkin: kichik o'zgartirishlar, yangi funksiyalar, monitoring.</p>
             </details>
 
-            <details class="group rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 px-5 py-4 open:shadow-soft">
-                <summary class="flex items-center justify-between cursor-pointer font-semibold text-ink-900 dark:text-white list-none">
-                    Qaysi to'lov tizimlari integratsiya qilinadi?
-                    <svg class="w-5 h-5 text-ink-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </summary>
-                <p class="mt-3 text-sm text-ink-600 dark:text-ink-400 leading-relaxed">
-                    Mahalliy: Payme, Click, Uzum Bank, Apelsin. Xalqaro: Stripe, PayPal. Telegram bot va web-saytlarga to'liq integratsiya qilamiz.
-                </p>
+            <details class="faq-item">
+                <summary>Qaysi to'lov tizimlari integratsiya qilinadi?</summary>
+                <p>Mahalliy: Payme, Click, Uzum Bank, Apelsin. Xalqaro: Stripe, PayPal. Telegram bot va web-saytlarga to'liq integratsiya qilamiz, shu jumladan webhook va admin panel orqali to'lovlarni boshqarish.</p>
             </details>
 
-            <details class="group rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 px-5 py-4 open:shadow-soft">
-                <summary class="flex items-center justify-between cursor-pointer font-semibold text-ink-900 dark:text-white list-none">
-                    Bepul konsultatsiya olish mumkinmi?
-                    <svg class="w-5 h-5 text-ink-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </summary>
-                <p class="mt-3 text-sm text-ink-600 dark:text-ink-400 leading-relaxed">
-                    Albatta. Telegram (@TrendoAibot) yoki <a href="tel:+998974771229" class="text-brand-600 hover:underline">+998 97 477 12 29</a> orqali bog'laning — 15-20 daqiqalik bepul konsultatsiyada loyihangizga mos yechim va taxminiy narx aytib beramiz.
-                </p>
+            <details class="faq-item">
+                <summary>Bepul konsultatsiya olish mumkinmi?</summary>
+                <p>Albatta. Telegram (@TrendoAibot) yoki <a href="tel:+998974771229">+998 97 477 12 29</a> orqali bog'laning — 15–20 daqiqalik bepul konsultatsiyada loyihangizga mos yechim va taxminiy narx aytib beramiz.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Ishlaringizning namunalarini ko'rsa bo'ladimi?</summary>
+                <p>Ha. <a href="{{ url_for('portfolio') }}">Portfolio sahifamizda</a> 50+ tugallangan loyihani ko'rishingiz mumkin — Telegram botlar, web-saytlar, AI yechimlar va mobil ilovalar bo'yicha real misollar.</p>
             </details>
         </div>
     </div>
 </section>
 
-<!-- ORDER FORM -->
-<section id="order" class="py-16 sm:py-24 bg-ink-50 dark:bg-ink-900/30 scroll-mt-20">
-    <div class="container-narrow">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
-            <div>
-                <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-ink-900 dark:text-white">
-                    Loyihangizni boshlaymizmi?
-                </h2>
-                <p class="mt-4 text-ink-600 dark:text-ink-400 leading-relaxed">
-                    Formani to'ldiring — 24 soat ichida sizga qaytib bog'lanamiz va loyihangizga mos taklif yuboramiz.
-                </p>
+<style>
+    .faq-section {
+        padding: 60px 20px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
 
-                <div class="mt-8 space-y-4 text-sm">
-                    <div class="flex items-start gap-3">
-                        <svg class="w-5 h-5 mt-0.5 text-brand-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                        <div>
-                            <div class="font-semibold text-ink-900 dark:text-white">Telefon</div>
-                            <a href="tel:+998974771229" class="text-ink-600 dark:text-ink-400 hover:text-brand-600">+998 97 477 12 29</a>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <svg class="w-5 h-5 mt-0.5 text-brand-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                        <div>
-                            <div class="font-semibold text-ink-900 dark:text-white">Email</div>
-                            <a href="mailto:info@trendoai.uz" class="text-ink-600 dark:text-ink-400 hover:text-brand-600">info@trendoai.uz</a>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <svg class="w-5 h-5 mt-0.5 text-brand-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                        <div>
-                            <div class="font-semibold text-ink-900 dark:text-white">Telegram</div>
-                            <a href="https://t.me/TrendoAibot" target="_blank" rel="noopener" class="text-ink-600 dark:text-ink-400 hover:text-brand-600">@TrendoAibot</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    .faq-container h2 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
 
-            <form action="{{ url_for('submit_order') }}" method="POST" class="bg-white dark:bg-ink-900 rounded-xl border border-ink-200 dark:border-ink-800 p-6 sm:p-8 shadow-soft space-y-4">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    .faq-lead {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 32px;
+    }
 
-                <div>
-                    <label for="name" class="block text-sm font-medium text-ink-900 dark:text-ink-200 mb-1.5">Ismingiz *</label>
-                    <input type="text" id="name" name="name" required placeholder="Ali Valiyev"
-                        class="w-full px-3.5 py-2.5 rounded-lg border border-ink-300 dark:border-ink-700 bg-white dark:bg-ink-950 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                </div>
+    .faq-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
 
-                <div>
-                    <label for="phone" class="block text-sm font-medium text-ink-900 dark:text-ink-200 mb-1.5">Telefon raqam *</label>
-                    <input type="tel" id="phone" name="phone" required placeholder="+998 90 123 45 67"
-                        class="w-full px-3.5 py-2.5 rounded-lg border border-ink-300 dark:border-ink-700 bg-white dark:bg-ink-950 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                </div>
+    .faq-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 12px;
+        padding: 16px 20px;
+        transition: border-color 0.3s ease;
+    }
 
-                <div>
-                    <label for="service" class="block text-sm font-medium text-ink-900 dark:text-ink-200 mb-1.5">Xizmat turi *</label>
-                    <select id="service" name="service" required
-                        class="w-full px-3.5 py-2.5 rounded-lg border border-ink-300 dark:border-ink-700 bg-white dark:bg-ink-950 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                        <option value="">Tanlang...</option>
-                        <option value="telegram_bot">Telegram bot</option>
-                        <option value="web_site">Veb-sayt</option>
-                        <option value="ai_chatbot">AI chatbot</option>
-                        <option value="target_ads">Target reklama</option>
-                    </select>
-                </div>
+    .faq-item[open] {
+        border-color: rgba(99, 102, 241, 0.5);
+        background: rgba(99, 102, 241, 0.05);
+    }
 
-                <div>
-                    <label for="budget" class="block text-sm font-medium text-ink-900 dark:text-ink-200 mb-1.5">Byudjet</label>
-                    <select id="budget" name="budget"
-                        class="w-full px-3.5 py-2.5 rounded-lg border border-ink-300 dark:border-ink-700 bg-white dark:bg-ink-950 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                        <option value="">Tanlang...</option>
-                        <option value="300k-800k">300 000 — 800 000 so'm</option>
-                        <option value="800k-1.5m">800 000 — 1 500 000 so'm</option>
-                        <option value="1.5m-3m">1 500 000 — 3 000 000 so'm</option>
-                        <option value="3m-5m">3 000 000 — 5 000 000 so'm</option>
-                        <option value="5m+">5 000 000+ so'm</option>
-                    </select>
-                </div>
+    .faq-item summary {
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: #fff;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-                <div>
-                    <label for="message" class="block text-sm font-medium text-ink-900 dark:text-ink-200 mb-1.5">Loyiha haqida</label>
-                    <textarea id="message" name="message" rows="4" placeholder="Loyihangiz haqida qisqacha ma'lumot bering..."
-                        class="w-full px-3.5 py-2.5 rounded-lg border border-ink-300 dark:border-ink-700 bg-white dark:bg-ink-950 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"></textarea>
-                </div>
+    .faq-item summary::-webkit-details-marker { display: none; }
 
-                <button type="submit" class="btn-accent w-full text-base py-3">
-                    Arizani yuborish
-                </button>
+    .faq-item summary::after {
+        content: '+';
+        font-size: 1.5rem;
+        color: #a855f7;
+        transition: transform 0.3s ease;
+    }
 
-                <p class="text-xs text-ink-500 dark:text-ink-500 text-center">
-                    Arizangiz bizga Telegram va email orqali keladi
-                </p>
-            </form>
-        </div>
+    .faq-item[open] summary::after {
+        content: '−';
+    }
+
+    .faq-item p {
+        margin-top: 12px;
+        color: rgba(255, 255, 255, 0.75);
+        line-height: 1.6;
+    }
+
+    .faq-item a {
+        color: #a855f7;
+        text-decoration: underline;
+    }
+
+    [data-theme="light"] .faq-item {
+        background: rgba(0, 0, 0, 0.02);
+        border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    [data-theme="light"] .faq-item summary { color: #1f2937; }
+    [data-theme="light"] .faq-item p { color: #4b5563; }
+</style>
+
+<!-- Order Form Section -->
+<section class="order-form-section" id="order">
+    <div class="form-header">
+        <h2>📝 Xizmatga Yozilish</h2>
+        <p>Formani to'ldiring, biz siz bilan 24 soat ichida bog'lanamiz!</p>
     </div>
+
+    <form class="order-form" action="{{ url_for('submit_order') }}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="name">👤 Ismingiz *</label>
+                <input type="text" id="name" name="name" required placeholder="Masalan: Ali Valiyev">
+            </div>
+            <div class="form-group">
+                <label for="phone">📞 Telefon raqam *</label>
+                <input type="tel" id="phone" name="phone" required placeholder="+998 90 123 45 67">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="service">🛠️ Xizmat turi *</label>
+                <select id="service" name="service" required>
+                    <option value="">Tanlang...</option>
+                    <option value="telegram_bot">🤖 Telegram Bot</option>
+                    <option value="web_site">🌐 Veb-sayt</option>
+                    <option value="ai_chatbot">🧠 AI Chatbot</option>
+                    <option value="target_ads">🎯 Target Reklama</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="budget">💰 Byudjet</label>
+                <select id="budget" name="budget">
+                    <option value="">Tanlang...</option>
+                    <option value="300k-800k">300,000 - 800,000 so'm</option>
+                    <option value="800k-1.5m">800,000 - 1,500,000 so'm</option>
+                    <option value="1.5m-3m">1,500,000 - 3,000,000 so'm</option>
+                    <option value="3m-5m">3,000,000 - 5,000,000 so'm</option>
+                    <option value="5m+">5,000,000+ so'm</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="message">💬 Loyihangiz haqida</label>
+            <textarea id="message" name="message" rows="4"
+                placeholder="Loyihangiz haqida qisqacha ma'lumot bering..."></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">
+            🚀 Ariza Yuborish
+        </button>
+    </form>
 </section>
 
-{% endblock %}
+<section class="cta-section">
+    <h3>💬 Tezroq Javob Olmoqchimisiz?</h3>
+    <p>Telegram orqali to'g'ridan-to'g'ri bog'laning!</p>
+    <a href="https://t.me/TrendoAibot" class="cta-button" target="_blank">📱 Bot orqali bog'lanish (@TrendoAibot)</a>
+</section>
 
-{% block extra_scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const urlParams = new URLSearchParams(window.location.search);
@@ -462,19 +468,420 @@
             if (select) {
                 select.value = service;
                 setTimeout(() => {
-                    document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' });
-                }, 200);
+                    const el = document.getElementById('order');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }, 500);
             }
         }
+
+        // Animate cards on scroll
+        const cards = document.querySelectorAll('.service-card-new');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, index * 150);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        cards.forEach(card => observer.observe(card));
     });
 
-    const form = document.querySelector('form[action*="submit_order"]');
+    const form = document.querySelector('.order-form');
     if (form && typeof fbq !== 'undefined') {
         form.addEventListener('submit', function () {
-            const serviceEl = document.getElementById('service');
-            const serviceName = serviceEl?.selectedOptions[0]?.text || 'Unknown';
-            fbq('track', 'Lead', { content_name: serviceName, content_category: 'Service Order' });
+            const serviceId = document.getElementById('service').value;
+            const serviceName = document.getElementById('service').selectedOptions[0]?.text || 'Unknown';
+            const catalogId = 'service_' + serviceId.replace('_', '-');
+
+            fbq('track', 'Purchase', {
+                content_name: serviceName,
+                content_category: 'Service Order',
+                content_ids: [catalogId],
+                content_type: 'product',
+                value: 0.00,
+                currency: 'UZS'
+            });
+
+            fbq('track', 'Lead', {
+                content_name: serviceName,
+                content_category: 'Service Order'
+            });
         });
     }
 </script>
+
+<style>
+    /* ========== HERO ========== */
+    .services-hero {
+        text-align: center;
+        padding: 60px 20px 40px;
+        position: relative;
+        overflow: hidden;
+    }
+    .services-hero .hero-glow {
+        position: absolute;
+        top: -50%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+    .services-hero h2 {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+        background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+        z-index: 1;
+    }
+    .services-hero .lead {
+        color: var(--text-secondary);
+        font-size: 1.15rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ========== SERVICES GRID ========== */
+    .services-grid-new {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 28px;
+        margin-bottom: 60px;
+    }
+
+    /* ========== CARD STYLES ========== */
+    .service-card-new {
+        position: relative;
+        background: var(--bg-card, #1a1a2e);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 20px;
+        padding: 36px 30px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    .service-card-new.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .service-card-new:hover {
+        transform: translateY(-6px);
+        border-color: rgba(99,102,241,0.3);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    /* Card glows */
+    .card-glow {
+        position: absolute;
+        top: -80px;
+        right: -80px;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        opacity: 0.08;
+        pointer-events: none;
+        transition: opacity 0.4s;
+    }
+    .card-bot .card-glow { background: #6366f1; }
+    .card-web .card-glow { background: #10b981; }
+    .card-ai .card-glow { background: #a855f7; }
+    .card-target .card-glow { background: #f59e0b; }
+
+    .service-card-new:hover .card-glow { opacity: 0.18; }
+
+    /* Badge */
+    .card-badge {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: linear-gradient(135deg, #f59e0b, #ef4444);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 5px 14px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+    }
+    .badge-ai {
+        background: linear-gradient(135deg, #a855f7, #6366f1);
+    }
+
+    /* Icon */
+    .card-icon {
+        font-size: 3rem;
+        margin-bottom: 16px;
+        display: inline-block;
+        animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    /* Text */
+    .service-card-new h3 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: 6px;
+        color: var(--text-primary, #fff);
+    }
+    .card-subtitle {
+        color: var(--text-muted, #888);
+        font-size: 0.9rem;
+        margin-bottom: 14px;
+        font-weight: 500;
+    }
+    .card-desc {
+        color: var(--text-secondary, #aaa);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    /* Features */
+    .card-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 24px;
+    }
+    .card-features li {
+        padding: 6px 0;
+        font-size: 0.9rem;
+        color: var(--text-secondary, #bbb);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .card-features .check {
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+    .card-bot .check { color: #6366f1; }
+    .card-web .check { color: #10b981; }
+    .card-ai .check { color: #a855f7; }
+    .card-target .check { color: #f59e0b; }
+
+    /* Price */
+    .card-price {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 14px;
+        padding: 18px 20px;
+        margin-bottom: 24px;
+        text-align: center;
+    }
+    .price-label {
+        font-size: 0.8rem;
+        color: var(--text-muted, #888);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: block;
+        margin-bottom: 8px;
+    }
+    .price-range {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .price-from {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .price-sep {
+        color: var(--text-muted, #666);
+        font-size: 1.2rem;
+    }
+    .price-to {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary, #fff);
+    }
+    .price-note {
+        display: block;
+        margin-top: 6px;
+        font-size: 0.75rem;
+        color: var(--text-muted, #666);
+        font-style: italic;
+    }
+
+    /* Actions */
+    .card-actions {
+        display: grid;
+        grid-template-columns: 1.6fr 1fr;
+        gap: 10px;
+    }
+    .btn-order {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        color: white;
+        transition: all 0.3s;
+    }
+    .card-bot .btn-order { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+    .card-web .btn-order { background: linear-gradient(135deg, #10b981, #059669); }
+    .card-ai .btn-order { background: linear-gradient(135deg, #a855f7, #7c3aed); }
+    .card-target .btn-order { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+    .btn-order:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(99,102,241,0.35);
+    }
+    .btn-demo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        color: var(--text-secondary, #bbb);
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.04);
+        transition: all 0.3s;
+    }
+    .btn-demo:hover {
+        background: rgba(255,255,255,0.08);
+        color: var(--text-primary, #fff);
+        border-color: rgba(255,255,255,0.2);
+    }
+
+    /* ========== ORDER FORM ========== */
+    .order-form-section {
+        background: var(--bg-card, #1a1a2e);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 20px;
+        padding: 50px;
+        margin-bottom: 40px;
+    }
+    .form-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .form-header h2 {
+        font-size: 2rem;
+        margin-bottom: 12px;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .form-header p {
+        color: var(--text-secondary);
+    }
+    .order-form {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+    .form-group label {
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 14px 18px;
+        background: var(--bg-elevated, #0f0f23);
+        border: 2px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        font-family: inherit;
+        transition: all 0.3s;
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+        color: var(--text-muted);
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .form-group select { cursor: pointer; }
+    .form-group select option {
+        background: var(--bg-dark, #0a0a1a);
+        color: var(--text-primary);
+    }
+    .form-group textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+    .submit-btn {
+        width: 100%;
+        padding: 18px;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 10px;
+    }
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    }
+
+    /* ========== CTA SECTION ========== */
+    .cta-section {
+        text-align: center;
+        padding: 50px 20px;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 900px) {
+        .services-grid-new {
+            grid-template-columns: 1fr;
+        }
+        .services-hero h2 { font-size: 2rem; }
+    }
+    @media (max-width: 768px) {
+        .order-form-section { padding: 30px 20px; }
+        .form-row { grid-template-columns: 1fr; gap: 16px; }
+        .form-header h2 { font-size: 1.5rem; }
+        .card-actions { grid-template-columns: 1fr; }
+        .service-card-new { padding: 28px 22px; }
+    }
+    @media (max-width: 480px) {
+        .services-hero h2 { font-size: 1.6rem; }
+        .price-from, .price-to { font-size: 1.2rem; }
+    }
+</style>
 {% endblock %}

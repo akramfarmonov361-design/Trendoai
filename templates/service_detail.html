@@ -1,16 +1,16 @@
-{% extends "base_v2.html" %}
+{% extends "base.html" %}
 
-{% block title %}{{ service.title }} — TrendoAI{% endblock %}
+{% block title %}{{ service.title }} - TrendoAI{% endblock %}
 {% block meta_description %}{{ service.meta_desc }}{% endblock %}
 {% block canonical_url %}{{ config.SITE_URL }}/services/{{ service.slug }}{% endblock %}
 {% block og_url %}{{ config.SITE_URL }}/services/{{ service.slug }}{% endblock %}
-{% block og_title %}{{ service.title }} — TrendoAI{% endblock %}
+{% block og_title %}{{ service.title }} - TrendoAI{% endblock %}
 {% block og_description %}{{ service.meta_desc }}{% endblock %}
 {% block og_type %}product{% endblock %}
-{% block og_image %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endblock %}
-{% block twitter_title %}{{ service.title }} — TrendoAI{% endblock %}
+{% block og_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}
+{% block twitter_title %}{{ service.title }} - TrendoAI{% endblock %}
 {% block twitter_description %}{{ service.meta_desc }}{% endblock %}
-{% block twitter_image %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endblock %}
+{% block twitter_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}
 
 {% block extra_head %}
 <meta property="product:category" content="Software > IT Services">
@@ -22,9 +22,12 @@
     "name": "{{ service.title }}",
     "description": "{{ service.meta_desc or service.description }}",
     "url": "{{ config.SITE_URL }}/services/{{ service.slug }}",
-    "image": "{{ service.image_url if service.image_url and service.image_url.startswith('http') else config.SITE_URL ~ '/static/img/og-image.jpg' }}",
+    "image": "{{ service.image_url if service.image_url and service.image_url.startswith('http') else config.SITE_URL ~ '/static/img/og-image.png' }}",
     "serviceType": "{{ service.title }}",
-    "areaServed": {"@type": "Country", "name": "Uzbekistan"},
+    "areaServed": {
+        "@type": "Country",
+        "name": "Uzbekistan"
+    },
     "provider": {
         "@type": "Organization",
         "name": "TrendoAI",
@@ -42,146 +45,260 @@
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Bosh sahifa", "item": "{{ config.SITE_URL }}/"},
-        {"@type": "ListItem", "position": 2, "name": "Xizmatlar", "item": "{{ config.SITE_URL }}/"},
-        {"@type": "ListItem", "position": 3, "name": "{{ service.title }}", "item": "{{ config.SITE_URL }}/services/{{ service.slug }}"}
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Bosh sahifa",
+            "item": "{{ config.SITE_URL }}/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Xizmatlar",
+            "item": "{{ config.SITE_URL }}/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{ service.title }}",
+            "item": "{{ config.SITE_URL }}/services/{{ service.slug }}"
+        }
     ]
 }
 </script>
-{% endblock %}
 
-{% block content %}
-
-<article class="container-wide py-10 sm:py-14">
-    <!-- Breadcrumb -->
-    <nav class="flex items-center gap-2 text-sm text-ink-500 dark:text-ink-400 mb-6" aria-label="Breadcrumb">
-        <a href="{{ url_for('index') }}" class="hover:text-ink-900 dark:hover:text-white">Bosh sahifa</a>
-        <span>/</span>
-        <a href="{{ url_for('index') }}" class="hover:text-ink-900 dark:hover:text-white">Xizmatlar</a>
-        <span>/</span>
-        <span class="text-ink-900 dark:text-white font-medium truncate">{{ service.title }}</span>
-    </nav>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        <!-- Main -->
-        <div class="lg:col-span-2">
-            <!-- Header -->
-            <header class="pb-8 border-b border-ink-200 dark:border-ink-800">
-                <span class="tag">Xizmat</span>
-                <h1 class="mt-3 text-3xl sm:text-5xl font-extrabold tracking-tight text-ink-900 dark:text-white leading-tight">
-                    {{ service.title }}
-                </h1>
-                <p class="mt-4 text-lg text-ink-600 dark:text-ink-400">{{ service.description }}</p>
-
-                <div class="mt-6 flex flex-wrap items-center gap-3">
-                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-ink-100 dark:bg-ink-800">
-                        <span class="text-xs text-ink-500 dark:text-ink-400">Narx</span>
-                        <span class="font-bold text-ink-900 dark:text-white">{{ service.price }}</span>
-                    </div>
-                    {% if service.discount_percent and service.discount_percent > 0 %}
-                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-rose-500 to-orange-500 text-white text-sm font-bold">
-                        {{ service.discount_percent }}% chegirma · {{ service.discount_until }}gacha
-                    </div>
-                    {% endif %}
-                </div>
-            </header>
-
-            <!-- Full description -->
-            <div class="mt-10">
-                <h2 class="text-2xl font-bold text-ink-900 dark:text-white">Xizmat haqida batafsil</h2>
-                <p class="mt-4 text-ink-600 dark:text-ink-400 leading-relaxed whitespace-pre-line">{{ service.full_description }}</p>
-            </div>
-
-            <!-- Features -->
-            {% if service.get_features_list() %}
-            <div class="mt-10">
-                <h2 class="text-2xl font-bold text-ink-900 dark:text-white">Asosiy imkoniyatlar</h2>
-                <ul class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {% for feature in service.get_features_list() %}
-                    <li class="flex items-start gap-3 p-4 rounded-lg bg-ink-50 dark:bg-ink-900 border border-ink-200 dark:border-ink-800">
-                        <svg class="w-5 h-5 mt-0.5 text-brand-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                        <span class="text-sm text-ink-700 dark:text-ink-300">{{ feature }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
-
-            <!-- CTA -->
-            <div class="mt-12 rounded-2xl bg-gradient-to-br from-ink-900 to-brand-900 px-8 py-10 sm:px-12 sm:py-14 text-center relative overflow-hidden">
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(168,85,247,0.3),transparent_50%)] pointer-events-none"></div>
-                <div class="relative">
-                    <h2 class="text-2xl sm:text-3xl font-bold text-white">Ushbu xizmat bo'yicha buyurtma</h2>
-                    <p class="mt-3 text-ink-300 max-w-md mx-auto">
-                        Mutaxassislarimiz siz bilan bog'lanib, loyihangizni batafsil muhokama qilishadi.
-                    </p>
-                    <div class="mt-7 flex flex-wrap items-center justify-center gap-3">
-                        <a href="{{ url_for('order_page') }}?service={{ service.slug }}"
-                            onclick="trackAddToCart()"
-                            class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-ink-900 font-semibold text-sm hover:bg-ink-100 transition-colors">
-                            Hozirroq buyurtma berish
-                        </a>
-                        <a href="https://t.me/TrendoAibot" target="_blank" rel="noopener"
-                            class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white/10 text-white font-semibold text-sm hover:bg-white/20 transition-colors backdrop-blur-sm">
-                            Avval gaplashamiz
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sidebar -->
-        <aside class="lg:col-span-1 space-y-6 lg:sticky lg:top-24 lg:self-start">
-            <!-- Related services -->
-            {% if services %}
-            <div class="rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 p-5">
-                <h3 class="text-sm font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">Boshqa xizmatlar</h3>
-                <div class="mt-4 space-y-1">
-                    {% for s in services if s.slug != service.slug %}
-                    <a href="{{ url_for('service_detail', service_key=s.slug) }}"
-                        class="flex items-center justify-between p-3 rounded-lg hover:bg-ink-50 dark:hover:bg-ink-800 transition-colors group">
-                        <span class="text-sm font-medium text-ink-700 dark:text-ink-300 group-hover:text-brand-600">{{ s.title }}</span>
-                        <svg class="w-4 h-4 text-ink-400 group-hover:text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Contact -->
-            <div class="rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 p-5">
-                <h3 class="text-sm font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">Yordam kerakmi?</h3>
-                <p class="mt-3 text-sm text-ink-600 dark:text-ink-400">Xizmatlarimiz bo'yicha savollar uchun mutaxassisimizga yozing.</p>
-                <a href="https://t.me/TrendoAibot" target="_blank" rel="noopener" class="btn-primary mt-4 w-full">
-                    Telegram'da yozish
-                </a>
-            </div>
-        </aside>
-    </div>
-</article>
-
-{% endblock %}
-
-{% block extra_scripts %}
 <script>
-    if (typeof fbq !== 'undefined') {
-        fbq('track', 'ViewContent', {
+    fbq('track', 'ViewContent', {
+        content_name: '{{ service.title }}',
+        content_category: 'Service',
+        content_ids: ['service_{{ service.slug }}'],
+        content_type: 'product'
+    });
+
+    function trackAddToCart() {
+        fbq('track', 'AddToCart', {
             content_name: '{{ service.title }}',
             content_category: 'Service',
             content_ids: ['service_{{ service.slug }}'],
             content_type: 'product'
         });
     }
+</script>
+{% endblock %}
 
-    function trackAddToCart() {
-        if (typeof fbq !== 'undefined') {
-            fbq('track', 'AddToCart', {
-                content_name: '{{ service.title }}',
-                content_category: 'Service',
-                content_ids: ['service_{{ service.slug }}'],
-                content_type: 'product'
-            });
+{% block content %}
+<div class="article-container">
+    <main class="article-main">
+        <article class="article-page service-detail">
+            <!-- Breadcrumbs -->
+            <nav class="breadcrumb-nav">
+                <a href="{{ url_for('index') }}">Bosh sahifa</a>
+                <span class="sep">/</span>
+                <a href="{{ url_for('index') }}">Xizmatlar</a>
+                <span class="sep">/</span>
+                <span class="current">{{ service.title }}</span>
+            </nav>
+
+            <div class="service-header-hero">
+                <div class="service-icon-large">{{ service.icon }}</div>
+                <h1>{{ service.title }}</h1>
+                <p class="service-tagline">{{ service.description }}</p>
+                <div class="service-price-badge">Narxi: {{ service.price }}</div>
+
+                {% if service.discount_percent > 0 %}
+                <div class="discount-badge">
+                    🔥 {{ service.discount_percent }}% Chegirma ({{ service.discount_until }}gacha)
+                </div>
+                <style>
+                    .discount-badge {
+                        display: inline-block;
+                        margin-left: 10px;
+                        padding: 10px 20px;
+                        background: linear-gradient(135deg, #ff416c, #ff4b2b);
+                        border-radius: 50px;
+                        color: white;
+                        font-weight: bold;
+                        box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4);
+                        animation: pulse 2s infinite;
+                    }
+
+                    @keyframes pulse {
+                        0% {
+                            transform: scale(1);
+                        }
+
+                        50% {
+                            transform: scale(1.05);
+                        }
+
+                        100% {
+                            transform: scale(1);
+                        }
+                    }
+                </style>
+                {% endif %}
+            </div>
+
+            <div class="article-content">
+                <h2>Xizmat haqida batafsil</h2>
+                <p>{{ service.full_description }}</p>
+
+                <div class="features-grid-landing">
+                    {% for feature in service.get_features_list() %}
+                    <div class="feature-landing-card">
+                        <i class="fas fa-check-circle"></i>
+                        <span>{{ feature }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="service-cta-box">
+                    <h3>Ushbu xizmat bo'yicha buyurtma bermoqchimisiz?</h3>
+                    <p>Mutaxassislarimiz siz bilan bog'lanib, loyihangizni batafsil muhokama qilishadi.</p>
+                    <a href="{{ url_for('order_page') }}?service={{ service.slug }}" class="primary-btn pulse-glow"
+                        onclick="trackAddToCart()">
+                        🚀 Hozirroq buyurtma berish
+                    </a>
+                </div>
+            </div>
+        </article>
+    </main>
+
+    <aside class="article-sidebar">
+        <div class="sidebar-card">
+            <h3>Boshqa xizmatlar</h3>
+            <div class="related-services-sidebar">
+                {% for s in services if s.slug != service.slug %}
+                <a href="{{ url_for('service_detail', service_key=s.slug) }}" class="related-service-item">
+                    <span class="rs-icon">{{ s.icon }}</span>
+                    <span class="rs-title">{{ s.title }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="sidebar-card contact-sidebar">
+            <h3>Yordam kerakmi?</h3>
+            <p>Xizmatlarimiz bo'yicha savollaringiz bo'lsa, mutaxassisimizga yozing.</p>
+            <a href="https://t.me/Akramjon1984" class="tg-contact-btn">
+                <i class="fab fa-telegram"></i> Telegram orqali bog'lanish
+            </a>
+        </div>
+    </aside>
+</div>
+
+<style>
+    .service-header-hero {
+        text-align: center;
+        padding: 40px 0;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 40px;
+    }
+
+    .service-icon-large {
+        font-size: 5rem;
+        margin-bottom: 20px;
+        filter: drop-shadow(0 0 20px var(--primary-light));
+    }
+
+    .service-tagline {
+        font-size: 1.3rem;
+        color: var(--text-secondary);
+        max-width: 700px;
+        margin: 0 auto 24px;
+    }
+
+    .service-price-badge {
+        display: inline-block;
+        padding: 10px 24px;
+        background: var(--gradient-main);
+        border-radius: 50px;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        box-shadow: var(--shadow-primary);
+    }
+
+    .features-grid-landing {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin: 40px 0;
+    }
+
+    .feature-landing-card {
+        background: var(--bg-elevated);
+        padding: 20px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border: 1px solid var(--border);
+    }
+
+    .feature-landing-card i {
+        color: var(--primary-light);
+        font-size: 1.2rem;
+    }
+
+    .service-cta-box {
+        margin-top: 60px;
+        padding: 40px;
+        background: var(--bg-elevated);
+        border: 2px solid var(--primary);
+        border-radius: var(--radius-xl);
+        text-align: center;
+    }
+
+    .service-cta-box h3 {
+        margin-bottom: 16px;
+    }
+
+    .service-cta-box p {
+        margin-bottom: 30px;
+        color: var(--text-muted);
+    }
+
+    .related-services-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .related-service-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: var(--bg-elevated);
+        border-radius: var(--radius-md);
+        transition: var(--transition-smooth);
+        text-decoration: none;
+        color: var(--text-primary);
+    }
+
+    .related-service-item:hover {
+        transform: translateX(5px);
+        background: var(--border);
+    }
+
+    .rs-icon {
+        font-size: 1.5rem;
+    }
+
+    .rs-title {
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+        .features-grid-landing {
+            grid-template-columns: 1fr;
+        }
+
+        .service-cta-box {
+            padding: 30px 20px;
         }
     }
-</script>
+</style>
 {% endblock %}
