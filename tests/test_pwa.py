@@ -31,7 +31,7 @@ class PWATests(unittest.TestCase):
         response = self.client.get('/sw.js')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers['Content-Type'], 'application/javascript')
-        self.assertIn(b'trendoai-v6', response.data)
+        self.assertIn(b'trendoai-v7', response.data)
 
     def test_push_subscribe_valid(self):
         """Test subscribing to push notifications with valid keys"""

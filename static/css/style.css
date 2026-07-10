@@ -2627,6 +2627,13 @@ footer {
         flex-direction: column;
         gap: 12px;
     }
+
+    .footer-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+    }
 }
 
 /* Very Small Devices */
