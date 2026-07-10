@@ -1,15 +1,14 @@
 {% extends 'base.html' %}
 
-{% block title %}Biz Haqimizda - TrendoAI{% endblock %}
+{% block title %}TrendoAI haqida — IT avtomatlashtirish jamoasi{% endblock %}
 
-{% block meta_description %}TrendoAI - O'zbekistondagi yetakchi texnologiya va sun'iy intellekt blog platformasi.
-Trending mavzular va professional IT kontentlar.{% endblock %}
+{% block meta_description %}TrendoAI — bizneslar uchun Telegram bot, web sayt va AI avtomatlashtirish yechimlarini yaratadigan O'zbekiston IT jamoasi.{% endblock %}
 {% block canonical_url %}{{ config.SITE_URL }}/about{% endblock %}
 {% block og_url %}{{ config.SITE_URL }}/about{% endblock %}
-{% block og_title %}Biz Haqimizda - TrendoAI{% endblock %}
-{% block og_description %}TrendoAI - O'zbekistondagi yetakchi texnologiya va sun'iy intellekt blog platformasi. Trending mavzular va professional IT kontentlar.{% endblock %}
-{% block twitter_title %}Biz Haqimizda - TrendoAI{% endblock %}
-{% block twitter_description %}TrendoAI - O'zbekistondagi yetakchi texnologiya va sun'iy intellekt blog platformasi.{% endblock %}
+{% block og_title %}TrendoAI haqida — IT avtomatlashtirish jamoasi{% endblock %}
+{% block og_description %}Telegram bot, web sayt va AI avtomatlashtirish yechimlarini yaratadigan TrendoAI jamoasi bilan tanishing.{% endblock %}
+{% block twitter_title %}TrendoAI haqida — IT avtomatlashtirish jamoasi{% endblock %}
+{% block twitter_description %}Telegram bot, web sayt va AI avtomatlashtirish yechimlarini yaratadigan TrendoAI jamoasi.{% endblock %}
 
 {% block extra_head %}
 <script type="application/ld+json">
@@ -17,8 +16,8 @@ Trending mavzular va professional IT kontentlar.{% endblock %}
     "@context": "https://schema.org",
     "@type": "AboutPage",
     "url": "{{ config.SITE_URL }}/about",
-    "name": "Biz Haqimizda - TrendoAI",
-    "description": "TrendoAI - O'zbekistondagi yetakchi texnologiya va sun'iy intellekt blog platformasi.",
+    "name": "TrendoAI haqida — IT avtomatlashtirish jamoasi",
+    "description": "Telegram bot, web sayt va AI avtomatlashtirish yechimlarini yaratadigan O'zbekiston IT jamoasi.",
     "publisher": {
         "@type": "Organization",
         "name": "TrendoAI",
@@ -31,8 +30,8 @@ Trending mavzular va professional IT kontentlar.{% endblock %}
 
 {% block content %}
 <section class="about-hero">
-    <h2>🚀 Biz Haqimizda</h2>
-    <p class="lead">TrendoAI — texnologiya olamidagi eng so'nggi trendlarni sizga yetkazuvchi platforma</p>
+    <h1>🚀 Biz Haqimizda</h1>
+    <p class="lead">Biznes jarayonlarini Telegram bot, web sayt va AI yordamida soddalashtiradigan IT jamoa</p>
 </section>
 
 <section class="about-section">
@@ -111,6 +110,10 @@ Trending mavzular va professional IT kontentlar.{% endblock %}
 
     <form class="order-form" action="{{ url_for('submit_order') }}" method="POST">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <div class="visually-hidden" aria-hidden="true">
+            <label for="about-website">Website</label>
+            <input id="about-website" type="text" name="website" tabindex="-1" autocomplete="off">
+        </div>
         <div class="form-row">
             <div class="form-group">
                 <label for="name">👤 Ismingiz *</label>

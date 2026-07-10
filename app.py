@@ -87,6 +87,10 @@ CSRF_EXEMPT_ENDPOINTS = {
 
 @app.before_request
 def check_csrf():
+    # WTF_CSRF_ENABLED=False bo'lsa (masalan, testlarda) CSRF tekshiruvini o'tkazib yuboramiz.
+    # Flask-WTF ning csrf.protect() metodi bu bayroqni o'zi tekshirmagani uchun qo'lda qaraymiz.
+    if not app.config.get('WTF_CSRF_ENABLED', True):
+        return
     if request.endpoint in CSRF_EXEMPT_ENDPOINTS:
         return
     # Qolgan barcha POST/PUT/DELETE requestlar uchun CSRF tekshiruvi
@@ -99,6 +103,17 @@ def security_headers(response):
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers['Content-Security-Policy'] = (
+        "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; "
+        "form-action 'self'; upgrade-insecure-requests"
+    )
+    response.headers['Permissions-Policy'] = (
+        'camera=(), geolocation=(), payment=(), usb=(), microphone=(self)'
+    )
+    response.headers['Cross-Origin-Opener-Policy'] = 'same-origin-allow-popups'
+    response.headers['X-Permitted-Cross-Domain-Policies'] = 'none'
+    if request.path.startswith('/static/'):
+        response.headers.setdefault('Cache-Control', 'public, max-age=604800')
     if not DEBUG:
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     return response
@@ -119,6 +134,14 @@ def _cron_secret_error():
 def _has_valid_cron_secret():
     secret = request.args.get('secret') or request.headers.get('X-Cron-Secret')
     return bool(secret and secret == app.config.get('CRON_SECRET'))
+
+
+PUBLIC_SERVICE_PRICING = {
+    'telegram_bot': {'min_display': '300,000', 'max_display': "3,000,000 so'm"},
+    'web_site': {'min_display': '500,000', 'max_display': "3,000,000 so'm"},
+    'ai_chatbot': {'min_display': '1,000,000', 'max_display': "5,000,000 so'm"},
+    'target_ads': {'min_display': '600,000', 'max_display': "1,000,000 so'm"},
+}
 
 
 # ========== SERVICE DATA (For Landing Pages) ==========
@@ -149,7 +172,7 @@ SERVICES_DATA = {
             'Boshqaruv paneli (Admin Panel)',
             'Mijozlar bazasi va statistika'
         ],
-        'price': '1,500,000 so\'m dan',
+        'price': "300,000 - 3,000,000 so'm",
         'full_description': "Sizning biznes jarayonlaringizni avtomatlashtirish uchun murakkab va foydali Telegram botlarni ishlab chiqamiz. Savdo botlari, mijozlarni qo'llab-quvvatlash botlari, e-commerce Mini Applar va maxsus tizimlar - barchasini TrendoAI jamoasi taqdim etadi.",
         'meta_desc': "Telegram botlar va Mini Applar ishlab chiqish. Biznesingizni Telegram orqali avtomatlashtiring va savdoni oshiring."
     },
@@ -164,7 +187,7 @@ SERVICES_DATA = {
             'E-commerce (Internet do\'konlar)',
             'Zamonaviy UI/UX va mobil moslashuv'
         ],
-        'price': '2,000,000 so\'m dan',
+        'price': "500,000 - 3,000,000 so'm",
         'full_description': "Biz zamonaviy texnologiyalar (Next.js, React, Flask, Node.js) yordamida har qanday murakkablikdagi veb-saytlarni yaratamiz. Saytlarimiz tezligi, Google qidiruv tizimi uchun to'liq optimalligi va brendingizga mos dizayni bilan ajralib turadi.",
         'meta_desc': "Professional veb-saytlar yaratish. Landing page, korporativ saytlar va internet do'konlar. SEO va mobil adaptiv."
     },
@@ -179,7 +202,7 @@ SERVICES_DATA = {
             'Telegram, WhatsApp va Sayt uchun yagona bot',
             'Mijozlar bilan insondek muloqot'
         ],
-        'price': '2,500,000 so\'m dan',
+        'price': "1,000,000 - 5,000,000 so'm",
         'full_description': "Mijozlaringiz bilan kechayu-kunduz muloqot qiladigan, ularning savollariga aniq va aqlli javob beradigan AI chatbotlarni yarating. Gemini yoki ChatGPT asosidagi ushbu tizimlar xodimlar xarajatini kamaytiradi va mijozlar talabiga tezkor javob beradi.",
         'meta_desc': "Aqlli AI Chatbotlar va virtual assistentlar yaratish. Biznesingiz uchun sun'iy intellektli mijozlar xizmati."
     },
@@ -342,6 +365,12 @@ class Service(db.Model):
 
 class Post(db.Model):
     """Blog post modeli"""
+    __table_args__ = (
+        db.Index('ix_post_published_created', 'is_published', 'created_at'),
+        db.Index('ix_post_published_views', 'is_published', 'views'),
+        db.Index('ix_post_category_published_created', 'category', 'is_published', 'created_at'),
+    )
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     slug = db.Column(db.String(250), unique=True, nullable=True)
@@ -468,6 +497,11 @@ class BotOrder(db.Model):
 
 class Portfolio(db.Model):
     """Portfolio loyihalar modeli (SEO-optimized)"""
+    __table_args__ = (
+        db.Index('ix_portfolio_published_created', 'is_published', 'created_at'),
+        db.Index('ix_portfolio_category_published_created', 'category', 'is_published', 'created_at'),
+    )
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     slug = db.Column(db.String(250), unique=True, nullable=True)  # SEO URL
@@ -627,7 +661,7 @@ def login_required(f):
 @app.route('/')
 def index():
     """Bosh sahifa — xizmatlar sahifasi"""
-    return render_template('services.html')
+    return render_template('services.html', pricing=PUBLIC_SERVICE_PRICING)
 
 
 @app.route('/blog')
@@ -805,18 +839,45 @@ def service_detail(service_key):
         related_portfolio = Portfolio.query.filter_by(category=cat, is_published=True).limit(3).all()
 
     all_services = Service.query.filter_by(is_active=True).order_by(Service.order.asc()).all()
+    pricing = PUBLIC_SERVICE_PRICING.get(service.slug)
+    public_price = (
+        f"{pricing['min_display']} - {pricing['max_display']}"
+        if pricing
+        else service.price
+    )
 
     return render_template('service_detail.html', 
                          service=service, 
                          related_portfolio=related_portfolio,
-                         services=all_services)
+                         services=all_services,
+                         public_price=public_price)
 
 
 @app.route('/portfolio')
 def portfolio():
     """Portfolio sahifasi"""
-    portfolios = Portfolio.query.filter_by(is_published=True).order_by(Portfolio.created_at.desc()).all()
-    return render_template('portfolio.html', portfolios=portfolios)
+    page = request.args.get('page', 1, type=int)
+    category = (request.args.get('category') or '').strip().lower()
+    allowed_categories = {'bot', 'web', 'ai', 'mobile'}
+
+    query = Portfolio.query.filter_by(is_published=True)
+    if category in allowed_categories:
+        query = query.filter_by(category=category)
+    else:
+        category = ''
+
+    pagination = query.order_by(Portfolio.created_at.desc()).paginate(
+        page=page,
+        per_page=12,
+        error_out=False,
+    )
+
+    return render_template(
+        'portfolio.html',
+        portfolios=pagination.items,
+        pagination=pagination,
+        active_category=category,
+    )
 
 
 @app.route('/portfolio/project/<slug>')
@@ -840,14 +901,59 @@ def order_page():
     return render_template('order.html')
 
 
+ORDER_RATE_LIMIT = 3
+ORDER_RATE_WINDOW_SECONDS = 10 * 60
+_order_submissions = {}
+_order_rate_lock = threading.Lock()
+
+
 @app.route('/submit-order', methods=['POST'])
 def submit_order():
     """Xizmatga yozilish formasi"""
-    name = request.form.get('name')
-    phone = request.form.get('phone')
-    service = request.form.get('service')
-    budget = request.form.get('budget', '')
-    message = request.form.get('message', '')
+    if (request.form.get('website') or '').strip():
+        # Honeypot: botlarga muvaffaqiyatli ko'rinish berib, yozuv yaratmaymiz.
+        return redirect(url_for('index'), code=303)
+
+    name = (request.form.get('name') or '').strip()
+    phone = (request.form.get('phone') or '').strip()
+    service = (request.form.get('service') or '').strip()
+    budget = (request.form.get('budget') or '').strip()
+    message = (request.form.get('message') or '').strip()
+
+    allowed_services = {
+        'ai_content', 'telegram_bot', 'web_site', 'consulting',
+        'smm', 'ai_chatbot', 'target_ads', 'other',
+    }
+
+    if len(name) < 2 or len(name) > 100:
+        flash("Ismingizni 2–100 belgi oralig'ida kiriting.", 'error')
+        return redirect(request.referrer or url_for('order_page'), code=303)
+    if not re.fullmatch(r'\+?[0-9\s()\-]{7,20}', phone):
+        flash("Telefon raqamini to'g'ri formatda kiriting.", 'error')
+        return redirect(request.referrer or url_for('order_page'), code=303)
+    if service not in allowed_services:
+        flash("Xizmat turini tanlang.", 'error')
+        return redirect(request.referrer or url_for('order_page'), code=303)
+    if len(budget) > 50 or len(message) > 2000:
+        flash("Byudjet yoki loyiha tavsifi juda uzun.", 'error')
+        return redirect(request.referrer or url_for('order_page'), code=303)
+
+    ip = _client_ip()
+    with _order_rate_lock:
+        now = time.time()
+        recent_submissions = [
+            submitted_at
+            for submitted_at in _order_submissions.get(ip, [])
+            if now - submitted_at < ORDER_RATE_WINDOW_SECONDS
+        ]
+        rate_limited = len(recent_submissions) >= ORDER_RATE_LIMIT
+        if not rate_limited:
+            recent_submissions.append(now)
+        _order_submissions[ip] = recent_submissions
+
+    if rate_limited:
+        flash("Juda ko'p ariza yuborildi. 10 daqiqadan so'ng qayta urinib ko'ring.", 'error')
+        return render_template('order.html'), 429
     
     # Service nomlarini o'zbekchaga o'girish
     service_names = {
@@ -856,7 +962,9 @@ def submit_order():
         'web_site': 'Web Sayt',
         'consulting': 'IT Konsalting',
         'smm': 'SMM Avtomatlashtirish',
-        'ai_chatbot': 'AI Chatbot'
+        'ai_chatbot': 'AI Chatbot',
+        'target_ads': 'Target Reklama',
+        'other': 'Boshqa xizmat',
     }
     
     service_name = service_names.get(service, service)
@@ -871,8 +979,14 @@ def submit_order():
         message=message,
         status='new'
     )
-    db.session.add(order)
-    db.session.commit()
+    try:
+        db.session.add(order)
+        db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.exception("Buyurtmani saqlashda xato: %s", exc)
+        flash("Arizani saqlashda vaqtinchalik xato yuz berdi. Iltimos, qayta urinib ko'ring.", 'error')
+        return redirect(request.referrer or url_for('order_page'), code=303)
     
     # Telegram Admin ga yuborish
     try:
@@ -909,7 +1023,7 @@ def submit_order():
         print(f"Telegram yuborishda xato: {e}")
     
     flash(f'Rahmat, {name}! Arizangiz qabul qilindi. Tez orada siz bilan boglanamiz!', 'success')
-    return redirect(url_for('index'))
+    return redirect(url_for('index'), code=303)
 
 
 # ========== ADMIN ROUTES ==========
@@ -1681,7 +1795,11 @@ def _local_chat_fallback(user_message, exc=None):
         return prefix + "Salom! TrendoAI web saytlar, Telegram botlar, AI chatbotlar va SMM bo'yicha yordam beradi. Qaysi xizmat sizga kerak?"
 
     if any(word in message for word in ["narx", "qancha", "price", "sum", "so'm"]):
-        return prefix + "Narx loyiha murakkabligiga bog'liq. Telegram botlar odatda 1 500 000 so'mdan, web saytlar 2 000 000 so'mdan, AI chatbotlar 2 500 000 so'mdan boshlanadi. Aniq hisoblash uchun Telegram username yoki telefon raqamingizni qoldiring."
+        return prefix + (
+            "Narx loyiha murakkabligiga bog'liq. Telegram botlar 300 000 so'mdan, "
+            "web saytlar 500 000 so'mdan, AI chatbotlar 1 000 000 so'mdan boshlanadi. "
+            "Aniq hisoblash uchun Telegram username yoki telefon raqamingizni qoldiring."
+        )
 
     if any(word in message for word in ["bot", "telegram"]):
         return prefix + "Telegram bot uchun buyurtma, to'lov, admin panel, CRM va xabar avtomatlashtirish funksiyalarini qilib beramiz. Qanday biznes uchun bot kerak?"
@@ -2996,6 +3114,27 @@ def init_database():
             ensure_varchar_column("portfolio", "price")
             ensure_varchar_column("service", "price")
             ensure_text_column("post", "image_prompt")
+
+            for table_name, index_names in {
+                'post': (
+                    'ix_post_published_created',
+                    'ix_post_published_views',
+                    'ix_post_category_published_created',
+                ),
+                'portfolio': (
+                    'ix_portfolio_published_created',
+                    'ix_portfolio_category_published_created',
+                ),
+            }.items():
+                table = db.metadata.tables.get(table_name)
+                if table is None or table_name not in table_names:
+                    continue
+                indexes_by_name = {index.name: index for index in table.indexes}
+                for index_name in index_names:
+                    index = indexes_by_name.get(index_name)
+                    if index is not None:
+                        index.create(bind=db.engine, checkfirst=True)
+                        print(f"INFO: ensured index {index_name}.")
 
             # PostgreSQL uchun meta_description ni TEXT ga o'zgartirish
             if "portfolio" in table_names and db.engine.dialect.name == "postgresql":

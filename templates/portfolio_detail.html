@@ -7,10 +7,10 @@
 {% block og_title %}{{ item.title }} - TrendoAI{% endblock %}
 {% block og_description %}{{ item.description | truncate(160) }}{% endblock %}
 {% block og_type %}product{% endblock %}
-{% block og_image %}{{ item.image_url or config.SITE_URL ~ '/static/img/og-image.png' }}{% endblock %}
+{% block og_image %}{{ item.image_url or config.SITE_URL ~ '/static/img/og-image.jpg' }}{% endblock %}
 {% block twitter_title %}{{ item.title }} - TrendoAI{% endblock %}
 {% block twitter_description %}{{ item.description | truncate(160) }}{% endblock %}
-{% block twitter_image %}{{ item.image_url or config.SITE_URL ~ '/static/img/og-image.png' }}{% endblock %}
+{% block twitter_image %}{{ item.image_url or config.SITE_URL ~ '/static/img/og-image.jpg' }}{% endblock %}
 
 {% block extra_head %}
 <meta property="product:category" content="{{ item.category }}">

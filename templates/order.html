@@ -20,6 +20,10 @@ qiling.{% endblock %}
 
     <form class="order-form" action="{{ url_for('submit_order') }}" method="POST">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <div class="visually-hidden" aria-hidden="true">
+            <label for="order-website">Website</label>
+            <input id="order-website" type="text" name="website" tabindex="-1" autocomplete="off">
+        </div>
         <div class="form-row">
             <div class="form-group">
                 <label for="name">👤 Ismingiz *</label>
@@ -251,7 +255,13 @@ qiling.{% endblock %}
         if (serviceParam) {
             const serviceSelect = document.getElementById('service');
             if (serviceSelect) {
-                serviceSelect.value = serviceParam;
+                const serviceMap = {
+                    web: 'web_site',
+                    bot: 'telegram_bot',
+                    ai: 'ai_chatbot',
+                    mobile: 'other',
+                };
+                serviceSelect.value = serviceMap[serviceParam] || serviceParam;
                 // AddToCart event if coming from service page
                 if (typeof fbq !== 'undefined') {
                     fbq('track', 'AddToCart', {

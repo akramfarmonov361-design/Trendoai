@@ -1,4 +1,4 @@
-const CACHE_NAME = 'trendoai-v5';
+const CACHE_NAME = 'trendoai-v6';
 const urlsToCache = [
     '/static/manifest.json',
     '/static/favicon.svg',

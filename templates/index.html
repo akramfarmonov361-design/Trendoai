@@ -30,15 +30,15 @@
         </div>
     </div>
     <div class="hero-cta" style="margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-        <a href="https://t.me/TrendoAibot" target="_blank" class="cta-button" style="display: inline-flex; align-items: center; gap: 8px;">🤖 AI Assistent bilan gaplashing</a>
-        <a href="https://t.me/trendoai" target="_blank" class="cta-button secondary" style="display: inline-flex; align-items: center; gap: 8px;">📢 Kanalga obuna bo'ling</a>
+        <a href="https://t.me/TrendoAibot" target="_blank" rel="noopener noreferrer" class="cta-button" style="display: inline-flex; align-items: center; gap: 8px;">🤖 AI Assistent bilan gaplashing</a>
+        <a href="https://t.me/trendoai" target="_blank" rel="noopener noreferrer" class="cta-button secondary" style="display: inline-flex; align-items: center; gap: 8px;">📢 Kanalga obuna bo'ling</a>
     </div>
 </section>
 
 <section class="search-section">
     <form action="{{ url_for('search') }}" method="GET" class="search-form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <input type="text" name="q" placeholder="Maqola qidirish..." value="{{ request.args.get('q', '') }}">
+        <label class="visually-hidden" for="blog-search">Maqola qidirish</label>
+        <input id="blog-search" type="search" name="q" placeholder="Maqola qidirish..." value="{{ request.args.get('q', '') }}">
         <button type="submit">Qidirish</button>
     </form>
 
@@ -79,7 +79,7 @@
             {% if post.image_url %}
             <div class="post-image">
                 <a href="{{ url_for('post_by_slug', slug=post.slug) if post.slug else url_for('post', post_id=post.id) }}">
-                    <img src="{{ post.image_url }}" alt="{{ post.title }}" loading="lazy">
+                    <img src="{{ post.image_url }}" alt="{{ post.title }}" width="640" height="360" decoding="async" {% if loop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
                 </a>
             </div>
             {% endif %}

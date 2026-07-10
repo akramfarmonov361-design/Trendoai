@@ -4,13 +4,18 @@ from app import app, db, PushSubscription
 
 class PWATests(unittest.TestCase):
     def setUp(self):
+        self._orig_csrf = app.config.get('WTF_CSRF_ENABLED', True)
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
         self.client = app.test_client()
-        
+
         # Ensure database is set up
         with app.app_context():
             db.create_all()
+
+    def tearDown(self):
+        # Global app config'ni tiklaymiz, aks holda boshqa testlarda CSRF o'chib qoladi.
+        app.config['WTF_CSRF_ENABLED'] = self._orig_csrf
 
     def test_manifest_exists(self):
         """Verify the manifest.json is served correctly"""
@@ -26,7 +31,7 @@ class PWATests(unittest.TestCase):
         response = self.client.get('/sw.js')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers['Content-Type'], 'application/javascript')
-        self.assertIn(b'trendoai-v5', response.data)
+        self.assertIn(b'trendoai-v6', response.data)
 
     def test_push_subscribe_valid(self):
         """Test subscribing to push notifications with valid keys"""

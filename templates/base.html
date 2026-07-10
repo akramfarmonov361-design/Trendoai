@@ -70,10 +70,10 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
     <meta property="og:url" content="{% block og_url %}{{ config.SITE_URL }}{{ request.path }}{% endblock %}">
-    <meta property="og:title" content="{% block og_title %}TrendoAI - Trending Texnologiyalar{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}TrendoAI — IT avtomatlashtirish yechimlari{% endblock %}">
     <meta property="og:description"
-        content="{% block og_description %}O'zbekistonda trending texnologiya yangiliklari va AI-powered professional blog{% endblock %}">
-    <meta property="og:image" content="{% block og_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}">
+        content="{% block og_description %}Telegram bot, web sayt va AI chatbotlar orqali biznes jarayonlarini avtomatlashtiramiz.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endblock %}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="{% block og_image_alt %}TrendoAI - Trending Texnologiyalar{% endblock %}">
@@ -84,9 +84,9 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{% block twitter_title %}TrendoAI - Trending Texnologiyalar{% endblock %}">
     <meta name="twitter:description"
-        content="{% block twitter_description %}Trending texnologiyalar va sun'iy intellekt{% endblock %}">
+        content="{% block twitter_description %}Telegram bot, web sayt va AI avtomatlashtirish yechimlari{% endblock %}">
     <meta name="twitter:image"
-        content="{% block twitter_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}">
+        content="{% block twitter_image %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endblock %}">
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
@@ -133,7 +133,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- FontAwesome (async to avoid render-blocking) -->
     <link rel="preload" as="style"
@@ -148,7 +148,7 @@
     </noscript>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=4">
 
     <!-- Extra Head (for child templates) -->
     {% block extra_head %}{% endblock %}
@@ -166,7 +166,7 @@
                     <span class="logo-text">Trendo<span class="logo-highlight">AI</span></span>
                 </a>
             </div>
-            <p class="tagline">Trending texnologiyalar va sun'iy intellekt</p>
+            <p class="tagline">IT avtomatlashtirish yechimlari</p>
 
             <!-- Mobile Hamburger Menu Button -->
             <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Asosiy menyu" aria-expanded="false" aria-controls="mainNav">
@@ -185,6 +185,7 @@
                     class="{% if request.endpoint in ['portfolio', 'portfolio_item'] %}active{% endif %}">🎨 Portfolio</a>
                 <a href="{{ url_for('about') }}" class="{% if request.endpoint == 'about' %}active{% endif %}">ℹ️ Biz
                     haqimizda</a>
+                <a href="{{ url_for('order_page') }}" class="nav-order-cta {% if request.endpoint == 'order_page' %}active{% endif %}">Buyurtma berish</a>
             </nav>
             <div class="social-icons">
                 <a href="https://www.youtube.com/@Trendoaiuz?sub_confirmation=1" target="_blank"
@@ -248,7 +249,7 @@
                 <span class="logo-icon">🔥</span>
                 <strong>TrendoAI</strong>
             </div>
-            <p>Trending texnologiyalar va sun'iy intellekt haqida professional blog</p>
+            <p>Telegram bot, web sayt va AI avtomatlashtirish yechimlari</p>
             <div class="footer-links">
                 <a href="https://t.me/TrendoAibot" target="_blank">📱 Bot: @TrendoAibot</a>
                 <a href="tel:+998974771229">📞 +998 97 477 12 29</a>
@@ -944,6 +945,10 @@
     </div>
 
     <script>
+        document.querySelectorAll('a[target="_blank"]').forEach(link => {
+            link.relList.add('noopener', 'noreferrer');
+        });
+
         // Header scrolls normally with the page (no auto-hide)
         const header = document.querySelector('header');
 

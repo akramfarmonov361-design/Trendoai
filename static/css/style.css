@@ -3,9 +3,6 @@
    Glassmorphism + Modern Gradients + Animations
    ======================================== */
 
-/* Import Premium Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
 /* ========== VARIABLES ========== */
 :root {
     /* Premium Colors */
@@ -325,6 +322,13 @@ nav a.active {
 nav a:hover::before,
 nav a.active::before {
     opacity: 1;
+}
+
+nav a.nav-order-cta {
+    color: white;
+    border-color: transparent;
+    background: var(--gradient-main);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.25);
 }
 
 /* Mobile Menu Button - Hidden on Desktop */
@@ -1608,6 +1612,17 @@ main {
     }
 }
 
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
 .article-content pre code {
     background: none;
     padding: 0;
@@ -1801,8 +1816,8 @@ main {
         radial-gradient(circle at 80% 20%, rgba(244, 114, 182, 0.2) 0%, transparent 50%);
 }
 
-.about-hero h2,
-.services-hero h2 {
+.about-hero h1,
+.services-hero h1 {
     font-size: 2.5rem;
     font-weight: 800;
     margin-bottom: 12px;
@@ -2586,8 +2601,8 @@ footer {
         padding: 40px 20px;
     }
 
-    .about-hero h2,
-    .services-hero h2,
+    .about-hero h1,
+    .services-hero h1,
     .portfolio-hero h1 {
         font-size: 1.8rem;
     }

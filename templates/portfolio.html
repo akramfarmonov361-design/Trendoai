@@ -2,24 +2,25 @@
 
 {% block title %}Portfolio - TrendoAI | Telegram Bot, Web Sayt, AI Yechimlar{% endblock %}
 
-{% block meta_description %}TrendoAI portfolio: Professional Telegram botlar, zamonaviy web saytlar, AI yechimlar. 50+
-muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
-{% block canonical_url %}{{ config.SITE_URL }}/portfolio{% endblock %}
+{% block meta_description %}TrendoAI portfolio: {{ pagination.total }} ta Telegram bot, zamonaviy web sayt va AI yechim. Real loyihalarni ko'ring va bepul konsultatsiya oling.{% endblock %}
+{% block canonical_url %}{{ config.SITE_URL }}/portfolio{% if active_category or pagination.page > 1 %}?{% if active_category %}category={{ active_category }}{% endif %}{% if active_category and pagination.page > 1 %}&{% endif %}{% if pagination.page > 1 %}page={{ pagination.page }}{% endif %}{% endif %}{% endblock %}
 {% block og_url %}{{ config.SITE_URL }}/portfolio{% endblock %}
 {% block og_title %}TrendoAI Portfolio - Professional IT Xizmatlari{% endblock %}
-{% block og_description %}50+ muvaffaqiyatli loyihalar: Telegram botlar, web saytlar, AI yechimlar. Bepul konsultatsiya olish uchun bog'laning!{% endblock %}
-{% block og_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}
+{% block og_description %}{{ pagination.total }} ta real loyiha: Telegram botlar, web saytlar va AI yechimlar.{% endblock %}
+{% block og_image %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endblock %}
 {% block twitter_title %}TrendoAI Portfolio - Professional IT Xizmatlari{% endblock %}
-{% block twitter_description %}50+ muvaffaqiyatli loyihalar: Telegram botlar, web saytlar, AI yechimlar. Bepul konsultatsiya olish uchun bog'laning!{% endblock %}
-{% block twitter_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}
+{% block twitter_description %}{{ pagination.total }} ta real loyiha: Telegram botlar, web saytlar va AI yechimlar.{% endblock %}
+{% block twitter_image %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endblock %}
 
 {% block extra_head %}
+{% if pagination.has_prev %}<link rel="prev" href="{{ url_for('portfolio', page=pagination.prev_num, category=active_category or None, _external=True) }}">{% endif %}
+{% if pagination.has_next %}<link rel="next" href="{{ url_for('portfolio', page=pagination.next_num, category=active_category or None, _external=True) }}">{% endif %}
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": "TrendoAI Portfolio - Professional IT Xizmatlari",
-    "description": "50+ muvaffaqiyatli loyihalar: Telegram botlar, web saytlar, AI yechimlar.",
+    "description": "{{ pagination.total }} ta real loyiha: Telegram botlar, web saytlar va AI yechimlar.",
     "url": "{{ config.SITE_URL }}/portfolio",
     "inLanguage": "uz",
     "isPartOf": {
@@ -29,13 +30,13 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
     },
     "mainEntity": {
         "@type": "ItemList",
-        "numberOfItems": {{ portfolios|length if portfolios else 0 }},
+        "numberOfItems": {{ pagination.total }},
         "itemListOrder": "https://schema.org/ItemListOrderDescending",
         "itemListElement": [
             {% for item in portfolios %}
             {
                 "@type": "ListItem",
-                "position": {{ loop.index }},
+                "position": {{ ((pagination.page - 1) * pagination.per_page) + loop.index }},
                 "url": "{{ config.SITE_URL }}/portfolio/project/{{ item.slug }}",
                 "name": {{ item.title | tojson }}{% if item.description %},
                 "description": {{ item.description | truncate(160) | tojson }}{% endif %}
@@ -76,16 +77,16 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
         <p class="hero-subtitle">Muvaffaqiyatli yakunlangan loyihalar va mijozlarimiz uchun yaratilgan yechimlar</p>
         <div class="hero-stats">
             <div class="hero-stat">
-                <span class="stat-value">50+</span>
+                <span class="stat-value">{{ pagination.total }}</span>
                 <span class="stat-label">Loyihalar</span>
             </div>
             <div class="hero-stat">
-                <span class="stat-value">100+</span>
-                <span class="stat-label">Mijozlar</span>
+                <span class="stat-value">4</span>
+                <span class="stat-label">Yo'nalishlar</span>
             </div>
             <div class="hero-stat">
-                <span class="stat-value">5+</span>
-                <span class="stat-label">Yillik Tajriba</span>
+                <span class="stat-value">Bepul</span>
+                <span class="stat-label">Konsultatsiya</span>
             </div>
         </div>
     </div>
@@ -93,11 +94,11 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
 
 <!-- Filter -->
 <section class="portfolio-filter">
-    <button class="filter-btn active" data-filter="all">Barchasi</button>
-    <button class="filter-btn" data-filter="bot">🤖 Telegram Botlar</button>
-    <button class="filter-btn" data-filter="web">🌐 Web Saytlar</button>
-    <button class="filter-btn" data-filter="ai">🧠 AI Yechimlar</button>
-    <button class="filter-btn" data-filter="mobile">📱 Mobile</button>
+    <a class="filter-btn {% if not active_category %}active{% endif %}" href="{{ url_for('portfolio') }}">Barchasi</a>
+    <a class="filter-btn {% if active_category == 'bot' %}active{% endif %}" href="{{ url_for('portfolio', category='bot') }}">🤖 Telegram Botlar</a>
+    <a class="filter-btn {% if active_category == 'web' %}active{% endif %}" href="{{ url_for('portfolio', category='web') }}">🌐 Web Saytlar</a>
+    <a class="filter-btn {% if active_category == 'ai' %}active{% endif %}" href="{{ url_for('portfolio', category='ai') }}">🧠 AI Yechimlar</a>
+    <a class="filter-btn {% if active_category == 'mobile' %}active{% endif %}" href="{{ url_for('portfolio', category='mobile') }}">📱 Mobile</a>
 </section>
 
 <!-- Portfolio Grid -->
@@ -181,6 +182,7 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
     {% endif %}
 
     <!-- Project 2 -->
+    {% if not pagination.total %}
     <article class="portfolio-card" data-category="web">
         <div class="card-image">
             <span class="card-emoji">🌐</span>
@@ -716,7 +718,20 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
             </div>
         </div>
     </article>
+    {% endif %}
 </section>
+
+{% if pagination.pages > 1 %}
+<nav class="portfolio-pagination" aria-label="Portfolio sahifalari">
+    {% if pagination.has_prev %}
+    <a class="page-link" href="{{ url_for('portfolio', page=pagination.prev_num, category=active_category or None) }}">← Oldingi</a>
+    {% endif %}
+    <span class="page-info">Sahifa {{ pagination.page }} / {{ pagination.pages }}</span>
+    {% if pagination.has_next %}
+    <a class="page-link" href="{{ url_for('portfolio', page=pagination.next_num, category=active_category or None) }}">Keyingi →</a>
+    {% endif %}
+</nav>
+{% endif %}
 
 <!-- Testimonials -->
 <section class="testimonials-section">
@@ -822,6 +837,10 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
     }
 
     .filter-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
         padding: 12px 24px;
         background: var(--bg-elevated);
         border: 1px solid var(--border);
@@ -829,6 +848,7 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
         color: var(--text-secondary);
         font-weight: 600;
         font-family: inherit;
+        text-decoration: none;
         cursor: pointer;
         transition: var(--transition-smooth);
     }
@@ -866,6 +886,32 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
 
     .portfolio-card.featured {
         border-color: var(--accent);
+    }
+
+    .portfolio-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin: -24px 0 56px;
+    }
+
+    .portfolio-pagination .page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 10px 18px;
+        border: 1px solid var(--border-light);
+        border-radius: 12px;
+        color: var(--text-primary);
+        text-decoration: none;
+        background: var(--bg-card);
+    }
+
+    .portfolio-pagination .page-link:hover {
+        border-color: var(--primary);
+        color: var(--primary-light);
     }
 
     .card-badge {
@@ -1139,7 +1185,7 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
         }
 
         .portfolio-hero .hero-stat .stat-label {
-            font-size: 0.65rem;
+            font-size: 0.75rem;
         }
 
         .portfolio-filter {
@@ -1148,20 +1194,20 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
         }
 
         .filter-btn {
-            padding: 8px 14px;
-            font-size: 0.75rem;
+            padding: 9px 14px;
+            font-size: 0.875rem;
         }
 
-        /* 2-Column Mobile Grid */
+        /* One-column mobile grid keeps text and actions readable. */
         .portfolio-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            grid-template-columns: 1fr;
+            gap: 18px;
             margin-bottom: 24px;
-            padding: 0 8px;
+            padding: 0;
         }
 
         .card-image {
-            height: 100px;
+            height: 170px;
         }
 
         .card-emoji {
@@ -1174,18 +1220,18 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
         }
 
         .card-content {
-            padding: 10px;
+            padding: 18px;
         }
 
         .card-category {
-            font-size: 0.6rem !important;
-            padding: 2px 6px !important;
-            margin-bottom: 4px !important;
+            font-size: 0.75rem !important;
+            padding: 4px 9px !important;
+            margin-bottom: 8px !important;
         }
 
         .card-content h3 {
-            font-size: 0.85rem;
-            margin-bottom: 4px;
+            font-size: 1.15rem;
+            margin-bottom: 8px;
             line-height: 1.3;
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -1194,13 +1240,16 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
         }
 
         .card-content p {
-            display: none;
-            /* Hide description on mobile 2-col */
+            display: -webkit-box;
+            font-size: 0.9rem;
+            line-height: 1.55;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .card-tech {
-            display: none;
-            /* Hide tech tags on mobile 2-col */
+            display: flex;
         }
 
         /* Mobile action buttons */
@@ -1213,13 +1262,24 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
         .btn-order {
             width: 100%;
             justify-content: center;
-            padding: 8px 12px;
-            font-size: 0.75rem;
+            min-height: 44px;
+            padding: 10px 14px;
+            font-size: 0.875rem;
         }
 
         .btn-detail {
-            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            font-size: 0.875rem;
             text-align: center;
+        }
+
+        .portfolio-pagination {
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 0 0 32px;
         }
 
         /* Hide old card-detail-btn */
@@ -1250,7 +1310,7 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
         }
     }
 
-    /* Very small mobile - single column fallback */
+    /* Very small mobile */
     @media (max-width: 380px) {
         .portfolio-grid {
             grid-template-columns: 1fr;
@@ -1265,9 +1325,9 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
 </style>
 
 <!-- Project Detail Modal -->
-<div id="projectModal" class="modal-overlay">
+<div id="projectModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
     <div class="modal-content glass">
-        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <button class="modal-close" type="button" aria-label="Loyiha oynasini yopish" onclick="closeModal()">&times;</button>
         <div class="modal-layout">
             <div class="modal-image-side">
                 <span id="modalEmoji" class="modal-emoji">🚀</span>
@@ -1305,7 +1365,7 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
                         <a id="modalOrderBtn" href="{{ url_for('order_page') }}" class="modal-btn order-now">
                             🚀 Buyurtma berish
                         </a>
-                        <a id="modalLink" href="#" target="_blank" class="modal-btn primary">
+                        <a id="modalLink" href="#" target="_blank" rel="noopener noreferrer" class="modal-btn primary">
                             🌐 Ko'rish
                         </a>
                     </div>
@@ -1600,10 +1660,12 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
 
 <script>
     const modal = document.getElementById('projectModal');
+    let lastFocusedElement = null;
     const portfoliosData = [
         {% for item in portfolios %}
         {{ item.to_dict() | tojson | safe }},
         {% endfor %}
+        {% if not pagination.total %}
         {
             id: 'manual-kfc',
             slug: 'restoran-kfc-frontend',
@@ -1784,11 +1846,14 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
             details_html: "<p>Media va dublyaj ishloviga mo'ljallangan AI interfeys. Asosiy fokus foydalanuvchiga audio yoki media jarayonlarini qulay va tez boshqarish imkonini berish.</p>",
             features: ['Media ishlov', 'Dublyaj oqimi', 'Responsive dizayn', 'Live demo link']
         }
+        {% endif %}
     ];
 
     function openModal(projectId) {
         const project = portfoliosData.find(p => p.id === projectId);
         if (!project) return;
+
+        lastFocusedElement = document.activeElement;
 
         document.getElementById('modalEmoji').textContent = project.emoji || '🚀';
         document.getElementById('modalTitle').textContent = project.title;
@@ -1853,7 +1918,9 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
         }
 
         modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
+        modal.querySelector('.modal-close').focus();
 
         // Facebook Pixel: Track ViewContent event for ads optimization
         if (typeof fbq !== 'undefined') {
@@ -1868,7 +1935,11 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
 
     function closeModal() {
         modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = 'auto';
+        if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+            lastFocusedElement.focus();
+        }
     }
 
     // Close on backdrop click
@@ -1876,10 +1947,46 @@ muvaffaqiyatli loyihalar. Bepul konsultatsiya!{% endblock %}
         if (e.target === modal) closeModal();
     });
 
-    // Portfolio Filter
-    document.querySelectorAll('.filter-btn').forEach(btn => {
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    modal.addEventListener('keydown', event => {
+        if (event.key !== 'Tab') return;
+        const focusable = Array.from(modal.querySelectorAll(
+            'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )).filter(element => element.offsetParent !== null);
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    });
+
+    document.querySelectorAll('.portfolio-card[onclick]').forEach(card => {
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        const title = card.querySelector('h3')?.textContent?.trim();
+        if (title) card.setAttribute('aria-label', `${title} loyihasini ko'rish`);
+        card.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                card.click();
+            }
+        });
+    });
+
+    // Optional client-side filters (server-rendered links are used by default).
+    document.querySelectorAll('.filter-btn[data-client-filter]').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.filter-btn[data-client-filter]').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             const filter = btn.dataset.filter;
             document.querySelectorAll('.portfolio-card').forEach(card => {

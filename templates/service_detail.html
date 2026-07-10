@@ -7,10 +7,10 @@
 {% block og_title %}{{ service.title }} - TrendoAI{% endblock %}
 {% block og_description %}{{ service.meta_desc }}{% endblock %}
 {% block og_type %}product{% endblock %}
-{% block og_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}
+{% block og_image %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endblock %}
 {% block twitter_title %}{{ service.title }} - TrendoAI{% endblock %}
 {% block twitter_description %}{{ service.meta_desc }}{% endblock %}
-{% block twitter_image %}{{ config.SITE_URL }}/static/img/og-image.png{% endblock %}
+{% block twitter_image %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endblock %}
 
 {% block extra_head %}
 <meta property="product:category" content="Software > IT Services">
@@ -22,7 +22,7 @@
     "name": "{{ service.title }}",
     "description": "{{ service.meta_desc or service.description }}",
     "url": "{{ config.SITE_URL }}/services/{{ service.slug }}",
-    "image": "{{ service.image_url if service.image_url and service.image_url.startswith('http') else config.SITE_URL ~ '/static/img/og-image.png' }}",
+    "image": "{{ service.image_url if service.image_url and service.image_url.startswith('http') else config.SITE_URL ~ '/static/img/og-image.jpg' }}",
     "serviceType": "{{ service.title }}",
     "areaServed": {
         "@type": "Country",
@@ -103,7 +103,7 @@
                 <div class="service-icon-large">{{ service.icon }}</div>
                 <h1>{{ service.title }}</h1>
                 <p class="service-tagline">{{ service.description }}</p>
-                <div class="service-price-badge">Narxi: {{ service.price }}</div>
+                <div class="service-price-badge">Narxi: {{ public_price }}</div>
 
                 {% if service.discount_percent > 0 %}
                 <div class="discount-badge">

@@ -1,9 +1,8 @@
 {% extends 'base.html' %}
 
-{% block title %}Xizmatlar - TrendoAI{% endblock %}
+{% block title %}TrendoAI — Telegram bot, Web sayt va AI avtomatlashtirish{% endblock %}
 
-{% block meta_description %}TrendoAI xizmatlari: Telegram botlar, veb-saytlar, AI chatbotlar va target reklama.
-Professional IT xizmatlar O'zbekistonda.{% endblock %}
+{% block meta_description %}TrendoAI bizneslar uchun Telegram bot, tezkor web sayt, AI chatbot va raqamli avtomatlashtirish yechimlarini yaratadi. Bepul konsultatsiya oling.{% endblock %}
 {% block canonical_url %}{{ config.SITE_URL }}{% endblock %}
 {% block og_url %}{{ config.SITE_URL }}{% endblock %}
 {% block og_title %}Xizmatlar - TrendoAI | Telegram bot, Web sayt, AI chatbot{% endblock %}
@@ -105,7 +104,7 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
             "name": "Ishlaringizning namunalarini ko'rsa bo'ladimi?",
             "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Ha. Portfolio sahifamizda 50+ tugallangan loyihani ko'rishingiz mumkin — Telegram botlar, web-saytlar, AI yechimlar va mobil ilovalar bo'yicha real misollar."
+                "text": "Ha. Portfolio sahifamizda Telegram botlar, web-saytlar, AI yechimlar va mobil ilovalar bo'yicha real tugallangan loyihalarni ko'rishingiz mumkin."
             }
         }
     ]
@@ -116,8 +115,12 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
 {% block content %}
 <section class="services-hero">
     <div class="hero-glow"></div>
-    <h2>🚀 Bizning Xizmatlar</h2>
-    <p class="lead">Biznesingizni texnologiya kuchi bilan yangi bosqichga olib chiqing</p>
+    <h1>Biznesingizni AI va avtomatlashtirish bilan rivojlantiramiz</h1>
+    <p class="lead">Telegram bot, web sayt va AI chatbotlarni g'oyadan ishlaydigan mahsulotgacha tayyorlaymiz.</p>
+    <div class="services-hero-actions">
+        <a class="hero-cta primary" href="{{ url_for('order_page') }}">Bepul konsultatsiya</a>
+        <a class="hero-cta secondary" href="{{ url_for('portfolio') }}">Ishlarimizni ko'rish</a>
+    </div>
 </section>
 
 <!-- ========== HAQIQIY XIZMATLAR ========== -->
@@ -144,9 +147,9 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
         <div class="card-price">
             <span class="price-label">Narxi:</span>
             <div class="price-range">
-                <span class="price-from">300,000</span>
+                <span class="price-from">{{ pricing.telegram_bot.min_display }}</span>
                 <span class="price-sep">—</span>
-                <span class="price-to">3,000,000 so'm</span>
+                <span class="price-to">{{ pricing.telegram_bot.max_display }}</span>
             </div>
             <span class="price-note">*Loyiha murakkabligiga qarab</span>
         </div>
@@ -180,9 +183,9 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
         <div class="card-price">
             <span class="price-label">Narxi:</span>
             <div class="price-range">
-                <span class="price-from">500,000</span>
+                <span class="price-from">{{ pricing.web_site.min_display }}</span>
                 <span class="price-sep">—</span>
-                <span class="price-to">3,000,000 so'm</span>
+                <span class="price-to">{{ pricing.web_site.max_display }}</span>
             </div>
             <span class="price-note">*Sahifalar soni va murakkablikka qarab</span>
         </div>
@@ -217,9 +220,9 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
         <div class="card-price">
             <span class="price-label">Narxi:</span>
             <div class="price-range">
-                <span class="price-from">1,000,000</span>
+                <span class="price-from">{{ pricing.ai_chatbot.min_display }}</span>
                 <span class="price-sep">—</span>
-                <span class="price-to">5,000,000 so'm</span>
+                <span class="price-to">{{ pricing.ai_chatbot.max_display }}</span>
             </div>
             <span class="price-note">*AI model va funksionallikka qarab</span>
         </div>
@@ -253,9 +256,9 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
         <div class="card-price">
             <span class="price-label">Narxi:</span>
             <div class="price-range">
-                <span class="price-from">600,000</span>
+                <span class="price-from">{{ pricing.target_ads.min_display }}</span>
                 <span class="price-sep">—</span>
-                <span class="price-to">1,000,000 so'm</span>
+                <span class="price-to">{{ pricing.target_ads.max_display }}</span>
             </div>
             <span class="price-note">*Reklama byudjetisiz</span>
         </div>
@@ -305,7 +308,7 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
 
             <details class="faq-item">
                 <summary>Ishlaringizning namunalarini ko'rsa bo'ladimi?</summary>
-                <p>Ha. <a href="{{ url_for('portfolio') }}">Portfolio sahifamizda</a> 50+ tugallangan loyihani ko'rishingiz mumkin — Telegram botlar, web-saytlar, AI yechimlar va mobil ilovalar bo'yicha real misollar.</p>
+                <p>Ha. <a href="{{ url_for('portfolio') }}">Portfolio sahifamizda</a> Telegram botlar, web-saytlar, AI yechimlar va mobil ilovalar bo'yicha real tugallangan loyihalarni ko'rishingiz mumkin.</p>
             </details>
         </div>
     </div>
@@ -405,7 +408,11 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
     </div>
 
     <form class="order-form" action="{{ url_for('submit_order') }}" method="POST">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <div class="visually-hidden" aria-hidden="true">
+            <label for="services-website">Website</label>
+            <input id="services-website" type="text" name="website" tabindex="-1" autocomplete="off">
+        </div>
         <div class="form-row">
             <div class="form-group">
                 <label for="name">👤 Ismingiz *</label>
@@ -532,7 +539,7 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
         pointer-events: none;
         z-index: 0;
     }
-    .services-hero h2 {
+    .services-hero h1 {
         font-size: 2.5rem;
         margin-bottom: 12px;
         background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
@@ -547,6 +554,44 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
         font-size: 1.15rem;
         position: relative;
         z-index: 1;
+    }
+
+    .services-hero-actions {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 12px 22px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .hero-cta.primary {
+        color: white;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+    }
+
+    .hero-cta.secondary {
+        color: var(--text-primary);
+        border: 1px solid var(--border-light);
+        background: var(--glass);
+    }
+
+    .hero-cta:hover {
+        transform: translateY(-2px);
     }
 
     /* ========== SERVICES GRID ========== */
@@ -874,7 +919,7 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
         .services-grid-new {
             grid-template-columns: 1fr;
         }
-        .services-hero h2 { font-size: 2rem; }
+        .services-hero h1 { font-size: 2rem; }
     }
     @media (max-width: 768px) {
         .order-form-section { padding: 30px 20px; }
@@ -884,7 +929,7 @@ Professional IT xizmatlar O'zbekistonda.{% endblock %}
         .service-card-new { padding: 28px 22px; }
     }
     @media (max-width: 480px) {
-        .services-hero h2 { font-size: 1.6rem; }
+        .services-hero h1 { font-size: 1.6rem; }
         .price-from, .price-to { font-size: 1.2rem; }
     }
 </style>
