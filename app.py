@@ -1744,7 +1744,7 @@ def admin_portfolio_new():
         portfolio.slug = portfolio.generate_slug()
         db.session.commit()
 
-        # Telegram kanalga yuborish
+        # Telegram kanalga yuborish va Auto-Indexing Ping
         if portfolio.is_published:
             try:
                 from telegram_poster import send_portfolio_to_channel
@@ -1752,6 +1752,14 @@ def admin_portfolio_new():
                 print(f"✅ Portfolio '{portfolio.title}' Telegram kanalga yuborildi")
             except Exception as e:
                 print(f"⚠️ Telegram yuborishda xato: {e}")
+
+            try:
+                from seo_indexer import ping_search_engines
+                site_url = app.config.get('SITE_URL') or 'https://trendoai.uz'
+                item_url = f"{site_url}/portfolio/project/{portfolio.slug}" if portfolio.slug else f"{site_url}/portfolio"
+                ping_search_engines(item_url)
+            except Exception as se:
+                print(f"⚠️ Auto-indexing ping error: {se}")
 
         flash(f'"{portfolio.title}" muvaffaqiyatli qo\'shildi!', 'success')
         return redirect(url_for('admin_portfolio'))
@@ -3223,6 +3231,39 @@ def facebook_catalog_feed():
 </rss>"""
 
     return Response(xml_content, mimetype='application/xml')
+
+
+# ========== SEO & INDEXNOW ROUTES ==========
+@app.route('/indexnow-key.txt')
+@app.route('/trendoai_indexnow_key_2026.txt')
+def indexnow_key_file():
+    """IndexNow verification key file handler"""
+    from seo_indexer import get_indexnow_key
+    return Response(get_indexnow_key(), mimetype='text/plain')
+
+
+@app.route('/admin/seo/ping-all', methods=['POST'])
+@login_required
+def admin_seo_ping_all():
+    """Admin panel orqali barcha sahifalarni IndexNow va Google Search Console ga ping berish"""
+    from seo_indexer import ping_search_engines
+    site_url = app.config.get('SITE_URL') or 'https://trendoai.uz'
+
+    urls = [site_url, f"{site_url}/portfolio", f"{site_url}/services", f"{site_url}/about"]
+
+    portfolios = Portfolio.query.filter_by(is_published=True).all()
+    for p in portfolios:
+        if p.slug:
+            urls.append(f"{site_url}/portfolio/project/{p.slug}")
+
+    posts = Post.query.filter_by(is_published=True).all()
+    for p in posts:
+        if p.slug:
+            urls.append(f"{site_url}/blog/{p.slug}")
+
+    ping_search_engines(urls)
+    flash(f"✅ {len(urls)} ta sahifa Google va IndexNow ga tezkor indekslash uchun yuborildi!", "success")
+    return redirect(request.referrer or url_for('admin_dashboard'))
 
 
 # ========== TELEGRAM WEBHOOK ==========

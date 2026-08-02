@@ -218,6 +218,14 @@ O'qish vaqti: {new_post.reading_time} daqiqa
                     )
                     print(f"[scheduler] {push_count} ta obunachiga push yuborildi.")
                 except Exception as push_err:
+                    print(f"[scheduler] Push yuborishda xato: {push_err}")
+
+                try:
+                    from seo_indexer import ping_search_engines
+                    ping_search_engines([post_url, f"{SITE_URL}/sitemap.xml"])
+                    print("[scheduler] Google & IndexNow tezkor indekslashga ping yuborildi!")
+                except Exception as seo_err:
+                    print(f"[scheduler] SEO ping error: {seo_err}")
                     print(f"[scheduler] Push xabar xatosi: {push_err}")
 
                 return True
