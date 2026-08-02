@@ -3089,6 +3089,90 @@ def sitemap_xml():
     return Response('\n'.join(parts), mimetype='application/xml')
 
 
+@app.route('/api/catalog/facebook.xml')
+@app.route('/feed/facebook-catalog.xml')
+def facebook_catalog_feed():
+    """Facebook & Meta Commerce Manager uchun Dynamic Product Catalog Feed (RSS 2.0 / XML)"""
+    from xml.sax.saxutils import escape as xml_escape
+
+    site_url = app.config.get('SITE_URL') or 'https://trendoai.uz'
+    site_name = app.config.get('SITE_NAME') or 'TrendoAI'
+
+    items_xml = []
+
+    # 1. Services Katalogi
+    services = Service.query.filter_by(is_active=True).all()
+    for s in services:
+        item_id = f"service_{s.id}"
+        title = s.title or "IT Xizmat"
+        desc = s.description or s.meta_desc or f"TrendoAI {title} xizmati"
+        link = f"{site_url}/services/{s.slug}" if s.slug else f"{site_url}/services"
+
+        img = s.image_url or f"{site_url}/static/img/og-image.jpg"
+        if not img.startswith('http'):
+            img = f"{site_url}{img if img.startswith('/') else '/' + img}"
+
+        price_val = (s.price or "500000 UZS").strip()
+        if not any(curr in price_val.upper() for curr in ('UZS', 'USD', '$', 'SO\'M', 'SOM')):
+            price_str = f"{price_val} UZS"
+        else:
+            price_str = price_val.replace("so'm", "UZS").replace("som", "UZS").replace("$", "USD")
+
+        items_xml.append(f"""    <item>
+      <g:id>{xml_escape(item_id)}</g:id>
+      <g:title>{xml_escape(title)}</g:title>
+      <g:description>{xml_escape(desc)}</g:description>
+      <g:link>{xml_escape(link)}</g:link>
+      <g:image_link>{xml_escape(img)}</g:image_link>
+      <g:brand>{xml_escape(site_name)}</g:brand>
+      <g:condition>new</g:condition>
+      <g:availability>in stock</g:availability>
+      <g:price>{xml_escape(price_str)}</g:price>
+    </item>""")
+
+    # 2. Portfolio Katalogi
+    portfolios = Portfolio.query.filter_by(is_published=True).all()
+    for p in portfolios:
+        item_id = f"portfolio_{p.id}"
+        title = p.title or "Portfolio Loyiha"
+        desc = p.description or f"TrendoAI tomonidan yaratilgan {title} loyihasi"
+        link = f"{site_url}/portfolio/project/{p.slug}" if p.slug else f"{site_url}/portfolio"
+
+        img = p.image_url or f"{site_url}/static/img/og-image.jpg"
+        if not img.startswith('http'):
+            img = f"{site_url}{img if img.startswith('/') else '/' + img}"
+
+        price_val = (p.price or "1000000 UZS").strip()
+        if not any(curr in price_val.upper() for curr in ('UZS', 'USD', '$', 'SO\'M', 'SOM')):
+            price_str = f"{price_val} UZS"
+        else:
+            price_str = price_val.replace("so'm", "UZS").replace("som", "UZS").replace("$", "USD")
+
+        items_xml.append(f"""    <item>
+      <g:id>{xml_escape(item_id)}</g:id>
+      <g:title>{xml_escape(title)}</g:title>
+      <g:description>{xml_escape(desc)}</g:description>
+      <g:link>{xml_escape(link)}</g:link>
+      <g:image_link>{xml_escape(img)}</g:image_link>
+      <g:brand>{xml_escape(site_name)}</g:brand>
+      <g:condition>new</g:condition>
+      <g:availability>in stock</g:availability>
+      <g:price>{xml_escape(price_str)}</g:price>
+    </item>""")
+
+    xml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+  <channel>
+    <title>{xml_escape(site_name)} Products Catalog</title>
+    <link>{xml_escape(site_url)}</link>
+    <description>Official Dynamic Product Catalog Feed for Meta Ads</description>
+{chr(10).join(items_xml)}
+  </channel>
+</rss>"""
+
+    return Response(xml_content, mimetype='application/xml')
+
+
 # ========== TELEGRAM WEBHOOK ==========
 @app.route('/webhook', methods=['POST'])
 @csrf.exempt
