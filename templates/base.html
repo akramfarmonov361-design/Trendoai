@@ -1668,15 +1668,23 @@
             }
         }
 
+        let vadAudioContext = null;
+        let vadAnalyser = null;
+        let vadCheckInterval = null;
+        let speechDetected = false;
+        let silenceStartTime = null;
+
         function startListeningCycle() {
             if (!isCallActive || isCallMuted) return;
 
             callAudioChunks = [];
+            speechDetected = false;
+            silenceStartTime = null;
+
             try {
-                callMediaRecorder = new MediaRecorder(callStream);
+                callMediaRecorder = new MediaRecorder(callStream, { mimeType: 'audio/webm;codecs=opus' });
             } catch (e) {
-                console.error("MediaRecorder creation error:", e);
-                return;
+                try { callMediaRecorder = new MediaRecorder(callStream); } catch(err){ return; }
             }
 
             callMediaRecorder.ondataavailable = (event) => {
@@ -1686,19 +1694,77 @@
             };
 
             callMediaRecorder.onstop = async () => {
+                stopVAD();
                 if (!isCallActive || callAudioChunks.length === 0) return;
                 const audioBlob = new Blob(callAudioChunks, { type: 'audio/webm' });
                 await sendCallAudioChunk(audioBlob);
             };
 
-            callMediaRecorder.start(200);
-            updateCallStatus('listening', 'Gapiravering, sizni eshitmoqdaman...');
+            callMediaRecorder.start(100);
+            updateCallStatus('listening', 'Sizni eshitmoqdaman...');
 
+            setupVAD();
+
+            clearTimeout(silenceTimer);
             silenceTimer = setTimeout(() => {
                 if (callMediaRecorder && callMediaRecorder.state === 'recording') {
                     callMediaRecorder.stop();
                 }
-            }, 4500);
+            }, 6000);
+        }
+
+        function setupVAD() {
+            try {
+                if (!vadAudioContext) {
+                    vadAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (vadAudioContext.state === 'suspended') {
+                    vadAudioContext.resume();
+                }
+                const source = vadAudioContext.createMediaStreamSource(callStream);
+                vadAnalyser = vadAudioContext.createAnalyser();
+                vadAnalyser.fftSize = 512;
+                source.connect(vadAnalyser);
+
+                const dataArray = new Uint8Array(vadAnalyser.frequencyBinCount);
+
+                clearInterval(vadCheckInterval);
+                vadCheckInterval = setInterval(() => {
+                    if (!callMediaRecorder || callMediaRecorder.state !== 'recording') {
+                        clearInterval(vadCheckInterval);
+                        return;
+                    }
+                    vadAnalyser.getByteFrequencyData(dataArray);
+                    let sum = 0;
+                    for (let i = 0; i < dataArray.length; i++) {
+                        sum += dataArray[i];
+                    }
+                    const averageVolume = sum / dataArray.length;
+
+                    if (averageVolume > 14) {
+                        if (!speechDetected) {
+                            speechDetected = true;
+                            updateCallStatus('listening', '🎙️ Siz gapirmoqdasiz...', true);
+                        }
+                        silenceStartTime = null;
+                    } else if (speechDetected) {
+                        if (!silenceStartTime) {
+                            silenceStartTime = Date.now();
+                        } else if (Date.now() - silenceStartTime > 1100) {
+                            clearInterval(vadCheckInterval);
+                            if (callMediaRecorder && callMediaRecorder.state === 'recording') {
+                                callMediaRecorder.stop();
+                            }
+                        }
+                    }
+                }, 100);
+            } catch(e) {
+                console.log("VAD error:", e);
+            }
+        }
+
+        function stopVAD() {
+            if (vadCheckInterval) clearInterval(vadCheckInterval);
         }
 
         async function sendCallAudioChunk(audioBlob) {
@@ -1784,6 +1850,7 @@
 
         function endLiveCall() {
             isCallActive = false;
+            stopVAD();
             clearTimeout(silenceTimer);
 
             if (currentAudioOutput) {
