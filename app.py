@@ -1961,6 +1961,31 @@ QOIDALAR:
         if not reply:
             reply = "Uzr, hozir javobni shakllantirib bo'lmadi. Telegram orqali yozing: @trendoai"
 
+        # Auto contact extraction & instant Telegram admin notification
+        contact_match = re.search(r'(\+?998[0-9\s\-]{9,13}|\b9[0-9]{8}\b|@[a-zA-Z0-9_]{4,})', last_user_msg)
+        if contact_match:
+            extracted_contact = contact_match.group(0).strip()
+            try:
+                new_lead = Lead(
+                    name="AI Chat Mijoz",
+                    contact=extracted_contact,
+                    source="AI Chat Vidjet"
+                )
+                db.session.add(new_lead)
+                db.session.commit()
+
+                from telegram_poster import send_admin_alert
+                alert_text = (
+                    f"🎯 <b>YANGI LEAD (AI Chat Vidjet)!</b>\n\n"
+                    f"💬 <b>Xabar:</b> {last_user_msg}\n"
+                    f"📞 <b>Kontakt:</b> {extracted_contact}\n"
+                    f"⏰ <b>Vaqt:</b> {datetime.now().strftime('%d.%m.%Y %H:%M')}"
+                )
+                send_admin_alert(alert_text)
+                print(f"✅ Auto lead captured from AI Chat: {extracted_contact}")
+            except Exception as le:
+                print(f"⚠️ Lead capture error: {le}")
+
         return jsonify({'success': True, 'reply': reply, 'response': reply})
 
     except Exception as e:
@@ -2246,6 +2271,33 @@ def api_chat_audio():
         )
 
         response_text = live_reply.get('text') or "Ovozli javob tayyor."
+
+        # Auto contact extraction from live audio transcription
+        transcription = live_reply.get('input_transcription') or response_text or ''
+        contact_match = re.search(r'(\+?998[0-9\s\-]{9,13}|\b9[0-9]{8}\b|@[a-zA-Z0-9_]{4,})', transcription)
+        if contact_match:
+            extracted_contact = contact_match.group(0).strip()
+            try:
+                new_lead = Lead(
+                    name="Ovozli Muloqot Mijoz",
+                    contact=extracted_contact,
+                    source="Live Voice Call (Gemini)"
+                )
+                db.session.add(new_lead)
+                db.session.commit()
+
+                from telegram_poster import send_admin_alert
+                alert_text = (
+                    f"🎙️ <b>YANGI LEAD (Ovozli Qo'ng'iroq / Live Call)!</b>\n\n"
+                    f"💬 <b>Transkripsiya:</b> {transcription}\n"
+                    f"📞 <b>Kontakt:</b> {extracted_contact}\n"
+                    f"⏰ <b>Vaqt:</b> {datetime.now().strftime('%d.%m.%Y %H:%M')}"
+                )
+                send_admin_alert(alert_text)
+                print(f"✅ Auto lead captured from Live Audio Call: {extracted_contact}")
+            except Exception as le:
+                print(f"⚠️ Live audio lead capture error: {le}")
+
         return jsonify({
             'success': True,
             'response': response_text,
