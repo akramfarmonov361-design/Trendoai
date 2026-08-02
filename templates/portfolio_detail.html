@@ -130,7 +130,7 @@
             </header>
 
             <div class="article-featured-image">
-                <img src="{{ item.image_url }}" alt="{{ item.title }}" class="main-project-img" width="1280" height="720" fetchpriority="high" decoding="async">
+                <img src="{{ item.image_url or url_for('static', filename='img/og-image.jpg') }}" alt="{{ item.title }}" class="main-project-img" width="1280" height="720" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='/static/img/og-image.jpg';">
             </div>
 
             <div class="article-content">

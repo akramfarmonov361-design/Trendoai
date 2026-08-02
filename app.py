@@ -1691,11 +1691,36 @@ def admin_portfolio():
     return render_template('admin/portfolio.html', portfolios=portfolios)
 
 
+def _save_uploaded_image(file_storage, folder='portfolio'):
+    """Faylni static/uploads/<folder>/ papkasiga saqlash va nisbiy URL qaytarish"""
+    if not file_storage or not getattr(file_storage, 'filename', None):
+        return None
+    filename = str(file_storage.filename).strip()
+    if not filename:
+        return None
+
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in ('.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'):
+        ext = '.jpg'
+
+    import uuid
+    unique_name = f"{uuid.uuid4().hex[:12]}{ext}"
+    upload_dir = os.path.join(app.root_path, 'static', 'uploads', folder)
+    os.makedirs(upload_dir, exist_ok=True)
+
+    file_path = os.path.join(upload_dir, unique_name)
+    file_storage.save(file_path)
+    return f"/static/uploads/{folder}/{unique_name}"
+
+
 @app.route('/admin/portfolio/new', methods=['GET', 'POST'])
 @login_required
 def admin_portfolio_new():
     """Yangi portfolio qo'shish"""
     if request.method == 'POST':
+        uploaded_image = _save_uploaded_image(request.files.get('image_file'), folder='portfolio')
+        image_url = uploaded_image or request.form.get('image_url')
+
         portfolio = Portfolio(
             title=request.form.get('title'),
             description=request.form.get('description'),
@@ -1703,7 +1728,7 @@ def admin_portfolio_new():
             emoji=request.form.get('emoji', '🚀'),
             technologies=request.form.get('technologies'),
             link=request.form.get('link'),
-            image_url=request.form.get('image_url'),
+            image_url=image_url,
             is_featured=request.form.get('is_featured') == 'on',
             is_published=request.form.get('is_published') == 'on',
             meta_description=request.form.get('meta_description'),
@@ -1714,11 +1739,11 @@ def admin_portfolio_new():
         )
         db.session.add(portfolio)
         db.session.commit()
-        
+
         # Slug yaratish
         portfolio.slug = portfolio.generate_slug()
         db.session.commit()
-        
+
         # Telegram kanalga yuborish
         if portfolio.is_published:
             try:
@@ -1727,10 +1752,10 @@ def admin_portfolio_new():
                 print(f"✅ Portfolio '{portfolio.title}' Telegram kanalga yuborildi")
             except Exception as e:
                 print(f"⚠️ Telegram yuborishda xato: {e}")
-        
+
         flash(f'"{portfolio.title}" muvaffaqiyatli qo\'shildi!', 'success')
         return redirect(url_for('admin_portfolio'))
-    
+
     return render_template('admin/portfolio_form.html', portfolio=None)
 
 
@@ -1739,15 +1764,19 @@ def admin_portfolio_new():
 def admin_portfolio_edit(portfolio_id):
     """Portfolio tahrirlash"""
     portfolio = Portfolio.query.get_or_404(portfolio_id)
-    
+
     if request.method == 'POST':
+        uploaded_image = _save_uploaded_image(request.files.get('image_file'), folder='portfolio')
+        image_url = uploaded_image or request.form.get('image_url')
+
         portfolio.title = request.form.get('title')
         portfolio.description = request.form.get('description')
         portfolio.category = request.form.get('category', 'web')
         portfolio.emoji = request.form.get('emoji', '🚀')
         portfolio.technologies = request.form.get('technologies')
         portfolio.link = request.form.get('link')
-        portfolio.image_url = request.form.get('image_url')
+        if image_url:
+            portfolio.image_url = image_url
         portfolio.is_featured = request.form.get('is_featured') == 'on'
         portfolio.is_published = request.form.get('is_published') == 'on'
         portfolio.meta_description = request.form.get('meta_description')
@@ -1755,15 +1784,15 @@ def admin_portfolio_edit(portfolio_id):
         portfolio.details = request.form.get('details')
         portfolio.features = request.form.get('features')
         portfolio.price = request.form.get('price')
-        
+
         # Slug yangilash
         if not portfolio.slug:
             portfolio.slug = portfolio.generate_slug()
-        
+
         db.session.commit()
         flash(f'"{portfolio.title}" yangilandi!', 'success')
         return redirect(url_for('admin_portfolio'))
-    
+
     return render_template('admin/portfolio_form.html', portfolio=portfolio)
 
 
