@@ -808,6 +808,190 @@
             }
         }
 
+        /* ========== LIVE CALL OVERLAY STYLES ========== */
+        .chatbot-call-start-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .chatbot-call-start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
+        }
+
+        .chatbot-call-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
+            z-index: 10;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 30px 20px 40px 20px;
+            box-sizing: border-box;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .chatbot-call-overlay.active {
+            display: flex;
+        }
+
+        .call-avatar-container {
+            position: relative;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .call-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.4);
+            z-index: 2;
+        }
+
+        .call-pulse-ring {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 2px solid rgba(168, 85, 247, 0.6);
+            animation: pulseRing 2s infinite ease-out;
+            z-index: 1;
+        }
+
+        @keyframes pulseRing {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+
+        .call-info {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .call-title {
+            color: #ffffff;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .call-subtitle {
+            color: #a78bfa;
+            font-size: 0.85rem;
+        }
+
+        .call-status-badge {
+            margin-top: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 6px 16px;
+            border-radius: 20px;
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .voice-wave {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            height: 36px;
+            margin: 15px 0;
+        }
+
+        .voice-wave-bar {
+            width: 5px;
+            height: 10px;
+            background: #a855f7;
+            border-radius: 4px;
+            animation: waveBar 1.2s infinite ease-in-out;
+        }
+
+        .voice-wave.speaking .voice-wave-bar {
+            background: #10b981;
+        }
+
+        .voice-wave-bar:nth-child(1) { animation-delay: 0.0s; }
+        .voice-wave-bar:nth-child(2) { animation-delay: 0.2s; }
+        .voice-wave-bar:nth-child(3) { animation-delay: 0.4s; }
+        .voice-wave-bar:nth-child(4) { animation-delay: 0.2s; }
+        .voice-wave-bar:nth-child(5) { animation-delay: 0.0s; }
+
+        @keyframes waveBar {
+            0%, 100% { height: 8px; }
+            50% { height: 32px; }
+        }
+
+        .call-controls {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 10px;
+        }
+
+        .call-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .call-btn-mute {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .call-btn-mute.muted {
+            background: #ef4444;
+            color: white;
+        }
+
+        .call-btn-end {
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .call-btn-end:hover {
+            transform: scale(1.1);
+            background: #dc2626;
+        }
+
         @media (max-width: 768px) {
             body.chatbot-open {
                 overflow: hidden;
@@ -927,8 +1111,45 @@
                 <h4>TrendoAI Yordamchi</h4>
                 <span>Online • Gemini AI</span>
             </div>
+            <button class="chatbot-call-start-btn" id="chatbotCallStart" type="button" title="Jonli Ovozli Qo'ng'iroq (Gemini Live)">
+                📞 Qo'ng'iroq
+            </button>
             <button class="chatbot-close" id="chatbotClose" type="button" aria-label="Yordamchini yopish">✕</button>
         </div>
+
+        <!-- LIVE CALL OVERLAY -->
+        <div class="chatbot-call-overlay" id="chatbotCallOverlay">
+            <div class="call-avatar-container">
+                <div class="call-pulse-ring" id="callPulseRing"></div>
+                <div class="call-avatar">🤖</div>
+            </div>
+
+            <div class="call-info">
+                <div class="call-title">TrendoAI AI Manager</div>
+                <div class="call-subtitle">Gemini Live Voice</div>
+                <div class="call-status-badge" id="callStatusBadge">
+                    <span id="callStatusDot">🟡</span> <span id="callStatusText">Ulanmoqda...</span>
+                </div>
+            </div>
+
+            <div class="voice-wave" id="callVoiceWave">
+                <div class="voice-wave-bar"></div>
+                <div class="voice-wave-bar"></div>
+                <div class="voice-wave-bar"></div>
+                <div class="voice-wave-bar"></div>
+                <div class="voice-wave-bar"></div>
+            </div>
+
+            <div class="call-controls">
+                <button class="call-btn call-btn-mute" id="callMuteBtn" type="button" title="Mikrofonni o'chirish/yoqish">
+                    🎤
+                </button>
+                <button class="call-btn call-btn-end" id="callEndBtn" type="button" title="Qo'ng'iroqni tugatish">
+                    📞
+                </button>
+            </div>
+        </div>
+
         <div class="chatbot-messages" id="chatbotMessages" role="log" aria-live="polite" aria-atomic="false">
             <div class="chat-message bot">
                 Salom! 👋 Men TrendoAI AI assistentiman. Sizga qanday yordam bera olaman? IT xizmatlar, web saytlar,
@@ -1393,6 +1614,214 @@
                 chatbotMessages.appendChild(errorDiv);
             }
         }
+
+        // ========== LIVE VOICE CALL MANAGER ==========
+        const chatbotCallStart = document.getElementById('chatbotCallStart');
+        const chatbotCallOverlay = document.getElementById('chatbotCallOverlay');
+        const callStatusText = document.getElementById('callStatusText');
+        const callStatusDot = document.getElementById('callStatusDot');
+        const callVoiceWave = document.getElementById('callVoiceWave');
+        const callMuteBtn = document.getElementById('callMuteBtn');
+        const callEndBtn = document.getElementById('callEndBtn');
+
+        let isCallActive = false;
+        let isCallMuted = false;
+        let callStream = null;
+        let callMediaRecorder = null;
+        let callAudioChunks = [];
+        let silenceTimer = null;
+        let currentAudioOutput = null;
+
+        function updateCallStatus(status, text, isSpeaking = false) {
+            if (callStatusText) callStatusText.textContent = text;
+            if (callStatusDot) {
+                if (status === 'listening') callStatusDot.textContent = '🟢';
+                else if (status === 'speaking') callStatusDot.textContent = '🔊';
+                else if (status === 'connecting') callStatusDot.textContent = '🟡';
+                else if (status === 'muted') callStatusDot.textContent = '🔇';
+                else callStatusDot.textContent = '🔴';
+            }
+            if (callVoiceWave) {
+                callVoiceWave.classList.toggle('speaking', isSpeaking);
+            }
+        }
+
+        async function startLiveCall() {
+            try {
+                chatbotCallOverlay.classList.add('active');
+                isCallActive = true;
+                isCallMuted = false;
+                if (callMuteBtn) {
+                    callMuteBtn.classList.remove('muted');
+                    callMuteBtn.textContent = '🎤';
+                }
+
+                updateCallStatus('connecting', 'Ulanmoqda...');
+
+                callStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                updateCallStatus('listening', 'Sizni eshitmoqdamiz...');
+
+                startListeningCycle();
+            } catch (err) {
+                alert('Mikrofonga ruxsat berilmadi yoki xatolik yuz berdi: ' + (err.message || err));
+                endLiveCall();
+            }
+        }
+
+        function startListeningCycle() {
+            if (!isCallActive || isCallMuted) return;
+
+            callAudioChunks = [];
+            try {
+                callMediaRecorder = new MediaRecorder(callStream);
+            } catch (e) {
+                console.error("MediaRecorder creation error:", e);
+                return;
+            }
+
+            callMediaRecorder.ondataavailable = (event) => {
+                if (event.data && event.data.size > 0) {
+                    callAudioChunks.push(event.data);
+                }
+            };
+
+            callMediaRecorder.onstop = async () => {
+                if (!isCallActive || callAudioChunks.length === 0) return;
+                const audioBlob = new Blob(callAudioChunks, { type: 'audio/webm' });
+                await sendCallAudioChunk(audioBlob);
+            };
+
+            callMediaRecorder.start(200);
+            updateCallStatus('listening', 'Gapiravering, sizni eshitmoqdaman...');
+
+            silenceTimer = setTimeout(() => {
+                if (callMediaRecorder && callMediaRecorder.state === 'recording') {
+                    callMediaRecorder.stop();
+                }
+            }, 4500);
+        }
+
+        async function sendCallAudioChunk(audioBlob) {
+            if (!isCallActive) return;
+
+            updateCallStatus('speaking', 'AI o\'ylamoqda...', true);
+
+            try {
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+
+                reader.onloadend = async () => {
+                    const base64Audio = reader.result.split(',')[1];
+
+                    const response = await fetch('/api/chat/audio', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ audio: base64Audio })
+                    });
+
+                    const data = await response.json();
+                    if (!isCallActive) return;
+
+                    const replyText = data.response || data.reply || '';
+                    if (replyText) {
+                        const botDiv = document.createElement('div');
+                        botDiv.className = 'chat-message bot';
+                        botDiv.textContent = '🎙️ AI (Live): ' + replyText;
+                        chatbotMessages.appendChild(botDiv);
+                        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+                    }
+
+                    if (data.audio_base64) {
+                        updateCallStatus('speaking', 'AI gapirmoqda...', true);
+                        currentAudioOutput = new Audio("data:audio/wav;base64," + data.audio_base64);
+
+                        currentAudioOutput.onended = () => {
+                            if (isCallActive && !isCallMuted) {
+                                startListeningCycle();
+                            }
+                        };
+
+                        currentAudioOutput.onerror = () => {
+                            if (isCallActive && !isCallMuted) {
+                                startListeningCycle();
+                            }
+                        };
+
+                        await currentAudioOutput.play().catch(e => {
+                            console.log("Audio play error:", e);
+                            if (isCallActive && !isCallMuted) startListeningCycle();
+                        });
+                    } else {
+                        if (isCallActive && !isCallMuted) startListeningCycle();
+                    }
+                };
+            } catch (err) {
+                console.error("Call audio error:", err);
+                if (isCallActive && !isCallMuted) setTimeout(startListeningCycle, 1000);
+            }
+        }
+
+        function toggleCallMute() {
+            isCallMuted = !isCallMuted;
+            if (isCallMuted) {
+                if (callMuteBtn) {
+                    callMuteBtn.classList.add('muted');
+                    callMuteBtn.textContent = '🔇';
+                }
+                updateCallStatus('muted', 'Mikrofon o\'chirilgan');
+                if (callMediaRecorder && callMediaRecorder.state === 'recording') {
+                    callMediaRecorder.stop();
+                }
+                clearTimeout(silenceTimer);
+            } else {
+                if (callMuteBtn) {
+                    callMuteBtn.classList.remove('muted');
+                    callMuteBtn.textContent = '🎤';
+                }
+                startListeningCycle();
+            }
+        }
+
+        function endLiveCall() {
+            isCallActive = false;
+            clearTimeout(silenceTimer);
+
+            if (currentAudioOutput) {
+                currentAudioOutput.pause();
+                currentAudioOutput = null;
+            }
+
+            if (callMediaRecorder && callMediaRecorder.state !== 'inactive') {
+                try { callMediaRecorder.stop(); } catch(e){}
+            }
+
+            if (callStream) {
+                callStream.getTracks().forEach(track => track.stop());
+                callStream = null;
+            }
+
+            if (chatbotCallOverlay) {
+                chatbotCallOverlay.classList.remove('active');
+            }
+
+            const sysDiv = document.createElement('div');
+            sysDiv.className = 'chat-message bot';
+            sysDiv.textContent = '📞 Ovozli qo\'ng\'iroq yakunlandi.';
+            chatbotMessages.appendChild(sysDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        if (chatbotCallStart) {
+            chatbotCallStart.addEventListener('click', () => {
+                if (!chatbotWindow.classList.contains('active')) {
+                    setChatbotOpen(true);
+                }
+                startLiveCall();
+            });
+        }
+
+        if (callMuteBtn) callMuteBtn.addEventListener('click', toggleCallMute);
+        if (callEndBtn) callEndBtn.addEventListener('click', endLiveCall);
     </script>
 
 

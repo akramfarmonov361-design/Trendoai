@@ -43,8 +43,8 @@ elif DATABASE_URI.startswith("mysql2://"):
 
 # ========== AI SOZLAMALARI ==========
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY2") or os.getenv("GEMINI_API_KEY3")
-_DEFAULT_MODEL = "gemini-3.1-flash-lite"
-_DEFAULT_MODEL_BACKUP = "gemini-2.5-flash-lite"
+_DEFAULT_MODEL = "gemini-3.5-flash-lite"
+_DEFAULT_MODEL_BACKUP = "gemini-3.1-flash-lite"
 _DEFAULT_LIVE_MODEL = "gemini-3.1-flash-live-preview"
 
 # Models that Google has retired. If someone has one of these in their
