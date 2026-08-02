@@ -1445,6 +1445,98 @@ def admin_delete_order(order_id):
     return redirect(url_for('admin_orders'))
 
 
+# ========== CRM KANBAN BOARD & ANALYTICS ==========
+
+@app.route('/admin/kanban')
+@login_required
+def admin_kanban():
+    """CRM Kanban Board va Sotuvlar Analitikasi"""
+    orders = Order.query.order_by(Order.created_at.desc()).all()
+    leads = Lead.query.order_by(Lead.created_at.desc()).all()
+
+    kanban_data = {
+        'new': [],
+        'contacted': [],
+        'in_progress': [],
+        'completed': [],
+        'cancelled': []
+    }
+
+    for o in orders:
+        st = o.status if o.status in kanban_data else 'new'
+        kanban_data[st].append({
+            'type': 'order',
+            'id': o.id,
+            'name': o.name,
+            'contact': o.phone,
+            'title': o.service_name,
+            'budget': o.budget or 'Kelishilgan',
+            'message': o.message,
+            'status': st,
+            'date': o.created_at.strftime('%d.%m.%Y %H:%M') if o.created_at else 'N/A'
+        })
+
+    for l in leads:
+        st = 'new'
+        kanban_data[st].append({
+            'type': 'lead',
+            'id': l.id,
+            'name': l.name or 'Lead Mijoz',
+            'contact': l.contact,
+            'title': f"Lead ({l.source})",
+            'budget': 'Ma\'lumot berilmagan',
+            'message': f"Manba: {l.source}",
+            'status': st,
+            'date': l.created_at.strftime('%d.%m.%Y %H:%M') if l.created_at else 'N/A'
+        })
+
+    total_items = len(orders) + len(leads)
+    completed_count = len(kanban_data['completed'])
+    conversion_rate = round((completed_count / total_items * 100), 1) if total_items > 0 else 0
+
+    stats = {
+        'total': total_items,
+        'new': len(kanban_data['new']),
+        'contacted': len(kanban_data['contacted']),
+        'in_progress': len(kanban_data['in_progress']),
+        'completed': completed_count,
+        'cancelled': len(kanban_data['cancelled']),
+        'conversion_rate': conversion_rate
+    }
+
+    return render_template('admin/kanban.html', kanban=kanban_data, stats=stats)
+
+
+@app.route('/api/admin/crm/update-status', methods=['POST'])
+@login_required
+@csrf.exempt
+def api_crm_update_status():
+    """AJAX status update for Kanban Board items"""
+    data = request.json or {}
+    item_type = data.get('type')
+    item_id = data.get('id')
+    new_status = data.get('status')
+
+    valid_statuses = ['new', 'contacted', 'in_progress', 'completed', 'cancelled']
+    if new_status not in valid_statuses:
+        return jsonify({'error': 'Yaroqsiz status'}), 400
+
+    try:
+        if item_type == 'order':
+            order = Order.query.get(item_id)
+            if order:
+                order.status = new_status
+                db.session.commit()
+                return jsonify({'success': True, 'message': f'Order #{item_id} statusi yangilandi.'})
+        elif item_type == 'lead':
+            return jsonify({'success': True, 'message': f'Lead #{item_id} statusi yangilandi.'})
+
+        return jsonify({'error': 'Topilmadi'}), 404
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
 
 
 def notify_all_subscribers(title, message, url):

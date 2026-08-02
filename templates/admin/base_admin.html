@@ -403,6 +403,10 @@
                     class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
                     📊 Dashboard
                 </a>
+                <a href="{{ url_for('admin_kanban') }}"
+                    class="{% if request.endpoint == 'admin_kanban' %}active{% endif %}">
+                    📈 CRM Kanban
+                </a>
                 <a class="nav-link {% if 'services' in request.endpoint %}active{% endif %}"
                     href="{{ url_for('admin_services') }}">
                     <span data-feather="briefcase"></span>

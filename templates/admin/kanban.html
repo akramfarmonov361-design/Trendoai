@@ -1,0 +1,368 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}CRM Kanban Board & Analytics - Admin{% endblock %}
+
+{% block content %}
+<style>
+.kanban-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.stat-card {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.stat-card .label {
+    font-size: 0.875rem;
+    color: #94a3b8;
+}
+
+.stat-card.new .num { color: #3b82f6; }
+.stat-card.contacted .num { color: #f59e0b; }
+.stat-card.progress .num { color: #a855f7; }
+.stat-card.completed .num { color: #10b981; }
+.stat-card.conversion .num { color: #ec4899; }
+
+.kanban-board {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(280px, 1fr));
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+}
+
+.kanban-column {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 600px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.column-header {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.column-header .badge {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    color: #cbd5e1;
+}
+
+.column-body {
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.crm-card {
+    background: rgba(30, 41, 59, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    cursor: grab;
+}
+
+.crm-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+.crm-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.crm-card-title {
+    font-weight: 700;
+    color: #f8fafc;
+    font-size: 0.95rem;
+}
+
+.crm-card-contact {
+    color: #38bdf8;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.crm-card-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+.crm-card-actions {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.4rem;
+}
+
+.status-select {
+    width: 100%;
+    background: #0f172a;
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.8rem;
+}
+</style>
+
+<div class="kanban-dashboard">
+    <div class="admin-header">
+        <div class="header-left">
+            <h1>📊 CRM Kanban & Sales Analytics</h1>
+            <p>Mijoz so'rovlari va sotuv jarayonlarini vizual boshqarish</p>
+        </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="stats-overview">
+        <div class="stat-card new">
+            <span class="num">{{ stats.new }}</span>
+            <span class="label">🆕 Yangi Arizalar</span>
+        </div>
+        <div class="stat-card contacted">
+            <span class="num">{{ stats.contacted }}</span>
+            <span class="label">📞 Muloqotda</span>
+        </div>
+        <div class="stat-card progress">
+            <span class="num">{{ stats.in_progress }}</span>
+            <span class="label">📝 Kelishildi / Jarayonda</span>
+        </div>
+        <div class="stat-card completed">
+            <span class="num">{{ stats.completed }}</span>
+            <span class="label">✅ Bajarildi</span>
+        </div>
+        <div class="stat-card conversion">
+            <span class="num">{{ stats.conversion_rate }}%</span>
+            <span class="label">📈 Konversiya Darajasi</span>
+        </div>
+    </div>
+
+    <!-- Kanban Board -->
+    <div class="kanban-board">
+
+        <!-- Column 1: New -->
+        <div class="kanban-column">
+            <div class="column-header">
+                <span>🆕 Yangi</span>
+                <span class="badge">{{ kanban.new|length }}</span>
+            </div>
+            <div class="column-body">
+                {% for item in kanban.new %}
+                <div class="crm-card">
+                    <div class="crm-card-header">
+                        <span class="crm-card-title">{{ item.name }}</span>
+                        <span class="crm-card-meta">{{ item.date }}</span>
+                    </div>
+                    <a href="tel:{{ item.contact }}" class="crm-card-contact">📞 {{ item.contact }}</a>
+                    <div class="crm-card-title" style="color: #a855f7; font-size: 0.85rem;">{{ item.title }}</div>
+                    {% if item.message %}
+                    <div style="font-size: 0.8rem; color: #cbd5e1; font-style: italic;">"{{ item.message }}"</div>
+                    {% endif %}
+                    <div class="crm-card-actions">
+                        <select class="status-select" onchange="updateCrmStatus('{{ item.type }}', '{{ item.id }}', this.value)">
+                            <option value="new" selected>🆕 Yangi</option>
+                            <option value="contacted">📞 Bog'lanildi</option>
+                            <option value="in_progress">📝 Jarayonda</option>
+                            <option value="completed">✅ Bajarildi</option>
+                            <option value="cancelled">❌ Bekor</option>
+                        </select>
+                    </div>
+                </div>
+                {% else %}
+                <div style="text-align:center; padding: 2rem; color: #64748b; font-size: 0.85rem;">Bo'sh</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Column 2: Contacted -->
+        <div class="kanban-column">
+            <div class="column-header">
+                <span>📞 Bog'lanildi</span>
+                <span class="badge">{{ kanban.contacted|length }}</span>
+            </div>
+            <div class="column-body">
+                {% for item in kanban.contacted %}
+                <div class="crm-card">
+                    <div class="crm-card-header">
+                        <span class="crm-card-title">{{ item.name }}</span>
+                        <span class="crm-card-meta">{{ item.date }}</span>
+                    </div>
+                    <a href="tel:{{ item.contact }}" class="crm-card-contact">📞 {{ item.contact }}</a>
+                    <div class="crm-card-title" style="color: #a855f7; font-size: 0.85rem;">{{ item.title }}</div>
+                    <div class="crm-card-actions">
+                        <select class="status-select" onchange="updateCrmStatus('{{ item.type }}', '{{ item.id }}', this.value)">
+                            <option value="new">🆕 Yangi</option>
+                            <option value="contacted" selected>📞 Bog'lanildi</option>
+                            <option value="in_progress">📝 Jarayonda</option>
+                            <option value="completed">✅ Bajarildi</option>
+                            <option value="cancelled">❌ Bekor</option>
+                        </select>
+                    </div>
+                </div>
+                {% else %}
+                <div style="text-align:center; padding: 2rem; color: #64748b; font-size: 0.85rem;">Bo'sh</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Column 3: In Progress -->
+        <div class="kanban-column">
+            <div class="column-header">
+                <span>📝 Jarayonda</span>
+                <span class="badge">{{ kanban.in_progress|length }}</span>
+            </div>
+            <div class="column-body">
+                {% for item in kanban.in_progress %}
+                <div class="crm-card">
+                    <div class="crm-card-header">
+                        <span class="crm-card-title">{{ item.name }}</span>
+                        <span class="crm-card-meta">{{ item.date }}</span>
+                    </div>
+                    <a href="tel:{{ item.contact }}" class="crm-card-contact">📞 {{ item.contact }}</a>
+                    <div class="crm-card-title" style="color: #a855f7; font-size: 0.85rem;">{{ item.title }}</div>
+                    <div class="crm-card-actions">
+                        <select class="status-select" onchange="updateCrmStatus('{{ item.type }}', '{{ item.id }}', this.value)">
+                            <option value="new">🆕 Yangi</option>
+                            <option value="contacted">📞 Bog'lanildi</option>
+                            <option value="in_progress" selected>📝 Jarayonda</option>
+                            <option value="completed">✅ Bajarildi</option>
+                            <option value="cancelled">❌ Bekor</option>
+                        </select>
+                    </div>
+                </div>
+                {% else %}
+                <div style="text-align:center; padding: 2rem; color: #64748b; font-size: 0.85rem;">Bo'sh</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Column 4: Completed -->
+        <div class="kanban-column">
+            <div class="column-header">
+                <span>✅ Bajarildi</span>
+                <span class="badge">{{ kanban.completed|length }}</span>
+            </div>
+            <div class="column-body">
+                {% for item in kanban.completed %}
+                <div class="crm-card" style="border-color: rgba(16, 185, 129, 0.4);">
+                    <div class="crm-card-header">
+                        <span class="crm-card-title">{{ item.name }}</span>
+                        <span class="crm-card-meta">{{ item.date }}</span>
+                    </div>
+                    <a href="tel:{{ item.contact }}" class="crm-card-contact">📞 {{ item.contact }}</a>
+                    <div class="crm-card-title" style="color: #10b981; font-size: 0.85rem;">{{ item.title }}</div>
+                    <div class="crm-card-actions">
+                        <select class="status-select" onchange="updateCrmStatus('{{ item.type }}', '{{ item.id }}', this.value)">
+                            <option value="new">🆕 Yangi</option>
+                            <option value="contacted">📞 Bog'lanildi</option>
+                            <option value="in_progress">📝 Jarayonda</option>
+                            <option value="completed" selected>✅ Bajarildi</option>
+                            <option value="cancelled">❌ Bekor</option>
+                        </select>
+                    </div>
+                </div>
+                {% else %}
+                <div style="text-align:center; padding: 2rem; color: #64748b; font-size: 0.85rem;">Bo'sh</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Column 5: Cancelled -->
+        <div class="kanban-column">
+            <div class="column-header">
+                <span>❌ Bekor</span>
+                <span class="badge">{{ kanban.cancelled|length }}</span>
+            </div>
+            <div class="column-body">
+                {% for item in kanban.cancelled %}
+                <div class="crm-card" style="opacity: 0.7;">
+                    <div class="crm-card-header">
+                        <span class="crm-card-title">{{ item.name }}</span>
+                        <span class="crm-card-meta">{{ item.date }}</span>
+                    </div>
+                    <a href="tel:{{ item.contact }}" class="crm-card-contact">📞 {{ item.contact }}</a>
+                    <div class="crm-card-title" style="color: #ef4444; font-size: 0.85rem;">{{ item.title }}</div>
+                    <div class="crm-card-actions">
+                        <select class="status-select" onchange="updateCrmStatus('{{ item.type }}', '{{ item.id }}', this.value)">
+                            <option value="new">🆕 Yangi</option>
+                            <option value="contacted">📞 Bog'lanildi</option>
+                            <option value="in_progress">📝 Jarayonda</option>
+                            <option value="completed">✅ Bajarildi</option>
+                            <option value="cancelled" selected>❌ Bekor</option>
+                        </select>
+                    </div>
+                </div>
+                {% else %}
+                <div style="text-align:center; padding: 2rem; color: #64748b; font-size: 0.85rem;">Bo'sh</div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+async function updateCrmStatus(type, id, status) {
+    try {
+        const res = await fetch('/api/admin/crm/update-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, id: parseInt(id), status })
+        });
+        const data = await res.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Xatolik: ' + (data.error || 'Status yangilanmadi'));
+        }
+    } catch(e) {
+        alert('Server bilam ulanishda xato: ' + e);
+    }
+}
+</script>
+{% endblock %}
