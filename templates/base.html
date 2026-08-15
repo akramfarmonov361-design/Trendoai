@@ -67,6 +67,12 @@
     <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
     <link rel="canonical" href="{% block canonical_url %}{{ config.SITE_URL }}{{ request.path }}{% endblock %}">
 
+    <!-- Multilingual SEO hreflang -->
+    <link rel="alternate" hreflang="uz" href="{{ config.SITE_URL }}{{ request.path }}?lang=uz" />
+    <link rel="alternate" hreflang="ru" href="{{ config.SITE_URL }}{{ request.path }}?lang=ru" />
+    <link rel="alternate" hreflang="en" href="{{ config.SITE_URL }}{{ request.path }}?lang=en" />
+    <link rel="alternate" hreflang="x-default" href="{{ config.SITE_URL }}{{ request.path }}" />
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
     <meta property="og:url" content="{% block og_url %}{{ config.SITE_URL }}{{ request.path }}{% endblock %}">
@@ -178,14 +184,13 @@
             <nav id="mainNav" aria-label="Asosiy navigatsiya">
                 <a href="{{ url_for('index') }}"
                     class="{% if request.endpoint in ['index', 'services', 'service_detail'] %}active{% endif %}">🛠️
-                    Xizmatlar</a>
+                    {{ t('nav_services', 'Xizmatlar') }}</a>
                 <a href="{{ url_for('blog') }}" class="{% if request.endpoint in ['blog', 'post', 'post_by_slug', 'search'] %}active{% endif %}">📝
-                    Blog</a>
+                    {{ t('nav_blog', 'Blog') }}</a>
                 <a href="{{ url_for('portfolio') }}"
-                    class="{% if request.endpoint in ['portfolio', 'portfolio_item'] %}active{% endif %}">🎨 Portfolio</a>
-                <a href="{{ url_for('about') }}" class="{% if request.endpoint == 'about' %}active{% endif %}">ℹ️ Biz
-                    haqimizda</a>
-                <a href="{{ url_for('order_page') }}" class="nav-order-cta {% if request.endpoint == 'order_page' %}active{% endif %}">Buyurtma berish</a>
+                    class="{% if request.endpoint in ['portfolio', 'portfolio_item'] %}active{% endif %}">🎨 {{ t('nav_portfolio', 'Portfolio') }}</a>
+                <a href="{{ url_for('about') }}" class="{% if request.endpoint == 'about' %}active{% endif %}">ℹ️ {{ t('nav_about', 'Biz haqimizda') }}</a>
+                <a href="{{ url_for('order_page') }}" class="nav-order-cta {% if request.endpoint == 'order_page' %}active{% endif %}">{{ t('nav_order', 'Buyurtma berish') }}</a>
             </nav>
             <div class="social-icons">
                 <a href="https://www.youtube.com/@Trendoaiuz?sub_confirmation=1" target="_blank"
@@ -216,6 +221,14 @@
                     <span class="moon-icon" aria-hidden="true">🌙</span>
                     <span class="sun-icon" aria-hidden="true">☀️</span>
                 </button>
+                <!-- Language Switcher -->
+                <div class="lang-switcher" style="display: inline-flex; align-items: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 2px 6px; gap: 3px; font-size: 0.75rem; font-weight: 700; margin-left: 8px;">
+                    <a href="{{ url_for('web.set_language', lang_code='uz') }}" style="color: {% if current_lang == 'uz' %}var(--primary-light){% else %}var(--text-muted){% endif %}; text-decoration: none; padding: 2px 6px; border-radius: 12px; {% if current_lang == 'uz' %}background: rgba(99, 102, 241, 0.2);{% endif %}" title="O'zbekcha">UZ</a>
+                    <span style="color: var(--border); font-size: 0.65rem;">|</span>
+                    <a href="{{ url_for('web.set_language', lang_code='ru') }}" style="color: {% if current_lang == 'ru' %}var(--primary-light){% else %}var(--text-muted){% endif %}; text-decoration: none; padding: 2px 6px; border-radius: 12px; {% if current_lang == 'ru' %}background: rgba(99, 102, 241, 0.2);{% endif %}" title="Русский">RU</a>
+                    <span style="color: var(--border); font-size: 0.65rem;">|</span>
+                    <a href="{{ url_for('web.set_language', lang_code='en') }}" style="color: {% if current_lang == 'en' %}var(--primary-light){% else %}var(--text-muted){% endif %}; text-decoration: none; padding: 2px 6px; border-radius: 12px; {% if current_lang == 'en' %}background: rgba(99, 102, 241, 0.2);{% endif %}" title="English">EN</a>
+                </div>
                 <!-- Notification Toggle -->
                 <button class="theme-toggle" id="notify-btn" aria-label="Enable Notifications"
                     style="margin-left: 10px;">

@@ -887,3 +887,14 @@ def service_worker():
     response = make_response(send_from_directory('static', 'sw.js'))
     response.headers['Content-Type'] = 'application/javascript'
     return response
+
+
+@web_bp.route('/set-lang/<lang_code>')
+def set_language(lang_code):
+    """Foydalanuvchi tilini o'zgartirish (uz, ru, en)"""
+    from flask import session
+    if lang_code in ('uz', 'ru', 'en'):
+        session['lang'] = lang_code
+    referer = request.referrer or url_for('web.index')
+    return redirect(referer)
+

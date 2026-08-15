@@ -219,13 +219,20 @@ def create_app(config_overrides=None):
         cleaned = leading_h1_pattern.sub("", s or "", count=1)
         return markdown2.markdown(cleaned, extras=["fenced-code-blocks", "tables", "break-on-newline"])
 
-    # Global Context Processor
+    # Global Context Processor & Multilingual Support
     @application.context_processor
     def inject_globals():
         if not hasattr(application, '_log_shown'):
             print(f"DEBUG: FACEBOOK_PIXEL_ID={FACEBOOK_PIXEL_ID}")
             print(f"DEBUG: GA4_ID={GA4_ID}")
             application._log_shown = True
+
+        from flask import session
+        from translations import get_translation
+
+        lang = request.args.get('lang') or session.get('lang') or 'uz'
+        if lang not in ('uz', 'ru', 'en'):
+            lang = 'uz'
 
         return {
             'config': {
@@ -238,6 +245,8 @@ def create_app(config_overrides=None):
             'GOOGLE_ADS_ID': GOOGLE_ADS_ID,
             'FACEBOOK_PIXEL_ID': FACEBOOK_PIXEL_ID,
             'categories': CATEGORIES,
+            'current_lang': lang,
+            't': lambda key, default=None: get_translation(key, lang, default),
             'now': datetime.now()
         }
 
