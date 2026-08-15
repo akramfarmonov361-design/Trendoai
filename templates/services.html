@@ -237,35 +237,34 @@
     <article class="service-card-new card-target" id="target-reklama">
         <div class="card-glow"></div>
         <div class="card-icon">🎯</div>
-        <h3>Target Reklama</h3>
-        <p class="card-subtitle">Facebook va Instagram Ads sozlash</p>
-        <p class="card-desc">Aniq maqsadli auditoriyangizga reklamangizni ko'rsating. 
-        Facebook va Instagram orqali eng ko'p haridor topuvchi professional reklama kampaniyalari.</p>
+        <h3>{{ t('srv_ads_title', 'Target Reklama') }}</h3>
+        <p class="card-subtitle">{{ t('srv_ads_subtitle', 'Facebook va Instagram Ads sozlash') }}</p>
+        <p class="card-desc">{{ t('srv_ads_desc', 'Aniq maqsadli auditoriyangizga reklamangizni ko\'rsating. Facebook va Instagram orqali eng ko\'p haridor topuvchi professional reklama kampaniyalari.') }}</p>
         
         <ul class="card-features">
-            <li><span class="check">✓</span> Facebook Ads sozlash</li>
-            <li><span class="check">✓</span> Instagram reklama</li>
-            <li><span class="check">✓</span> Pixel va konversiya sozlash</li>
-            <li><span class="check">✓</span> A/B test va optimallashtirish</li>
-            <li><span class="check">✓</span> Haftalik hisobotlar</li>
+            <li><span class="check">✓</span> {{ t('srv_ads_f1', 'Facebook Ads sozlash') }}</li>
+            <li><span class="check">✓</span> {{ t('srv_ads_f2', 'Instagram reklama') }}</li>
+            <li><span class="check">✓</span> {{ t('srv_ads_f3', 'Pixel va konversiya sozlash') }}</li>
+            <li><span class="check">✓</span> {{ t('srv_ads_f4', 'A/B test va optimallashtirish') }}</li>
+            <li><span class="check">✓</span> {{ t('srv_ads_f5', 'Haftalik hisobotlar') }}</li>
         </ul>
         
         <div class="card-price">
-            <span class="price-label">Narxi:</span>
+            <span class="price-label">{{ t('price_label', 'Narxi:') }}</span>
             <div class="price-range">
                 <span class="price-from">{{ pricing.target_ads.min_display }}</span>
                 <span class="price-sep">—</span>
                 <span class="price-to">{{ pricing.target_ads.max_display }}</span>
             </div>
-            <span class="price-note">*Reklama byudjetisiz</span>
+            <span class="price-note">{{ t('price_note_ads', '*Reklama byudjetisiz') }}</span>
         </div>
         
         <div class="card-actions">
             <a href="{{ url_for('order_page') }}?service=target_ads" class="btn-order"
                 onclick="typeof fbq!=='undefined' && fbq('track', 'AddToCart', {content_ids: ['service_target-ads'], content_type: 'product'})">
-                🚀 Buyurtma berish
+                {{ t('btn_order_now', '🚀 Buyurtma berish') }}
             </a>
-            <a href="{{ url_for('portfolio') }}" class="btn-demo">💼 Namuna ko'rish</a>
+            <a href="{{ url_for('portfolio') }}" class="btn-demo">{{ t('btn_view_demo', '💼 Namuna ko\'rish') }}</a>
         </div>
     </article>
 
@@ -275,51 +274,51 @@
 <section class="calculator-section" id="kalkulyator" aria-labelledby="calc-heading">
     <div class="calc-wrapper">
         <div class="calc-header text-center">
-            <span class="calc-pill">⚡ Tezkor Smeta</span>
-            <h2 id="calc-heading">🧮 Loyiha Narxi Kalkulyatori</h2>
-            <p class="calc-lead">O'zingizga kerakli xizmat turi va qo'shimcha imkoniyatlarni belgilang — tizim real vaqt rejimida taxminiy narx va muddatni hisoblab beradi.</p>
+            <span class="calc-pill">{{ t('calc_pill', '⚡ Tezkor Smeta') }}</span>
+            <h2 id="calc-heading">{{ t('calc_heading', '🧮 Loyiha Narxi Kalkulyatori') }}</h2>
+            <p class="calc-lead">{{ t('calc_lead', "O'zingizga kerakli xizmat turi va qo'shimcha imkoniyatlarni belgilang — tizim real vaqt rejimida taxminiy narx va muddatni hisoblab beradi.") }}</p>
         </div>
 
         <div class="calc-grid">
             <div class="calc-controls">
                 <div class="calc-field">
-                    <label class="field-title">1. Asosiy Yo'nalishni Tanlang:</label>
+                    <label class="field-title">{{ t('calc_step1', '1. Asosiy Yo\'nalishni Tanlang:') }}</label>
                     <div class="service-type-selector">
                         <label class="type-card active" onclick="selectTypeCard(this)">
                             <input type="radio" name="calc_base" value="Telegram Bot" data-price="400000" data-days="4" checked onchange="updateCalc()">
                             <span class="type-icon">🤖</span>
-                            <span class="type-name">Telegram Bot</span>
+                            <span class="type-name">{{ t('srv_bot_title', 'Telegram Bot') }}</span>
                             <span class="type-cost">400 000 so'mdan</span>
                         </label>
                         <label class="type-card" onclick="selectTypeCard(this)">
                             <input type="radio" name="calc_base" value="Web Sayt" data-price="700000" data-days="6" onchange="updateCalc()">
                             <span class="type-icon">🌐</span>
-                            <span class="type-name">Web Sayt</span>
+                            <span class="type-name">{{ t('srv_web_title', 'Web Sayt') }}</span>
                             <span class="type-cost">700 000 so'mdan</span>
                         </label>
                         <label class="type-card" onclick="selectTypeCard(this)">
                             <input type="radio" name="calc_base" value="AI Chatbot" data-price="1200000" data-days="7" onchange="updateCalc()">
                             <span class="type-icon">🧠</span>
-                            <span class="type-name">AI Chatbot</span>
+                            <span class="type-name">{{ t('srv_ai_title', 'AI Chatbot') }}</span>
                             <span class="type-cost">1 200 000 so'mdan</span>
                         </label>
                         <label class="type-card" onclick="selectTypeCard(this)">
                             <input type="radio" name="calc_base" value="Target Reklama" data-price="600000" data-days="3" onchange="updateCalc()">
                             <span class="type-icon">🎯</span>
-                            <span class="type-name">Target Reklama</span>
+                            <span class="type-name">{{ t('srv_ads_title', 'Target Reklama') }}</span>
                             <span class="type-cost">600 000 so'mdan</span>
                         </label>
                     </div>
                 </div>
 
                 <div class="calc-field">
-                    <label class="field-title">2. Qo'shimcha Modullar va Integratsiyalar:</label>
+                    <label class="field-title">{{ t('calc_step2', '2. Qo\'shimcha Modullar va Integratsiyalar:') }}</label>
                     <div class="features-checklist">
                         <label class="feature-item">
                             <input type="checkbox" id="feat-pay" data-price="350000" data-days="2" onchange="updateCalc()">
                             <div class="feature-info">
-                                <span class="feature-name">💳 Click va Payme To'lov Tizimi</span>
-                                <span class="feature-desc">Mijozlar to'g'ridan-to'g'ri karta orqali avtomatik to'lov qiladi</span>
+                                <span class="feature-name">{{ t('calc_feat_pay_name', '💳 Click va Payme To\'lov Tizimi') }}</span>
+                                <span class="feature-desc">{{ t('calc_feat_pay_desc', 'Mijozlar to\'g\'ridan-to\'g\'ri karta orqali avtomatik to\'lov qiladi') }}</span>
                             </div>
                             <span class="feature-badge">+350,000</span>
                         </label>
@@ -327,8 +326,8 @@
                         <label class="feature-item">
                             <input type="checkbox" id="feat-admin" data-price="400000" data-days="2" onchange="updateCalc()">
                             <div class="feature-info">
-                                <span class="feature-name">📊 Veb Admin Panel & CRM</span>
-                                <span class="feature-desc">Mijozlar bazasi, buyurtmalar statistikasi va mahsulotlar boshqaruvi</span>
+                                <span class="feature-name">{{ t('calc_feat_admin_name', '📊 Veb Admin Panel & CRM') }}</span>
+                                <span class="feature-desc">{{ t('calc_feat_admin_desc', 'Mijozlar bazasi, buyurtmalar statistikasi va mahsulotlar boshqaruvi') }}</span>
                             </div>
                             <span class="feature-badge">+400,000</span>
                         </label>
@@ -336,8 +335,8 @@
                         <label class="feature-item">
                             <input type="checkbox" id="feat-ai-engine" data-price="600000" data-days="3" onchange="updateCalc()">
                             <div class="feature-info">
-                                <span class="feature-name">🧠 Gemini AI Aqlli Maslahatchi</span>
-                                <span class="feature-desc">Mijozlarning savollariga 24/7 inson kabi mustaqil javob beradi</span>
+                                <span class="feature-name">{{ t('calc_feat_ai_name', '🧠 Gemini AI Aqlli Maslahatchi') }}</span>
+                                <span class="feature-desc">{{ t('calc_feat_ai_desc', 'Mijozlarning savollariga 24/7 inson kabi mustaqil javob beradi') }}</span>
                             </div>
                             <span class="feature-badge">+600,000</span>
                         </label>
@@ -345,8 +344,8 @@
                         <label class="feature-item">
                             <input type="checkbox" id="feat-multilingual" data-price="250000" data-days="1" onchange="updateCalc()">
                             <div class="feature-info">
-                                <span class="feature-name">🌐 Ko'p Tilli Interfeys (UZ / RU / EN)</span>
-                                <span class="feature-desc">Rus va ingliz tilidagi auditoriyani ham qamrab olasiz</span>
+                                <span class="feature-name">{{ t('calc_feat_lang_name', '🌐 Ko\'p Tilli Interfeys (UZ / RU / EN)') }}</span>
+                                <span class="feature-desc">{{ t('calc_feat_lang_desc', 'Rus va ingliz tilidagi auditoriyani ham qamrab olasiz') }}</span>
                             </div>
                             <span class="feature-badge">+250,000</span>
                         </label>
@@ -354,8 +353,8 @@
                         <label class="feature-item">
                             <input type="checkbox" id="feat-express" data-price="450000" data-days="-2" onchange="updateCalc()">
                             <div class="feature-info">
-                                <span class="feature-name">⚡ Express Tezkor Topshirish</span>
-                                <span class="feature-desc">Navbatsiz, 48–72 soat ichida birinchi versiya ishga tushadi</span>
+                                <span class="feature-name">{{ t('calc_feat_exp_name', '⚡ Express Tezkor Topshirish') }}</span>
+                                <span class="feature-desc">{{ t('calc_feat_exp_desc', 'Navbatsiz, 48–72 soat ichida birinchi versiya ishga tushadi') }}</span>
                             </div>
                             <span class="feature-badge">+450,000</span>
                         </label>
@@ -366,30 +365,30 @@
             <!-- RESULT CARD -->
             <div class="calc-result-box">
                 <div class="result-card-inner">
-                    <div class="result-status">✨ Hisoblangan Smeta</div>
+                    <div class="result-status">{{ t('calc_res_status', '✨ Hisoblangan Smeta') }}</div>
                     <div class="result-title" id="res-selected-title">Telegram Bot</div>
                     <div class="result-price-box">
-                        <span class="res-price-label">Jami Taxminiy Qiymat:</span>
+                        <span class="res-price-label">{{ t('calc_res_total_label', 'Jami Taxminiy Qiymat:') }}</span>
                         <div class="res-price-amount" id="res-total-cost">400 000 <small>so'm</small></div>
                     </div>
                     <div class="result-meta">
                         <div class="meta-row">
-                            <span>⏱ Tayyor bo'lish muddati:</span>
+                            <span>{{ t('calc_res_time_label', '⏱ Tayyor bo\'lish muddati:') }}</span>
                             <strong id="res-total-days">~4 ish kuni</strong>
                         </div>
                         <div class="meta-row">
-                            <span>🛡 Kafolat va texnik xizmat:</span>
-                            <strong>1 oy bepul</strong>
+                            <span>{{ t('calc_res_warranty_label', '🛡 Kafolat va texnik xizmat:') }}</span>
+                            <strong>{{ t('calc_res_warranty_val', '1 oy bepul') }}</strong>
                         </div>
                         <div class="meta-row">
-                            <span>💡 Bepul konsultatsiya:</span>
-                            <strong>Mavjud</strong>
+                            <span>{{ t('calc_res_consult_label', '💡 Bepul konsultatsiya:') }}</span>
+                            <strong>{{ t('calc_res_consult_val', 'Mavjud') }}</strong>
                         </div>
                     </div>
                     <button type="button" class="btn-calc-apply" onclick="applyCalculationToOrder()">
-                        🚀 Ushbu hisob bilan buyurtma berish
+                        {{ t('calc_res_btn', '🚀 Ushbu hisob bilan buyurtma berish') }}
                     </button>
-                    <p class="res-disclaimer">*Aniq smeta loyihaning batafsil texnik topshirig'i (TZ) tasdiqlangandan so'ng rasmiylashtiriladi.</p>
+                    <p class="res-disclaimer">{{ t('calc_res_disclaimer', '*Aniq smeta loyihaning batafsil texnik topshirig\'i (TZ) tasdiqlangandan so\'ng rasmiylashtiriladi.') }}</p>
                 </div>
             </div>
         </div>
@@ -399,38 +398,38 @@
 <!-- ========== FAQ SECTION ========== -->
 <section class="faq-section" id="faq" aria-labelledby="faq-heading">
     <div class="faq-container">
-        <h2 id="faq-heading">❓ Tez-tez so'raladigan savollar</h2>
-        <p class="faq-lead">Mijozlarimiz ko'pincha quyidagi savollar bilan murojaat qilishadi</p>
+        <h2 id="faq-heading">{{ t('faq_heading', '❓ Tez-tez so\'raladigan savollar') }}</h2>
+        <p class="faq-lead">{{ t('faq_lead', 'Mijozlarimiz ko\'pincha quyidagi savollar bilan murojaat qilishadi') }}</p>
 
         <div class="faq-list">
             <details class="faq-item">
-                <summary>Loyiha narxi qancha turadi?</summary>
-                <p>Narx loyiha murakkabligiga bog'liq. Oddiy Telegram bot 300 000 so'mdan boshlanadi, korporativ web-sayt 2 000 000 so'mdan, murakkab AI yechimlar esa loyihaga qarab individual hisoblanadi. Bepul konsultatsiya so'rab, aniq narxni bilib olishingiz mumkin.</p>
+                <summary>{{ t('faq_q1', 'Loyiha narxi qancha turadi?') }}</summary>
+                <p>{{ t('faq_a1', 'Narx loyiha murakkabligiga bog\'liq. Oddiy Telegram bot 300 000 so\'mdan boshlanadi, korporativ web-sayt 2 000 000 so\'mdan, murakkab AI yechimlar esa loyihaga qarab individual hisoblanadi. Bepul konsultatsiya so\'rab, aniq narxni bilib olishingiz mumkin.') }}</p>
             </details>
 
             <details class="faq-item">
-                <summary>Loyiha qancha vaqtda tayyor bo'ladi?</summary>
-                <p>O'rtacha muddatlar: Telegram bot — 3–10 kun, landing page — 5–7 kun, korporativ web-sayt — 2–4 hafta, AI chatbot — 1–3 hafta. Aniq muddat texnik topshiriqdan keyin belgilanadi.</p>
+                <summary>{{ t('faq_q2', 'Loyiha qancha vaqtda tayyor bo\'ladi?') }}</summary>
+                <p>{{ t('faq_a2', 'O\'rtacha muddatlar: Telegram bot — 3–10 kun, landing page — 5–7 kun, korporativ web-sayt — 2–4 hafta, AI chatbot — 1–3 hafta. Aniq muddat texnik topshiriqdan keyin belgilanadi.') }}</p>
             </details>
 
             <details class="faq-item">
-                <summary>Loyihadan keyin texnik qo'llab-quvvatlash bormi?</summary>
-                <p>Ha. Har bir loyiha 1 oylik bepul kafolat bilan keladi (hosting va xato tuzatish). Undan keyin oylik texnik xizmat shartnomasi tuzish mumkin: kichik o'zgartirishlar, yangi funksiyalar, monitoring.</p>
+                <summary>{{ t('faq_q3', 'Loyihadan keyin texnik qo\'llab-quvvatlash bormi?') }}</summary>
+                <p>{{ t('faq_a3', 'Ha. Har bir loyiha 1 oylik bepul kafolat bilan keladi (hosting va xato tuzatish). Undan keyin oylik texnik xizmat shartnomasi tuzish mumkin: kichik o\'zgartirishlar, yangi funksiyalar, monitoring.') }}</p>
             </details>
 
             <details class="faq-item">
-                <summary>Qaysi to'lov tizimlari integratsiya qilinadi?</summary>
-                <p>Mahalliy: Payme, Click, Uzum Bank, Apelsin. Xalqaro: Stripe, PayPal. Telegram bot va web-saytlarga to'liq integratsiya qilamiz, shu jumladan webhook va admin panel orqali to'lovlarni boshqarish.</p>
+                <summary>{{ t('faq_q4', 'Qaysi to\'lov tizimlari integratsiya qilinadi?') }}</summary>
+                <p>{{ t('faq_a4', 'Mahalliy: Payme, Click, Uzum Bank, Apelsin. Xalqaro: Stripe, PayPal. Telegram bot va web-saytlarga to\'liq integratsiya qilamiz, shu jumladan webhook va admin panel orqali to\'lovlarni boshqarish.') }}</p>
             </details>
 
             <details class="faq-item">
-                <summary>Bepul konsultatsiya olish mumkinmi?</summary>
-                <p>Albatta. Telegram (@TrendoAibot) yoki <a href="tel:+998974771229">+998 97 477 12 29</a> orqali bog'laning — 15–20 daqiqalik bepul konsultatsiyada loyihangizga mos yechim va taxminiy narx aytib beramiz.</p>
+                <summary>{{ t('faq_q5', 'Bepul konsultatsiya olish mumkinmi?') }}</summary>
+                <p>{{ t('faq_a5', 'Albatta. Telegram (@TrendoAibot) yoki <a href="tel:+998974771229">+998 97 477 12 29</a> orqali bog\'laning — 15–20 daqiqalik bepul konsultatsiyada loyihangizga mos yechim va taxminiy narx aytib beramiz.') }}</p>
             </details>
 
             <details class="faq-item">
-                <summary>Ishlaringizning namunalarini ko'rsa bo'ladimi?</summary>
-                <p>Ha. <a href="{{ url_for('portfolio') }}">Portfolio sahifamizda</a> Telegram botlar, web-saytlar, AI yechimlar va mobil ilovalar bo'yicha real tugallangan loyihalarni ko'rishingiz mumkin.</p>
+                <summary>{{ t('faq_q6', 'Ishlaringizning namunalarini ko\'rsa bo\'ladimi?') }}</summary>
+                <p>{{ t('faq_a6', 'Ha. <a href="/portfolio">Portfolio sahifamizda</a> Telegram botlar, web-saytlar, AI yechimlar va mobil ilovalar bo\'yicha real tugallangan loyihalarni ko\'rishingiz mumkin.') }}</p>
             </details>
         </div>
     </div>
@@ -525,8 +524,8 @@
 <!-- Order Form Section -->
 <section class="order-form-section" id="order">
     <div class="form-header">
-        <h2>📝 Xizmatga Yozilish</h2>
-        <p>Formani to'ldiring, biz siz bilan 24 soat ichida bog'lanamiz!</p>
+        <h2>{{ t('form_heading', '📝 Xizmatga Yozilish') }}</h2>
+        <p>{{ t('form_lead', 'Formani to\'ldiring, biz siz bilan 24 soat ichida bog\'lanamiz!') }}</p>
     </div>
 
     <form class="order-form" action="{{ url_for('submit_order') }}" method="POST">
@@ -537,28 +536,28 @@
         </div>
         <div class="form-row">
             <div class="form-group">
-                <label for="name">👤 Ismingiz *</label>
+                <label for="name">{{ t('form_name_lbl', '👤 Ismingiz *') }}</label>
                 <input type="text" id="name" name="name" required placeholder="Masalan: Ali Valiyev">
             </div>
             <div class="form-group">
-                <label for="phone">📞 Telefon raqam *</label>
+                <label for="phone">{{ t('form_phone_lbl', '📞 Telefon raqam *') }}</label>
                 <input type="tel" id="phone" name="phone" required placeholder="+998 90 123 45 67">
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label for="service">🛠️ Xizmat turi *</label>
+                <label for="service">{{ t('form_service_lbl', '🛠️ Xizmat turi *') }}</label>
                 <select id="service" name="service" required>
                     <option value="">Tanlang...</option>
-                    <option value="telegram_bot">🤖 Telegram Bot</option>
-                    <option value="web_site">🌐 Veb-sayt</option>
-                    <option value="ai_chatbot">🧠 AI Chatbot</option>
-                    <option value="target_ads">🎯 Target Reklama</option>
+                    <option value="telegram_bot">🤖 {{ t('srv_bot_title', 'Telegram Bot') }}</option>
+                    <option value="web_site">🌐 {{ t('srv_web_title', 'Veb-sayt') }}</option>
+                    <option value="ai_chatbot">🧠 {{ t('srv_ai_title', 'AI Chatbot') }}</option>
+                    <option value="target_ads">🎯 {{ t('srv_ads_title', 'Target Reklama') }}</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="budget">💰 Byudjet</label>
+                <label for="budget">{{ t('form_budget_lbl', '💰 Byudjet') }}</label>
                 <select id="budget" name="budget">
                     <option value="">Tanlang...</option>
                     <option value="300k-800k">300,000 - 800,000 so'm</option>
@@ -571,21 +570,21 @@
         </div>
 
         <div class="form-group">
-            <label for="message">💬 Loyihangiz haqida</label>
+            <label for="message">{{ t('form_message_lbl', '💬 Loyihangiz haqida') }}</label>
             <textarea id="message" name="message" rows="4"
                 placeholder="Loyihangiz haqida qisqacha ma'lumot bering..."></textarea>
         </div>
 
         <button type="submit" class="submit-btn">
-            🚀 Ariza Yuborish
+            {{ t('form_submit_btn', '🚀 Ariza Yuborish') }}
         </button>
     </form>
 </section>
 
 <section class="cta-section">
-    <h3>💬 Tezroq Javob Olmoqchimisiz?</h3>
-    <p>Telegram orqali to'g'ridan-to'g'ri bog'laning!</p>
-    <a href="https://t.me/TrendoAibot" class="cta-button" target="_blank">📱 Bot orqali bog'lanish (@TrendoAibot)</a>
+    <h3>{{ t('cta_fast_reply', '💬 Tezroq Javob Olmoqchimisiz?') }}</h3>
+    <p>{{ t('cta_fast_desc', 'Telegram orqali to\'g\'ridan-to\'g\'ri bog\'laning!') }}</p>
+    <a href="https://t.me/TrendoAibot" class="cta-button" target="_blank">{{ t('cta_fast_btn', '📱 Bot orqali bog\'lanish (@TrendoAibot)') }}</a>
 </section>
 
 <script>
