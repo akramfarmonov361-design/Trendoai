@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Foydalanish shartlari va Kafolat — TrendoAI{% endblock %}
+{% block meta_description %}TrendoAI platformasidan foydalanish shartlari, xizmat ko'rsatish qoidalari, texnik kafolat va to'lov shartlari.{% endblock %}
+{% block meta_robots %}index, follow{% endblock %}
+{% block canonical_url %}{{ config.SITE_URL }}/terms{% endblock %}
+{% block og_url %}{{ config.SITE_URL }}/terms{% endblock %}
+{% block og_title %}Foydalanish shartlari va Kafolat — TrendoAI{% endblock %}
+{% block og_description %}TrendoAI IT xizmatlari va dasturiy ta'minotdan foydalanish shartlari.{% endblock %}
+
+{% block extra_head %}
+<style>
+    .terms-hero {
+        padding: 70px 20px 50px;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(168, 85, 247, 0.12));
+    }
+    .terms-hero .container-narrow,
+    .terms-section .container-narrow {
+        width: min(860px, 100%);
+        margin: 0 auto;
+    }
+    .terms-hero h1 {
+        margin: 10px 0;
+        font-size: clamp(2rem, 5vw, 3.25rem);
+    }
+    .terms-section {
+        padding: 50px 20px 80px;
+    }
+    .terms-section .container-narrow > div {
+        margin-bottom: 22px;
+        padding: 26px;
+        border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+        border-radius: 16px;
+        background: var(--card-bg, rgba(255, 255, 255, 0.03));
+    }
+    .terms-section h2 {
+        margin-bottom: 12px;
+        color: var(--text-primary, #fff);
+    }
+    .terms-section ul {
+        margin: 14px 0 0 22px;
+    }
+    .terms-section li {
+        margin-bottom: 10px;
+    }
+    .terms-section a {
+        color: #6366f1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="terms-hero">
+    <div class="container-narrow">
+        <p style="color:#6366f1; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">Huquqiy ma'lumot</p>
+        <h1>Foydalanish Shartlari & Kafolat</h1>
+        <p style="color:var(--text-muted); font-size:0.95rem; margin-top:8px;">Oxirgi tahrir: 2026-yil 15-avgust</p>
+    </div>
+</section>
+
+<section class="terms-section">
+    <div class="container-narrow">
+        <div>
+            <h2>1. Xizmat ko'rsatish doirasi</h2>
+            <p>
+                TrendoAI (trendoai.uz) jismoniy va yuridik shaxslarga Telegram botlar, Web-saytlar, AI (Sun'iy Intellekt) yechimlari,
+                CRM integratsiyalari va reklama xizmatlarini ishlab chiqish hamda texnik ta'minlash xizmatlarini ko'rsatadi.
+            </p>
+        </div>
+
+        <div>
+            <h2>2. Buyurtma va Texnik Topshiriq (TZ)</h2>
+            <p>
+                Har bir loyiha buyurtmachi bilan kelishilgan Texnik Topshiriq (TZ) asosida bosqichma-bosqich ishlab chiqiladi.
+                Loyiha muddati va yakuniy qiymati TZ tasdiqlangandan so'ng rasmiylashtiriladi.
+            </p>
+        </div>
+
+        <div>
+            <h2>3. Texnik Kafolat va Qo'llab-quvvatlash</h2>
+            <ul>
+                <li><strong>1 Oylik Bepul Kafolat:</strong> Barcha topshirilgan bot va saytlarga 30 kalendar kuni davomida bepul texnik kafolat va dasturiy xatoliklarni bartaraf etish xizmati beriladi.</li>
+                <li><strong>Uzluksiz Monitoring:</strong> Server va ma'lumotlar bazasi xavfsizligi doimiy nazoratda bo'ladi.</li>
+            </ul>
+        </div>
+
+        <div>
+            <h2>4. To'lov va Qaytarish Qoidalari</h2>
+            <p>
+                To'lovlar bank o'tkazmasi, Click, Payme yoki shartnomada ko'rsatilgan rasmiy usullarda amalga oshiriladi.
+                Ishlab chiqish boshlanishidan oldin avans (oldindan to'lov) kelishuvga ko'ra qabul qilinadi.
+            </p>
+        </div>
+
+        <div>
+            <h2>5. Intellektual Mulk va Konfidensiallik</h2>
+            <p>
+                Loyiha to'liq topshirilib, hisob-kitob qilingandan so'ng uning dasturiy manba kodi va barcha huquqlari Buyurtmachiga tegishli hisoblanadi.
+                Mijozning tijoriy ma'lumotlari uchinchi shaxslarga oshkor qilinmaydi.
+            </p>
+        </div>
+
+        <div>
+            <h2>6. Rekvizitlar va Aloqa</h2>
+            <p>
+                Savollar va hamkorlik bo'yicha bog'lanish:<br>
+                📧 Email: <a href="mailto:info@trendoai.uz">info@trendoai.uz</a><br>
+                📞 Telefon: <a href="tel:+998974771229">+998 97 477 12 29</a><br>
+                💬 Telegram: <a href="https://t.me/trendoai" target="_blank">@trendoai</a><br>
+                📍 Manzil: Toshkent shahri, O'zbekiston
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

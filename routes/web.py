@@ -289,9 +289,17 @@ def post_by_slug(slug):
 
 
 @web_bp.route('/maxfiylik')
+@web_bp.route('/privacy')
 def privacy():
     """Maxfiylik siyosati sahifasi"""
     return render_template('privacy.html')
+
+
+@web_bp.route('/shartlar')
+@web_bp.route('/terms')
+def terms():
+    """Foydalanish shartlari va Kafolat sahifasi"""
+    return render_template('terms.html')
 
 
 @web_bp.route('/rss')

@@ -52,7 +52,7 @@
             s.parentNode.insertBefore(t, s)
         }(window, document, 'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '{{ FACEBOOK_PIXEL_ID }}');
+        fbq('init', '{{ FACEBOOK_PIXEL_ID }}', { autoConfig: true, debug: false });
         fbq('track', 'PageView');
     </script>
     <noscript><img height="1" width="1" style="display:none"
@@ -269,6 +269,7 @@
                 <a href="mailto:info@trendoai.uz">📧 Email</a>
                 <a href="{{ url_for('api_health') }}">🔧 API</a>
                 <a href="{{ url_for('privacy') }}">Maxfiylik siyosati</a>
+                <a href="{{ url_for('terms') }}">Foydalanish shartlari</a>
             </div>
             <div class="footer-social">
                 <a href="https://youtube.com/@trendoai" target="_blank" class="footer-social-icon" aria-label="YouTube">
