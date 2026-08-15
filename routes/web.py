@@ -787,27 +787,30 @@ def api_catalog_xml():
 @web_bp.route('/feed/facebook-catalog.xml')
 def facebook_catalog_feed():
     """Facebook & Meta Commerce Manager uchun Dynamic Product Catalog Feed"""
-    site_url = SITE_URL
+    site_url = SITE_URL.rstrip('/')
     site_name = SITE_NAME
 
     items_xml = []
     services_list = Service.query.filter_by(is_active=True).all()
-    for s in services_list:
-        item_id = f"service_{s.id}"
-        title = s.title or "IT Xizmat"
-        desc = s.description or s.meta_desc or f"TrendoAI {title} xizmati"
-        link = f"{site_url}/services/{s.slug}" if s.slug else f"{site_url}/services"
-        img = s.image_url or f"{site_url}/static/img/og-image.jpg"
-        if not img.startswith('http'):
-            img = f"{site_url}{img if img.startswith('/') else '/' + img}"
+    if not services_list:
+        # Fallback to core SERVICES_DATA
+        for key, s in SERVICES_DATA.items():
+            item_id = f"service_{key}"
+            title = s.get('title', 'IT Xizmat')
+            desc = s.get('full_description') or s.get('description') or f"TrendoAI {title} xizmati"
+            link = f"{site_url}/services/{key}"
+            img = f"{site_url}/static/img/og-image.jpg"
+            price_str = "500000 UZS"
+            if key == 'telegram_bot':
+                price_str = "400000 UZS"
+            elif key == 'web_site':
+                price_str = "700000 UZS"
+            elif key == 'ai_chatbot':
+                price_str = "1200000 UZS"
+            elif key == 'target_ads':
+                price_str = "600000 UZS"
 
-        price_val = (s.price or "500000 UZS").strip()
-        if not any(curr in price_val.upper() for curr in ('UZS', 'USD', '$', 'SO\'M', 'SOM')):
-            price_str = f"{price_val} UZS"
-        else:
-            price_str = price_val.replace("so'm", "UZS").replace("som", "UZS").replace("$", "USD")
-
-        items_xml.append(f"""    <item>
+            items_xml.append(f"""    <item>
       <g:id>{xml_escape(item_id)}</g:id>
       <g:title>{xml_escape(title)}</g:title>
       <g:description>{xml_escape(desc)}</g:description>
@@ -817,6 +820,37 @@ def facebook_catalog_feed():
       <g:condition>new</g:condition>
       <g:availability>in stock</g:availability>
       <g:price>{xml_escape(price_str)}</g:price>
+      <g:product_type>IT Services</g:product_type>
+      <g:custom_label_0>Service</g:custom_label_0>
+    </item>""")
+    else:
+        for s in services_list:
+            item_id = f"service_{s.id}"
+            title = s.title or "IT Xizmat"
+            desc = s.description or s.meta_desc or f"TrendoAI {title} xizmati"
+            link = f"{site_url}/services/{s.slug}" if s.slug else f"{site_url}/services"
+            img = s.image_url or f"{site_url}/static/img/og-image.jpg"
+            if not img.startswith('http'):
+                img = f"{site_url}{img if img.startswith('/') else '/' + img}"
+
+            price_val = (s.price or "500000 UZS").strip()
+            if not any(curr in price_val.upper() for curr in ('UZS', 'USD', '$', 'SO\'M', 'SOM')):
+                price_str = f"{price_val} UZS"
+            else:
+                price_str = price_val.replace("so'm", "UZS").replace("som", "UZS").replace("$", "USD")
+
+            items_xml.append(f"""    <item>
+      <g:id>{xml_escape(item_id)}</g:id>
+      <g:title>{xml_escape(title)}</g:title>
+      <g:description>{xml_escape(desc)}</g:description>
+      <g:link>{xml_escape(link)}</g:link>
+      <g:image_link>{xml_escape(img)}</g:image_link>
+      <g:brand>{xml_escape(site_name)}</g:brand>
+      <g:condition>new</g:condition>
+      <g:availability>in stock</g:availability>
+      <g:price>{xml_escape(price_str)}</g:price>
+      <g:product_type>IT Services</g:product_type>
+      <g:custom_label_0>Service</g:custom_label_0>
     </item>""")
 
     portfolios = Portfolio.query.filter_by(is_published=True).all()
@@ -845,6 +879,8 @@ def facebook_catalog_feed():
       <g:condition>new</g:condition>
       <g:availability>in stock</g:availability>
       <g:price>{xml_escape(price_str)}</g:price>
+      <g:product_type>Portfolio Case Study</g:product_type>
+      <g:custom_label_0>Portfolio</g:custom_label_0>
     </item>""")
 
     xml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
