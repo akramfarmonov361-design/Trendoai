@@ -274,6 +274,131 @@
 
 </div>
 
+<!-- ========== INTERACTIVE PRICING CALCULATOR ========== -->
+<section class="calculator-section" id="kalkulyator" aria-labelledby="calc-heading">
+    <div class="calc-wrapper">
+        <div class="calc-header text-center">
+            <span class="calc-pill">⚡ Tezkor Smeta</span>
+            <h2 id="calc-heading">🧮 Loyiha Narxi Kalkulyatori</h2>
+            <p class="calc-lead">O'zingizga kerakli xizmat turi va qo'shimcha imkoniyatlarni belgilang — tizim real vaqt rejimida taxminiy narx va muddatni hisoblab beradi.</p>
+        </div>
+
+        <div class="calc-grid">
+            <div class="calc-controls">
+                <div class="calc-field">
+                    <label class="field-title">1. Asosiy Yo'nalishni Tanlang:</label>
+                    <div class="service-type-selector">
+                        <label class="type-card active" onclick="selectTypeCard(this)">
+                            <input type="radio" name="calc_base" value="Telegram Bot" data-price="400000" data-days="4" checked onchange="updateCalc()">
+                            <span class="type-icon">🤖</span>
+                            <span class="type-name">Telegram Bot</span>
+                            <span class="type-cost">400 000 so'mdan</span>
+                        </label>
+                        <label class="type-card" onclick="selectTypeCard(this)">
+                            <input type="radio" name="calc_base" value="Web Sayt" data-price="700000" data-days="6" onchange="updateCalc()">
+                            <span class="type-icon">🌐</span>
+                            <span class="type-name">Web Sayt</span>
+                            <span class="type-cost">700 000 so'mdan</span>
+                        </label>
+                        <label class="type-card" onclick="selectTypeCard(this)">
+                            <input type="radio" name="calc_base" value="AI Chatbot" data-price="1200000" data-days="7" onchange="updateCalc()">
+                            <span class="type-icon">🧠</span>
+                            <span class="type-name">AI Chatbot</span>
+                            <span class="type-cost">1 200 000 so'mdan</span>
+                        </label>
+                        <label class="type-card" onclick="selectTypeCard(this)">
+                            <input type="radio" name="calc_base" value="Target Reklama" data-price="600000" data-days="3" onchange="updateCalc()">
+                            <span class="type-icon">🎯</span>
+                            <span class="type-name">Target Reklama</span>
+                            <span class="type-cost">600 000 so'mdan</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="calc-field">
+                    <label class="field-title">2. Qo'shimcha Modullar va Integratsiyalar:</label>
+                    <div class="features-checklist">
+                        <label class="feature-item">
+                            <input type="checkbox" id="feat-pay" data-price="350000" data-days="2" onchange="updateCalc()">
+                            <div class="feature-info">
+                                <span class="feature-name">💳 Click va Payme To'lov Tizimi</span>
+                                <span class="feature-desc">Mijozlar to'g'ridan-to'g'ri karta orqali avtomatik to'lov qiladi</span>
+                            </div>
+                            <span class="feature-badge">+350,000</span>
+                        </label>
+
+                        <label class="feature-item">
+                            <input type="checkbox" id="feat-admin" data-price="400000" data-days="2" onchange="updateCalc()">
+                            <div class="feature-info">
+                                <span class="feature-name">📊 Veb Admin Panel & CRM</span>
+                                <span class="feature-desc">Mijozlar bazasi, buyurtmalar statistikasi va mahsulotlar boshqaruvi</span>
+                            </div>
+                            <span class="feature-badge">+400,000</span>
+                        </label>
+
+                        <label class="feature-item">
+                            <input type="checkbox" id="feat-ai-engine" data-price="600000" data-days="3" onchange="updateCalc()">
+                            <div class="feature-info">
+                                <span class="feature-name">🧠 Gemini AI Aqlli Maslahatchi</span>
+                                <span class="feature-desc">Mijozlarning savollariga 24/7 inson kabi mustaqil javob beradi</span>
+                            </div>
+                            <span class="feature-badge">+600,000</span>
+                        </label>
+
+                        <label class="feature-item">
+                            <input type="checkbox" id="feat-multilingual" data-price="250000" data-days="1" onchange="updateCalc()">
+                            <div class="feature-info">
+                                <span class="feature-name">🌐 Ko'p Tilli Interfeys (UZ / RU / EN)</span>
+                                <span class="feature-desc">Rus va ingliz tilidagi auditoriyani ham qamrab olasiz</span>
+                            </div>
+                            <span class="feature-badge">+250,000</span>
+                        </label>
+
+                        <label class="feature-item">
+                            <input type="checkbox" id="feat-express" data-price="450000" data-days="-2" onchange="updateCalc()">
+                            <div class="feature-info">
+                                <span class="feature-name">⚡ Express Tezkor Topshirish</span>
+                                <span class="feature-desc">Navbatsiz, 48–72 soat ichida birinchi versiya ishga tushadi</span>
+                            </div>
+                            <span class="feature-badge">+450,000</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESULT CARD -->
+            <div class="calc-result-box">
+                <div class="result-card-inner">
+                    <div class="result-status">✨ Hisoblangan Smeta</div>
+                    <div class="result-title" id="res-selected-title">Telegram Bot</div>
+                    <div class="result-price-box">
+                        <span class="res-price-label">Jami Taxminiy Qiymat:</span>
+                        <div class="res-price-amount" id="res-total-cost">400 000 <small>so'm</small></div>
+                    </div>
+                    <div class="result-meta">
+                        <div class="meta-row">
+                            <span>⏱ Tayyor bo'lish muddati:</span>
+                            <strong id="res-total-days">~4 ish kuni</strong>
+                        </div>
+                        <div class="meta-row">
+                            <span>🛡 Kafolat va texnik xizmat:</span>
+                            <strong>1 oy bepul</strong>
+                        </div>
+                        <div class="meta-row">
+                            <span>💡 Bepul konsultatsiya:</span>
+                            <strong>Mavjud</strong>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-calc-apply" onclick="applyCalculationToOrder()">
+                        🚀 Ushbu hisob bilan buyurtma berish
+                    </button>
+                    <p class="res-disclaimer">*Aniq smeta loyihaning batafsil texnik topshirig'i (TZ) tasdiqlangandan so'ng rasmiylashtiriladi.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- ========== FAQ SECTION ========== -->
 <section class="faq-section" id="faq" aria-labelledby="faq-heading">
     <div class="faq-container">
@@ -908,6 +1033,213 @@
         box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
     }
 
+    /* ========== CALCULATOR SECTION ========== */
+    .calculator-section {
+        padding: 80px 20px;
+        background: linear-gradient(180deg, transparent 0%, rgba(99, 102, 241, 0.04) 50%, transparent 100%);
+    }
+    .calc-wrapper {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+    .calc-pill {
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 20px;
+        background: rgba(99, 102, 241, 0.15);
+        color: #818cf8;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+    .calc-header h2 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+    .calc-lead {
+        color: var(--text-muted, #94a3b8);
+        font-size: 1.05rem;
+        max-width: 650px;
+        margin: 0 auto 40px;
+    }
+    .calc-grid {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 32px;
+        align-items: start;
+    }
+    .calc-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+    }
+    .field-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 14px;
+        display: block;
+        color: var(--text-primary);
+    }
+    .service-type-selector {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    .type-card {
+        padding: 16px;
+        background: var(--bg-card, #111126);
+        border: 2px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+    .type-card input { display: none; }
+    .type-card:hover {
+        border-color: rgba(99, 102, 241, 0.4);
+        transform: translateY(-2px);
+    }
+    .type-card.active {
+        border-color: #6366f1;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.1));
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
+    }
+    .type-icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .type-name { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); }
+    .type-cost { font-size: 0.85rem; color: #38bdf8; font-weight: 600; margin-top: 4px; }
+
+    .features-checklist {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 18px;
+        background: var(--bg-card, #111126);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .feature-item:hover {
+        background: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+    .feature-item input {
+        width: 20px;
+        height: 20px;
+        accent-color: #6366f1;
+        cursor: pointer;
+    }
+    .feature-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .feature-name { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); }
+    .feature-desc { font-size: 0.8rem; color: var(--text-muted, #94a3b8); margin-top: 2px; }
+    .feature-badge {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #34d399;
+        background: rgba(52, 211, 153, 0.1);
+        padding: 4px 10px;
+        border-radius: 20px;
+        white-space: nowrap;
+    }
+
+    .calc-result-box {
+        position: sticky;
+        top: 90px;
+    }
+    .result-card-inner {
+        background: linear-gradient(145deg, #13132d, #0d0d1f);
+        border: 2px solid rgba(99, 102, 241, 0.3);
+        border-radius: 24px;
+        padding: 32px 28px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+    .result-status {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #818cf8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+    }
+    .result-title {
+        font-size: 1.4rem;
+        font-weight: 800;
+        margin-bottom: 18px;
+    }
+    .result-price-box {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+    .res-price-label {
+        font-size: 0.85rem;
+        color: var(--text-muted, #94a3b8);
+        display: block;
+    }
+    .res-price-amount {
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: #38bdf8;
+        letter-spacing: -0.02em;
+        margin-top: 4px;
+    }
+    .res-price-amount small {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-muted, #94a3b8);
+    }
+    .result-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 24px;
+        font-size: 0.9rem;
+    }
+    .meta-row {
+        display: flex;
+        justify-content: space-between;
+        color: var(--text-muted, #94a3b8);
+    }
+    .meta-row strong { color: var(--text-primary); }
+    .btn-calc-apply {
+        width: 100%;
+        padding: 16px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        color: white;
+        font-size: 1.05rem;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+    }
+    .btn-calc-apply:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(99, 102, 241, 0.5);
+    }
+    .res-disclaimer {
+        font-size: 0.75rem;
+        color: var(--text-muted, #94a3b8);
+        text-align: center;
+        margin-top: 14px;
+        line-height: 1.4;
+    }
+
     /* ========== CTA SECTION ========== */
     .cta-section {
         text-align: center;
@@ -916,9 +1248,9 @@
 
     /* ========== RESPONSIVE ========== */
     @media (max-width: 900px) {
-        .services-grid-new {
-            grid-template-columns: 1fr;
-        }
+        .calc-grid { grid-template-columns: 1fr; }
+        .service-type-selector { grid-template-columns: 1fr; }
+        .services-grid-new { grid-template-columns: 1fr; }
         .services-hero h1 { font-size: 2rem; }
     }
     @media (max-width: 768px) {
@@ -931,6 +1263,79 @@
     @media (max-width: 480px) {
         .services-hero h1 { font-size: 1.6rem; }
         .price-from, .price-to { font-size: 1.2rem; }
+        .res-price-amount { font-size: 1.8rem; }
     }
 </style>
+
+<script>
+    function formatMoney(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    }
+
+    function selectTypeCard(labelElement) {
+        document.querySelectorAll('.type-card').forEach(el => el.classList.remove('active'));
+        labelElement.classList.add('active');
+        const radio = labelElement.querySelector('input[type="radio"]');
+        if (radio) {
+            radio.checked = true;
+            updateCalc();
+        }
+    }
+
+    function updateCalc() {
+        const checkedRadio = document.querySelector('input[name="calc_base"]:checked');
+        if (!checkedRadio) return;
+
+        let total = parseInt(checkedRadio.getAttribute('data-price') || 0);
+        let days = parseInt(checkedRadio.getAttribute('data-days') || 4);
+        const title = checkedRadio.value;
+
+        const features = [
+            'feat-pay', 'feat-admin', 'feat-ai-engine', 'feat-multilingual', 'feat-express'
+        ];
+
+        features.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.checked) {
+                total += parseInt(el.getAttribute('data-price') || 0);
+                days += parseInt(el.getAttribute('data-days') || 0);
+            }
+        });
+
+        if (days < 2) days = 2;
+
+        document.getElementById('res-selected-title').innerText = title;
+        document.getElementById('res-total-cost').innerHTML = `${formatMoney(total)} <small>so'm</small>`;
+        document.getElementById('res-total-days').innerText = `~${days} ish kuni`;
+    }
+
+    function applyCalculationToOrder() {
+        const checkedRadio = document.querySelector('input[name="calc_base"]:checked');
+        const serviceName = checkedRadio ? checkedRadio.value : 'Telegram Bot';
+        const costText = document.getElementById('res-total-cost').innerText.replace(/\s+/g, ' ').trim();
+        const daysText = document.getElementById('res-total-days').innerText.trim();
+
+        // Check if there is an order form on page or redirect to /order
+        const orderForm = document.querySelector('.order-form');
+        if (orderForm) {
+            const msgField = document.getElementById('message') || document.querySelector('textarea[name="message"]');
+            if (msgField) {
+                msgField.value = `Kalkulyatordan tanlangan loyiha:\n- Yo'nalish: ${serviceName}\n- Taxminiy smeta: ${costText}\n- Muddat: ${daysText}\n`;
+            }
+            const svcSelect = document.getElementById('service') || document.querySelector('select[name="service"]');
+            if (svcSelect) {
+                if (serviceName.includes('Bot')) svcSelect.value = 'telegram_bot';
+                else if (serviceName.includes('Sayt')) svcSelect.value = 'web_site';
+                else if (serviceName.includes('AI')) svcSelect.value = 'ai_chatbot';
+                else if (serviceName.includes('Target')) svcSelect.value = 'smm';
+            }
+            orderForm.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            window.location.href = `/order?service=${encodeURIComponent(serviceName)}&budget=${encodeURIComponent(costText)}`;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', updateCalc);
+</script>
 {% endblock %}
+

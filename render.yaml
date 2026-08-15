@@ -36,6 +36,8 @@ services:
         sync: false
       - key: SITE_URL
         sync: false
+      - key: REDIS_URL
+        sync: false
     healthCheckPath: /api/health
     autoDeploy: true
 

@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TrendoAI — Telegram Mini App</title>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #0d1117);
+            --text-color: var(--tg-theme-text-color, #f0f6fc);
+            --hint-color: var(--tg-theme-hint-color, #8b949e);
+            --link-color: var(--tg-theme-link-color, #58a6ff);
+            --button-color: var(--tg-theme-button-color, #238636);
+            --button-text-color: var(--tg-theme-button-text-color, #ffffff);
+            --secondary-bg: var(--tg-theme-secondary-bg-color, #161b22);
+            --accent-cyan: #00f2fe;
+            --accent-purple: #9d4edd;
+            --card-border: rgba(255, 255, 255, 0.08);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding-bottom: 80px;
+            min-height: 100vh;
+        }
+
+        .header {
+            padding: 16px 20px 12px;
+            background: linear-gradient(180deg, var(--secondary-bg) 0%, var(--bg-color) 100%);
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #0b1329;
+            font-size: 1.1rem;
+        }
+
+        .brand-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-subtitle {
+            font-size: 0.75rem;
+            color: var(--hint-color);
+        }
+
+        .user-greeting {
+            font-size: 0.8rem;
+            color: var(--link-color);
+            background: rgba(88, 166, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* TABS */
+        .tabs-nav {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .tabs-nav::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: var(--secondary-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            color: #051026;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(0, 242, 254, 0.25);
+        }
+
+        .container {
+            padding: 12px 16px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.25s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* HERO CARD */
+        .promo-card {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.15), rgba(157, 78, 221, 0.15));
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            border-radius: var(--radius-lg);
+            padding: 18px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .promo-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .promo-text {
+            font-size: 0.85rem;
+            color: var(--hint-color);
+            line-height: 1.4;
+            margin-bottom: 14px;
+        }
+
+        /* SERVICE CARDS */
+        .service-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .service-item {
+            background: var(--secondary-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            position: relative;
+            transition: transform 0.15s ease;
+        }
+
+        .service-item:active {
+            transform: scale(0.98);
+        }
+
+        .service-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .service-icon {
+            font-size: 1.6rem;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .service-title {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .service-price {
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        .service-desc {
+            font-size: 0.8rem;
+            color: var(--hint-color);
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .service-btn {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            border: none;
+            color: #051026;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* CALCULATOR */
+        .calc-card {
+            background: var(--secondary-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+        }
+
+        .calc-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .select-input, .text-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            margin-bottom: 14px;
+            outline: none;
+        }
+
+        .options-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .option-checkbox {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .option-checkbox input {
+            accent-color: var(--accent-cyan);
+            width: 18px;
+            height: 18px;
+        }
+
+        .calc-summary {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.1), rgba(79, 172, 254, 0.05));
+            border: 1px solid rgba(0, 242, 254, 0.25);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .calc-total-label {
+            font-size: 0.75rem;
+            color: var(--hint-color);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .calc-total-val {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            margin: 4px 0;
+        }
+
+        .calc-time-val {
+            font-size: 0.8rem;
+            color: var(--hint-color);
+        }
+
+        /* BOTTOM NAVBAR */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            color: var(--hint-color);
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: var(--accent-cyan);
+        }
+
+        .nav-icon {
+            font-size: 1.25rem;
+        }
+
+        /* MODAL */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: flex-end;
+            z-index: 200;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-body {
+            width: 100%;
+            background: var(--secondary-bg);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 24px 20px 32px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            animation: slideUp 0.25s ease;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .close-btn {
+            float: right;
+            background: none;
+            border: none;
+            color: var(--hint-color);
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo-wrap">
+            <div class="logo-badge">T</div>
+            <div>
+                <div class="brand-title">TrendoAI</div>
+                <div class="brand-subtitle">IT & AI Agency</div>
+            </div>
+        </div>
+        <div class="user-greeting" id="user-greeting">👋 Mehmon</div>
+    </header>
+
+    <!-- TABS -->
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('catalog')">🚀 Xizmatlar</button>
+        <button class="tab-btn" onclick="switchTab('calc')">🧮 Narx Kalkulyatori</button>
+        <button class="tab-btn" onclick="switchTab('chat')">💬 AI Assistent</button>
+        <button class="tab-btn" onclick="switchTab('about')">ℹ️ Biz haqimizda</button>
+    </div>
+
+    <main class="container">
+        <!-- TAB 1: CATALOG -->
+        <section id="tab-catalog" class="tab-content active">
+            <div class="promo-card">
+                <div class="promo-title">Biznesingizni avtomatlashtiring ⚡</div>
+                <div class="promo-text">Telegram botlar, zamonaviy veb-saytlar va 24/7 ishlaydigan aqlli AI chatbotlar bilan savdongizni 2x ga oshiring.</div>
+                <button class="service-btn" onclick="openOrderModal('Tezkor Konsultatsiya', 'Kelishilgan')">📞 Bepul Konsultatsiya Olish</button>
+            </div>
+
+            <div class="service-list">
+                <div class="service-item">
+                    <div class="service-top">
+                        <div class="service-icon">🤖</div>
+                        <div>
+                            <div class="service-title">Telegram Botlar</div>
+                            <div class="service-price">300,000 — 3,000,000 so'm</div>
+                        </div>
+                    </div>
+                    <div class="service-desc">Katalog, savat, Click/Payme to'lovlari, buyurtma boshqaruvi va CRM integratsiyali aqlli botlar.</div>
+                    <button class="service-btn" onclick="openOrderModal('Telegram Bot', '300,000 - 3,000,000 so\'m')">Buyurtma berish</button>
+                </div>
+
+                <div class="service-item">
+                    <div class="service-top">
+                        <div class="service-icon">🌐</div>
+                        <div>
+                            <div class="service-title">Veb-saytlar</div>
+                            <div class="service-price">500,000 — 5,000,000 so'm</div>
+                        </div>
+                    </div>
+                    <div class="service-desc">Tezkor Landing Page, biznes vizitka va korporativ saytlar. Mobilga to'liq mos va SEO optimizatsiyalangan.</div>
+                    <button class="service-btn" onclick="openOrderModal('Veb-sayt', '500,000 - 5,000,000 so\'m')">Buyurtma berish</button>
+                </div>
+
+                <div class="service-item">
+                    <div class="service-top">
+                        <div class="service-icon">🧠</div>
+                        <div>
+                            <div class="service-title">AI Chatbot & CRM</div>
+                            <div class="service-price">1,000,000 — 4,000,000 so'm</div>
+                        </div>
+                    </div>
+                    <div class="service-desc">ChatGPT / Gemini asosida mijoz savollariga 24/7 tushunarli javob qaytaruvchi va lid yig'uvchi virtual sotuvchi.</div>
+                    <button class="service-btn" onclick="openOrderModal('AI Chatbot', '1,000,000 - 4,000,000 so\'m')">Buyurtma berish</button>
+                </div>
+
+                <div class="service-item">
+                    <div class="service-top">
+                        <div class="service-icon">🎯</div>
+                        <div>
+                            <div class="service-title">Target Reklama</div>
+                            <div class="service-price">600,000 — 1,200,000 so'm</div>
+                        </div>
+                    </div>
+                    <div class="service-desc">Instagram va Facebook Ads orqali eng ko'p haridor topuvchi professional target reklama sozlash.</div>
+                    <button class="service-btn" onclick="openOrderModal('Target Reklama', '600,000 - 1,200,000 so\'m')">Buyurtma berish</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: CALCULATOR -->
+        <section id="tab-calc" class="tab-content">
+            <div class="calc-card">
+                <label class="calc-label" for="calc-service">Asosiy xizmat turi:</label>
+                <select id="calc-service" class="select-input" onchange="calculatePrice()">
+                    <option value="bot" data-price="400000" data-days="3">📱 Telegram Bot (Boshlang'ich - 400,000 so'm)</option>
+                    <option value="web" data-price="700000" data-days="5">🌐 Landing Page / Veb-sayt (700,000 so'm)</option>
+                    <option value="ai" data-price="1200000" data-days="7">🧠 AI Chatbot Yordamchi (1,200,000 so'm)</option>
+                    <option value="target" data-price="600000" data-days="3">🎯 Target Reklama (600,000 so'm)</option>
+                    <option value="complex" data-price="2500000" data-days="12">🚀 To'liq IT Kompleks Paket (2,500,000 so'm)</option>
+                </select>
+
+                <label class="calc-label">Qo'shimcha modullar:</label>
+                <div class="options-group">
+                    <label class="option-checkbox">
+                        <span>💳 Click & Payme to'lov tizimi</span>
+                        <input type="checkbox" id="opt-payment" data-price="350000" data-days="2" onchange="calculatePrice()">
+                    </label>
+                    <label class="option-checkbox">
+                        <span>📊 Admin Boshqaruv Paneli (Web CRM)</span>
+                        <input type="checkbox" id="opt-admin" data-price="400000" data-days="2" onchange="calculatePrice()">
+                    </label>
+                    <label class="option-checkbox">
+                        <span>🤖 Gemini AI Javob Beruvchi</span>
+                        <input type="checkbox" id="opt-ai" data-price="600000" data-days="3" onchange="calculatePrice()">
+                    </label>
+                    <label class="option-checkbox">
+                        <span>🌐 Ko'p tilli interfeys (UZ / RU / EN)</span>
+                        <input type="checkbox" id="opt-lang" data-price="250000" data-days="1" onchange="calculatePrice()">
+                    </label>
+                    <label class="option-checkbox">
+                        <span>⚡ Tezkor topshirish (Express 48 soat)</span>
+                        <input type="checkbox" id="opt-express" data-price="450000" data-days="-2" onchange="calculatePrice()">
+                    </label>
+                </div>
+
+                <div class="calc-summary">
+                    <div class="calc-total-label">Taxminiy Loyiha Qiymati:</div>
+                    <div class="calc-total-val" id="calc-total">400,000 so'm</div>
+                    <div class="calc-time-val" id="calc-time">⏱ Tayyor bo'lish muddati: ~3 kun</div>
+                </div>
+
+                <button class="service-btn" style="margin-top: 14px;" onclick="orderFromCalculator()">🚀 Ushbu hisob bilan buyurtma berish</button>
+            </div>
+        </section>
+
+        <!-- TAB 3: AI CHAT -->
+        <section id="tab-chat" class="tab-content">
+            <div class="calc-card" style="text-align: center; padding: 24px 16px;">
+                <div style="font-size: 3rem; margin-bottom: 10px;">💬</div>
+                <h3>TrendoAI Aqlli Assistent</h3>
+                <p style="font-size: 0.85rem; color: var(--hint-color); margin: 8px 0 16px;">
+                    Savolingizni botimizga to'g'ridan-to'g'ri yozishingiz yoki veb-saytimiz orqali jonli muloqot qilishingiz mumkin.
+                </p>
+                <button class="service-btn" onclick="window.location.href='https://trendoai.uz'">🌐 Saytda AI Chat ochish</button>
+            </div>
+        </section>
+
+        <!-- TAB 4: ABOUT -->
+        <section id="tab-about" class="tab-content">
+            <div class="calc-card">
+                <h3 style="margin-bottom: 8px;">🚀 TrendoAI Agentligi</h3>
+                <p style="font-size: 0.85rem; color: var(--hint-color); line-height: 1.5; margin-bottom: 14px;">
+                    Biz O'zbekistondagi kichik va o'rta bizneslarga Telegram botlar, zamonaviy veb-saytlar va sun'iy intellekt integratsiyalari orqali sotuvlarini oshirishga yordam beramiz.
+                </p>
+                <div style="font-size: 0.85rem; color: var(--text-color); display: flex; flex-direction: column; gap: 8px;">
+                    <div>📍 Manzil: Toshkent shahri</div>
+                    <div>📞 Telefon: +998 97 477 12 29</div>
+                    <div>✈️ Telegram: @trendoai</div>
+                    <div>🌐 Veb-sayt: trendoai.uz</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- BOTTOM NAVBAR -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('catalog')">
+            <span class="nav-icon">🚀</span>
+            <span>Xizmatlar</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('calc')">
+            <span class="nav-icon">🧮</span>
+            <span>Kalkulyator</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('chat')">
+            <span class="nav-icon">💬</span>
+            <span>AI Maslahat</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('about')">
+            <span class="nav-icon">ℹ️</span>
+            <span>Biz haqimizda</span>
+        </button>
+    </nav>
+
+    <!-- ORDER MODAL -->
+    <div class="modal" id="order-modal" onclick="if(event.target === this) closeOrderModal()">
+        <div class="modal-body">
+            <button class="close-btn" onclick="closeOrderModal()">✕</button>
+            <div class="modal-title">📝 Buyurtma berish</div>
+            
+            <label class="calc-label">Xizmat:</label>
+            <input type="text" id="modal-service" class="text-input" readonly>
+
+            <label class="calc-label">Byudjet / Narx:</label>
+            <input type="text" id="modal-price" class="text-input" readonly>
+
+            <label class="calc-label">Ismingiz *</label>
+            <input type="text" id="modal-name" class="text-input" placeholder="Masalan: Ali Valiyev">
+
+            <label class="calc-label">Telefon raqam yoki Telegram username *</label>
+            <input type="text" id="modal-contact" class="text-input" placeholder="+998 90 123 45 67">
+
+            <label class="calc-label">Loyiha haqida qisqacha:</label>
+            <input type="text" id="modal-comment" class="text-input" placeholder="Qo'shimcha talablaringiz...">
+
+            <button class="service-btn" id="modal-submit-btn" onclick="submitOrder()">Yuborish 🚀</button>
+        </div>
+    </div>
+
+    <script>
+        // Telegram WebApp Initialization
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            if (tg.initDataUnsafe?.user) {
+                const u = tg.initDataUnsafe.user;
+                const name = u.first_name || u.username || 'Foydalanuvchi';
+                document.getElementById('user-greeting').innerText = `👋 ${name}`;
+                document.getElementById('modal-name').value = `${u.first_name || ''} ${u.last_name || ''}`.trim();
+                if (u.username) {
+                    document.getElementById('modal-contact').value = `@${u.username}`;
+                }
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.add('active');
+
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const navItems = document.querySelectorAll('.nav-item');
+            const tabMap = { 'catalog': 0, 'calc': 1, 'chat': 2, 'about': 3 };
+            const idx = tabMap[tabId] || 0;
+            if (tabBtns[idx]) tabBtns[idx].classList.add('active');
+            if (navItems[idx]) navItems[idx].classList.add('active');
+        }
+
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        function calculatePrice() {
+            const serviceSelect = document.getElementById('calc-service');
+            const selectedOpt = serviceSelect.options[serviceSelect.selectedIndex];
+            let price = parseInt(selectedOpt.getAttribute('data-price') || 0);
+            let days = parseInt(selectedOpt.getAttribute('data-days') || 3);
+
+            const options = ['opt-payment', 'opt-admin', 'opt-ai', 'opt-lang', 'opt-express'];
+            options.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.checked) {
+                    price += parseInt(el.getAttribute('data-price') || 0);
+                    days += parseInt(el.getAttribute('data-days') || 0);
+                }
+            });
+
+            if (days < 2) days = 2;
+
+            document.getElementById('calc-total').innerText = `${formatNumber(price)} so'm`;
+            document.getElementById('calc-time').innerText = `⏱ Tayyor bo'lish muddati: ~${days} kun`;
+            return { price: `${formatNumber(price)} so'm`, days, serviceTitle: selectedOpt.text.split('(')[0].trim() };
+        }
+
+        function openOrderModal(service, price) {
+            document.getElementById('modal-service').value = service;
+            document.getElementById('modal-price').value = price;
+            document.getElementById('order-modal').classList.add('open');
+        }
+
+        function closeOrderModal() {
+            document.getElementById('order-modal').classList.remove('open');
+        }
+
+        function orderFromCalculator() {
+            const calc = calculatePrice();
+            openOrderModal(`Kalkulyator: ${calc.serviceTitle}`, `${calc.price} (~${calc.days} kun)`);
+        }
+
+        async function submitOrder() {
+            const service = document.getElementById('modal-service').value;
+            const price = document.getElementById('modal-price').value;
+            const name = document.getElementById('modal-name').value.trim();
+            const contact = document.getElementById('modal-contact').value.trim();
+            const comment = document.getElementById('modal-comment').value.trim();
+
+            if (!contact) {
+                alert("Iltimos, telefon raqamingiz yoki Telegram profilingizni kiriting!");
+                return;
+            }
+
+            const btn = document.getElementById('modal-submit-btn');
+            btn.disabled = true;
+            btn.innerText = "Yuborilmoqda...";
+
+            try {
+                const payload = {
+                    name: name || "Telegram Mini App Mijoz",
+                    contact: contact,
+                    source: `Mini App (${service} - ${price}) ${comment ? '| Izoh: ' + comment : ''}`
+                };
+
+                const res = await fetch('/api/lead', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                if (res.ok && data.status === 'success') {
+                    if (tg && tg.showPopup) {
+                        tg.showPopup({
+                            title: 'Muvaffaqiyatli!',
+                            message: 'Buyurtmangiz qabul qilindi. Tez orada mutaxassisimiz siz bilan bog\'lanadi.',
+                            buttons: [{ type: 'ok' }]
+                        });
+                    } else {
+                        alert("Rahmat! Buyurtmangiz qabul qilindi. Tez orada bog'lanamiz.");
+                    }
+                    closeOrderModal();
+                } else {
+                    alert(data.message || "Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.");
+                }
+            } catch (err) {
+                alert("Tarmoq xatosi. Iltimos, qaytadan urinib ko'ring.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Yuborish 🚀";
+            }
+        }
+    </script>
+</body>
+</html>

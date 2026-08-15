@@ -78,6 +78,13 @@ def get_ai_response(user_message):
 def get_main_menu():
     """Asosiy menyu — xabar tagidagi inline tugmalar."""
     markup = telebot.types.InlineKeyboardMarkup(row_width=2)
+    tma_url = f"{SITE_URL}/tma" if SITE_URL else "https://trendoai.uz/tma"
+    try:
+        markup.add(
+            telebot.types.InlineKeyboardButton("✨ TrendoAI Mini App", web_app=telebot.types.WebAppInfo(url=tma_url))
+        )
+    except Exception:
+        pass
     markup.add(
         telebot.types.InlineKeyboardButton("📋 Menyu", callback_data="nav:menu"),
         telebot.types.InlineKeyboardButton("💬 AI Assistent", callback_data="nav:ai"),

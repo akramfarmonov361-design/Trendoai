@@ -363,6 +363,13 @@ def about():
     return render_template('about.html', post_count=post_count)
 
 
+@web_bp.route('/tma')
+@web_bp.route('/app')
+def telegram_mini_app():
+    """Telegram Mini App (TMA) interfeysi"""
+    return render_template('tma.html')
+
+
 @web_bp.route('/services')
 def services():
     """Legacy xizmatlar URL'ini bosh sahifaga yo'naltirish"""
