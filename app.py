@@ -246,8 +246,27 @@ def create_app(config_overrides=None):
     application.register_blueprint(admin_bp)
     application.register_blueprint(api_bp)
 
-    # url_for fallback
+    # URL for fallback
     application.url_build_error_handlers.append(_url_build_error_handler)
+
+    # HTTP Caching & Performance Headers (Google PageSpeed 95+)
+    @application.after_request
+    def apply_caching_and_performance_headers(response):
+        # Static asset caching (1 year for immutable static assets)
+        if request.path.startswith('/static/'):
+            if request.path.endswith('/sw.js') or request.path.endswith('/manifest.json'):
+                response.headers['Cache-Control'] = 'public, max-age=3600, must-revalidate'
+            else:
+                response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+        elif request.method == 'GET' and response.status_code == 200 and not request.path.startswith('/admin') and not request.path.startswith('/api'):
+            # Public HTML pages: stale-while-revalidate for instantaneous repeat loading
+            response.headers['Cache-Control'] = 'public, max-age=120, stale-while-revalidate=86400'
+
+        # Security & Core Web Vitals optimizations
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+        response.headers['Vary'] = 'Accept-Encoding, Accept'
+        return response
 
     return application
 

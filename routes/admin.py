@@ -60,25 +60,49 @@ def login_required(f):
 
 
 def _save_uploaded_image(file_storage, folder='portfolio'):
-    """Faylni static/uploads/<folder>/ papkasiga saqlash va nisbiy URL qaytarish"""
+    """Faylni static/uploads/<folder>/ papkasiga WebP formatida siqib saqlash va nisbiy URL qaytarish"""
     if not file_storage or not getattr(file_storage, 'filename', None):
         return None
     filename = str(file_storage.filename).strip()
     if not filename:
         return None
 
-    ext = os.path.splitext(filename)[1].lower()
-    if ext not in ('.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'):
-        ext = '.jpg'
-
     import uuid
-    unique_name = f"{uuid.uuid4().hex[:12]}{ext}"
     upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', folder)
     os.makedirs(upload_dir, exist_ok=True)
 
-    file_path = os.path.join(upload_dir, unique_name)
-    file_storage.save(file_path)
-    return f"/static/uploads/{folder}/{unique_name}"
+    unique_base = uuid.uuid4().hex[:12]
+
+    try:
+        from PIL import Image
+        file_storage.seek(0)
+        img = Image.open(file_storage.stream)
+
+        # Convert RGBA / P / LA modes if needed for optimal WebP
+        if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in getattr(img, 'info', {})):
+            img = img.convert('RGBA')
+        else:
+            img = img.convert('RGB')
+
+        # Resize proportionally if width or height > 1600px
+        max_dimension = 1600
+        if img.width > max_dimension or img.height > max_dimension:
+            img.thumbnail((max_dimension, max_dimension), Image.Resampling.LANCZOS)
+
+        unique_name = f"{unique_base}.webp"
+        file_path = os.path.join(upload_dir, unique_name)
+        img.save(file_path, 'WEBP', quality=85, method=6)
+        return f"/static/uploads/{folder}/{unique_name}"
+    except Exception as e:
+        print(f"[upload] Pillow WebP conversion failed, fallback to raw save: {e}")
+        ext = os.path.splitext(filename)[1].lower()
+        if ext not in ('.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'):
+            ext = '.jpg'
+        unique_name = f"{unique_base}{ext}"
+        file_path = os.path.join(upload_dir, unique_name)
+        file_storage.seek(0)
+        file_storage.save(file_path)
+        return f"/static/uploads/{folder}/{unique_name}"
 
 
 # ========== AUTH ROUTES ==========
