@@ -1121,11 +1121,11 @@
         <div class="chatbot-header">
             <span class="chatbot-header-icon" aria-hidden="true">🤖</span>
             <div class="chatbot-header-info">
-                <h4>TrendoAI Yordamchi</h4>
+                <h4>{{ t('chat_title', 'TrendoAI Yordamchi') }}</h4>
                 <span>Online • Gemini AI</span>
             </div>
             <button class="chatbot-call-start-btn" id="chatbotCallStart" type="button" title="Jonli Ovozli Qo'ng'iroq (Gemini Live)">
-                📞 Qo'ng'iroq
+                {{ t('chat_call', '📞 Qo\'ng\'iroq') }}
             </button>
             <button class="chatbot-close" id="chatbotClose" type="button" aria-label="Yordamchini yopish">✕</button>
         </div>
@@ -1165,15 +1165,14 @@
 
         <div class="chatbot-messages" id="chatbotMessages" role="log" aria-live="polite" aria-atomic="false">
             <div class="chat-message bot">
-                Salom! 👋 Men TrendoAI AI assistentiman. Sizga qanday yordam bera olaman? IT xizmatlar, web saytlar,
-                Telegram botlar yoki AI chatbotlar haqida so'rang!
+                {{ t('chat_welcome', 'Salom! 👋 Men TrendoAI AI assistentiman. Sizga qanday yordam bera olaman? IT xizmatlar, web saytlar, Telegram botlar yoki AI chatbotlar haqida so\'rang!') }}
             </div>
         </div>
         <div class="chatbot-input">
             <label for="chatbotInput" class="visually-hidden">Xabar yozing</label>
-            <input type="text" id="chatbotInput" placeholder="Xabar yozing..." autocomplete="off">
+            <input type="text" id="chatbotInput" placeholder="{{ t('chat_placeholder', 'Xabar yozing...') }}" autocomplete="off">
             <button id="chatbotMic" class="chatbot-mic" type="button" aria-label="Ovozli xabar yozish" title="Ovozli xabar">🎤</button>
-            <button id="chatbotSend" type="button">Yuborish</button>
+            <button id="chatbotSend" type="button">{{ t('chat_send', 'Yuborish') }}</button>
         </div>
 
     </div>

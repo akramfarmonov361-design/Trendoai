@@ -115,11 +115,11 @@
 {% block content %}
 <section class="services-hero">
     <div class="hero-glow"></div>
-    <h1>Biznesingizni AI va avtomatlashtirish bilan rivojlantiramiz</h1>
-    <p class="lead">Telegram bot, web sayt va AI chatbotlarni g'oyadan ishlaydigan mahsulotgacha tayyorlaymiz.</p>
+    <h1>{{ t('hero_title', 'Biznesingizni AI va avtomatlashtirish bilan rivojlantiramiz') }}</h1>
+    <p class="lead">{{ t('hero_lead', "Telegram bot, web sayt va AI chatbotlarni g'oyadan ishlaydigan mahsulotgacha tayyorlaymiz.") }}</p>
     <div class="services-hero-actions">
-        <a class="hero-cta primary" href="{{ url_for('order_page') }}">Bepul konsultatsiya</a>
-        <a class="hero-cta secondary" href="{{ url_for('portfolio') }}">Ishlarimizni ko'rish</a>
+        <a class="hero-cta primary" href="{{ url_for('order_page') }}">{{ t('hero_btn_consult', 'Bepul konsultatsiya') }}</a>
+        <a class="hero-cta secondary" href="{{ url_for('portfolio') }}">{{ t('hero_btn_portfolio', 'Ishlarimizni ko\'rish') }}</a>
     </div>
 </section>
 
@@ -131,35 +131,34 @@
         <div class="card-glow"></div>
         <div class="card-badge">🔥 Eng ommabop</div>
         <div class="card-icon">🤖</div>
-        <h3>Telegram Botlar</h3>
-        <p class="card-subtitle">Do'kon, Katalog, Menyu va boshqa botlar</p>
-        <p class="card-desc">Biznesingiz uchun to'liq avtomatlashtirilgan Telegram bot — do'kon, katalog, 
-        to'lov tizimi (Payme/Click), savat va admin panel bilan.</p>
+        <h3>{{ t('srv_bot_title', 'Telegram Botlar') }}</h3>
+        <p class="card-subtitle">{{ t('srv_bot_subtitle', "Do'kon, Katalog, Menyu va boshqa botlar") }}</p>
+        <p class="card-desc">{{ t('srv_bot_desc', "Biznesingiz uchun to'liq avtomatlashtirilgan Telegram bot — do'kon, katalog, to'lov tizimi (Payme/Click), savat va admin panel bilan.") }}</p>
         
         <ul class="card-features">
-            <li><span class="check">✓</span> Do'kon boti (E-commerce)</li>
-            <li><span class="check">✓</span> Katalog / Menyu bot</li>
-            <li><span class="check">✓</span> To'lov tizimi integratsiyasi</li>
-            <li><span class="check">✓</span> Admin panel va statistika</li>
-            <li><span class="check">✓</span> 24/7 avtomatik ishlash</li>
+            <li><span class="check">✓</span> {{ t('srv_bot_f1', "Do'kon boti (E-commerce)") }}</li>
+            <li><span class="check">✓</span> {{ t('srv_bot_f2', "Katalog / Menyu bot") }}</li>
+            <li><span class="check">✓</span> {{ t('srv_bot_f3', "To'lov tizimi integratsiyasi") }}</li>
+            <li><span class="check">✓</span> {{ t('srv_bot_f4', "Admin panel va statistika") }}</li>
+            <li><span class="check">✓</span> {{ t('srv_bot_f5', "24/7 avtomatik ishlash") }}</li>
         </ul>
         
         <div class="card-price">
-            <span class="price-label">Narxi:</span>
+            <span class="price-label">{{ t('price_label', 'Narxi:') }}</span>
             <div class="price-range">
                 <span class="price-from">{{ pricing.telegram_bot.min_display }}</span>
                 <span class="price-sep">—</span>
                 <span class="price-to">{{ pricing.telegram_bot.max_display }}</span>
             </div>
-            <span class="price-note">*Loyiha murakkabligiga qarab</span>
+            <span class="price-note">{{ t('price_note_bot', '*Loyiha murakkabligiga qarab') }}</span>
         </div>
         
         <div class="card-actions">
             <a href="{{ url_for('order_page') }}?service=telegram_bot" class="btn-order"
                 onclick="typeof fbq!=='undefined' && fbq('track', 'AddToCart', {content_ids: ['service_telegram-bot'], content_type: 'product'})">
-                🚀 Buyurtma berish
+                {{ t('btn_order_now', '🚀 Buyurtma berish') }}
             </a>
-            <a href="{{ url_for('portfolio') }}" class="btn-demo">💼 Namuna ko'rish</a>
+            <a href="{{ url_for('portfolio') }}" class="btn-demo">{{ t('btn_view_demo', '💼 Namuna ko\'rish') }}</a>
         </div>
     </article>
 
@@ -167,35 +166,34 @@
     <article class="service-card-new card-web" id="veb-saytlar">
         <div class="card-glow"></div>
         <div class="card-icon">🌐</div>
-        <h3>Veb-saytlar</h3>
-        <p class="card-subtitle">Landing Page va Korporativ saytlar</p>
-        <p class="card-desc">Zamonaviy dizayn, mobil moslashuvchan, SEO-optimizatsiya qilingan 
-        professional veb-saytlar. Biznesingiz uchun onlayn vitrina.</p>
+        <h3>{{ t('srv_web_title', 'Veb-saytlar') }}</h3>
+        <p class="card-subtitle">{{ t('srv_web_subtitle', 'Landing Page va Korporativ saytlar') }}</p>
+        <p class="card-desc">{{ t('srv_web_desc', 'Zamonaviy dizayn, mobil moslashuvchan, SEO-optimizatsiya qilingan professional veb-saytlar. Biznesingiz uchun onlayn vitrina.') }}</p>
         
         <ul class="card-features">
-            <li><span class="check">✓</span> Landing Page (1 betlik sayt)</li>
-            <li><span class="check">✓</span> Korporativ ko'p sahifali sayt</li>
-            <li><span class="check">✓</span> SEO va Google indeksatsiya</li>
-            <li><span class="check">✓</span> Mobil moslashuvchan dizayn</li>
-            <li><span class="check">✓</span> Hosting va domen sozlash</li>
+            <li><span class="check">✓</span> {{ t('srv_web_f1', 'Landing Page (1 betlik sayt)') }}</li>
+            <li><span class="check">✓</span> {{ t('srv_web_f2', 'Korporativ ko\'p sahifali sayt') }}</li>
+            <li><span class="check">✓</span> {{ t('srv_web_f3', 'SEO va Google indeksatsiya') }}</li>
+            <li><span class="check">✓</span> {{ t('srv_web_f4', 'Mobil moslashuvchan dizayn') }}</li>
+            <li><span class="check">✓</span> {{ t('srv_web_f5', 'Hosting va domen sozlash') }}</li>
         </ul>
         
         <div class="card-price">
-            <span class="price-label">Narxi:</span>
+            <span class="price-label">{{ t('price_label', 'Narxi:') }}</span>
             <div class="price-range">
                 <span class="price-from">{{ pricing.web_site.min_display }}</span>
                 <span class="price-sep">—</span>
                 <span class="price-to">{{ pricing.web_site.max_display }}</span>
             </div>
-            <span class="price-note">*Sahifalar soni va murakkablikka qarab</span>
+            <span class="price-note">{{ t('price_note_bot', '*Sahifalar soni va murakkablikka qarab') }}</span>
         </div>
         
         <div class="card-actions">
             <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order"
                 onclick="typeof fbq!=='undefined' && fbq('track', 'AddToCart', {content_ids: ['service_web-site'], content_type: 'product'})">
-                🚀 Buyurtma berish
+                {{ t('btn_order_now', '🚀 Buyurtma berish') }}
             </a>
-            <a href="{{ url_for('portfolio') }}" class="btn-demo">💼 Namuna ko'rish</a>
+            <a href="{{ url_for('portfolio') }}" class="btn-demo">{{ t('btn_view_demo', '💼 Namuna ko\'rish') }}</a>
         </div>
     </article>
 
@@ -204,17 +202,16 @@
         <div class="card-glow"></div>
         <div class="card-badge badge-ai">🧠 Premium</div>
         <div class="card-icon">🧠</div>
-        <h3>AI Xizmatlar</h3>
-        <p class="card-subtitle">AI Chatbot va Sun'iy Intellekt yechimlari</p>
-        <p class="card-desc">Mijozlaringizga 24/7 avtomatik javob qaytaruvchi aqlli AI chatbot. 
-        ChatGPT asosida ishlovchi, xatorini bilmaydigan virtual yordamchi.</p>
+        <h3>{{ t('srv_ai_title', 'AI Xizmatlar') }}</h3>
+        <p class="card-subtitle">{{ t('srv_ai_subtitle', 'AI Chatbot va Sun\'iy Intellekt yechimlari') }}</p>
+        <p class="card-desc">{{ t('srv_ai_desc', 'Mijozlaringizga 24/7 avtomatik javob qaytaruvchi aqlli AI chatbot. ChatGPT asosida ishlovchi, xatorini bilmaydigan virtual yordamchi.') }}</p>
         
         <ul class="card-features">
-            <li><span class="check">✓</span> AI Chatbot (24/7 avto-javob)</li>
-            <li><span class="check">✓</span> ChatGPT / Gemini integratsiya</li>
-            <li><span class="check">✓</span> Kompaniya haqida o'rgatish</li>
-            <li><span class="check">✓</span> Ko'p tilli qo'llab-quvvatlash</li>
-            <li><span class="check">✓</span> Sayt va Telegramga ulash</li>
+            <li><span class="check">✓</span> {{ t('srv_ai_f1', 'AI Chatbot (24/7 avto-javob)') }}</li>
+            <li><span class="check">✓</span> {{ t('srv_ai_f2', 'ChatGPT / Gemini integratsiya') }}</li>
+            <li><span class="check">✓</span> {{ t('srv_ai_f3', 'Kompaniya haqida o\'rgatish') }}</li>
+            <li><span class="check">✓</span> {{ t('srv_ai_f4', 'Ko\'p tilli qo\'llab-quvvatlash') }}</li>
+            <li><span class="check">✓</span> {{ t('srv_ai_f5', 'Sayt va Telegramga ulash') }}</li>
         </ul>
         
         <div class="card-price">
