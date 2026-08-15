@@ -181,20 +181,20 @@ def generate_and_publish_post(topic=None, category=None):
                         text = text.replace(char, "\\" + char)
                     return text
 
-                post_url = f"{SITE_URL}/post/{new_post.id}"
+                post_url = f"{SITE_URL}/blog/{new_post.slug}" if new_post.slug else f"{SITE_URL}/post/{new_post.id}"
                 safe_title = escape_md(new_post.title)
                 safe_category = escape_md(selected_category.replace(" ", "_"))
 
-                tg_caption = f"""Yangi Maqola!
+                tg_caption = f"""📝 *Yangi Maqola!*
 
 *{safe_title}*
 
-Kategoriya: #{safe_category}
-O'qish vaqti: {new_post.reading_time} daqiqa
+🏷 *Kategoriya:* #{safe_category}
+⏱ *O'qish vaqti:* {new_post.reading_time} daqiqa
 
-[Maqolani o'qish]({post_url})
+🔗 [Maqolani to'liq o'qish]({post_url})
 
-#TrendoAI #Texnologiya"""
+#TrendoAI #Texnologiya #Biznes"""
 
                 success = False
                 if image_url:
@@ -212,7 +212,7 @@ O'qish vaqti: {new_post.reading_time} daqiqa
 
                     print("[scheduler] Push xabar yuborilmoqda...")
                     push_count = notify_all_subscribers(
-                        title=f"Yangi: {new_post.title}",
+                        title=f"🆕 Yangi Maqola: {new_post.title}",
                         message=f"{selected_category} | O'qish uchun bosing!",
                         url=post_url,
                     )
@@ -222,11 +222,10 @@ O'qish vaqti: {new_post.reading_time} daqiqa
 
                 try:
                     from seo_indexer import ping_search_engines
-                    ping_search_engines([post_url, f"{SITE_URL}/sitemap.xml"])
+                    ping_search_engines([post_url, f"{SITE_URL}/sitemap.xml", f"{SITE_URL}/blog"])
                     print("[scheduler] Google & IndexNow tezkor indekslashga ping yuborildi!")
                 except Exception as seo_err:
                     print(f"[scheduler] SEO ping error: {seo_err}")
-                    print(f"[scheduler] Push xabar xatosi: {push_err}")
 
                 return True
 

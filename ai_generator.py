@@ -502,19 +502,37 @@ def _build_seo_prompt(topic, current_date_str, use_grounding):
     5. HTML teg ishlatmang.
     6. Tekshirilmagan release, benchmark yoki versiya iddaolarini yozmang.
 
-    === STRUKTURA ===
-    - Kirish: muammo va kontekst
-    - Asosiy qism: 4-5 bo'lim
-    - Xulosa: qisqa yakun + TrendoAI eslatmasi
+    === STRUKTURA VA FORMATLASH ===
+    1. **Boshlanishida TL;DR bloki:**
+       > 💡 **Qisqacha xulosa (TL;DR):** [Mavzuning eng muhim 2-3 ta amaliy xulosasi va foydasi]
+    
+    2. **Kirish:** Muammoning dolzarbligi va biznesga ta'siri (birinchi 100 so'zda asosiy kalit so'z).
+    
+    3. **Asosiy qism (4-5 ta H2/H3 bo'lim):**
+       - Aniq qadamlar, taqqoslashlar, jadvallar yoki amaliy misollar.
+       - Har bir bo'limda o'quvchiga darhol qo'llash mumkin bo'lgan maslahat.
+    
+    4. **FAQ Bo'limi (Google Rich Snippet uchun):**
+       ### ❓ Tez-tez so'raladigan savollar
+       **1. [Savol 1]?**
+       [Aniq va qisqa javob].
+       **2. [Savol 2]?**
+       [Aniq va qisqa javob].
+       **3. [Savol 3]?**
+       [Aniq va qisqa javob].
+    
+    5. **Xulosa va TrendoAI CTA:**
+       > 🚀 **Amaliyotga tadbiq etish:** Agar sizga ham [mavzu bo'yicha xizmat] kerak bo'lsa, TrendoAI jamoasi yordam beradi. Bepul konsultatsiya olish uchun: [trendoai.uz/order](https://trendoai.uz/order)
 
     JSON formatida javob bering:
     {{
-      "title": "SEO uchun qisqa va aniq sarlavha",
+      "title": "SEO uchun jozibali, qisqa va aniq sarlavha",
+      "meta_description": "Google qidiruvi uchun 140-160 belgilik qiziqarli meta tavsif",
       "keywords": "asosiy kalit, variant kalit, texnologiya, muammo yechim, mahalliy",
       "content": "To'liq SEO-optimallashtirilgan Markdown maqola"
     }}
 
-    Faqat JSON qaytaring.
+    Faqat toza JSON qaytaring.
     """
 
 
