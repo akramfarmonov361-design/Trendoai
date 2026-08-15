@@ -7,12 +7,64 @@
 .kanban-dashboard {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
+/* TOP SEARCH & TOOLS */
+.crm-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    background: rgba(30, 41, 59, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1rem 1.25rem;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    min-width: 260px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 16px 10px 38px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.search-box input:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+
+.toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* STATS */
 .stats-overview {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1rem;
 }
 
@@ -24,47 +76,48 @@
     padding: 1.25rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.4rem;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .stat-card .num {
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 800;
     color: #fff;
 }
 
 .stat-card .label {
-    font-size: 0.875rem;
+    font-size: 0.825rem;
     color: #94a3b8;
 }
 
-.stat-card.new .num { color: #3b82f6; }
+.stat-card.new .num { color: #38bdf8; }
 .stat-card.contacted .num { color: #f59e0b; }
 .stat-card.progress .num { color: #a855f7; }
 .stat-card.completed .num { color: #10b981; }
 .stat-card.conversion .num { color: #ec4899; }
 
+/* KANBAN BOARD */
 .kanban-board {
     display: grid;
-    grid-template-columns: repeat(5, minmax(280px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(5, minmax(300px, 1fr));
+    gap: 1.25rem;
     overflow-x: auto;
-    padding-bottom: 1rem;
+    padding-bottom: 1.5rem;
 }
 
 .kanban-column {
-    background: rgba(15, 23, 42, 0.6);
+    background: rgba(15, 23, 42, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
+    border-radius: 18px;
     display: flex;
     flex-direction: column;
-    min-height: 600px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    min-height: 650px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .column-header {
-    padding: 1rem;
+    padding: 1rem 1.25rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     justify-content: space-between;
@@ -82,79 +135,216 @@
 }
 
 .column-body {
-    padding: 0.75rem;
+    padding: 0.85rem;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.85rem;
     flex: 1;
     overflow-y: auto;
 }
 
+/* CRM CARD */
 .crm-card {
     background: rgba(30, 41, 59, 0.9);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 12px;
-    padding: 1rem;
+    border-radius: 14px;
+    padding: 1.1rem;
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
-    transition: transform 0.2s ease, border-color 0.2s ease;
-    cursor: grab;
+    gap: 0.65rem;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .crm-card:hover {
     transform: translateY(-2px);
-    border-color: rgba(59, 130, 246, 0.5);
+    border-color: rgba(56, 189, 248, 0.4);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-.crm-card-header {
+.crm-card-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.crm-card-title {
-    font-weight: 700;
+.client-name {
+    font-weight: 800;
     color: #f8fafc;
-    font-size: 0.95rem;
+    font-size: 1rem;
 }
 
-.crm-card-contact {
-    color: #38bdf8;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-decoration: none;
+.tag-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 8px;
+    text-transform: uppercase;
 }
 
-.crm-card-meta {
+.tag-order { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+.tag-lead { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+
+.crm-service-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #a855f7;
     display: flex;
     justify-content: space-between;
-    font-size: 0.8rem;
-    color: #94a3b8;
+    align-items: center;
 }
 
-.crm-card-actions {
+.crm-budget {
+    font-size: 0.8rem;
+    color: #34d399;
+    font-weight: 700;
+    background: rgba(52, 211, 153, 0.1);
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+
+.crm-contacts-row {
     display: flex;
-    gap: 0.4rem;
-    margin-top: 0.4rem;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.contact-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 4px 8px;
+    border-radius: 8px;
+    color: #38bdf8;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.contact-chip:hover {
+    background: rgba(56, 189, 248, 0.2);
+    border-color: #38bdf8;
+}
+
+.crm-msg-quote {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+    background: rgba(15, 23, 42, 0.5);
+    border-left: 3px solid #6366f1;
+    padding: 6px 10px;
+    border-radius: 0 6px 6px 0;
+    line-height: 1.35;
+}
+
+/* NOTE SECTION */
+.note-container {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.725rem;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.note-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #f1f5f9;
+    font-size: 0.8rem;
+    outline: none;
+    resize: none;
+    height: 32px;
+}
+
+.note-input:focus {
+    height: 55px;
+}
+
+.btn-save-note {
+    align-self: flex-end;
+    background: rgba(56, 189, 248, 0.2);
+    border: 1px solid #38bdf8;
+    color: #38bdf8;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* ACTIONS */
+.crm-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .status-select {
-    width: 100%;
+    flex: 1;
     background: #0f172a;
     color: #e2e8f0;
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 8px;
-    padding: 0.35rem 0.5rem;
+    padding: 0.4rem 0.6rem;
     font-size: 0.8rem;
+    outline: none;
+}
+
+.btn-invoice {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    transition: transform 0.15s;
+}
+
+.btn-invoice:hover {
+    transform: translateY(-1px);
 }
 </style>
 
 <div class="kanban-dashboard">
     <div class="admin-header">
         <div class="header-left">
-            <h1>📊 CRM Kanban & Sales Analytics</h1>
-            <p>Mijoz so'rovlari va sotuv jarayonlarini vizual boshqarish</p>
+            <h1>📊 CRM Kanban & Biznes Boshqaruvi</h1>
+            <p>Mijozlar bilan ishlash, eslatmalar, statuslar va hisob-faktura (Invoice) generatori</p>
+        </div>
+    </div>
+
+    <!-- TOOLBAR & SEARCH -->
+    <div class="crm-toolbar">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="crmSearch" placeholder="Mijoz ismi, telefon raqami yoki xizmat bo'yicha qidirish..." onkeyup="filterCards()">
+        </div>
+        <div class="toolbar-actions">
+            <button class="btn btn-secondary" onclick="window.location.reload()">🔄 Yangilash</button>
         </div>
     </div>
 
@@ -185,168 +375,104 @@
     <!-- Kanban Board -->
     <div class="kanban-board">
 
-        <!-- Column 1: New -->
-        <div class="kanban-column">
+        <!-- MACRO: CARD RENDERER -->
+        {% macro render_column(col_key, col_title, col_icon) %}
+        <div class="kanban-column" id="col-{{ col_key }}">
             <div class="column-header">
-                <span>🆕 Yangi</span>
-                <span class="badge">{{ kanban.new|length }}</span>
+                <span>{{ col_icon }} {{ col_title }}</span>
+                <span class="badge" id="count-{{ col_key }}">{{ kanban[col_key]|length }}</span>
             </div>
             <div class="column-body">
-                {% for item in kanban.new %}
-                <div class="crm-card">
-                    <div class="crm-card-header">
-                        <span class="crm-card-title">{{ item.name }}</span>
-                        <span class="crm-card-meta">{{ item.date }}</span>
+                {% for item in kanban[col_key] %}
+                <div class="crm-card" data-search="{{ item.name|lower }} {{ item.contact|lower }} {{ item.title|lower }} {{ item.message|lower }}">
+                    <div class="crm-card-top">
+                        <span class="client-name">{{ item.name }}</span>
+                        <span class="tag-badge {% if item.type == 'order' %}tag-order{% else %}tag-lead{% endif %}">
+                            {% if item.type == 'order' %}Buyurtma #{{ item.id }}{% else %}Lead{% endif %}
+                        </span>
                     </div>
-                    <a href="tel:{{ item.contact }}" class="crm-card-contact">📞 {{ item.contact }}</a>
-                    <div class="crm-card-title" style="color: #a855f7; font-size: 0.85rem;">{{ item.title }}</div>
+
+                    <div class="crm-service-name">
+                        <span>{{ item.title }}</span>
+                        {% if item.budget and item.budget != 'Kelishilgan' and item.budget != 'Ma\'lumot berilmagan' %}
+                        <span class="crm-budget">{{ item.budget }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="crm-contacts-row">
+                        {% if item.contact.startswith('@') %}
+                        <a href="https://t.me/{{ item.contact[1:] }}" target="_blank" class="contact-chip">✈️ {{ item.contact }}</a>
+                        {% else %}
+                        <a href="tel:{{ item.contact }}" class="contact-chip">📞 {{ item.contact }}</a>
+                        {% endif %}
+                        <span style="font-size: 0.75rem; color: #94a3b8; margin-left: auto;">{{ item.date }}</span>
+                    </div>
+
                     {% if item.message %}
-                    <div style="font-size: 0.8rem; color: #cbd5e1; font-style: italic;">"{{ item.message }}"</div>
+                    <div class="crm-msg-quote">{{ item.message }}</div>
                     {% endif %}
-                    <div class="crm-card-actions">
-                        <select class="status-select" onchange="updateCrmStatus('{{ item.type }}', '{{ item.id }}', this.value)">
-                            <option value="new" selected>🆕 Yangi</option>
-                            <option value="contacted">📞 Bog'lanildi</option>
-                            <option value="in_progress">📝 Jarayonda</option>
-                            <option value="completed">✅ Bajarildi</option>
-                            <option value="cancelled">❌ Bekor</option>
-                        </select>
-                    </div>
-                </div>
-                {% else %}
-                <div style="text-align:center; padding: 2rem; color: #64748b; font-size: 0.85rem;">Bo'sh</div>
-                {% endfor %}
-            </div>
-        </div>
 
-        <!-- Column 2: Contacted -->
-        <div class="kanban-column">
-            <div class="column-header">
-                <span>📞 Bog'lanildi</span>
-                <span class="badge">{{ kanban.contacted|length }}</span>
-            </div>
-            <div class="column-body">
-                {% for item in kanban.contacted %}
-                <div class="crm-card">
-                    <div class="crm-card-header">
-                        <span class="crm-card-title">{{ item.name }}</span>
-                        <span class="crm-card-meta">{{ item.date }}</span>
+                    <!-- FOLLOW-UP NOTE -->
+                    <div class="note-container">
+                        <div class="note-header">
+                            <span>📝 Eslatma (Follow-up):</span>
+                            <button type="button" class="btn-save-note" onclick="saveNote('{{ item.type }}', '{{ item.id }}', this)">Saqlash</button>
+                        </div>
+                        <textarea class="note-input" placeholder="Mijoz bilan kelishuvlar, eslatma yozing..." data-type="{{ item.type }}" data-id="{{ item.id }}">{{ item.admin_note }}</textarea>
                     </div>
-                    <a href="tel:{{ item.contact }}" class="crm-card-contact">📞 {{ item.contact }}</a>
-                    <div class="crm-card-title" style="color: #a855f7; font-size: 0.85rem;">{{ item.title }}</div>
-                    <div class="crm-card-actions">
-                        <select class="status-select" onchange="updateCrmStatus('{{ item.type }}', '{{ item.id }}', this.value)">
-                            <option value="new">🆕 Yangi</option>
-                            <option value="contacted" selected>📞 Bog'lanildi</option>
-                            <option value="in_progress">📝 Jarayonda</option>
-                            <option value="completed">✅ Bajarildi</option>
-                            <option value="cancelled">❌ Bekor</option>
-                        </select>
-                    </div>
-                </div>
-                {% else %}
-                <div style="text-align:center; padding: 2rem; color: #64748b; font-size: 0.85rem;">Bo'sh</div>
-                {% endfor %}
-            </div>
-        </div>
 
-        <!-- Column 3: In Progress -->
-        <div class="kanban-column">
-            <div class="column-header">
-                <span>📝 Jarayonda</span>
-                <span class="badge">{{ kanban.in_progress|length }}</span>
-            </div>
-            <div class="column-body">
-                {% for item in kanban.in_progress %}
-                <div class="crm-card">
-                    <div class="crm-card-header">
-                        <span class="crm-card-title">{{ item.name }}</span>
-                        <span class="crm-card-meta">{{ item.date }}</span>
-                    </div>
-                    <a href="tel:{{ item.contact }}" class="crm-card-contact">📞 {{ item.contact }}</a>
-                    <div class="crm-card-title" style="color: #a855f7; font-size: 0.85rem;">{{ item.title }}</div>
-                    <div class="crm-card-actions">
+                    <!-- CARD FOOTER ACTIONS -->
+                    <div class="crm-card-footer">
                         <select class="status-select" onchange="updateCrmStatus('{{ item.type }}', '{{ item.id }}', this.value)">
-                            <option value="new">🆕 Yangi</option>
-                            <option value="contacted">📞 Bog'lanildi</option>
-                            <option value="in_progress" selected>📝 Jarayonda</option>
-                            <option value="completed">✅ Bajarildi</option>
-                            <option value="cancelled">❌ Bekor</option>
+                            <option value="new" {% if item.status == 'new' %}selected{% endif %}>🆕 Yangi</option>
+                            <option value="contacted" {% if item.status == 'contacted' %}selected{% endif %}>📞 Bog'lanildi</option>
+                            <option value="in_progress" {% if item.status == 'in_progress' %}selected{% endif %}>📝 Jarayonda</option>
+                            <option value="completed" {% if item.status == 'completed' %}selected{% endif %}>✅ Bajarildi</option>
+                            <option value="cancelled" {% if item.status == 'cancelled' %}selected{% endif %}>❌ Bekor</option>
                         </select>
-                    </div>
-                </div>
-                {% else %}
-                <div style="text-align:center; padding: 2rem; color: #64748b; font-size: 0.85rem;">Bo'sh</div>
-                {% endfor %}
-            </div>
-        </div>
 
-        <!-- Column 4: Completed -->
-        <div class="kanban-column">
-            <div class="column-header">
-                <span>✅ Bajarildi</span>
-                <span class="badge">{{ kanban.completed|length }}</span>
-            </div>
-            <div class="column-body">
-                {% for item in kanban.completed %}
-                <div class="crm-card" style="border-color: rgba(16, 185, 129, 0.4);">
-                    <div class="crm-card-header">
-                        <span class="crm-card-title">{{ item.name }}</span>
-                        <span class="crm-card-meta">{{ item.date }}</span>
-                    </div>
-                    <a href="tel:{{ item.contact }}" class="crm-card-contact">📞 {{ item.contact }}</a>
-                    <div class="crm-card-title" style="color: #10b981; font-size: 0.85rem;">{{ item.title }}</div>
-                    <div class="crm-card-actions">
-                        <select class="status-select" onchange="updateCrmStatus('{{ item.type }}', '{{ item.id }}', this.value)">
-                            <option value="new">🆕 Yangi</option>
-                            <option value="contacted">📞 Bog'lanildi</option>
-                            <option value="in_progress">📝 Jarayonda</option>
-                            <option value="completed" selected>✅ Bajarildi</option>
-                            <option value="cancelled">❌ Bekor</option>
-                        </select>
+                        {% if item.type == 'order' %}
+                        <a href="{{ url_for('admin.admin_invoice', order_id=item.id) }}" target="_blank" class="btn-invoice" title="Hisob-faktura (Invoice / Shartnoma) ochish">
+                            📄 Invoys
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
                 {% else %}
-                <div style="text-align:center; padding: 2rem; color: #64748b; font-size: 0.85rem;">Bo'sh</div>
+                <div class="empty-placeholder" style="text-align:center; padding: 2.5rem 1rem; color: #64748b; font-size: 0.85rem;">
+                    Ushbu bosqichda murojaatlar yo'q
+                </div>
                 {% endfor %}
             </div>
         </div>
+        {% endmacro %}
 
-        <!-- Column 5: Cancelled -->
-        <div class="kanban-column">
-            <div class="column-header">
-                <span>❌ Bekor</span>
-                <span class="badge">{{ kanban.cancelled|length }}</span>
-            </div>
-            <div class="column-body">
-                {% for item in kanban.cancelled %}
-                <div class="crm-card" style="opacity: 0.7;">
-                    <div class="crm-card-header">
-                        <span class="crm-card-title">{{ item.name }}</span>
-                        <span class="crm-card-meta">{{ item.date }}</span>
-                    </div>
-                    <a href="tel:{{ item.contact }}" class="crm-card-contact">📞 {{ item.contact }}</a>
-                    <div class="crm-card-title" style="color: #ef4444; font-size: 0.85rem;">{{ item.title }}</div>
-                    <div class="crm-card-actions">
-                        <select class="status-select" onchange="updateCrmStatus('{{ item.type }}', '{{ item.id }}', this.value)">
-                            <option value="new">🆕 Yangi</option>
-                            <option value="contacted">📞 Bog'lanildi</option>
-                            <option value="in_progress">📝 Jarayonda</option>
-                            <option value="completed">✅ Bajarildi</option>
-                            <option value="cancelled" selected>❌ Bekor</option>
-                        </select>
-                    </div>
-                </div>
-                {% else %}
-                <div style="text-align:center; padding: 2rem; color: #64748b; font-size: 0.85rem;">Bo'sh</div>
-                {% endfor %}
-            </div>
-        </div>
+        {{ render_column('new', 'Yangi Arizalar', '🆕') }}
+        {{ render_column('contacted', 'Bog\'lanildi', '📞') }}
+        {{ render_column('in_progress', 'Jarayonda / Kelishildi', '📝') }}
+        {{ render_column('completed', 'Bajarildi', '✅') }}
+        {{ render_column('cancelled', 'Bekor Qilindi', '❌') }}
 
     </div>
 </div>
 
 <script>
+// Real-time Card Search
+function filterCards() {
+    const q = document.getElementById('crmSearch').value.toLowerCase().trim();
+    const cards = document.querySelectorAll('.crm-card');
+
+    cards.forEach(card => {
+        const text = card.getAttribute('data-search') || '';
+        if (text.includes(q)) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// Status Update via AJAX
 async function updateCrmStatus(type, id, status) {
     try {
         const res = await fetch('/api/admin/crm/update-status', {
@@ -361,7 +487,34 @@ async function updateCrmStatus(type, id, status) {
             alert('Xatolik: ' + (data.error || 'Status yangilanmadi'));
         }
     } catch(e) {
-        alert('Server bilam ulanishda xato: ' + e);
+        alert('Server bilan ulanishda xato: ' + e);
+    }
+}
+
+// Follow-up Note Save via AJAX
+async function saveNote(type, id, btnElement) {
+    const textarea = btnElement.closest('.note-container').querySelector('.note-input');
+    const note = textarea.value;
+    const oldText = btnElement.innerText;
+    btnElement.innerText = '...';
+
+    try {
+        const res = await fetch('/api/admin/crm/update-note', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, id: parseInt(id), note })
+        });
+        const data = await res.json();
+        if (data.success) {
+            btnElement.innerText = '✅ Saqlandi';
+            setTimeout(() => { btnElement.innerText = oldText; }, 2000);
+        } else {
+            alert('Xato: ' + (data.error || 'Saqlanmadi'));
+            btnElement.innerText = oldText;
+        }
+    } catch(e) {
+        alert('Server bilan ulanishda xato: ' + e);
+        btnElement.innerText = oldText;
     }
 }
 </script>

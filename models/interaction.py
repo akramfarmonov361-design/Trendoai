@@ -33,6 +33,8 @@ class Lead(db.Model):
     name = db.Column(db.String(100), nullable=False)
     contact = db.Column(db.String(100), nullable=False)  # tel yoki telegram username
     source = db.Column(db.String(50), default='Lead Magnet')  # Lead Magnet, AI Chat, etc
+    status = db.Column(db.String(20), default='new')  # new, contacted, in_progress, completed, cancelled
+    admin_note = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     def __repr__(self):

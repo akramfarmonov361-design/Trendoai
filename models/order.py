@@ -12,7 +12,8 @@ class Order(db.Model):
     service_name = db.Column(db.String(100), nullable=False)
     budget = db.Column(db.String(50), nullable=True)
     message = db.Column(db.Text, nullable=True)
-    status = db.Column(db.String(20), default='new')  # new, contacted, completed, cancelled
+    status = db.Column(db.String(20), default='new')  # new, contacted, in_progress, completed, cancelled
+    admin_note = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     def __repr__(self):

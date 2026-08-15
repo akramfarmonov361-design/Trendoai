@@ -279,7 +279,7 @@ def init_database():
                 if column_name in existing_columns:
                     return
                 with db.engine.begin() as conn:
-                    conn.execute(text(f"ALTER TABLE {table_name} ADD COLUMN {column_name} VARCHAR(100)"))
+                    conn.execute(text(f'ALTER TABLE "{table_name}" ADD COLUMN {column_name} VARCHAR(100)'))
                 print(f"OK: added {table_name}.{column_name}.")
 
             def ensure_text_column(table_name, column_name):
@@ -289,12 +289,15 @@ def init_database():
                 if column_name in existing_columns:
                     return
                 with db.engine.begin() as conn:
-                    conn.execute(text(f"ALTER TABLE {table_name} ADD COLUMN {column_name} TEXT"))
+                    conn.execute(text(f'ALTER TABLE "{table_name}" ADD COLUMN {column_name} TEXT'))
                 print(f"OK: added {table_name}.{column_name}.")
 
             ensure_varchar_column("portfolio", "price")
             ensure_varchar_column("service", "price")
             ensure_text_column("post", "image_prompt")
+            ensure_text_column("order", "admin_note")
+            ensure_text_column("lead", "admin_note")
+            ensure_varchar_column("lead", "status")
 
             for table_name, index_names in {
                 'post': (

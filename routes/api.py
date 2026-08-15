@@ -418,9 +418,43 @@ def api_crm_update_status():
                 db.session.commit()
                 return jsonify({'success': True, 'message': f'Order #{item_id} statusi yangilandi.'})
         elif item_type == 'lead':
-            return jsonify({'success': True, 'message': f'Lead #{item_id} statusi yangilandi.'})
+            lead = Lead.query.get(item_id)
+            if lead:
+                lead.status = new_status
+                db.session.commit()
+                return jsonify({'success': True, 'message': f'Lead #{item_id} statusi yangilandi.'})
 
         return jsonify({'error': 'Topilmadi'}), 404
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@api_bp.route('/api/admin/crm/update-note', methods=['POST'])
+@login_required
+@csrf.exempt
+def api_crm_update_note():
+    """AJAX endpoint for saving follow-up notes on Kanban items"""
+    data = request.json or {}
+    item_type = data.get('type')
+    item_id = data.get('id')
+    note = (data.get('note') or '').strip()
+
+    try:
+        if item_type == 'order':
+            order = Order.query.get(item_id)
+            if order:
+                order.admin_note = note
+                db.session.commit()
+                return jsonify({'success': True, 'message': 'Eslatma saqlandi.'})
+        elif item_type == 'lead':
+            lead = Lead.query.get(item_id)
+            if lead:
+                lead.admin_note = note
+                db.session.commit()
+                return jsonify({'success': True, 'message': 'Eslatma saqlandi.'})
+
+        return jsonify({'error': 'Element topilmadi'}), 404
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500

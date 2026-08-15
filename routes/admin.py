@@ -725,12 +725,13 @@ def admin_kanban():
             'title': o.service_name,
             'budget': o.budget or 'Kelishilgan',
             'message': o.message,
+            'admin_note': o.admin_note or '',
             'status': st,
             'date': o.created_at.strftime('%d.%m.%Y %H:%M') if o.created_at else 'N/A'
         })
 
     for l in leads:
-        st = 'new'
+        st = l.status if l.status in kanban_data else 'new'
         kanban_data[st].append({
             'type': 'lead',
             'id': l.id,
@@ -739,6 +740,7 @@ def admin_kanban():
             'title': f"Lead ({l.source})",
             'budget': 'Ma\'lumot berilmagan',
             'message': f"Manba: {l.source}",
+            'admin_note': l.admin_note or '',
             'status': st,
             'date': l.created_at.strftime('%d.%m.%Y %H:%M') if l.created_at else 'N/A'
         })
@@ -758,6 +760,14 @@ def admin_kanban():
     }
 
     return render_template('admin/kanban.html', kanban=kanban_data, stats=stats)
+
+
+@admin_bp.route('/admin/invoice/<int:order_id>')
+@login_required
+def admin_invoice(order_id):
+    """Buyurtma bo'yicha professional hisob-faktura (Invoice & Contract) sahifasi"""
+    order = Order.query.get_or_404(order_id)
+    return render_template('admin/invoice.html', order=order, now=datetime.now())
 
 
 # ========== SEO PING & MIGRATION / SEED ROUTES ==========
