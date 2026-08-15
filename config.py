@@ -41,6 +41,10 @@ elif DATABASE_URI.startswith("mysql://"):
 elif DATABASE_URI.startswith("mysql2://"):
     DATABASE_URI = DATABASE_URI.replace("mysql2://", "mysql+pymysql://", 1)
 
+# ========== KESH SOZLAMALARI (REDIS / IN-MEMORY) ==========
+REDIS_URL = (os.getenv("REDIS_URL") or os.getenv("REDIS_TLS_URL") or "").strip()
+CACHE_DEFAULT_TIMEOUT = int(os.getenv("CACHE_DEFAULT_TIMEOUT", 60))
+
 # ========== AI SOZLAMALARI ==========
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY2") or os.getenv("GEMINI_API_KEY3")
 _DEFAULT_MODEL = "gemini-3.5-flash-lite"
