@@ -33,9 +33,9 @@ current_model_name = GEMINI_MODEL
 realtime_client = None
 LAST_AI_ERROR = None
 TEXT_MODEL_FALLBACKS = [
+    "gemini-3.7-flash",
     "gemini-3.5-flash-lite",
     "gemini-3.1-flash-lite",
-    "gemini-2.5-flash-lite",
     "gemini-2.5-flash",
     "gemini-2.5-pro",
 ]
