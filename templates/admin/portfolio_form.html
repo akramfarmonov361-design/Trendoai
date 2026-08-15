@@ -100,10 +100,45 @@
                 placeholder="To'lov tizimi, Admin panel, Push xabarlar (vergul bilan ajrating)">
         </div>
 
+    <div class="form-section">
+        <h3>📊 Case Study (Muammo → Yechim → Natija)</h3>
+
+        <div class="form-row">
+            <div class="form-group flex-grow">
+                <label for="client_name">🏢 Buyurtmachi / Mijoz Kompaniyasi</label>
+                <input type="text" id="client_name" name="client_name" value="{{ portfolio.client_name if portfolio and portfolio.client_name else '' }}"
+                    placeholder="Masalan: EuroStroy MChJ yoki Chust FastFood">
+            </div>
+            <div class="form-group flex-grow">
+                <label for="demo_url">🌐 Jonli Demo Havolasi</label>
+                <input type="url" id="demo_url" name="demo_url" value="{{ portfolio.demo_url if portfolio and portfolio.demo_url else '' }}"
+                    placeholder="https://t.me/examplebot yoki https://demo.trendoai.uz">
+            </div>
+        </div>
+
         <div class="form-group">
-            <label for="details">Loyiha Haqida Batafsil (Markdown qo'llab-quvvatlanadi)</label>
-            <textarea id="details" name="details" rows="10"
-                placeholder="Loyiha qanday muammoni hal qildi? Qanday natijaga erishildi?">{{ portfolio.details if portfolio and portfolio.details else '' }}</textarea>
+            <label for="problem">🔴 Mijoz Muammosi (Problem)</label>
+            <textarea id="problem" name="problem" rows="2"
+                placeholder="Mijoz qanday qiyinchilikka duch kelgan edi? (masalan: Operatorlar qo'lda buyurtma olishda kechikardi...)">{{ portfolio.problem if portfolio and portfolio.problem else '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="solution">💡 TrendoAI Yechimi (Solution)</label>
+            <textarea id="solution" name="solution" rows="2"
+                placeholder="Qanday texnik yechim ishlab chiqildi? (masalan: 24/7 ishlovchi avtomatik bot va Click to'lov tizimi o'rnatildi...)">{{ portfolio.solution if portfolio and portfolio.solution else '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="result">🚀 Biznes Natijasi (Result / ROI)</label>
+            <textarea id="result" name="result" rows="2"
+                placeholder="Natijada nima o'zgardi? (masalan: Sotuvlar 2.5x oshdi, kunlik 300+ buyurtma 100% avtomatlashdi...)">{{ portfolio.result if portfolio and portfolio.result else '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="gallery_images">📸 Skrinshotlar Galereyasi (URL havolalar, vergul bilan)</label>
+            <input type="text" id="gallery_images" name="gallery_images"
+                value="{{ portfolio.gallery_images if portfolio and portfolio.gallery_images else '' }}"
+                placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg">
         </div>
     </div>
 

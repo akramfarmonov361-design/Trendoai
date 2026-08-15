@@ -123,14 +123,24 @@
             </div>
         </div>
         <div class="card-content">
-            <span class="card-category">
-                {% if item.category == 'bot' %}Telegram Bot
-                {% elif item.category == 'web' %}Web Sayt
-                {% elif item.category == 'ai' %}AI Yechim
-                {% elif item.category == 'mobile' %}Mobile App
-                {% else %}{{ item.category|capitalize }}
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <span class="card-category">
+                    {% if item.category == 'bot' %}Telegram Bot
+                    {% elif item.category == 'web' %}Web Sayt
+                    {% elif item.category == 'ai' %}AI Yechim
+                    {% elif item.category == 'mobile' %}Mobile App
+                    {% else %}{{ item.category|capitalize }}
+                    {% endif %}
+                </span>
+                {% if item.problem or item.result %}
+                <span style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px;">📊 Case Study</span>
                 {% endif %}
-            </span>
+            </div>
+
+            {% if item.client_name %}
+            <div style="font-size: 0.8rem; color: #38bdf8; font-weight: 600; margin-bottom: 4px;">🏢 {{ item.client_name }}</div>
+            {% endif %}
+
             <h3>{{ item.title }}</h3>
             <p>{{ item.description }}</p>
             <div class="card-tech">

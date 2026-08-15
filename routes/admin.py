@@ -549,7 +549,13 @@ def admin_portfolio_new():
             meta_keywords=request.form.get('meta_keywords'),
             details=request.form.get('details'),
             features=request.form.get('features'),
-            price=request.form.get('price')
+            price=request.form.get('price'),
+            client_name=request.form.get('client_name'),
+            problem=request.form.get('problem'),
+            solution=request.form.get('solution'),
+            result=request.form.get('result'),
+            demo_url=request.form.get('demo_url'),
+            gallery_images=request.form.get('gallery_images')
         )
         db.session.add(portfolio)
         db.session.commit()
@@ -603,6 +609,12 @@ def admin_portfolio_edit(portfolio_id):
         portfolio.details = request.form.get('details')
         portfolio.features = request.form.get('features')
         portfolio.price = request.form.get('price')
+        portfolio.client_name = request.form.get('client_name')
+        portfolio.problem = request.form.get('problem')
+        portfolio.solution = request.form.get('solution')
+        portfolio.result = request.form.get('result')
+        portfolio.demo_url = request.form.get('demo_url')
+        portfolio.gallery_images = request.form.get('gallery_images')
 
         if not portfolio.slug:
             portfolio.slug = portfolio.generate_slug()
@@ -925,41 +937,79 @@ Google'da qidiruv qiluvchi har bir inson — bu sizning potensial mijozingiz.
 
 @admin_bp.route('/admin/seed-portfolio')
 def seed_portfolio():
-    """Demo portfoliolarni bazaga qo'shish"""
+    """Demo portfoliolarni bazaga qo'shish va Case Studylarni boyitish"""
     try:
         items = [
             {
-                'title': "Restoran va Kafelar uchun Telegram Bot",
-                'description': "Mijozlar to'g'ridan-to'g'ri Telegram orqali taomlarni ko'rib chiqishi, savatga qo'shishi va yetkazib berish uchun buyurtma berishi mumkin bo'lgan to'liq avtomatlashgan tizim. Payme/Click integratsiyasi mavjud.",
+                'title': "Restoran va FastFood uchun Telegram Bot",
+                'client_name': "Chust FastFood Tarmoqlari",
+                'description': "Mijozlar to'g'ridan-to'g'ri Telegram orqali taomlarni ko'rib chiqishi, savatga qo'shishi va yetkazib berish uchun buyurtma berishi mumkin bo'lgan to'liq avtomatlashgan tizim.",
                 'category': "bot",
                 'emoji': "🍔",
-                'technologies': "Python, Aiogram, PostgreSQL, Payme API",
+                'technologies': "Python, Aiogram 3, PostgreSQL, Click/Payme API, Geolocation",
                 'image_url': "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1000&auto=format&fit=crop",
-                'features': "Mahsulotlar katalogi,Savat va hisob-kitob,To'lov tizimi integratsiyasi",
-                'price': "3,000,000 so'm",
+                'features': "Mahsulotlar katalogi,Geo-lokatsiya orqali yetkazish,Click/Payme to'lovi,Oshxona printeri integratsiyasi,Kuryerlar boti",
+                'price': "3,500,000 so'm",
+                'problem': "Kunlik 200 dan ortiq qo'ng'iroqlar tufayli operatorlar ulgurmay qolar, mijozlar kutishdan norozi bo'lib, xatoliklar tufayli buyurtmalar kechikardi.",
+                'solution': "24/7 ishlovchi, avtomatik manzil aniqlovchi va to'lov qabul qiluvchi Telegram bot hamda oshxona va kuryerlar uchun yagona CRM boshqaruv paneli ishlab chiqildi.",
+                'result': "Operatorlar xarajati 60% ga qisqardi, buyurtma berish vaqti 4 daqiqadan 25 soniyaga tushdi, kunlik yetkazib berishlar hajmi 2.8 barobarga oshdi.",
+                'demo_url': "https://t.me/trendoai",
+                'gallery_images': "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1000&auto=format&fit=crop,https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1000&auto=format&fit=crop",
                 'meta_description': "Restoranlar uchun maxsus yetkazib berish telegram boti yaratish xizmati.",
                 'meta_keywords': "telegram bot yaratish, fast food bot, restoran bot, dostavka bot, payme integratsiya"
             },
             {
-                'title': "TrendoAI - IT Xizmatlar Agentligi Sayti",
-                'description': "Zamonaviy 'Show, don't tell' konsepsiyasiga asoslangan web sayt. Tizimda o'rnatilgan AI assistent to'g'ridan-to'g'ri chatbot rejimida mijozlarga konsultatsiya beradi va lidlarni yig'ishga yordam beradi.",
+                'title': "TrendoAI - IT Agentlik va Avtomatizatsiya Platformasi",
+                'client_name': "TrendoAI Digital",
+                'description': "Zamonaviy 'Show, don't tell' konsepsiyasiga asoslangan web platforma. Tizimda o'rnatilgan AI assistent to'g'ridan-to'g'ri chatbot rejimida mijozlarga konsultatsiya beradi va lidlarni yig'ishga yordam beradi.",
                 'category': "web",
                 'emoji': "🌐",
-                'technologies': "Flask, Vanilla JS, Google Gemini AI, PostgreSQL",
+                'technologies': "Flask, Tailwind-grade CSS, Gemini AI, PostgreSQL, Redis, PWA",
                 'image_url': "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop",
-                'features': "SEO optimizatsiya,Jonli AI yordamchi,Dark/Light rejim,Portfolio va Blog bo'limlari",
-                'price': "5,000,000 so'm",
+                'features': "SEO optimizatsiya,Jonli AI yordamchi,Dark/Light rejim,Interaktiv narx kalkulyatori,Telegram Mini App",
+                'price': "6,000,000 so'm",
+                'problem': "An'anaviy statik veb-saytlar mijozlar bilan muloqotga kirmasdi va tashrif buyuruvchilarning 90% dan ko'prog'i ariza qoldirmasdan chiqib ketardi.",
+                'solution': "O'zbek tilida erkin so'zlashuvchi AI Chatbot va interaktiv narx kalkulyatori o'rnatildi, sayt PWA va Telegram Mini App ko'rinishida barcha qurilmalarga moslashtirildi.",
+                'result': "Sayt konversiyasi 4.2 barobar oshdi, har kuni 15+ yangi qiziqqan mijozlar (leads) avtomatik tarzda CRM tizimiga tushmoqda.",
+                'demo_url': "https://trendoai.uz",
+                'gallery_images': "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop,https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop",
                 'meta_description': "Zamonaviy IT va marketing agentliklari uchun biznes vizitka va xizmatlar sayti.",
                 'meta_keywords': "it agentlik sayti, landing page yaratish, biznes web sayt, korporativ sayt"
+            },
+            {
+                'title': "24/7 AI Operator va Mijozlar Qo'llab-quvvatlash Tizimi",
+                'client_name': "EuroStroy Qurilish Mollari Do'koni",
+                'description': "Mijozlarning qurilish mollari bo'yicha murakkab savollariga 24/7 rejimida o'zbek va rus tillarida aniq javob beruvchi, mahsulotlarni tavsiya qiluvchi aqlli AI assistent.",
+                'category': "ai",
+                'emoji': "🧠",
+                'technologies': "Python, Google Gemini 2.5 Pro, LangChain, pgvector, Telegram Bot API",
+                'image_url': "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?q=80&w=1000&auto=format&fit=crop",
+                'features': "RAG bilimlari bazasi,Ko'p tillilik (UZ/RU),Telegram va Web widget,CRM bilan integratsiya",
+                'price': "5,000,000 so'm",
+                'problem': "Kecha-yu kunduz keladigan mijozlar so'rovlariga javob berish uchun 3 ta smenada operator ushlab turish katta xarajat va inson omili sabab xatoliklarga olib kelardi.",
+                'solution': "Kompaniyaning 1000+ turdagi tovarlari va narxlar jadvali asosida o'qitilgan aqlli AI konsultant bot ishga tushirildi.",
+                'result': "Mijozlarga javob berish tezligi 1 soniyaga yetkazildi, kechki va dam olish kunlaridagi savdolar 3.4x ga o'sdi.",
+                'demo_url': "https://t.me/trendoai",
+                'gallery_images': "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?q=80&w=1000&auto=format&fit=crop",
+                'meta_description': "Biznesingiz uchun 24/7 aqlli AI chatbot va mijozlar xizmati.",
+                'meta_keywords': "ai chatbot, sun'iy intellekt bot, telegram ai, gemini bot"
             }
         ]
         created_count = 0
         for item_data in items:
             existing = Portfolio.query.filter_by(title=item_data['title']).first()
             if existing:
+                existing.client_name = item_data.get('client_name')
+                existing.problem = item_data.get('problem')
+                existing.solution = item_data.get('solution')
+                existing.result = item_data.get('result')
+                existing.demo_url = item_data.get('demo_url')
+                existing.gallery_images = item_data.get('gallery_images')
+                db.session.commit()
                 continue
             item = Portfolio(
                 title=item_data['title'],
+                client_name=item_data.get('client_name'),
                 description=item_data['description'],
                 category=item_data['category'],
                 emoji=item_data['emoji'],
@@ -967,6 +1017,11 @@ def seed_portfolio():
                 image_url=item_data['image_url'],
                 features=item_data['features'],
                 price=item_data['price'],
+                problem=item_data.get('problem'),
+                solution=item_data.get('solution'),
+                result=item_data.get('result'),
+                demo_url=item_data.get('demo_url'),
+                gallery_images=item_data.get('gallery_images'),
                 meta_description=item_data['meta_description'],
                 meta_keywords=item_data['meta_keywords'],
                 is_published=True
@@ -976,7 +1031,7 @@ def seed_portfolio():
             item.slug = item.generate_slug()
             db.session.commit()
             created_count += 1
-        return f"✅ {created_count} ta Demo Portfolio muvaffaqiyatli yaratildi! <a href='/portfolio'>Portfolioga o'tish</a>"
+        return f"✅ Portfolio loyihalari va Case Studylar muvaffaqiyatli yangilandi! <a href='/portfolio'>Portfolioga o'tish</a>"
     except Exception as e:
         return f"Xatolik: {e}"
 

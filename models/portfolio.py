@@ -27,6 +27,12 @@ class Portfolio(db.Model):
     details = db.Column(db.Text)
     features = db.Column(db.Text)
     price = db.Column(db.String(100), nullable=True)
+    client_name = db.Column(db.String(100), nullable=True)
+    problem = db.Column(db.Text, nullable=True)
+    solution = db.Column(db.Text, nullable=True)
+    result = db.Column(db.Text, nullable=True)
+    demo_url = db.Column(db.String(500), nullable=True)
+    gallery_images = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     @property

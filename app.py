@@ -293,6 +293,12 @@ def init_database():
                 print(f"OK: added {table_name}.{column_name}.")
 
             ensure_varchar_column("portfolio", "price")
+            ensure_varchar_column("portfolio", "client_name")
+            ensure_text_column("portfolio", "problem")
+            ensure_text_column("portfolio", "solution")
+            ensure_text_column("portfolio", "result")
+            ensure_varchar_column("portfolio", "demo_url")
+            ensure_text_column("portfolio", "gallery_images")
             ensure_varchar_column("service", "price")
             ensure_text_column("post", "image_prompt")
             ensure_text_column("order", "admin_note")

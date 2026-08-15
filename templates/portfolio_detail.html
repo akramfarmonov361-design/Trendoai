@@ -137,7 +137,66 @@
                 <div class="project-brief">
                     <h3>Loyiha haqida</h3>
                     <p>{{ item.description }}</p>
+                    {% if item.client_name %}
+                    <div style="margin-top: 10px; font-weight: 700; color: var(--primary-light);">
+                        🏢 Buyurtmachi: <span style="color: #fff;">{{ item.client_name }}</span>
+                    </div>
+                    {% endif %}
                 </div>
+
+                <!-- CASE STUDY: MUAMMO -> YECHIM -> NATIJA -->
+                {% if item.problem or item.solution or item.result %}
+                <div class="case-study-container">
+                    <h3 class="case-study-heading">📊 Case Study: Muammo → Yechim → Natija</h3>
+                    <div class="case-study-grid">
+                        {% if item.problem %}
+                        <div class="case-card problem">
+                            <div class="case-card-header">
+                                <span class="case-icon">🔴</span>
+                                <h4>Mijoz Muammosi</h4>
+                            </div>
+                            <p>{{ item.problem }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if item.solution %}
+                        <div class="case-card solution">
+                            <div class="case-card-header">
+                                <span class="case-icon">💡</span>
+                                <h4>TrendoAI Yechimi</h4>
+                            </div>
+                            <p>{{ item.solution }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if item.result %}
+                        <div class="case-card result">
+                            <div class="case-card-header">
+                                <span class="case-icon">🚀</span>
+                                <h4>Biznes Natijasi</h4>
+                            </div>
+                            <p>{{ item.result }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- SCREENSHOTS GALLERY -->
+                {% if item.gallery_images %}
+                <div class="project-gallery-section">
+                    <h3>📸 Loyiha Skrinshotlari</h3>
+                    <div class="gallery-grid">
+                        {% for img_url in (item.gallery_images or '').split(',') %}
+                        {% if img_url and img_url.strip() %}
+                        <div class="gallery-item" onclick="openLightbox('{{ img_url.strip() }}')">
+                            <img src="{{ img_url.strip() }}" alt="{{ item.title }} skrinshot" loading="lazy">
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
 
                 {% if item.details %}
                 <div class="project-details-content">
@@ -148,7 +207,7 @@
 
                 {% if item.features %}
                 <div class="project-features-list">
-                    <h3>Imkoniyatlar</h3>
+                    <h3>Asosiy Imkoniyatlar</h3>
                     <div class="features-grid-landing">
                         {% for feature in (item.features or '').split(',') %}
                         {% if feature and feature.strip() %}
@@ -163,16 +222,16 @@
                 {% endif %}
 
                 <div class="service-cta-box portfolio-cta">
-                    <h3>Sizga ham shunday loyiha kerakmi?</h3>
-                    <p>Biz aynan sizning biznesingiz uchun moslashtirilgan yechimni ishlab chiqamiz.</p>
+                    <h3>Sizga ham shunday natijali loyiha kerakmi?</h3>
+                    <p>Biz aynan sizning biznesingiz uchun moslashtirilgan, sotuvni oshiruvchi yechimni ishlab chiqamiz.</p>
                     <div class="cta-actions">
                         <a href="{{ url_for('order_page') }}?service={{ item.category }}" class="primary-btn pulse-glow"
                             onclick="trackAddToCart()">
                             🚀 Buyurtma berish
                         </a>
-                        {% if item.link %}
-                        <a href="{{ item.link }}" target="_blank" class="secondary-btn">
-                            🌐 Loyihani ko'rish
+                        {% if item.demo_url or item.link %}
+                        <a href="{{ item.demo_url or item.link }}" target="_blank" class="secondary-btn" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid #38bdf8;">
+                            🌐 Jonli Demoni Ko'rish
                         </a>
                         {% endif %}
                     </div>
@@ -206,6 +265,20 @@
         </div>
     </aside>
 </div>
+
+<!-- LIGHTBOX MODAL -->
+<div id="lightboxModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; cursor:pointer;" onclick="this.style.display='none'">
+    <img id="lightboxImg" src="" style="max-width:90%; max-height:90%; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.5);" alt="Zoomed screenshot">
+</div>
+
+<script>
+function openLightbox(url) {
+    const modal = document.getElementById('lightboxModal');
+    const img = document.getElementById('lightboxImg');
+    img.src = url;
+    modal.style.display = 'flex';
+}
+</script>
 
 <style>
     .portfolio-detail-header {
@@ -249,12 +322,103 @@
         background: var(--bg-elevated);
         padding: 25px;
         border-radius: var(--radius-md);
-        margin-bottom: 40px;
+        margin-bottom: 30px;
         border-left: 4px solid var(--primary);
     }
 
     .project-brief h3 {
         margin-bottom: 12px;
+    }
+
+    /* CASE STUDY STYLES */
+    .case-study-container {
+        margin-bottom: 35px;
+    }
+
+    .case-study-heading {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 16px;
+    }
+
+    .case-study-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+    }
+
+    .case-card {
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        backdrop-filter: blur(10px);
+    }
+
+    .case-card.problem { border-left: 4px solid #ef4444; }
+    .case-card.solution { border-left: 4px solid #38bdf8; }
+    .case-card.result { border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); }
+
+    .case-card-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .case-card-header h4 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #f8fafc;
+        margin: 0;
+    }
+
+    .case-card p {
+        font-size: 0.875rem;
+        color: #cbd5e1;
+        line-height: 1.45;
+        margin: 0;
+    }
+
+    /* GALLERY STYLES */
+    .project-gallery-section {
+        margin-bottom: 35px;
+    }
+
+    .project-gallery-section h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 14px;
+        color: #fff;
+    }
+
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+    }
+
+    .gallery-item {
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        cursor: pointer;
+        aspect-ratio: 16/10;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .gallery-item:hover {
+        transform: scale(1.03);
+        border-color: #38bdf8;
+    }
+
+    .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .project-details-content ul {
