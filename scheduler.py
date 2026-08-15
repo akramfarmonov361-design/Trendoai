@@ -15,92 +15,64 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from ai_generator import generate_post_for_seo, get_last_ai_error
 from config import CATEGORIES, SITE_URL, TIMEZONE
 
-# 80/20 QOIDASI BO'YICHA MAVZULAR
-# 80% - Mijozga qiymat beradigan foydali ma'lumotlar
-# 20% - Xizmatlarimiz haqida yengil eslatmalar
+# 80/20 QOIDASI BO'YICHA 2026-YILNING ENG ZAMONAVIY VA TALABGIR MAVZULARI
 TOPICS = [
-    # AI agentlar
-    "AI Agent nima: Sun'iy intellekt agentlari haqida to'liq qo'llanma",
-    "CrewAI bilan multi-agent tizim yaratish: amaliy loyiha",
-    "LangChain agentlari: aqlli AI yordamchi yaratish bosqichma-bosqich",
-    "Avtonom AI tizimlar qanday ishlaydi va qayerda foydali",
-    "AI Agent va Telegram bot: aqlli biznes assistenti yaratish",
-    "RAG: kompaniya ma'lumotlari bilan ishlaydigan AI tizimlari",
-    "AI agent ish oqimlarini avtomatlashtirish: real misollar",
-    "Multi-agent arxitektura: AI agentlar hamkorligi",
-    "AI agent xavfsizligi: risklar va himoya usullari",
-    "Biznes uchun AI agent: xarajatlarni kamaytirish yondashuvlari",
+    # 🧠 Zamonaviy AI Modellar va Reasoning (Fikrlash)
+    "Gemini 3.7 Flash va DeepSeek R1: Murakkab biznes mantiqini avtomatlashtirish",
+    "Hybrid Reasoning (Gibrid fikrlash) nima va dasturlashda unumdorlikni qanday 3x oshiradi",
+    "Local LLM (Ollama va vLLM) vs Cloud API: Korxona maxfiyligi uchun qaysi biri ma'qul",
+    "Kichik modellar (SLM) inqilobi: Server xarajatlarini 80% ga kamaytirish usullari",
+    "Google Gemini 3 avlodi: Multimodal AI vositalarini biznesga joriy qilish",
+    "DeepSeek R1 arxitekturasi: Ochiq kodli AI yordamida tejamkor tahliliy tizimlar",
+    "AI Agentlarda Prompt Caching: API xarajatlarini keskin kamaytirish sirlari",
 
-    # AI modellar
-    "Zamonaviy AI modellarini tanlash: biznes uchun asosiy mezonlar",
-    "Reasoning modeli nima va qachon kerak bo'ladi",
-    "OpenAI modellari: qaysi vazifaga qaysi tur mos",
-    "Google Gemini oilasi: turli vazifalar uchun to'g'ri tanlov",
-    "Anthropic Claude oilasi: coding va analysis uchun tanlov mezonlari",
-    "Tezkor model va kuchli model: xarajat hamda sifat muvozanati",
-    "Kichik model va katta model: qaysi biri sizga mos",
-    "AI model tanlash: biznes ehtiyojlariga mos yondashuv",
-    "Fine-tuning va RAG: qaysi usul sizga mos",
+    # 🤖 AI Agentlar va Avtonom Ish Oqimlari (Workflow Automation)
+    "Model Context Protocol (MCP) nima: AI vositalarni ma'lumotlar bazasiga ulashning yangi standarti",
+    "n8n va Gemini AI bilan to'liq avtomatlashtirilgan savdo voronkasi (Sales Pipeline) qurish",
+    "AI SDR (Sales Development Rep): Sayt va Telegramda mijozlar bilan mustaqil savdo qiluvchi agent",
+    "CrewAI va AutoGen: 1 ta xodim o'rniga 5 ta ixtisoslashgan AI agent boshqarish",
+    "RAG 2.0 (Retrieval-Augmented Generation): Kompaniya PDF, Excel va bazalarini AI ga o'rgatish",
+    "Avtonom AI agentlar xavfsizligi: Prompt Injection hujumlaridan himoyalanish",
+    "AI bilan xatoliklarni avtomatik tuzatish va loglarni tahlil qilish tizimi",
 
-    # Web saytlar
-    "Landing page trendlari: konversiyani oshirish usullari",
-    "Next.js bilan professional sayt yaratish",
-    "Veb-sayt tezligi optimizatsiyasi: Core Web Vitals bo'yicha amaliy qo'llanma",
-    "SEO: Google AI Overview davrida kontent strategiyasi",
-    "E-commerce sayt: Uzum va Wildberries integratsiyasi",
-    "Progressive Web App: sayt-ilova yaratish",
-    "Headless CMS: Strapi va Sanity bilan ishlash",
-    "Veb-sayt xavfsizligi: zamonaviy himoya usullari",
+    # 📱 Telegram Mini Apps (TMA), Botlar va To'lovlar
+    "Telegram Mini App (TMA) va React/Vue: Nega barcha bizneslar mobil ilovadan TMA ga o'tmoqda",
+    "Telegram Stars va Mahalliy To'lovlar (Click/Payme): Raqamli tovar va xizmatlarni qonuniy sotish",
+    "Telegram botda Webhook vs Polling: 100,000+ faol foydalanuvchiga xizmat ko'rsatish arxitekturasi",
+    "Voice AI Telegram Bot: Ovozli xabarlarni matnga o'girib, aqlli ovozda javob qaytarish",
+    "Telegram Bot orqali to'liq E-commerce do'kon: Savat, buyurtma kuzatish va kassa cheklari",
+    "Telegram Bot va Google Sheets / Notion avtomatik sinxronizatsiyasi",
+    "Telegram Botda Face-ID va Biometrik autentifikatsiya imkoniyatlari",
 
-    # Telegram botlar
-    "Telegram bot yaratishda yangi API imkoniyatlaridan foydalanish",
-    "Telegram Mini App: web ilovalar uchun amaliy yondashuv",
-    "AI yordamidagi Telegram bot: Gemini integratsiyasi",
-    "Telegram botda to'lov: Click, Payme va Uzum Pay",
-    "Telegram bot va CRM: mijozlarni avtomatik boshqarish",
-    "Telegram bot monetizatsiyasi: premium funksiyalarni sotish",
-    "Telegram Stars bilan ishlash: botda monetizatsiya yondashuvlari",
-    "Voice message bot: ovozli xabarlarni AI bilan qayta ishlash",
+    # 🌐 Zamonaviy Veb-Dasturlash va Super Tezlik (PageSpeed 99+)
+    "Next.js 15 va React Server Components: Google PageSpeed 99+ ball olish sirlari",
+    "Astro va TailwindCSS bilan o'ta tezkor korporativ landing page qurish",
+    "PWA (Progressive Web App): Saytni foydalanuvchi telefoniga ilova sifatida o'rnatish",
+    "Veb-sayt xavfsizligi: Cloudflare, Rate Limiting va DDoS hujumlaridan ishonchli qalqon",
+    "Google AI Overviews (SGE) davrida SEO strategiyasi: Maqolalarni AI qidiruvlarida 1-o'ringa chiqarish",
+    "WebP va AVIF formatlar: Rasmlar hajmini 85% ga kamaytirib, saytni 0.3 soniyada ochish",
+    "Headless E-commerce: Sayt dizayni va CRM tizimini mustaqil boshqarish afzalliklari",
 
-    # AI chatbotlar
-    "AI chatbotlar: zamonaviy texnologiyalar va qo'llash usullari",
-    "Gemini API bilan o'zbek tilida chatbot yaratish",
-    "Chatbot va RAG: kompaniya ma'lumotlari bilan AI",
-    "Voice AI chatbot: telefonda gaplashuvchi sun'iy intellekt",
-    "WhatsApp AI chatbot integratsiyasi",
-    "Chatbot analytics: samaradorlikni o'lchash",
-    "24/7 mijoz xizmati: AI bilan xarajatlarni kamaytirish",
-    "Chatbot UX: foydalanuvchi tajribasini yaxshilash",
+    # 💼 Haqiqiy Biznes keyslar va ROI (Daromadni 2-3x oshirish)
+    "Restoran va Kafelar uchun Telegram Menyu Bot: Ofitsiantlar yuklamasini 40% ga qisqartirish keysi",
+    "O'quv markazlari va Kurslar uchun CRM + Bot: Lidlar yo'qolishini 0 ga tushirish tajribasi",
+    "Klinikalar va Stomatologiyalar uchun Avtomatik Navbat va Qabul boti",
+    "Uzum Market va Wildberries sotuvchilari uchun AI narx monitoringi va avto-javob",
+    "Rieltorlik va Ko'chmas mulk agentliklari uchun AI maslahatchi: Mijoz saralash (Lead Qualification)",
+    "Avtoservis va Yetkazib berish xizmatlarini Telegram orqali boshqarish",
+    "AmoCRM va Bitrix24 ga Gemini AI ulash: Sotuvchilarga real vaqtda maslahat beruvchi tizim",
 
-    # Biznes avtomatlashtirish
-    "Biznes avtomatlashtirish: AI bilan yangi imkoniyatlar",
-    "n8n vs Zapier vs Make: qaysi platformani tanlash",
-    "CRM avtomatlashtirish: AmoCRM va AI yechimlar",
-    "Email marketing: AI bilan personalizatsiya",
-    "HR avtomatlashtirish: ishga qabul va onboarding",
-    "Moliyaviy avtomatlashtirish: invoice va hisobotlar",
-    "Omborxona avtomatlashtirish: inventory management",
-    "Sotuv jarayonini avtomatlashtirish: lead nurturing",
+    # 🛠 Texnik Arxitektura va Dasturlash Asboblari
+    "FastAPI va Async Python: Yuqori yuklamali AI backend arxitekturasi",
+    "PostgreSQL va pgvector: AI uchun qidiruv va tavsiya tizimlari yaratish",
+    "Docker va CI/CD (GitHub Actions): Loyihani 1 bosishda serverga yangilash",
+    "Redis Caching va Celery: Og'ir vazifalarni fonda tezkor bajarish",
+    "API xavfsizligi: JWT, OAuth2 va API Rate Limiting qoidalari",
 
-    # Amaliy case study
-    "Telegram bot bilan savdoni oshirish: real kejslar",
-    "AI chatbot mijoz xizmatida: avtomatlashtirish tajribasi",
-    "Landing page va AI bot: konversiyani oshirish strategiyasi",
-    "Biznes avtomatlashtirish: vaqt va xarajatni tejash",
-    "E-commerce uchun AI: sotuvni oshirish strategiyasi",
-
-    # Texnik qollanmalar
-    "Python 3.13 yangiliklari: dasturchilar uchun muhim o'zgarishlar",
-    "FastAPI va LangChain bilan AI backend yaratish",
-    "Docker bilan AI ilovalarni deploy qilish",
-    "PostgreSQL va pgvector: AI uchun vektor baza",
-    "Redis caching: AI ilovalar tezligini oshirish",
-
-    # O'zbekiston IT bozori
-    "O'zbekistonda IT freelance: hozirgi imkoniyatlar",
-    "O'zbek tilidagi AI: mahalliy yechimlar",
-    "IT startaplar uchun AI: imkoniyatlar va grantlar",
-    "Raqamli O'zbekiston: davlat xizmatlari avtomatlashtirish",
+    # 🇺🇿 O'zbekiston IT Bozori va Trendlari
+    "O'zbekistonda B2B AI yechimlari: Qaysi sohalar avtomatlashtirishga eng ko'p ehtiyoj sezmoqda",
+    "IT Outsourcing va Mahalliy xizmatlar: Sifatli dasturiy ta'minot yaratish mezonlari",
+    "Raqamli O'zbekiston: Milliy to'lov tizimlari va davlat xizmatlari API integratsiyasi",
 ]
 
 
@@ -109,7 +81,7 @@ def generate_and_publish_post(topic=None, category=None):
     """
     Yangi post generatsiya qilib, bazaga saqlaydi va Telegramga yuboradi.
 
-    topic: Agar berilsa, ushbu mavzuda yozadi. Aks holda random tanlaydi.
+    topic: Agar berilsa, ushbu mavzuda yozadi. Aks holda takrorlanmagan yangi trend mavzu tanlaydi.
     category: Agar berilsa, ushbu kategoriyani qo'yadi. Aks holda random tanlaydi.
     """
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -118,15 +90,29 @@ def generate_and_publish_post(topic=None, category=None):
     print(f"{'=' * 60}", flush=True)
     sys.stdout.flush()
 
-    selected_topic = topic if topic else random.choice(TOPICS)
-    selected_category = category if category else random.choice(CATEGORIES)
-
-    print(f"[scheduler] Mavzu: {selected_topic}")
-    print(f"[scheduler] Kategoriya: {selected_category}")
-
     from app import Post, app, db
 
     with app.app_context():
+        # Takrorlanmagan yangi trend mavzuni tanlash
+        if topic:
+            selected_topic = topic
+        else:
+            try:
+                recent_topics = [
+                    row[0] for row in db.session.query(Post.topic).order_by(Post.created_at.desc()).limit(30).all()
+                    if row[0]
+                ]
+                available_topics = [t for t in TOPICS if t not in recent_topics]
+                if not available_topics:
+                    available_topics = TOPICS
+                selected_topic = random.choice(available_topics)
+            except Exception:
+                selected_topic = random.choice(TOPICS)
+
+        selected_category = category if category else random.choice(CATEGORIES)
+
+        print(f"[scheduler] Tanlangan trend mavzu: {selected_topic}")
+        print(f"[scheduler] Kategoriya: {selected_category}")
         try:
             post_data = generate_post_for_seo(selected_topic)
 

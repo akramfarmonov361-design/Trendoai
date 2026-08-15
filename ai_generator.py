@@ -472,45 +472,25 @@ def _build_seo_prompt(topic, current_date_str, use_grounding):
     "Agar sizga ham [mavzu boyicha xizmat] kerak bolsa, TrendoAI jamoasi yordam beradi. Bepul konsultatsiya uchun arizangizni qoldiring: [trendoai.uz/order](https://trendoai.uz/order)"
 
     === VAZIFA ===
-    "{topic}" mavzusida professional maqola yozing.
+    "{topic}" mavzusida 2026-yilning eng zamonaviy IT va AI trendlariga asoslangan, o'ta amaliy va professional SEO maqola yozing.
 
-    === SEO TALABLARI ===
-    SARLAVHA:
-    - Asosiy kalit soz sarlavhada bo'lsin.
-    - Raqam yoki aniq foyda bo'lsa ishlating.
-    - Yil faqat haqiqatan zarur va tekshirilgan bo'lsa ishlatilsin.
-    - Noaniq hype yoki clickbait ishlatmang.
-
-    KALIT SOZLAR:
-    - 1-kalit: asosiy qidiruv sozi
-    - 2-kalit: shu sozning variant shakli
-    - 3-kalit: tegishli texnologiya yoki vosita
-    - 4-kalit: muammo yoki yechimga oid ibora
-    - 5-kalit: mahalliy yoki biznes konteksti
-
-    KONTENT ICHIDA SEO:
-    - Birinchi 100 sozda asosiy kalit soz bo'lsin.
-    - Har bir H2 yoki H3 sarlavhada kalit sozning tabiiy varianti bo'lsin.
-    - Kalit sozlar suniy emas, tabiiy ishlatilsin.
-    - 1000-1500 soz uzunlikda yozing.
-
-    === KONTENT TALABLARI ===
-    1. O'zbek tilida, lotin alifbosida yozing.
-    2. Professional, aniq va tushunarli til ishlating.
-    3. Amaliy misollar, jarayonlar va ehtiyotkor statistik yondashuv bering.
-    4. Faqat Markdown format ishlating.
-    5. HTML teg ishlatmang.
-    6. Tekshirilmagan release, benchmark yoki versiya iddaolarini yozmang.
+    === KONTENT VA SIFAT TALABLARI ===
+    1. O'zbek tilida, lotin alifbosida, o'quvchiga darhol foyda beradigan uslubda yozing.
+    2. Nazariy quruq gaplar o'rniga, **haqiqiy loyihalar, arxitektura, bosqichma-bosqich qo'llanma (Step-by-Step), jadvallar yoki kod/sozlama misollarini** keltiring.
+    3. Bizneslar uchun bu texnologiya **qanday qilib daromadni 2-3x oshirishi yoki xarajatlarni 50% ga tejashi (ROI)** mumkinligini aniq tushuntiring.
+    4. Faqat toza Markdown format ishlating (H2, H3, ro'yxatlar, jadvallar, qalin matn). HTML teglar ishlatmang.
+    5. Uzunligi: 1000–1500 so'z atrofida bo'lsin.
 
     === STRUKTURA VA FORMATLASH ===
     1. **Boshlanishida TL;DR bloki:**
-       > 💡 **Qisqacha xulosa (TL;DR):** [Mavzuning eng muhim 2-3 ta amaliy xulosasi va foydasi]
+       > 💡 **Qisqacha xulosa (TL;DR):** [Mavzuning eng muhim 2-3 ta amaliy xulosasi, yangi trend va biznesga beradigan foydasi]
     
-    2. **Kirish:** Muammoning dolzarbligi va biznesga ta'siri (birinchi 100 so'zda asosiy kalit so'z).
+    2. **Kirish:** Muammoning dolzarbligi va 2026-yildagi yangi imkoniyatlar (birinchi 100 so'zda asosiy kalit so'z).
     
     3. **Asosiy qism (4-5 ta H2/H3 bo'lim):**
-       - Aniq qadamlar, taqqoslashlar, jadvallar yoki amaliy misollar.
-       - Har bir bo'limda o'quvchiga darhol qo'llash mumkin bo'lgan maslahat.
+       - Bosqichma-bosqich amalga oshirish yo'l xaritasi (Roadmap).
+       - Taqqoslash jadvallari (masalan: Eskicha usul vs Yangi AI avtomatlashtirish).
+       - Haqiqiy amaliy keys yoki arxitektura chizmasi.
     
     4. **FAQ Bo'limi (Google Rich Snippet uchun):**
        ### ❓ Tez-tez so'raladigan savollar
