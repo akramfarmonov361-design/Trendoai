@@ -255,26 +255,21 @@ def blog():
 
 @web_bp.route('/post/<int:post_id>')
 def post(post_id):
-    """ID orqali post sahifasi - slug ga redirect"""
+    """Legacy ID orqali post sahifasi - slug ga 301 doimiy redirect"""
     p = Post.query.get_or_404(post_id)
-    if p.slug:
+    if p.slug and not p.slug.startswith('json'):
         return redirect(url_for('web.post_by_slug', slug=p.slug), code=301)
-
-    p.views = (p.views or 0) + 1
-    db.session.commit()
-
-    related_posts = Post.query.filter(
-        Post.id != p.id,
-        Post.category == p.category,
-        Post.is_published == True
-    ).order_by(Post.created_at.desc()).limit(3).all()
-
-    return render_template('post.html', post=p, related_posts=related_posts)
+    return redirect(url_for('web.blog'), code=301)
 
 
 @web_bp.route('/blog/<slug>')
 def post_by_slug(slug):
     """Slug orqali post sahifasi (SEO-friendly)"""
+    # 301 redirect for corrupted legacy json-* URLs from old crawlers
+    clean_slug = (slug or '').strip().lower()
+    if clean_slug.startswith('json') or '```' in clean_slug:
+        return redirect(url_for('web.blog'), code=301)
+
     p = Post.query.filter_by(slug=slug, is_published=True).first_or_404()
     p.views = (p.views or 0) + 1
     db.session.commit()
@@ -624,11 +619,12 @@ def sitemap_xml():
     pages = []
     static_pages = [
         ('/', '1.0', 'weekly', site_lastmod),
-        ('/portfolio', '0.8', 'weekly', site_lastmod),
-        ('/blog', '0.9', 'daily', site_lastmod),
-        ('/about', '0.7', 'monthly', '2026-01-01'),
-        ('/order', '0.8', 'monthly', '2026-01-01'),
-        ('/maxfiylik', '0.3', 'yearly', '2026-07-07'),
+        ('/portfolio', '0.9', 'weekly', site_lastmod),
+        ('/blog', '0.8', 'daily', site_lastmod),
+        ('/about', '0.8', 'monthly', '2026-08-15'),
+        ('/order', '0.9', 'monthly', '2026-08-15'),
+        ('/maxfiylik', '0.3', 'yearly', '2026-08-15'),
+        ('/terms', '0.3', 'yearly', '2026-08-15'),
     ]
     for url, priority, changefreq, lastmod in static_pages:
         pages.append({
@@ -644,14 +640,19 @@ def sitemap_xml():
             'loc': f'{SITE_URL}/services/{s.slug}',
             'priority': '0.8',
             'changefreq': 'monthly',
-            'lastmod': '2026-01-01',
+            'lastmod': '2026-08-15',
         })
 
     posts = Post.query.filter_by(is_published=True).order_by(Post.created_at.desc()).all()
     for p in posts:
+        # Exclude legacy corrupted json-* artifacts from sitemap
+        clean_slug = (p.slug or '').strip().lower()
+        if not clean_slug or clean_slug.startswith('json') or '```' in (p.title or ''):
+            continue
+
         lastmod_dt = p.updated_at or p.created_at
         page_item = {
-            'loc': f'{SITE_URL}/blog/{p.slug}' if p.slug else f'{SITE_URL}/post/{p.id}',
+            'loc': f'{SITE_URL}/blog/{p.slug}',
             'priority': '0.7',
             'changefreq': 'monthly',
             'lastmod': lastmod_dt.strftime('%Y-%m-%d') if lastmod_dt else today,

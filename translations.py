@@ -421,9 +421,9 @@ TRANSLATIONS = {
         "en": "How much does a project cost?"
     },
     "faq_a1": {
-        "uz": "Narx loyiha murakkabligiga bog'liq. Oddiy Telegram bot 300 000 so'mdan, korporativ sayt 2 000 000 so'mdan boshlanadi. Bepul konsultatsiyada aniq smeta tuzib beramiz.",
-        "ru": "Стоимость зависит от сложности. Простой бот от 300 000 сум, корпоративный сайт от 2 000 000 сум. На бесплатной консультации составим точную смету.",
-        "en": "Pricing depends on project complexity. Basic Telegram bots start from 300,000 UZS, corporate websites from 2,000,000 UZS. We provide a detailed estimate during the free consultation."
+        "uz": "Narx loyiha murakkabligiga bog'liq. Landing page 500 000 so'mdan, Telegram botlar 400 000 so'mdan, korporativ saytlar 2 000 000 so'mdan, AI avtomatlashtirish esa 1 200 000 so'mdan boshlanadi. Bepul konsultatsiyada aniq smeta hisoblab beramiz.",
+        "ru": "Стоимость зависит от сложности: Landing page от 500 000 сум, Telegram-боты от 400 000 сум, корпоративные сайты от 2 000 000 сум, AI-автоматизация от 1 200 000 сум. На бесплатной консультации составим точную смету.",
+        "en": "Pricing depends on project scope: Landing pages start from 500,000 UZS, Telegram bots from 400,000 UZS, corporate websites from 2,000,000 UZS, and AI automation from 1,200,000 UZS. We provide a detailed estimate during your free consultation."
     },
     "faq_q2": {
         "uz": "Loyiha qancha vaqtda tayyor bo'ladi?",
