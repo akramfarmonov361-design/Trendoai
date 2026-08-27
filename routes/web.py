@@ -803,6 +803,53 @@ def api_catalog_xml():
     return Response(xml, mimetype='application/xml')
 
 
+def _resolve_feed_image(image_url, title, category, item_id, site_url):
+    """Har bir xizmat yoki keys uchun unikal, chiroyli va sifatli rasmni aniqlash"""
+    if image_url and str(image_url).strip() and not any(str(image_url).endswith(x) for x in ('og-image.jpg', 'hero-social.png')):
+        img = str(image_url).strip()
+        if not img.startswith('http'):
+            return f"{site_url}{img if img.startswith('/') else '/' + img}"
+        return img
+
+    t_lower = (title or '').lower()
+    cat_lower = (category or '').lower()
+
+    if any(w in t_lower for w in ['voice', 'ovoz', 'chatbot', 'kundalik', 'trendospeak', 'nutq']):
+        return "https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=1000&auto=format&fit=crop"
+    elif any(w in t_lower for w in ['video', 'viral', 'dublyaj', 'insta-dub', 'youtube', 'klip']):
+        return "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=1000&auto=format&fit=crop"
+    elif any(w in t_lower for w in ['telegram', 'bot', 'botfactory']):
+        return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop"
+    elif any(w in t_lower for w in ['crm', 'boshqaruv', 'maktab', 'talim', 'kontakt', 'finder', 'baza']):
+        return "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop"
+    elif any(w in t_lower for w in ['restoran', 'kfc', 'fast-food', 'delivery', 'ovqat', 'taom']):
+        return "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1000&auto=format&fit=crop"
+    elif any(w in t_lower for w in ['paket', 'shop', 'dokon', 'savdo', 'market', 'e-commerce', 'store']):
+        return "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1000&auto=format&fit=crop"
+    elif any(w in t_lower for w in ['smm', 'target', 'reklama', 'marketing']):
+        return "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop"
+    elif any(w in t_lower for w in ['muloqot', 'lovebilda', 'tanishuv', 'chat', 'ijtimoiy']):
+        return "https://images.unsplash.com/photo-1516251193007-45ef944ab0c6?q=80&w=1000&auto=format&fit=crop"
+    elif any(w in t_lower for w in ['konsalting', 'consulting', 'ai']):
+        return "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1000&auto=format&fit=crop"
+    elif cat_lower == 'web' or 'sayt' in t_lower or 'portal' in t_lower:
+        return "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop"
+    else:
+        pool = [
+            "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1000&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1000&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1000&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1531403009284-440f080d1e12?q=80&w=1000&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1000&auto=format&fit=crop",
+        ]
+        try:
+            digits = ''.join(filter(str.isdigit, str(item_id)))
+            num = int(digits) if digits else 0
+            return pool[num % len(pool)]
+        except Exception:
+            return pool[0]
+
+
 @web_bp.route('/facebook-catalog.xml')
 @web_bp.route('/facebook-feed.xml')
 @web_bp.route('/api/catalog/facebook.xml')
@@ -821,7 +868,7 @@ def facebook_catalog_feed():
             title = s.get('title', 'IT Xizmat')
             desc = s.get('full_description') or s.get('description') or f"TrendoAI {title} xizmati"
             link = f"{site_url}/services/{key}"
-            img = f"{site_url}/static/img/og-image.jpg"
+            img = _resolve_feed_image(None, title, key, item_id, site_url)
             price_str = "500000 UZS"
             if key == 'telegram_bot':
                 price_str = "400000 UZS"
@@ -851,9 +898,7 @@ def facebook_catalog_feed():
             title = s.title or "IT Xizmat"
             desc = s.description or s.meta_desc or f"TrendoAI {title} xizmati"
             link = f"{site_url}/services/{s.slug}" if s.slug else f"{site_url}/services"
-            img = s.image_url or f"{site_url}/static/img/og-image.jpg"
-            if not img.startswith('http'):
-                img = f"{site_url}{img if img.startswith('/') else '/' + img}"
+            img = _resolve_feed_image(s.image_url, title, getattr(s, 'category', 'service'), item_id, site_url)
 
             price_val = (s.price or "500000 UZS").strip()
             if not any(curr in price_val.upper() for curr in ('UZS', 'USD', '$', 'SO\'M', 'SOM')):
@@ -881,9 +926,7 @@ def facebook_catalog_feed():
         title = p.title or "Portfolio Loyiha"
         desc = p.description or f"TrendoAI tomonidan yaratilgan {title} loyihasi"
         link = f"{site_url}/portfolio/project/{p.slug}" if p.slug else f"{site_url}/portfolio"
-        img = p.image_url or f"{site_url}/static/img/og-image.jpg"
-        if not img.startswith('http'):
-            img = f"{site_url}{img if img.startswith('/') else '/' + img}"
+        img = _resolve_feed_image(p.image_url, title, p.category, item_id, site_url)
 
         price_val = (p.price or "1000000 UZS").strip()
         if not any(curr in price_val.upper() for curr in ('UZS', 'USD', '$', 'SO\'M', 'SOM')):
