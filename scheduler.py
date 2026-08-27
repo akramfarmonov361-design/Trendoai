@@ -1,7 +1,9 @@
 """
 APScheduler yordamida kunlik avtomatlashtirilgan kontent generatsiyasi.
 TrendoAI uchun moslashtirilgan.
-Har soatda 06:00 dan 22:00 gacha post chiqaradi.
+
+Bitta reja mavjud: har kuni SEO_POST_HOUR:SEO_POST_MINUTE (standart 09:00,
+Asia/Tashkent) da bitta post generatsiya qilinadi va Telegramga yuboriladi.
 """
 
 import random

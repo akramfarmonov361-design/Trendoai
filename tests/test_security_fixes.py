@@ -300,3 +300,39 @@ def test_gunicorn_timeout_is_not_disabled():
     conf = runpy.run_path('gunicorn.conf.py')
     assert conf['timeout'] > 0
     assert conf['timeout'] >= 60, "AI so'rovlari uchun yetarlicha uzun bo'lsin"
+
+
+def test_indexnow_key_matches_specification():
+    """IndexNow kaliti [a-zA-Z0-9-] va 8-128 belgidan iborat bo'lishi shart"""
+    from seo_indexer import INDEXNOW_KEY_PATTERN, get_indexnow_key
+
+    key = get_indexnow_key()
+    assert INDEXNOW_KEY_PATTERN.fullmatch(key), f"kalit spetsifikatsiyaga mos emas: {key}"
+    assert '_' not in key
+
+
+def test_indexnow_key_is_served_at_its_own_path():
+    """keyLocation {host}/{key}.txt manzilida haqiqatan ham mavjud bo'lishi kerak"""
+    from seo_indexer import get_indexnow_key
+
+    key = get_indexnow_key()
+    with app.test_client() as client:
+        resp = client.get(f'/{key}.txt')
+        assert resp.status_code == 200
+        assert resp.get_data(as_text=True).strip() == key
+
+
+def test_dead_google_sitemap_ping_is_removed():
+    """google.com/ping 2024-yilda o'chirilgan — chaqiruv qolmasligi kerak.
+
+    Izohlarda eslatib o'tish mumkin, tekshiruv faqat bajariladigan kodga tegishli.
+    """
+    import inspect
+
+    import seo_indexer
+
+    code_lines = [
+        line for line in inspect.getsource(seo_indexer).splitlines()
+        if line.strip() and not line.strip().startswith('#')
+    ]
+    assert not any('google.com/ping' in line for line in code_lines)

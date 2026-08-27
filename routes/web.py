@@ -36,6 +36,7 @@ from models.order import Order
 from models.portfolio import Portfolio
 from models.post import Post
 from models.service import Service
+from seo_indexer import INDEXNOW_KEY
 from services.cache_service import cache_get, cache_set
 
 web_bp = Blueprint('web', __name__)
@@ -962,11 +963,13 @@ def facebook_catalog_feed():
     return Response(xml_content, mimetype='application/xml')
 
 
+# IndexNow kalit fayli aynan {host}/{key}.txt manzilida turishi shart, shuning
+# uchun marshrut kalitning o'zidan quriladi — aks holda keyLocation 404 bo'lardi.
 @web_bp.route('/indexnow-key.txt')
-@web_bp.route('/trendoai_indexnow_key_2026.txt')
+@web_bp.route(f'/{INDEXNOW_KEY}.txt')
+@web_bp.route('/trendoai_indexnow_key_2026.txt')  # eskirgan manzil, orqaga moslik
 def indexnow_key_file():
-    from seo_indexer import get_indexnow_key
-    return Response(get_indexnow_key(), mimetype='text/plain')
+    return Response(INDEXNOW_KEY, mimetype='text/plain')
 
 
 # Qidiruv tizimlari tasdiqlash kodlari faqat shu belgilardan iborat bo'ladi.
@@ -995,8 +998,6 @@ def yandex_verification(verification_code):
     <body>Verification: {html_escape(verification_code)}</body>
 </html>'''
     return Response(html_content, mimetype='text/html')
-
-
 
 
 @web_bp.route('/sw.js')

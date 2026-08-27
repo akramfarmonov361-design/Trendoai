@@ -84,8 +84,7 @@ AI_RETRY_DELAY = 2
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID")
 TELEGRAM_ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID")
-TELEGRAM_MAX_MESSAGE_LENGTH = 4096
-TELEGRAM_RETRY_ATTEMPTS = 3
+
 
 def _normalize_webhook_secret(raw):
     """Telegram secret_token uchun yaroqli qiymat qaytaradi.
@@ -148,8 +147,6 @@ VAPID_CLAIMS_SUB = "mailto:admin@trendoai.uz"
 TIMEZONE = "Asia/Tashkent"
 SEO_POST_HOUR = 9
 SEO_POST_MINUTE = 0
-MARKETING_POST_HOUR = 12
-MARKETING_POST_MINUTE = 0
 
 # ========== CRON SOZLAMALARI ==========
 # Tashqi cron xizmatlari uchun secret key
@@ -187,7 +184,6 @@ FB_CONVERSIONS_API_TOKEN = os.getenv("FB_CONVERSIONS_API_TOKEN")
 # Meta ilova siri — lead webhook imzosini (X-Hub-Signature-256) tekshirish uchun.
 # Berilmasa, webhook imzosiz qabul qilinadi (eski xulq) va ogohlantirish chiqadi.
 FB_APP_SECRET = os.getenv("FB_APP_SECRET")
-
 
 # ========== PAGINATION ==========
 POSTS_PER_PAGE = 10
