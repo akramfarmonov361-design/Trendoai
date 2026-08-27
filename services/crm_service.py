@@ -44,6 +44,15 @@ def capture_lead_from_message(message_text, source="AI Chat Vidjet", default_nam
             f"⏰ <b>Vaqt:</b> {time_str}"
         )
         send_admin_alert(alert_text)
+        try:
+            from services.meta_capi import track_meta_event
+            track_meta_event(
+                event_name="Lead",
+                user_data={"phone": contact},
+                custom_data={"source": source, "currency": "UZS", "value": 300000}
+            )
+        except Exception:
+            pass
         print(f"[crm] Lead muvaffaqiyatli saqlandi va adminga yuborildi: {contact}")
         return new_lead
     except Exception as exc:

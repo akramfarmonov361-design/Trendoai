@@ -575,6 +575,17 @@ def submit_order():
     except Exception as e:
         print(f"Telegram yuborishda xato: {e}")
 
+    try:
+        from services.meta_capi import track_meta_event
+        track_meta_event(
+            event_name="Lead",
+            user_data={"name": name, "phone": phone},
+            custom_data={"service_name": service_name, "currency": "UZS", "value": 500000},
+            event_source_url=request.referrer or f"{SITE_URL}/order"
+        )
+    except Exception as e:
+        current_app.logger.warning("Meta CAPI Lead event error: %s", e)
+
     flash(f'Rahmat, {name}! Arizangiz qabul qilindi. Tez orada siz bilan boglanamiz!', 'success')
     return redirect(url_for('web.index'), code=303)
 
@@ -792,6 +803,8 @@ def api_catalog_xml():
     return Response(xml, mimetype='application/xml')
 
 
+@web_bp.route('/facebook-catalog.xml')
+@web_bp.route('/facebook-feed.xml')
 @web_bp.route('/api/catalog/facebook.xml')
 @web_bp.route('/feed/facebook-catalog.xml')
 def facebook_catalog_feed():
