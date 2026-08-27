@@ -209,17 +209,17 @@ def create_app(config_overrides=None):
         print(f"Server Error (500): {e}")
         return render_template('errors/500.html'), 500
 
-    # Template Filtrlari
+    # Template Filtrlari (XSS himoyasi bilan: safe_mode='escape')
     @application.template_filter('markdown')
     def markdown_filter(s):
-        return markdown2.markdown(s or '', extras=["fenced-code-blocks", "tables", "break-on-newline"])
+        return markdown2.markdown(s or '', extras=["fenced-code-blocks", "tables", "break-on-newline"], safe_mode="escape")
 
     leading_h1_pattern = re.compile(r"^\s*#\s+[^\n]+\n+")
 
     @application.template_filter('markdown_body')
     def markdown_body_filter(s):
         cleaned = leading_h1_pattern.sub("", s or "", count=1)
-        return markdown2.markdown(cleaned, extras=["fenced-code-blocks", "tables", "break-on-newline"])
+        return markdown2.markdown(cleaned, extras=["fenced-code-blocks", "tables", "break-on-newline"], safe_mode="escape")
 
     # Global Context Processor & Multilingual Support
     @application.context_processor

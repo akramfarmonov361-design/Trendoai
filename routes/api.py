@@ -42,6 +42,30 @@ api_bp = Blueprint('api', __name__)
 
 TELEGRAM_WEBHOOK_SECRET = CRON_SECRET[:256] if CRON_SECRET else 'trendoai_super_secret_123'
 
+_rate_limits = {}
+_rate_lock = threading.Lock()
+
+
+def _client_ip():
+    forwarded = request.headers.get('X-Forwarded-For', '')
+    if forwarded:
+        return forwarded.split(',')[0].strip()
+    return request.remote_addr or 'unknown'
+
+
+def _check_rate_limit(key, limit=30, window_seconds=60):
+    """Xavfsiz va samarali IP-asosidagi rate limiter"""
+    now = time.time()
+    with _rate_lock:
+        timestamps = _rate_limits.get(key, [])
+        timestamps = [t for t in timestamps if now - t < window_seconds]
+        if len(timestamps) >= limit:
+            _rate_limits[key] = timestamps
+            return False
+        timestamps.append(now)
+        _rate_limits[key] = timestamps
+        return True
+
 
 def _cron_secret_error():
     return jsonify({'error': 'Unauthorized', 'message': 'Invalid secret key'}), 401
@@ -174,6 +198,10 @@ def submit_lead():
 @api_bp.route('/api/chat', methods=['POST'])
 def api_chat():
     """AI chatbot yordamchisi API"""
+    client_ip = _client_ip()
+    if not _check_rate_limit(f"chat:{client_ip}", limit=30, window_seconds=60):
+        return jsonify({'error': "Juda ko'p so'rov yuborildi. Iltimos, 1 daqiqadan so'ng qayta urinib ko'ring."}), 429
+
     data = request.get_json(silent=True) or {}
     messages = data.get('messages') or []
     raw_message = (data.get('message') or '').strip()
@@ -199,6 +227,9 @@ def api_chat():
     if not last_user_msg:
         fallback = 'Savolingizni qaytadan yozib yuboring.'
         return jsonify({'success': False, 'reply': fallback, 'response': fallback}), 400
+
+    if len(last_user_msg) > 4000:
+        return jsonify({'error': 'Xabar matni juda uzun (maksimal 4000 ta belgi)'}), 400
 
     api_key = current_app.config.get('GEMINI_API_KEY') or GEMINI_API_KEY
     if not api_key:
@@ -266,6 +297,10 @@ SIZNING VAZIFANGIZ VA SOTUV STRATEGIYANGIZ (SALES QUALIFICATION):
 @api_bp.route('/api/chat/audio', methods=['POST'])
 def api_chat_audio():
     """AI Chatbot audio endpoint - Gemini Live bilan."""
+    client_ip = _client_ip()
+    if not _check_rate_limit(f"audio:{client_ip}", limit=15, window_seconds=60):
+        return jsonify({'error': "Juda ko'p audio so'rovi yuborildi. Iltimos, birozdan so'ng qayta urinib ko'ring."}), 429
+
     try:
         data = request.get_json(silent=True) or {}
         audio_base64 = data.get('audio', '')
@@ -273,6 +308,10 @@ def api_chat_audio():
 
         if not audio_base64:
             return jsonify({'error': 'Audio topilmadi'}), 400
+
+        # Maksimal 5MB base64 payload cheklovi
+        if len(audio_base64) > 5 * 1024 * 1024:
+            return jsonify({'error': 'Audio fayl hajmi juda katta (maksimal 5MB)'}), 400
 
         if not get_gemini_api_key_candidates():
             return jsonify({
@@ -495,7 +534,7 @@ def telegram_webhook():
         import telebot
 
         secret_token = request.headers.get('X-Telegram-Bot-Api-Secret-Token')
-        if secret_token and secret_token != TELEGRAM_WEBHOOK_SECRET:
+        if not secret_token or secret_token != TELEGRAM_WEBHOOK_SECRET:
             return 'Unauthorized', 403
 
         if bot and request.headers.get('content-type') == 'application/json':

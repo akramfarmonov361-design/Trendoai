@@ -946,7 +946,8 @@ def seed_menu():
         return f"Xatolik: {e}"
 
 
-@admin_bp.route('/admin/seed-blog')
+@admin_bp.route('/admin/seed-blog', methods=['GET', 'POST'])
+@login_required
 def seed_blog():
     """SEO maqolalarni bazaga qo'shish"""
     try:
@@ -999,7 +1000,8 @@ Google'da qidiruv qiluvchi har bir inson — bu sizning potensial mijozingiz.
         return f"Xatolik: {e}"
 
 
-@admin_bp.route('/admin/seed-portfolio')
+@admin_bp.route('/admin/seed-portfolio', methods=['GET', 'POST'])
+@login_required
 def seed_portfolio():
     """Demo portfoliolarni bazaga qo'shish va Case Studylarni boyitish"""
     try:
@@ -1154,7 +1156,8 @@ def seed_portfolio():
         return f"Xatolik: {e}"
 
 
-@admin_bp.route('/admin/seed-services')
+@admin_bp.route('/admin/seed-services', methods=['GET', 'POST'])
+@login_required
 def seed_services():
     """Xizmatlarni SERVICES_DATA dan bazaga qo'shish"""
     try:
