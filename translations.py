@@ -21,9 +21,9 @@ TRANSLATIONS = {
         "en": "Calculator"
     },
     "nav_portfolio": {
-        "uz": "Portfolio",
-        "ru": "Портфолио",
-        "en": "Portfolio"
+        "uz": "Bizning ishlar",
+        "ru": "Наши работы",
+        "en": "Our Work"
     },
     "nav_blog": {
         "uz": "Blog",

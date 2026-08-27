@@ -184,7 +184,7 @@
                 <a href="{{ url_for('blog') }}" class="{% if request.endpoint in ['web.blog', 'web.post', 'web.post_by_slug', 'web.search', 'blog', 'post', 'post_by_slug', 'search'] %}active{% endif %}">📝
                     {{ t('nav_blog', 'Blog') }}</a>
                 <a href="{{ url_for('portfolio') }}"
-                    class="{% if request.endpoint in ['web.portfolio', 'web.portfolio_item', 'portfolio', 'portfolio_item'] %}active{% endif %}">🎨 {{ t('nav_portfolio', 'Portfolio') }}</a>
+                    class="{% if request.endpoint in ['web.portfolio', 'web.portfolio_item', 'portfolio', 'portfolio_item'] %}active{% endif %}">💼 {{ t('nav_portfolio', 'Bizning ishlar') }}</a>
                 <a href="{{ url_for('about') }}" class="{% if request.endpoint in ['web.about', 'about'] %}active{% endif %}">ℹ️ {{ t('nav_about', 'Biz haqimizda') }}</a>
                 <a href="{{ url_for('order_page') }}" class="nav-order-cta {% if request.endpoint in ['web.order_page', 'order_page'] %}active{% endif %}">{{ t('nav_order', 'Buyurtma berish') }}</a>
             </nav>
