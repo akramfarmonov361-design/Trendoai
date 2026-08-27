@@ -6,9 +6,9 @@ from config import FB_CONVERSIONS_API_TOKEN
 from routes.api import TELEGRAM_WEBHOOK_SECRET
 
 def test_admin_seed_endpoints_require_login():
-    """Admin seed endpointlari faqat POST qabul qilishi va autentifikatsiya talab qilishini tekshirish"""
+    """Admin seed va webhook endpointlari faqat POST qabul qilishi va autentifikatsiya talab qilishini tekshirish"""
     with app.test_client() as client:
-        for endpoint in ['/admin/seed-blog', '/admin/seed-portfolio', '/admin/seed-services']:
+        for endpoint in ['/admin/seed-blog', '/admin/seed-portfolio', '/admin/seed-services', '/admin/fix-webhook', '/admin/seed-menu']:
             # GET so'rovi 405 Method Not Allowed qaytarishi kerak
             resp_get = client.get(endpoint)
             assert resp_get.status_code == 405

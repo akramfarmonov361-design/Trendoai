@@ -904,27 +904,29 @@ def admin_migrate_db():
     return redirect(url_for('admin.admin_dashboard'))
 
 
-@admin_bp.route('/admin/fix-webhook')
+@admin_bp.route('/admin/fix-webhook', methods=['POST'])
 @login_required
 def admin_fix_webhook():
-    """Manual webhook setup via browser"""
+    """Manual webhook setup via browser (Faqat POST)"""
     from bot_service import bot
     webhook_url = f"{SITE_URL}/webhook"
     try:
         if bot:
+            from config import CRON_SECRET
+            secret_token = (CRON_SECRET or 'trendoai_super_secret_123')[:256]
             bot.remove_webhook()
-            time.sleep(1)
-            bot.set_webhook(url=webhook_url)
-            return f"✅ Webhook muvaffaqiyatli o'rnatildi: {webhook_url}.", 200
+            time.sleep(0.5)
+            bot.set_webhook(url=webhook_url, secret_token=secret_token)
+            return f"✅ Webhook muvaffaqiyatli o'rnatildi (secret_token bilan): {webhook_url}.", 200
         return "❌ Bot sozlanmagan", 400
     except Exception as e:
         return f"❌ Xatolik: {e}", 500
 
 
-@admin_bp.route('/admin/seed-menu')
+@admin_bp.route('/admin/seed-menu', methods=['POST'])
 @login_required
 def seed_menu():
-    """Menyuni tozalab haqiqiy xizmatlarni qo'shish"""
+    """Menyuni tozalab haqiqiy xizmatlarni qo'shish (Faqat POST)"""
     try:
         MenuItem.query.delete()
         MenuCategory.query.delete()
