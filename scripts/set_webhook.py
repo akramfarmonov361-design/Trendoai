@@ -27,9 +27,11 @@ def set_webhook_manual():
         bot.remove_webhook()
         time.sleep(1)
         
-        # Set new webhook
-        print(f"2️⃣ Setting new webhook to: {webhook_url}")
-        bot.set_webhook(url=webhook_url)
+        # Set new webhook with secret token
+        from config import CRON_SECRET
+        secret_token = (CRON_SECRET or 'trendoai_super_secret_123')[:256]
+        print(f"2️⃣ Setting new webhook to: {webhook_url} (with secure secret token)")
+        bot.set_webhook(url=webhook_url, secret_token=secret_token)
         
         # Verify
         print("3️⃣ Verifying webhook info...")

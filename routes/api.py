@@ -47,9 +47,14 @@ _rate_lock = threading.Lock()
 
 
 def _client_ip():
+    cf_ip = request.headers.get('CF-Connecting-IP')
+    if cf_ip and cf_ip.strip():
+        return cf_ip.strip()
     forwarded = request.headers.get('X-Forwarded-For', '')
     if forwarded:
-        return forwarded.split(',')[0].strip()
+        parts = [p.strip() for p in forwarded.split(',') if p.strip()]
+        if parts:
+            return parts[0]
     return request.remote_addr or 'unknown'
 
 

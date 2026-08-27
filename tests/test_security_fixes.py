@@ -6,13 +6,20 @@ from config import FB_CONVERSIONS_API_TOKEN
 from routes.api import TELEGRAM_WEBHOOK_SECRET
 
 def test_admin_seed_endpoints_require_login():
-    """Admin seed endpointlariga autentifikatsiyasiz kirish taqiqlanganini tekshirish"""
+    """Admin seed endpointlari faqat POST qabul qilishi va autentifikatsiya talab qilishini tekshirish"""
     with app.test_client() as client:
         for endpoint in ['/admin/seed-blog', '/admin/seed-portfolio', '/admin/seed-services']:
-            resp = client.get(endpoint)
-            # Login sahifasiga redirect (302) bo'lishi kerak
-            assert resp.status_code == 302
-            assert '/admin/login' in resp.headers.get('Location', '')
+            # GET so'rovi 405 Method Not Allowed qaytarishi kerak
+            resp_get = client.get(endpoint)
+            assert resp_get.status_code == 405
+
+            # Unauthenticated POST so'rovi 302 redirect bo'lishi va bajarilmasligi kerak
+            resp_post = client.post(endpoint)
+            assert resp_post.status_code == 302
+
+def test_max_content_length_configured():
+    """Flask MAX_CONTENT_LENGTH xavfsizlik cheklovi borligini tekshirish"""
+    assert app.config.get('MAX_CONTENT_LENGTH') == 16 * 1024 * 1024
 
 def test_telegram_webhook_strictly_enforces_secret():
     """Telegram webhook secret token bo'lmasa 403 qaytarishini tekshirish"""

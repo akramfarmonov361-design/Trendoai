@@ -108,6 +108,7 @@ def create_app(config_overrides=None):
     application.config['SESSION_COOKIE_HTTPONLY'] = True
     application.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     application.config['SESSION_COOKIE_SECURE'] = not DEBUG
+    application.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max payload limit
 
     application.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         'pool_pre_ping': True,
@@ -203,6 +204,12 @@ def create_app(config_overrides=None):
     @application.errorhandler(404)
     def not_found(e):
         return render_template('errors/404.html'), 404
+
+    @application.errorhandler(413)
+    def request_entity_too_large(e):
+        if request.is_json or request.path.startswith('/api/'):
+            return jsonify({'error': "So'rov hajmi juda katta (maksimal 16MB)"}), 413
+        return "So'rov hajmi juda katta (maksimal 16MB)", 413
 
     @application.errorhandler(500)
     def server_error(e):

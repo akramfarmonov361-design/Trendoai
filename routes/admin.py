@@ -43,9 +43,14 @@ _failed_logins = {}
 
 
 def _client_ip():
+    cf_ip = request.headers.get('CF-Connecting-IP')
+    if cf_ip and cf_ip.strip():
+        return cf_ip.strip()
     forwarded = request.headers.get('X-Forwarded-For', '')
     if forwarded:
-        return forwarded.split(',')[0].strip()
+        parts = [p.strip() for p in forwarded.split(',') if p.strip()]
+        if parts:
+            return parts[0]
     return request.remote_addr or 'unknown'
 
 
@@ -946,10 +951,10 @@ def seed_menu():
         return f"Xatolik: {e}"
 
 
-@admin_bp.route('/admin/seed-blog', methods=['GET', 'POST'])
+@admin_bp.route('/admin/seed-blog', methods=['POST'])
 @login_required
 def seed_blog():
-    """SEO maqolalarni bazaga qo'shish"""
+    """SEO maqolalarni bazaga qo'shish (Faqat POST)"""
     try:
         from app import Post  # or from models import Post
         articles = [
@@ -1000,10 +1005,10 @@ Google'da qidiruv qiluvchi har bir inson — bu sizning potensial mijozingiz.
         return f"Xatolik: {e}"
 
 
-@admin_bp.route('/admin/seed-portfolio', methods=['GET', 'POST'])
+@admin_bp.route('/admin/seed-portfolio', methods=['POST'])
 @login_required
 def seed_portfolio():
-    """Demo portfoliolarni bazaga qo'shish va Case Studylarni boyitish"""
+    """Demo portfoliolarni bazaga qo'shish va Case Studylarni boyitish (Faqat POST)"""
     try:
         items = [
             {
@@ -1156,10 +1161,10 @@ def seed_portfolio():
         return f"Xatolik: {e}"
 
 
-@admin_bp.route('/admin/seed-services', methods=['GET', 'POST'])
+@admin_bp.route('/admin/seed-services', methods=['POST'])
 @login_required
 def seed_services():
-    """Xizmatlarni SERVICES_DATA dan bazaga qo'shish"""
+    """Xizmatlarni SERVICES_DATA dan bazaga qo'shish (Faqat POST)"""
     try:
         import json
         created_count = 0
