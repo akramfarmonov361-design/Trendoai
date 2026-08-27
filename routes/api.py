@@ -707,3 +707,72 @@ def cron_test_ai():
     result['telegram_token_exists'] = bool(TELEGRAM_BOT_TOKEN)
     result['telegram_channel_exists'] = bool(TELEGRAM_CHANNEL_ID)
     return jsonify(result)
+
+
+@api_bp.route('/api/webhook/facebook-leads', methods=['GET', 'POST'])
+def facebook_lead_webhook():
+    """
+    Meta Instant Lead Forms Webhook.
+    Instagram / Facebook ichida to'ldirilgan arizalarni qabul qilib,
+    avtomatik bazaga (Order) saqlaydi va Telegramga tezkor xabar beradi.
+    """
+    if request.method == 'GET':
+        mode = request.args.get('hub.mode')
+        token = request.args.get('hub.verify_token')
+        challenge = request.args.get('hub.challenge')
+
+        expected_token = os.getenv('FB_LEAD_VERIFY_TOKEN', 'trendoai_lead_secret_2026')
+        if mode == 'subscribe' and token == expected_token:
+            return challenge or 'OK', 200
+        return jsonify({'error': 'Invalid verification token'}), 403
+
+    data = request.get_json(silent=True) or {}
+    try:
+        from config import FB_CONVERSIONS_API_TOKEN
+        import requests
+        from telegram_poster import send_admin_alert
+
+        entries = data.get('entry', [])
+        for entry in entries:
+            changes = entry.get('changes', [])
+            for change in changes:
+                if change.get('field') == 'leadgen':
+                    leadgen_id = change.get('value', {}).get('leadgen_id')
+                    form_id = change.get('value', {}).get('form_id')
+
+                    if leadgen_id and FB_CONVERSIONS_API_TOKEN:
+                        url = f"https://graph.facebook.com/v19.0/{leadgen_id}?access_token={FB_CONVERSIONS_API_TOKEN}"
+                        resp = requests.get(url, timeout=5)
+                        if resp.status_code == 200:
+                            lead_data = resp.json()
+                            field_data = {f.get('name'): f.get('values', [''])[0] for f in lead_data.get('field_data', [])}
+
+                            full_name = field_data.get('full_name') or field_data.get('name') or 'Instagram Mijoz'
+                            phone = field_data.get('phone_number') or field_data.get('phone') or 'Kiritilmagan'
+                            service_choice = field_data.get('service') or field_data.get('xizmat') or 'Meta Instant Form'
+
+                            order = Order(
+                                name=full_name,
+                                phone=phone,
+                                service='meta_lead_form',
+                                service_name=service_choice,
+                                message=f"Instagram Instant Form #{form_id} orqali keldi",
+                                status='new'
+                            )
+                            db.session.add(order)
+                            db.session.commit()
+
+                            time_str = datetime.now().strftime('%d.%m.%Y %H:%M')
+                            alert_msg = f"""🔥 <b>YANGI INSTAGRAM INSTANT FORM ARIZASI!</b>
+
+👤 <b>Mijoz:</b> {full_name}
+📞 <b>Telefon:</b> {phone}
+🛠 <b>Xizmat:</b> {service_choice}
+📱 <b>Manba:</b> Instagram Lead Form #{form_id}
+⏰ <b>Vaqt:</b> {time_str}
+"""
+                            send_admin_alert(alert_msg)
+    except Exception as exc:
+        current_app.logger.warning("Facebook Lead Webhook error: %s", exc)
+
+    return jsonify({'status': 'received'}), 200

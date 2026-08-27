@@ -33,3 +33,20 @@ def test_facebook_feed_alias():
         response = client.get('/facebook-feed.xml')
         assert response.status_code == 200
         assert 'xml' in response.mimetype
+
+def test_facebook_lead_webhook_get():
+    with app.test_client() as client:
+        # Valid challenge
+        resp = client.get('/api/webhook/facebook-leads?hub.mode=subscribe&hub.verify_token=trendoai_lead_secret_2026&hub.challenge=test_challenge_123')
+        assert resp.status_code == 200
+        assert resp.get_data(as_text=True) == 'test_challenge_123'
+
+        # Invalid token
+        resp_bad = client.get('/api/webhook/facebook-leads?hub.mode=subscribe&hub.verify_token=wrong_token')
+        assert resp_bad.status_code == 403
+
+def test_facebook_lead_webhook_post_empty():
+    with app.test_client() as client:
+        resp = client.post('/api/webhook/facebook-leads', json={})
+        assert resp.status_code == 200
+        assert resp.json.get('status') == 'received'

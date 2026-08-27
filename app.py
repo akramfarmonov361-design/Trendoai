@@ -144,6 +144,7 @@ def create_app(config_overrides=None):
         'api_chat_audio',
         'push_subscribe',
         'submit_lead',
+        'facebook_lead_webhook',
         'api.telegram_webhook',
         'api.api_health',
         'api.api_posts',
@@ -159,6 +160,7 @@ def create_app(config_overrides=None):
         'api.api_chat_audio',
         'api.push_subscribe',
         'api.submit_lead',
+        'api.facebook_lead_webhook',
     }
 
     @application.before_request
