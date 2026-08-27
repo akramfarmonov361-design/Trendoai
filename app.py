@@ -326,6 +326,7 @@ def init_database():
             ensure_text_column("portfolio", "solution")
             ensure_text_column("portfolio", "result")
             ensure_varchar_column("portfolio", "demo_url")
+            ensure_varchar_column("portfolio", "video_url")
             ensure_text_column("portfolio", "gallery_images")
             ensure_varchar_column("service", "price")
             ensure_text_column("post", "image_prompt")

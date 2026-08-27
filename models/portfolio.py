@@ -32,6 +32,7 @@ class Portfolio(db.Model):
     solution = db.Column(db.Text, nullable=True)
     result = db.Column(db.Text, nullable=True)
     demo_url = db.Column(db.String(500), nullable=True)
+    video_url = db.Column(db.String(500), nullable=True)
     gallery_images = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
@@ -42,6 +43,26 @@ class Portfolio(db.Model):
             return self.price or ''
         except Exception:
             return ''
+
+    @property
+    def embed_video_url(self):
+        """YouTube yoki video havolalarni to'g'ri embed iframe formatiga o'tkazish"""
+        if not self.video_url:
+            return None
+        url = str(self.video_url).strip()
+        if 'youtube.com/watch' in url:
+            match = re.search(r'[?&]v=([a-zA-Z0-9_-]+)', url)
+            if match:
+                return f"https://www.youtube.com/embed/{match.group(1)}"
+        elif 'youtu.be/' in url:
+            match = re.search(r'youtu\.be/([a-zA-Z0-9_-]+)', url)
+            if match:
+                return f"https://www.youtube.com/embed/{match.group(1)}"
+        elif 'youtube.com/shorts/' in url:
+            match = re.search(r'shorts/([a-zA-Z0-9_-]+)', url)
+            if match:
+                return f"https://www.youtube.com/embed/{match.group(1)}"
+        return url
 
     def __repr__(self):
         return f'<Portfolio {self.title}>'

@@ -617,6 +617,7 @@ def admin_portfolio_new():
             solution=request.form.get('solution'),
             result=request.form.get('result'),
             demo_url=request.form.get('demo_url'),
+            video_url=request.form.get('video_url'),
             gallery_images=request.form.get('gallery_images')
         )
         db.session.add(portfolio)
@@ -676,6 +677,7 @@ def admin_portfolio_edit(portfolio_id):
         portfolio.solution = request.form.get('solution')
         portfolio.result = request.form.get('result')
         portfolio.demo_url = request.form.get('demo_url')
+        portfolio.video_url = request.form.get('video_url')
         portfolio.gallery_images = request.form.get('gallery_images')
 
         if not portfolio.slug:

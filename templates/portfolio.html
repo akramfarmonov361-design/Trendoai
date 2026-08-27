@@ -110,6 +110,9 @@
         {% if item.is_featured %}
         <div class="card-badge">⭐ Featured</div>
         {% endif %}
+        {% if item.video_url %}
+        <div class="card-video-badge" style="position: absolute; top: 12px; left: 12px; background: rgba(239, 68, 68, 0.9); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; z-index: 2; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">▶ Video</div>
+        {% endif %}
         <div class="card-image">
             <span class="card-emoji">{{ item.emoji }}</span>
             <div class="card-overlay">
