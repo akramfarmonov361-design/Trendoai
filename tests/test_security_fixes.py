@@ -154,3 +154,88 @@ def _assert_kanban_csrf_flow(lead_id):
         ).status_code == 200
 
 
+def test_lead_endpoint_is_rate_limited(monkeypatch):
+    """/api/lead cheklovsiz bo'lsa spam bilan baza va Telegram to'ldirilardi"""
+    monkeypatch.setattr(rate_limit_service, 'get_redis_client', lambda: None)
+    rate_limit_service._FALLBACK_REQUESTS.clear()
+    monkeypatch.setattr('routes.api.is_duplicate_contact', lambda contact: False)
+    monkeypatch.setattr('telegram_poster.send_admin_alert', lambda *a, **k: None)
+
+    with app.app_context():
+        db.create_all()
+
+    statuses = []
+    with app.test_client() as client:
+        for i in range(7):
+            resp = client.post('/api/lead', json={'contact': f'@spam{i}', 'name': 'Spam'})
+            statuses.append(resp.status_code)
+
+    assert 429 in statuses, f"rate limit ishlamadi: {statuses}"
+    assert statuses.count(429) >= 2
+
+    with app.app_context():
+        db.session.query(Lead).filter(Lead.contact.like('@spam%')).delete(synchronize_session=False)
+        db.session.commit()
+
+
+def test_email_address_does_not_create_a_fake_lead():
+    """'ali@gmail.com' ichidagi '@gmail' kontakt deb qabul qilinmasligi kerak"""
+    from services.crm_service import extract_contact
+
+    assert extract_contact('mening pochtam ali@gmail.com') is None
+    assert extract_contact('telegram: @akramfarmonov') == '@akramfarmonov'
+    assert extract_contact('+998 90 123 45 67') == '+998 90 123 45 67'
+
+
+def test_duplicate_contact_is_detected():
+    """Bir xil kontakt qayta yozilmasligi kerak (baza/Telegram spamining oldini olish)"""
+    from services.crm_service import is_duplicate_contact
+
+    with app.app_context():
+        db.create_all()
+        lead = Lead(name='Dup Test', contact='+998901112233', source='pytest')
+        db.session.add(lead)
+        db.session.commit()
+        lead_id = lead.id
+        try:
+            assert is_duplicate_contact('+998901112233')
+            # Formatlash farqi dublikatni yashirmasligi kerak
+            assert is_duplicate_contact('+998 (90) 111-22-33')
+            assert not is_duplicate_contact('+998907776655')
+        finally:
+            db.session.query(Lead).filter_by(id=lead_id).delete()
+            db.session.commit()
+
+
+def test_telegram_webhook_secret_is_telegram_safe():
+    """Telegram secret_token faqat A-Z a-z 0-9 _ - belgilaridan iborat bo'lishi kerak"""
+    assert TELEGRAM_WEBHOOK_SECRET
+    assert re.fullmatch(r'[A-Za-z0-9_-]{1,256}', TELEGRAM_WEBHOOK_SECRET)
+
+
+def test_facebook_lead_webhook_verifies_hmac_signature(monkeypatch):
+    """FB_APP_SECRET berilganda imzosiz/soxta so'rovlar rad etilishi kerak"""
+    import hashlib
+    import hmac as _hmac
+    import config
+
+    monkeypatch.setattr(config, 'FB_APP_SECRET', 'test_app_secret')
+    body = b'{"entry": []}'
+
+    with app.test_client() as client:
+        no_sig = client.post('/api/webhook/facebook-leads', data=body,
+                             content_type='application/json')
+        assert no_sig.status_code == 403
+
+        bad_sig = client.post('/api/webhook/facebook-leads', data=body,
+                              content_type='application/json',
+                              headers={'X-Hub-Signature-256': 'sha256=deadbeef'})
+        assert bad_sig.status_code == 403
+
+        good = _hmac.new(b'test_app_secret', body, hashlib.sha256).hexdigest()
+        ok_sig = client.post('/api/webhook/facebook-leads', data=body,
+                             content_type='application/json',
+                             headers={'X-Hub-Signature-256': f'sha256={good}'})
+        assert ok_sig.status_code == 200
+
+

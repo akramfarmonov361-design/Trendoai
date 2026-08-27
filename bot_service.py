@@ -489,10 +489,9 @@ def setup_webhook(app):
             bot.remove_webhook()
             time.sleep(0.5)
             
-            from config import CRON_SECRET
-            secret = (CRON_SECRET or 'trendoai_super_secret_123')[:256]
-            
-            bot.set_webhook(url=webhook_url, secret_token=secret)
+            from config import TELEGRAM_WEBHOOK_SECRET
+
+            bot.set_webhook(url=webhook_url, secret_token=TELEGRAM_WEBHOOK_SECRET)
             print(f"✅ Webhook o'rnatildi: {webhook_url}")
         except Exception as e:
             print(f"⚠️ Webhook error: {e}")

@@ -87,6 +87,25 @@ TELEGRAM_ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID")
 TELEGRAM_MAX_MESSAGE_LENGTH = 4096
 TELEGRAM_RETRY_ATTEMPTS = 3
 
+def _normalize_webhook_secret(raw):
+    """Telegram secret_token uchun yaroqli qiymat qaytaradi.
+
+    Telegram faqat A-Z, a-z, 0-9, _ va - belgilariga (1-256) ruxsat beradi.
+    Boshqa belgi bo'lsa set_webhook xato beradi, shuning uchun bunday qiymat
+    barqaror sha256 hex ko'rinishiga o'giriladi.
+    """
+    import hashlib
+    import re as _re
+
+    value = (raw or "").strip()
+    if not value:
+        return ""
+    if _re.fullmatch(r"[A-Za-z0-9_-]{1,256}", value):
+        return value
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+TELEGRAM_MAX_MESSAGE_LENGTH = 4096
+TELEGRAM_RETRY_ATTEMPTS = 3
+
 # ========== ADMIN SOZLAMALARI ==========
 DEFAULT_ADMIN_USERNAME = "admin"
 DEFAULT_ADMIN_PASSWORD = "trendoai2025"
@@ -126,6 +145,21 @@ CRON_SECRET = _require_production_secret(
     DEFAULT_CRON_SECRET,
 )
 
+# ========== TELEGRAM WEBHOOK SIRI ==========
+# Cron endpointlari va Telegram webhook ikki xil ishonch chegarasi — bitta sir
+# ikkalasini himoya qilmasligi kerak. TELEGRAM_WEBHOOK_SECRET berilmasa,
+# deploy buzilmasligi uchun CRON_SECRET ga qaytiladi va ogohlantirish yoziladi.
+_RAW_TELEGRAM_WEBHOOK_SECRET = os.getenv("TELEGRAM_WEBHOOK_SECRET")
+if not _RAW_TELEGRAM_WEBHOOK_SECRET:
+    if not DEBUG:
+        print(
+            "OGOHLANTIRISH: TELEGRAM_WEBHOOK_SECRET berilmagan, CRON_SECRET ishlatilmoqda. "
+            "Ikkala sirni ajratish uchun Render'da alohida qiymat qo'ying."
+        )
+    _RAW_TELEGRAM_WEBHOOK_SECRET = CRON_SECRET
+
+TELEGRAM_WEBHOOK_SECRET = _normalize_webhook_secret(_RAW_TELEGRAM_WEBHOOK_SECRET)
+
 # ========== ANALYTICS & REMARKETING ==========
 # Google Analytics 4 (G-XXXXXXXXXX formatida)
 GA4_ID = os.getenv("GA4_ID")
@@ -135,6 +169,10 @@ GOOGLE_ADS_ID = os.getenv("GOOGLE_ADS_ID")
 FACEBOOK_PIXEL_ID = os.getenv("FACEBOOK_PIXEL_ID", "1192818429057379")
 # Meta Conversions API Access Token (Faqat xavfsiz muhit o'zgaruvchisi orqali)
 FB_CONVERSIONS_API_TOKEN = os.getenv("FB_CONVERSIONS_API_TOKEN")
+# Meta ilova siri — lead webhook imzosini (X-Hub-Signature-256) tekshirish uchun.
+# Berilmasa, webhook imzosiz qabul qilinadi (eski xulq) va ogohlantirish chiqadi.
+FB_APP_SECRET = os.getenv("FB_APP_SECRET")
+
 
 # ========== PAGINATION ==========
 POSTS_PER_PAGE = 10

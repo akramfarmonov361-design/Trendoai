@@ -141,6 +141,15 @@ def _save_uploaded_image(file_storage, folder='portfolio'):
             "S3_BUCKET / S3_ACCESS_KEY_ID / S3_SECRET_ACCESS_KEY ni bering."
         )
 
+    # Render'da konteyner diski efemer: bu yo'lga tushgan rasmlar keyingi
+    # deploy yoki restartda yo'qoladi. Sabab ko'rinib turishi uchun log qoldiramiz.
+    if not (s3_bucket and s3_access_key and s3_secret_key):
+        print(
+            "[upload] OGOHLANTIRISH: S3/R2 sozlanmagan, rasm lokal diskka saqlanmoqda. "
+            "Render'da bu fayl keyingi deploy'da yo'qoladi. "
+            "S3_BUCKET / S3_ACCESS_KEY_ID / S3_SECRET_ACCESS_KEY ni bering."
+        )
+
     upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', folder)
     os.makedirs(upload_dir, exist_ok=True)
     file_path = os.path.join(upload_dir, file_name)
@@ -914,11 +923,10 @@ def admin_fix_webhook():
     webhook_url = f"{SITE_URL}/webhook"
     try:
         if bot:
-            from config import CRON_SECRET
-            secret_token = (CRON_SECRET or 'trendoai_super_secret_123')[:256]
+            from config import TELEGRAM_WEBHOOK_SECRET
             bot.remove_webhook()
             time.sleep(0.5)
-            bot.set_webhook(url=webhook_url, secret_token=secret_token)
+            bot.set_webhook(url=webhook_url, secret_token=TELEGRAM_WEBHOOK_SECRET)
             return f"✅ Webhook muvaffaqiyatli o'rnatildi (secret_token bilan): {webhook_url}.", 200
         return "❌ Bot sozlanmagan", 400
     except Exception as e:
