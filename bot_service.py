@@ -1,6 +1,7 @@
 import telebot
 import json
 import re
+import threading
 from datetime import datetime
 import time
 from flask import Blueprint
@@ -23,15 +24,53 @@ bot_blueprint = Blueprint('bot', __name__)
 user_states = {}
 # Structure: { user_id: {'state': 'idle', 'selected_item': None, 'data': {}, 'last_time': 0} }
 
+# Bu lug'at hech qachon tozalanmasdi: har bir yangi Telegram foydalanuvchisi
+# uchun yozuv qo'shilib, jarayon xotirasi cheksiz o'sardi.
+USER_STATE_TTL_SECONDS = 6 * 60 * 60   # 6 soat faolsizlikdan keyin holat kerak emas
+USER_STATE_MAX_ENTRIES = 5000          # shu chegaradan oshsa majburiy tozalash
+_user_states_lock = threading.Lock()
+
+
+def _new_user_state():
+    return {'state': 'idle', 'selected_item': None, 'data': {}, 'last_time': time.time()}
+
+
+def prune_user_states(now=None):
+    """Eskirgan foydalanuvchi holatlarini o'chiradi va o'chirilgan sonini qaytaradi."""
+    now = now if now is not None else time.time()
+    with _user_states_lock:
+        stale = [
+            uid for uid, st in user_states.items()
+            if now - (st.get('last_time') or 0) > USER_STATE_TTL_SECONDS
+        ]
+        for uid in stale:
+            user_states.pop(uid, None)
+
+        # TTL yetarli bo'lmasa (juda ko'p faol sessiya), eng eskilarini kesamiz.
+        overflow = len(user_states) - USER_STATE_MAX_ENTRIES
+        if overflow > 0:
+            oldest = sorted(user_states.items(), key=lambda kv: kv[1].get('last_time') or 0)
+            for uid, _ in oldest[:overflow]:
+                user_states.pop(uid, None)
+                stale.append(uid)
+
+    return len(stale)
+
+
 def get_user_state(user_id):
-    if user_id not in user_states:
-        user_states[user_id] = {'state': 'idle', 'selected_item': None, 'data': {}, 'last_time': 0}
-    return user_states[user_id]
+    prune_user_states()
+    with _user_states_lock:
+        if user_id not in user_states:
+            user_states[user_id] = _new_user_state()
+        return user_states[user_id]
+
 
 def update_user_state(user_id, state):
-    if user_id not in user_states:
-        user_states[user_id] = {'state': 'idle', 'selected_item': None, 'data': {}, 'last_time': 0}
-    user_states[user_id]['state'] = state
+    with _user_states_lock:
+        if user_id not in user_states:
+            user_states[user_id] = _new_user_state()
+        user_states[user_id]['state'] = state
+        user_states[user_id]['last_time'] = time.time()
 
 def get_price_range(cat_name):
     if not cat_name: return "Kelishilgan narx"

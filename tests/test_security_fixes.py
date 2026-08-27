@@ -239,3 +239,64 @@ def test_facebook_lead_webhook_verifies_hmac_signature(monkeypatch):
         assert ok_sig.status_code == 200
 
 
+def test_admin_login_uses_constant_time_and_hash_when_configured(monkeypatch):
+    """Parol hash rejimida ham, ochiq rejimda ham to'g'ri ishlashi kerak"""
+    from werkzeug.security import generate_password_hash
+    import routes.admin as admin_routes
+
+    # 1) Ochiq parol rejimi (orqaga moslik)
+    monkeypatch.setattr(admin_routes, 'ADMIN_PASSWORD_HASH', '')
+    monkeypatch.setattr(admin_routes, 'ADMIN_PASSWORD', 'plain-parol-123')
+    monkeypatch.setattr(admin_routes, 'ADMIN_USERNAME', 'admin')
+    assert admin_routes._check_admin_credentials('admin', 'plain-parol-123')
+    assert not admin_routes._check_admin_credentials('admin', 'notogri')
+    assert not admin_routes._check_admin_credentials('boshqa', 'plain-parol-123')
+
+    # 2) Hash rejimi — ochiq parol umuman ishlatilmaydi
+    monkeypatch.setattr(admin_routes, 'ADMIN_PASSWORD_HASH',
+                        generate_password_hash('hash-parol-456'))
+    monkeypatch.setattr(admin_routes, 'ADMIN_PASSWORD', '')
+    assert admin_routes._check_admin_credentials('admin', 'hash-parol-456')
+    assert not admin_routes._check_admin_credentials('admin', 'plain-parol-123')
+
+
+def test_failed_login_tracker_is_pruned():
+    """_failed_logins cheksiz o'smasligi kerak"""
+    import routes.admin as admin_routes
+
+    admin_routes._failed_logins.clear()
+    now = 1_000_000.0
+    admin_routes._failed_logins['1.1.1.1'] = [now - admin_routes.LOGIN_WINDOW_SECONDS - 10]
+    admin_routes._failed_logins['2.2.2.2'] = [now - 5]
+
+    admin_routes._prune_failed_logins(now)
+
+    assert '1.1.1.1' not in admin_routes._failed_logins, "eskirgan IP o'chirilmadi"
+    assert '2.2.2.2' in admin_routes._failed_logins, "faol IP noto'g'ri o'chirildi"
+    admin_routes._failed_logins.clear()
+
+
+def test_bot_user_states_are_pruned():
+    """user_states TTL va maksimal chegara bo'yicha tozalanishi kerak"""
+    import bot_service
+
+    bot_service.user_states.clear()
+    now = 1_000_000.0
+    bot_service.user_states[1] = {'state': 'idle', 'last_time': now - bot_service.USER_STATE_TTL_SECONDS - 10}
+    bot_service.user_states[2] = {'state': 'idle', 'last_time': now - 10}
+
+    removed = bot_service.prune_user_states(now=now)
+
+    assert removed == 1
+    assert 1 not in bot_service.user_states, "eskirgan holat o'chirilmadi"
+    assert 2 in bot_service.user_states, "faol holat noto'g'ri o'chirildi"
+    bot_service.user_states.clear()
+
+
+def test_gunicorn_timeout_is_not_disabled():
+    """timeout=0 osilgan worker'ni hech qachon qayta ishga tushirmasdi"""
+    import runpy
+
+    conf = runpy.run_path('gunicorn.conf.py')
+    assert conf['timeout'] > 0
+    assert conf['timeout'] >= 60, "AI so'rovlari uchun yetarlicha uzun bo'lsin"

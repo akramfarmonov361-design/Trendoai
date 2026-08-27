@@ -111,11 +111,26 @@ DEFAULT_ADMIN_USERNAME = "admin"
 DEFAULT_ADMIN_PASSWORD = "trendoai2025"
 DEFAULT_SECRET_KEY = "trendoai-secret-key-change-in-production"
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", DEFAULT_ADMIN_USERNAME)
-ADMIN_PASSWORD = _require_production_secret(
-    "ADMIN_PASSWORD",
-    os.getenv("ADMIN_PASSWORD", DEFAULT_ADMIN_PASSWORD),
-    DEFAULT_ADMIN_PASSWORD,
-)
+
+# ADMIN_PASSWORD_HASH berilgan bo'lsa, ochiq parol umuman saqlanmaydi.
+# Hash yaratish: python scripts/generate_admin_hash.py
+ADMIN_PASSWORD_HASH = (os.getenv("ADMIN_PASSWORD_HASH") or "").strip()
+
+if ADMIN_PASSWORD_HASH:
+    # Hash rejimida ochiq ADMIN_PASSWORD talab qilinmaydi.
+    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
+else:
+    ADMIN_PASSWORD = _require_production_secret(
+        "ADMIN_PASSWORD",
+        os.getenv("ADMIN_PASSWORD", DEFAULT_ADMIN_PASSWORD),
+        DEFAULT_ADMIN_PASSWORD,
+    )
+    if not DEBUG:
+        print(
+            "OGOHLANTIRISH: ADMIN_PASSWORD ochiq matnda saqlanmoqda. "
+            "ADMIN_PASSWORD_HASH ga o'tish tavsiya etiladi "
+            "(python scripts/generate_admin_hash.py)."
+        )
 SECRET_KEY = _require_production_secret(
     "SECRET_KEY",
     os.getenv("SECRET_KEY", DEFAULT_SECRET_KEY),
