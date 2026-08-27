@@ -130,8 +130,15 @@ def create_app(config_overrides=None):
     application.config['WTF_CSRF_CHECK_DEFAULT'] = False
 
     # Reverse Proxy (Render/Cloudflare) uchun xavfsiz ProxyFix middleware
+    proxies_count = int(os.getenv('PROXIES_COUNT', '1'))
     from werkzeug.middleware.proxy_fix import ProxyFix
-    application.wsgi_app = ProxyFix(application.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+    application.wsgi_app = ProxyFix(
+        application.wsgi_app,
+        x_for=proxies_count,
+        x_proto=proxies_count,
+        x_host=0,
+        x_prefix=0
+    )
 
     csrf_exempt_names = {
         'telegram_webhook',
