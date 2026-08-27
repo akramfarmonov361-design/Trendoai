@@ -128,6 +128,17 @@ Render.com'da Node.js yo'q, shuning uchun build mahalliy mashinada amalga oshiri
 | 09:00 | SEO blog maqolasi generatsiyasi |
 | 12:00 | Marketing posti Telegramga |
 
+## 🧵 Redis rate-limit
+
+Web-ilova va scheduler alohida jarayonlarda ishlaydi. Production muhitida
+`REDIS_URL` bering — AI rate-limit shu Redis orqali barcha web workerlar uchun
+umumiy va atomar ishlaydi. Redis bo'lmasa lokal development uchun in-memory
+fallback ishlaydi, lekin u ko'p worker/konteynerga taqsimlanmaydi.
+
+Render Free rejimida scheduler va Telegram webhook web service ichida ishlaydi.
+Pullik Background Worker keyinchalik ulansa, scheduler va og'ir fon vazifalari
+unga ajratiladi.
+
 ## 🚀 Render.com Deploy
 
 1. [Render.com](https://render.com) da yangi Web Service yarating
@@ -140,6 +151,7 @@ Render.com'da Node.js yo'q, shuning uchun build mahalliy mashinada amalga oshiri
    - `ADMIN_PASSWORD`
    - `SITE_URL` (masalan: `https://trendoai.onrender.com`)
 4. Deploy tugmasini bosing
+
 
 ## 📁 Loyiha Strukturasi
 

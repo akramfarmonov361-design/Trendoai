@@ -32,6 +32,7 @@ from models.post import Post
 from routes.admin import login_required
 from services.crm_service import capture_lead_from_message
 from services.push_service import notify_all_subscribers
+from services.rate_limit_service import allow_request
 from services.voice_service import (
     friendly_audio_error,
     get_gemini_api_key_candidates,
@@ -42,27 +43,15 @@ api_bp = Blueprint('api', __name__)
 
 TELEGRAM_WEBHOOK_SECRET = CRON_SECRET[:256] if CRON_SECRET else 'trendoai_super_secret_123'
 
-_rate_limits = {}
-_rate_lock = threading.Lock()
-
-
 def _client_ip():
     """ProxyFix orqali xavfsiz olingan mijoz IP manzili"""
     return request.remote_addr or 'unknown'
 
 
 def _check_rate_limit(key, limit=30, window_seconds=60):
-    """Xavfsiz va samarali IP-asosidagi rate limiter"""
-    now = time.time()
-    with _rate_lock:
-        timestamps = _rate_limits.get(key, [])
-        timestamps = [t for t in timestamps if now - t < window_seconds]
-        if len(timestamps) >= limit:
-            _rate_limits[key] = timestamps
-            return False
-        timestamps.append(now)
-        _rate_limits[key] = timestamps
-        return True
+    """Redis bilan workerlar orasida umumiy bo'lgan rate limiter."""
+    scope, _, client_ip = key.partition(':')
+    return allow_request(scope or 'api', client_ip or 'unknown', limit, window_seconds)
 
 
 def _cron_secret_error():
@@ -594,7 +583,7 @@ def cron_status():
 
 @api_bp.route('/api/cron/generate', methods=['GET', 'POST'])
 def cron_generate_post():
-    """Tashqi cron xizmatlari uchun post generatsiya qilish"""
+    """Tashqi cron xizmatlari uchun post generatsiyasini web fonida boshlash."""
     if not _has_valid_cron_secret():
         return _cron_secret_error()
 
@@ -602,13 +591,12 @@ def cron_generate_post():
     category = request.args.get('category')
 
     from scheduler import generate_and_publish_post
-    thread = threading.Thread(target=generate_and_publish_post, args=(topic, category))
-    thread.daemon = True
+    thread = threading.Thread(target=generate_and_publish_post, args=(topic, category), daemon=True)
     thread.start()
 
     return jsonify({
         'success': True,
-        'message': 'Post generation started in background',
+        'message': 'Post generation web fonida boshlandi',
         'timestamp': datetime.now().isoformat()
     })
 

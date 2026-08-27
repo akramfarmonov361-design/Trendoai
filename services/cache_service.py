@@ -29,6 +29,17 @@ _IN_MEMORY_LOCK = threading.Lock()
 DEFAULT_TTL = CACHE_DEFAULT_TIMEOUT or 60
 
 
+def get_redis_client():
+    """Sog'lom Redis klientini qaytaradi, bo'lmasa ``None``.
+
+    Boshqa xizmatlar Redis mavjudligini ushbu funksiya orqali tekshiradi;
+    ular cache modulining ichki holatiga bevosita bog'lanmaydi.
+    """
+    if _redis_available and _redis_client:
+        return _redis_client
+    return None
+
+
 def cache_get(key, is_testing=False):
     """Keshdan qiymatni olish."""
     if is_testing:

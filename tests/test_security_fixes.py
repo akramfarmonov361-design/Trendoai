@@ -4,6 +4,7 @@ Xavfsizlik va arxitektura tuzatishlarini tekshiruvchi testlar to'plami.
 from app import app
 from config import FB_CONVERSIONS_API_TOKEN
 from routes.api import TELEGRAM_WEBHOOK_SECRET
+from services import rate_limit_service
 
 def test_admin_seed_endpoints_require_login():
     """Admin seed va webhook endpointlari faqat POST qabul qilishi va autentifikatsiya talab qilishini tekshirish"""
@@ -20,6 +21,18 @@ def test_admin_seed_endpoints_require_login():
 def test_max_content_length_configured():
     """Flask MAX_CONTENT_LENGTH xavfsizlik cheklovi borligini tekshirish"""
     assert app.config.get('MAX_CONTENT_LENGTH') == 16 * 1024 * 1024
+
+
+def test_rate_limit_has_a_local_fallback_when_redis_is_unavailable(monkeypatch):
+    """Redis uzilsa ham bitta worker limitni qo'llashda davom etadi."""
+    monkeypatch.setattr(rate_limit_service, 'get_redis_client', lambda: None)
+    rate_limit_service._FALLBACK_REQUESTS.clear()
+
+    assert rate_limit_service.allow_request('test', '127.0.0.1', 2, 60)
+    assert rate_limit_service.allow_request('test', '127.0.0.1', 2, 60)
+    assert not rate_limit_service.allow_request('test', '127.0.0.1', 2, 60)
+
+
 
 def test_telegram_webhook_strictly_enforces_secret():
     """Telegram webhook secret token bo'lmasa 403 qaytarishini tekshirish"""

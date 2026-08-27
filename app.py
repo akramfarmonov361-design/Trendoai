@@ -436,7 +436,7 @@ def migrate_remove_post_freshness_notes():
 
 
 def _boot_sequence():
-    """Gunicorn workerlarini bloklamaslik uchun background boot sequence"""
+    """Free-tier web service ichida scheduler va webhookni ishga tushirish."""
     try:
         try:
             init_database()
@@ -445,29 +445,25 @@ def _boot_sequence():
                 migrate_remove_post_freshness_notes()
                 from services.seed_portfolio import seed_desktop_portfolios
                 seed_desktop_portfolios()
-        except Exception as e:
-            print(f"❌ DB init/migratsiya xatosi: {e}")
+        except Exception as exc:
+            print(f"[boot] DB init/migratsiya xatosi: {exc}")
 
-        # 1. Scheduler
         try:
             from scheduler import scheduler
             if not scheduler.running:
                 scheduler.start()
-                jobs = scheduler.get_jobs()
-                print(f"✅ Scheduler ishga tushdi! Joblar soni: {len(jobs)}")
-        except Exception as e:
-            print(f"❌ Scheduler startup error: {e}")
+                print(f"[boot] Scheduler ishga tushdi: {len(scheduler.get_jobs())} ta vazifa")
+        except Exception as exc:
+            print(f"[boot] Scheduler startup xatosi: {exc}")
 
-        # 2. Telegram Bot Webhook
         try:
             from bot_service import setup_webhook
             setup_webhook(app)
-        except Exception as e:
-            print(f"❌ Bot webhook error: {e}")
+        except Exception as exc:
+            print(f"[boot] Telegram webhook xatosi: {exc}")
+    except Exception as exc:
+        print(f"[boot] Xizmatlar startup xatosi: {exc}")
 
-        print("🚀 TrendoAI xizmatlari ishga tushdi!")
-    except Exception as e:
-        print(f"❌ Boot sequence error: {e}")
 
 is_testing_env = "pytest" in sys.modules or bool(os.getenv("TESTING")) or bool(os.getenv("PYTEST_CURRENT_TEST"))
 if not is_testing_env:
