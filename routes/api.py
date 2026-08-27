@@ -47,14 +47,7 @@ _rate_lock = threading.Lock()
 
 
 def _client_ip():
-    cf_ip = request.headers.get('CF-Connecting-IP')
-    if cf_ip and cf_ip.strip():
-        return cf_ip.strip()
-    forwarded = request.headers.get('X-Forwarded-For', '')
-    if forwarded:
-        parts = [p.strip() for p in forwarded.split(',') if p.strip()]
-        if parts:
-            return parts[0]
+    """ProxyFix orqali xavfsiz olingan mijoz IP manzili"""
     return request.remote_addr or 'unknown'
 
 
