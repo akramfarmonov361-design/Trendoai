@@ -425,6 +425,8 @@ def _boot_sequence():
             with app.app_context():
                 migrate_service_discount_dates()
                 migrate_remove_post_freshness_notes()
+                from services.seed_portfolio import seed_desktop_portfolios
+                seed_desktop_portfolios()
         except Exception as e:
             print(f"❌ DB init/migratsiya xatosi: {e}")
 
