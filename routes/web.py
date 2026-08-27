@@ -12,6 +12,7 @@ from xml.sax.saxutils import escape as xml_escape
 from flask import (
     Blueprint,
     Response,
+    abort,
     current_app,
     flash,
     make_response,
@@ -22,6 +23,7 @@ from flask import (
     url_for,
 )
 import markdown2
+from markupsafe import escape as html_escape
 
 from config import (
     POSTS_PER_PAGE,
@@ -967,20 +969,34 @@ def indexnow_key_file():
     return Response(get_indexnow_key(), mimetype='text/plain')
 
 
+# Qidiruv tizimlari tasdiqlash kodlari faqat shu belgilardan iborat bo'ladi.
+# Validatsiya bo'lmasa, kod javob tanasiga o'zgarishsiz tushib, reflected XSS ochiladi.
+VERIFICATION_CODE_PATTERN = re.compile(r'[A-Za-z0-9_-]{1,64}')
+
+
 @web_bp.route('/google<verification_code>.html')
 def google_verification(verification_code):
-    return f'google-site-verification: google{verification_code}.html'
+    if not VERIFICATION_CODE_PATTERN.fullmatch(verification_code):
+        abort(404)
+    return Response(
+        f'google-site-verification: google{verification_code}.html',
+        mimetype='text/plain',
+    )
 
 
 @web_bp.route('/yandex_<verification_code>.html')
 def yandex_verification(verification_code):
+    if not VERIFICATION_CODE_PATTERN.fullmatch(verification_code):
+        abort(404)
     html_content = f'''<html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
-    <body>Verification: {verification_code}</body>
+    <body>Verification: {html_escape(verification_code)}</body>
 </html>'''
     return Response(html_content, mimetype='text/html')
+
+
 
 
 @web_bp.route('/sw.js')

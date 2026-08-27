@@ -17,3 +17,7 @@ http_ece>=1.2.0
 cryptography>=43.0.0
 Flask-WTF==1.2.1
 redis>=5.0.0
+# Admin rasm yuklash: WebP siqish (Pillow) va S3/R2 ga saqlash (boto3).
+# Bularsiz yuklangan rasmlar siqilmay Render'ning efemer diskiga tushadi va deploy'da yo'qoladi.
+Pillow>=10.4.0
+boto3>=1.35.0

@@ -132,6 +132,15 @@ def _save_uploaded_image(file_storage, folder='portfolio'):
             print(f"[upload] S3/R2 upload failed, fallback to local storage: {s3_err}")
 
     # 2. Lokal saqlash (Fallback)
+    # Render'da konteyner diski efemer: bu yo'lga tushgan rasmlar keyingi
+    # deploy yoki restartda yo'qoladi. Sabab ko'rinib turishi uchun log qoldiramiz.
+    if not (s3_bucket and s3_access_key and s3_secret_key):
+        print(
+            "[upload] OGOHLANTIRISH: S3/R2 sozlanmagan, rasm lokal diskka saqlanmoqda. "
+            "Render'da bu fayl keyingi deploy'da yo'qoladi. "
+            "S3_BUCKET / S3_ACCESS_KEY_ID / S3_SECRET_ACCESS_KEY ni bering."
+        )
+
     upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', folder)
     os.makedirs(upload_dir, exist_ok=True)
     file_path = os.path.join(upload_dir, file_name)

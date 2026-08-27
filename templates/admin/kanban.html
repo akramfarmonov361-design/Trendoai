@@ -472,12 +472,18 @@ function filterCards() {
     });
 }
 
+// CSRF: admin panel POST so'rovlari base_admin.html dagi meta tokenni yuboradi
+function csrfToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : '';
+}
+
 // Status Update via AJAX
 async function updateCrmStatus(type, id, status) {
     try {
         const res = await fetch('/api/admin/crm/update-status', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
             body: JSON.stringify({ type, id: parseInt(id), status })
         });
         const data = await res.json();
@@ -501,7 +507,7 @@ async function saveNote(type, id, btnElement) {
     try {
         const res = await fetch('/api/admin/crm/update-note', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken() },
             body: JSON.stringify({ type, id: parseInt(id), note })
         });
         const data = await res.json();

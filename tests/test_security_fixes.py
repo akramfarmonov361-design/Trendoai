@@ -1,8 +1,12 @@
 """
 Xavfsizlik va arxitektura tuzatishlarini tekshiruvchi testlar to'plami.
 """
+import re
+
 from app import app
 from config import FB_CONVERSIONS_API_TOKEN
+from extensions import db
+from models.interaction import Lead
 from routes.api import TELEGRAM_WEBHOOK_SECRET
 from services import rate_limit_service
 
@@ -80,3 +84,73 @@ def test_ai_audio_payload_size_limit():
         resp = client.post('/api/chat/audio', json={'audio': huge_audio})
         assert resp.status_code == 400
         assert 'katta' in resp.json.get('error', '')
+
+
+def test_verification_routes_reject_html_payloads():
+    """Google/Yandex tasdiqlash kodlari reflected XSS uchun ishlatilmasligi kerak"""
+    payload = '<img src=x onerror=alert(1)>'
+    with app.test_client() as client:
+        for path in (f'/yandex_{payload}.html', f'/google{payload}.html'):
+            resp = client.get(path)
+            assert resp.status_code == 404
+            assert 'onerror=alert(1)>' not in resp.get_data(as_text=True)
+
+
+def test_verification_routes_still_serve_real_codes():
+    """Haqiqiy tasdiqlash kodlari avvalgidek ishlashi kerak"""
+    with app.test_client() as client:
+        google_resp = client.get('/google1a2b3c4d5e6f.html')
+        assert google_resp.status_code == 200
+        assert 'google-site-verification: google1a2b3c4d5e6f.html' in google_resp.get_data(as_text=True)
+
+        yandex_resp = client.get('/yandex_a1b2c3d4e5.html')
+        assert yandex_resp.status_code == 200
+        assert 'Verification: a1b2c3d4e5' in yandex_resp.get_data(as_text=True)
+
+
+def test_kanban_crm_endpoints_work_with_csrf_token():
+    """Kanban CRM AJAX so'rovlari tokensiz rad etilishi, token bilan ishlashi kerak"""
+    with app.app_context():
+        db.create_all()
+        # Haqiqiy lead'lar o'zgarib ketmasligi uchun test o'z qatorini yaratadi
+        lead = Lead(name='CSRF Test', contact='@csrftest', source='pytest')
+        db.session.add(lead)
+        db.session.commit()
+        lead_id = lead.id
+
+    try:
+        _assert_kanban_csrf_flow(lead_id)
+    finally:
+        with app.app_context():
+            db.session.query(Lead).filter_by(id=lead_id).delete()
+            db.session.commit()
+
+
+def _assert_kanban_csrf_flow(lead_id):
+    with app.test_client() as client:
+        with client.session_transaction() as sess:
+            sess['logged_in'] = True
+            sess['username'] = 'admin'
+
+        page = client.get('/admin/kanban')
+        assert page.status_code == 200
+        html = page.get_data(as_text=True)
+
+        match = re.search(r'<meta name="csrf-token" content="([^"]+)"', html)
+        assert match, "base_admin.html csrf-token meta tagini render qilmadi"
+        assert "'X-CSRFToken': csrfToken()" in html, "kanban.html CSRF sarlavhasini yubormayapti"
+        token = match.group(1)
+
+        payload = {'type': 'lead', 'id': lead_id, 'status': 'contacted'}
+        assert client.post('/api/admin/crm/update-status', json=payload).status_code == 400
+        assert client.post(
+            '/api/admin/crm/update-status', json=payload, headers={'X-CSRFToken': token}
+        ).status_code == 200
+
+        note_payload = {'type': 'lead', 'id': lead_id, 'note': 'follow-up'}
+        assert client.post('/api/admin/crm/update-note', json=note_payload).status_code == 400
+        assert client.post(
+            '/api/admin/crm/update-note', json=note_payload, headers={'X-CSRFToken': token}
+        ).status_code == 200
+
+
