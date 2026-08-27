@@ -314,21 +314,36 @@ nav a::before {
 
 nav a:hover,
 nav a.active {
-    color: var(--text-primary);
-    border-color: var(--border-light);
+    color: #ffffff;
+    border-color: rgba(168, 85, 247, 0.4);
     transform: translateY(-2px);
+}
+
+nav a.active {
+    background: rgba(99, 102, 241, 0.2);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.35);
 }
 
 nav a:hover::before,
 nav a.active::before {
-    opacity: 1;
+    opacity: 0.35;
 }
 
 nav a.nav-order-cta {
     color: white;
     border-color: transparent;
     background: var(--gradient-main);
-    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.25);
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
+    transition: var(--transition-smooth);
+}
+
+nav a.nav-order-cta:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 25px rgba(168, 85, 247, 0.5);
+}
+
+nav a.nav-order-cta.active {
+    box-shadow: 0 0 0 2px #fff, 0 6px 25px rgba(168, 85, 247, 0.6);
 }
 
 /* Mobile Menu Button - Hidden on Desktop */

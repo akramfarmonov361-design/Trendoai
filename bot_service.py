@@ -3,14 +3,10 @@ import json
 import re
 from datetime import datetime
 import time
-import google.generativeai as genai
 from flask import Blueprint
 from config import TELEGRAM_BOT_TOKEN, GEMINI_API_KEY, GEMINI_MODEL, SITE_URL, TELEGRAM_ADMIN_ID
 from app import app, db, TelegramUser, Order, MenuItem, MenuCategory, BotOrder
 from ai_helpers import generate_text
-
-# Configure Gemini (helpers reuse the configured key)
-genai.configure(api_key=GEMINI_API_KEY)
 
 # Create bot instance safely
 bot = None

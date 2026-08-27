@@ -148,13 +148,13 @@
                 <!-- Desktop nav -->
                 <nav class="hidden md:flex items-center gap-1" aria-label="Asosiy navigatsiya">
                     <a href="{{ url_for('index') }}"
-                        class="nav-link {% if request.endpoint in ['index','services','service_detail'] %}active{% endif %}">Xizmatlar</a>
+                        class="nav-link {% if request.endpoint in ['web.index','web.services','web.service_detail','index','services','service_detail'] %}active{% endif %}">Xizmatlar</a>
                     <a href="{{ url_for('blog') }}"
-                        class="nav-link {% if request.endpoint in ['blog','post','post_by_slug','search'] %}active{% endif %}">Blog</a>
+                        class="nav-link {% if request.endpoint in ['web.blog','web.post','web.post_by_slug','web.search','blog','post','post_by_slug','search'] %}active{% endif %}">Blog</a>
                     <a href="{{ url_for('portfolio') }}"
-                        class="nav-link {% if request.endpoint in ['portfolio','portfolio_item'] %}active{% endif %}">Portfolio</a>
+                        class="nav-link {% if request.endpoint in ['web.portfolio','web.portfolio_item','portfolio','portfolio_item'] %}active{% endif %}">Portfolio</a>
                     <a href="{{ url_for('about') }}"
-                        class="nav-link {% if request.endpoint == 'about' %}active{% endif %}">Biz haqimizda</a>
+                        class="nav-link {% if request.endpoint in ['web.about','about'] %}active{% endif %}">Biz haqimizda</a>
                 </nav>
 
                 <!-- CTA + Theme toggle + PWA buttons -->
@@ -209,10 +209,10 @@
             <!-- Mobile nav -->
             <nav x-show="menuOpen" x-transition id="mobileNav"
                 class="md:hidden pb-4 flex flex-col gap-1" aria-label="Mobil navigatsiya">
-                <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint in ['index','services','service_detail'] %}active{% endif %}">Xizmatlar</a>
-                <a href="{{ url_for('blog') }}" class="nav-link {% if request.endpoint in ['blog','post','post_by_slug','search'] %}active{% endif %}">Blog</a>
-                <a href="{{ url_for('portfolio') }}" class="nav-link {% if request.endpoint in ['portfolio','portfolio_item'] %}active{% endif %}">Portfolio</a>
-                <a href="{{ url_for('about') }}" class="nav-link {% if request.endpoint == 'about' %}active{% endif %}">Biz haqimizda</a>
+                <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint in ['web.index','web.services','web.service_detail','index','services','service_detail'] %}active{% endif %}">Xizmatlar</a>
+                <a href="{{ url_for('blog') }}" class="nav-link {% if request.endpoint in ['web.blog','web.post','web.post_by_slug','web.search','blog','post','post_by_slug','search'] %}active{% endif %}">Blog</a>
+                <a href="{{ url_for('portfolio') }}" class="nav-link {% if request.endpoint in ['web.portfolio','web.portfolio_item','portfolio','portfolio_item'] %}active{% endif %}">Portfolio</a>
+                <a href="{{ url_for('about') }}" class="nav-link {% if request.endpoint in ['web.about','about'] %}active{% endif %}">Biz haqimizda</a>
                 <a href="{{ url_for('order_page') }}" class="btn-accent mt-2">Buyurtma berish</a>
             </nav>
         </div>

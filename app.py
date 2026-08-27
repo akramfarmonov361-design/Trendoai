@@ -446,8 +446,9 @@ def _boot_sequence():
     except Exception as e:
         print(f"❌ Boot sequence error: {e}")
 
-
-threading.Thread(target=_boot_sequence, daemon=True).start()
+is_testing_env = "pytest" in sys.modules or bool(os.getenv("TESTING")) or bool(os.getenv("PYTEST_CURRENT_TEST"))
+if not is_testing_env:
+    threading.Thread(target=_boot_sequence, daemon=True).start()
 
 
 # Backward compatibility aliases for in-memory cache & tests

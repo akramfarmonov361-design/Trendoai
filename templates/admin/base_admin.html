@@ -400,11 +400,11 @@
 
             <nav class="sidebar-nav">
                 <a href="{{ url_for('admin_dashboard') }}"
-                    class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+                    class="{% if request.endpoint in ['admin.admin_dashboard', 'admin_dashboard'] %}active{% endif %}">
                     📊 Dashboard
                 </a>
                 <a href="{{ url_for('admin_kanban') }}"
-                    class="{% if request.endpoint == 'admin_kanban' %}active{% endif %}">
+                    class="{% if request.endpoint in ['admin.admin_kanban', 'admin_kanban'] %}active{% endif %}">
                     📈 CRM Kanban
                 </a>
                 <a class="nav-link {% if 'services' in request.endpoint %}active{% endif %}"
@@ -413,31 +413,31 @@
                     Xizmatlar
                 </a>
                 <a href="{{ url_for('admin_orders') }}"
-                    class="{% if request.endpoint == 'admin_orders' %}active{% endif %}">
+                    class="{% if request.endpoint in ['admin.admin_orders', 'admin_orders'] %}active{% endif %}">
                     📦 Buyurtmalar
                 </a>
                 <a href="{{ url_for('admin_posts') }}"
-                    class="{% if request.endpoint == 'admin_posts' %}active{% endif %}">
+                    class="{% if request.endpoint in ['admin.admin_posts', 'admin_posts'] %}active{% endif %}">
                     📝 Postlar
                 </a>
                 <a href="{{ url_for('admin_new_post') }}"
-                    class="{% if request.endpoint == 'admin_new_post' %}active{% endif %}">
+                    class="{% if request.endpoint in ['admin.admin_new_post', 'admin_new_post'] %}active{% endif %}">
                     ✏️ Yangi Post
                 </a>
                 <a href="{{ url_for('admin_generate') }}"
-                    class="{% if request.endpoint == 'admin_generate' %}active{% endif %}">
+                    class="{% if request.endpoint in ['admin.admin_generate', 'admin_generate'] %}active{% endif %}">
                     🤖 AI Generatsiya
                 </a>
                 <a href="{{ url_for('admin_portfolio') }}"
-                    class="{% if request.endpoint in ['admin_portfolio', 'admin_portfolio_new', 'admin_portfolio_edit'] %}active{% endif %}">
+                    class="{% if request.endpoint in ['admin.admin_portfolio', 'admin.admin_portfolio_new', 'admin.admin_portfolio_edit', 'admin_portfolio', 'admin_portfolio_new', 'admin_portfolio_edit'] %}active{% endif %}">
                     🎨 Portfolio
                 </a>
                 <a href="{{ url_for('admin_bot_orders') }}"
-                    class="{% if request.endpoint == 'admin_bot_orders' %}active{% endif %}">
+                    class="{% if request.endpoint in ['admin.admin_bot_orders', 'admin_bot_orders'] %}active{% endif %}">
                     🤖 Bot Buyurtmalari
                 </a>
                 <a href="{{ url_for('admin_menu') }}"
-                    class="{% if request.endpoint == 'admin_menu' %}active{% endif %}">
+                    class="{% if request.endpoint in ['admin.admin_menu', 'admin_menu'] %}active{% endif %}">
                     📋 Bot Menyusi
                 </a>
                 <a href="{{ url_for('index') }}" target="_blank">

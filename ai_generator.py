@@ -1,5 +1,5 @@
 """
-SEO and marketing content generation helpers for TrendoAI.
+SEO and marketing content generation helpers for TrendoAI using the official google-genai SDK.
 """
 
 import json
@@ -8,14 +8,8 @@ import re
 import time
 from datetime import datetime
 
-import google.generativeai as genai
-
-try:
-    from google import genai as google_genai_sdk
-    from google.genai import types as google_genai_types
-except ImportError:
-    google_genai_sdk = None
-    google_genai_types = None
+from google import genai
+from google.genai import types
 
 from config import (
     AI_RETRY_ATTEMPTS,
@@ -30,12 +24,10 @@ GEMINI_API_KEY3 = os.getenv("GEMINI_API_KEY3")
 
 current_api_key = GEMINI_API_KEY
 current_model_name = GEMINI_MODEL
-realtime_client = None
 LAST_AI_ERROR = None
 TEXT_MODEL_FALLBACKS = [
     "gemini-3.7-flash",
     "gemini-3.5-flash-lite",
-    "gemini-3.1-flash-lite",
     "gemini-2.5-flash",
     "gemini-2.5-pro",
 ]
@@ -105,38 +97,19 @@ def _is_model_config_error(exc):
     )
 
 
-def _refresh_realtime_client(api_key):
-    """Initialize the Google Search grounded client when the newer SDK is available."""
-    global realtime_client
-
-    realtime_client = None
-    if not google_genai_sdk or not api_key:
-        return
-
-    try:
-        realtime_client = google_genai_sdk.Client(api_key=api_key)
-    except Exception as exc:
-        print(f"[ai] Grounded Gemini client init failed: {exc}")
-        realtime_client = None
-
-
-
-def _configure_api(api_key):
-    """Configure the legacy SDK and refresh the grounded client."""
-    global current_api_key
-
+def _get_client(api_key):
+    """Create a client instance for the specified api_key."""
     if not api_key:
-        return False
-
-    genai.configure(api_key=api_key)
-    _refresh_realtime_client(api_key)
-    current_api_key = api_key
-    return True
-
+        return None
+    try:
+        return genai.Client(api_key=api_key)
+    except Exception as exc:
+        print(f"[ai] genai.Client initialization failed: {exc}")
+        return None
 
 
 def _switch_to_next_api_key(model_candidates):
-    global current_api_key, current_model_name, model
+    global current_api_key, current_model_name
 
     api_keys = _build_api_key_candidates()
     try:
@@ -145,31 +118,30 @@ def _switch_to_next_api_key(model_candidates):
         current_key_index = -1
 
     if current_key_index + 1 < len(api_keys):
+        next_key = api_keys[current_key_index + 1]
         print(f"[ai] Switching to backup API key #{current_key_index + 2}")
-        _configure_api(api_keys[current_key_index + 1])
+        current_api_key = next_key
         current_model_name = model_candidates[0]
-        model = genai.GenerativeModel(current_model_name)
         return True
 
     return False
 
 
 def _reset_to_primary_config():
-    global current_model_name, model
+    global current_api_key, current_model_name
 
     api_keys = _build_api_key_candidates()
     model_candidates = _build_text_model_candidates()
 
     if api_keys:
-        _configure_api(api_keys[0])
-
-    current_model_name = model_candidates[0]
-    model = genai.GenerativeModel(current_model_name)
+        current_api_key = api_keys[0]
+    if model_candidates:
+        current_model_name = model_candidates[0]
 
 
 def _switch_to_backup(prefer_next_key=False):
     """Switch through text-safe backup models first, then to a backup API key."""
-    global current_api_key, current_model_name, model
+    global current_api_key, current_model_name
 
     model_candidates = _build_text_model_candidates()
 
@@ -185,28 +157,25 @@ def _switch_to_backup(prefer_next_key=False):
         next_model = model_candidates[current_index + 1]
         print(f"[ai] Switching to backup model: {next_model}")
         current_model_name = next_model
-        model = genai.GenerativeModel(current_model_name)
         return True
 
     return _switch_to_next_api_key(model_candidates)
 
 
-_configure_api(GEMINI_API_KEY)
-current_model_name = _build_text_model_candidates()[0]
-model = genai.GenerativeModel(current_model_name)
-
-
-
 def _retry_with_backoff(func, *args, **kwargs):
     """Run a function with exponential backoff and backup model/key fallback."""
-    global model
     last_exception = None
     _set_last_ai_error(None)
 
     while True:
+        client = _get_client(current_api_key)
+        if not client:
+            _set_last_ai_error("No valid Gemini API key configured.")
+            break
+
         for attempt in range(AI_RETRY_ATTEMPTS):
             try:
-                return func(*args, **kwargs)
+                return func(client=client, model_name=current_model_name, *args, **kwargs)
             except Exception as exc:
                 last_exception = exc
                 _set_last_ai_error(str(exc))
@@ -264,7 +233,7 @@ def _parse_json_response(response_text):
 
 
 def _response_to_text(response):
-    """Extract text safely from both legacy and newer Gemini SDK responses."""
+    """Extract text safely from Gemini SDK responses."""
     if response is None:
         return ""
 
@@ -325,9 +294,6 @@ def _coerce_post_payload(response_text, topic):
     if not body:
         return None
 
-    # Agar javob buzuq JSON bo'lsa (masalan, kesilib qolgan), uni markdown post
-    # deb qabul qilish mumkin emas — aks holda sarlavhasi "{" bo'lgan xom JSON
-    # post bo'lib chiqib ketadi.
     if body.startswith("{") or body.startswith("```"):
         print("[ai] Javob buzuq JSON'ga o'xshaydi — markdown deb qabul qilinmadi")
         return None
@@ -356,27 +322,6 @@ def _coerce_post_payload(response_text, topic):
         "keywords": _build_fallback_keywords(topic, title),
         "content": body,
     }
-
-
-def _should_use_grounding():
-    return bool(realtime_client and google_genai_types)
-
-
-
-def _generate_grounded_response(prompt):
-    """Generate content using Google Search grounding when supported."""
-    if not _should_use_grounding():
-        return None
-
-    tool = google_genai_types.Tool(google_search=google_genai_types.GoogleSearch())
-    config = google_genai_types.GenerateContentConfig(tools=[tool])
-
-    return realtime_client.models.generate_content(
-        model=current_model_name,
-        contents=prompt,
-        config=config,
-    )
-
 
 
 def _extract_grounding_sources(response):
@@ -413,7 +358,6 @@ def _extract_grounding_sources(response):
     return sources
 
 
-
 def _append_sources_section(content, sources):
     if not sources:
         return content
@@ -429,14 +373,12 @@ def _append_sources_section(content, sources):
     return f"{body}\n\n" + "\n".join(lines)
 
 
-
 def _contains_unrequested_model_versions(topic, content):
     topic_lower = (topic or "").lower()
     for match in SPECIFIC_MODEL_PATTERN.finditer(content or ""):
         if match.group(0).lower() not in topic_lower:
             return True
     return False
-
 
 
 def _build_seo_prompt(topic, current_date_str, use_grounding):
@@ -516,27 +458,34 @@ def _build_seo_prompt(topic, current_date_str, use_grounding):
     """
 
 
-
 def generate_post_for_seo(topic):
     """Generate an SEO blog post for the given topic."""
     current_date_str = datetime.now().strftime("%Y-%m-%d")
-    use_grounding = _should_use_grounding()
-    prompt = _build_seo_prompt(topic, current_date_str, use_grounding)
     _set_last_ai_error(None)
 
-    def _generate():
+    def _generate(client, model_name):
+        # 1. Search Grounding bilan urinib ko'rish
         response = None
         used_grounding = False
 
-        if use_grounding:
-            try:
-                response = _generate_grounded_response(prompt)
-                used_grounding = response is not None
-            except Exception as exc:
-                print(f"[ai] Grounded generation failed, falling back to legacy SDK: {exc}")
-
-        if response is None:
-            response = model.generate_content(prompt)
+        try:
+            tool = types.Tool(google_search=types.GoogleSearch())
+            config = types.GenerateContentConfig(tools=[tool])
+            prompt = _build_seo_prompt(topic, current_date_str, use_grounding=True)
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=config,
+            )
+            used_grounding = True
+        except Exception as exc:
+            print(f"[ai] Grounded generation failed, trying standard generation: {exc}")
+            used_grounding = False
+            prompt = _build_seo_prompt(topic, current_date_str, use_grounding=False)
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+            )
 
         response_text = _response_to_text(response)
         parsed = _parse_json_response(response_text)
@@ -544,7 +493,6 @@ def generate_post_for_seo(topic):
             parsed = _coerce_post_payload(response_text, topic)
 
         if not parsed:
-            # Yaroqsiz javob — exception orqali _retry_with_backoff qayta urinadi
             preview = response_text.strip().replace("\n", " ")[:160]
             raise ValueError(f"AI javobi yaroqsiz formatda: {preview}")
 
@@ -597,22 +545,26 @@ def generate_marketing_post_for_telegram():
     Faqat post matnini yozing.
     """
 
-    def _generate():
-        response = model.generate_content(prompt)
-        return response.text.strip()
+    def _generate(client, model_name):
+        response = client.models.generate_content(
+            model=model_name,
+            contents=prompt,
+        )
+        return _response_to_text(response)
 
     return _retry_with_backoff(_generate)
-
 
 
 def generate_custom_content(prompt_text):
     """Generate custom content from an arbitrary prompt."""
-    def _generate():
-        response = model.generate_content(prompt_text)
-        return response.text.strip()
+    def _generate(client, model_name):
+        response = client.models.generate_content(
+            model=model_name,
+            contents=prompt_text,
+        )
+        return _response_to_text(response)
 
     return _retry_with_backoff(_generate)
-
 
 
 def generate_portfolio_content(title, category):
@@ -649,9 +601,12 @@ def generate_portfolio_content(title, category):
     Faqat JSON qaytaring.
     """
 
-    def _generate():
-        response = model.generate_content(prompt)
-        return _parse_json_response(response.text)
+    def _generate(client, model_name):
+        response = client.models.generate_content(
+            model=model_name,
+            contents=prompt,
+        )
+        return _parse_json_response(_response_to_text(response))
 
     result = _retry_with_backoff(_generate)
     if result:
@@ -674,3 +629,4 @@ if __name__ == "__main__":
         print(marketing_text)
     else:
         print("FAILED")
+

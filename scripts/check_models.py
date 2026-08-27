@@ -1,8 +1,8 @@
 import os
 import sys
 
-import google.generativeai as genai
 from dotenv import load_dotenv
+from google import genai
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -15,28 +15,21 @@ if not api_key:
     print("ERROR: GEMINI_API_KEY not found in environment variables.")
     raise SystemExit(1)
 
-genai.configure(api_key=api_key)
+client = genai.Client(api_key=api_key)
 
 print(f"Checking available models for key ending in ...{api_key[-4:]}")
 
 try:
-    print("\nAvailable models that support generateContent:")
+    print("\nAvailable models:")
     found = False
-    for model in genai.list_models():
-        if "generateContent" not in model.supported_generation_methods:
-            continue
-
-        display_name = (
-            getattr(model, "display_name", None)
-            or getattr(model, "displayName", None)
-            or ""
-        )
+    for model in client.models.list():
+        display_name = getattr(model, "display_name", "") or ""
         suffix = f" (DisplayName: {display_name})" if display_name else ""
         print(f"- {model.name}{suffix}")
         found = True
 
     if not found:
-        print("ERROR: No models found that support generateContent.")
+        print("ERROR: No models found.")
     else:
         print("\nOK: List complete.")
 except Exception as exc:

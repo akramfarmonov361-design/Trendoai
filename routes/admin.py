@@ -60,21 +60,21 @@ def login_required(f):
 
 
 def _save_uploaded_image(file_storage, folder='portfolio'):
-    """Faylni static/uploads/<folder>/ papkasiga WebP formatida siqib saqlash va nisbiy URL qaytarish"""
+    """Faylni WebP formatida siqib saqlash (S3/R2 bulutli saqlash yoki static/uploads/ lokal papkasi)."""
     if not file_storage or not getattr(file_storage, 'filename', None):
         return None
     filename = str(file_storage.filename).strip()
     if not filename:
         return None
 
+    import io
     import uuid
-    upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', folder)
-    os.makedirs(upload_dir, exist_ok=True)
+    from PIL import Image
 
     unique_base = uuid.uuid4().hex[:12]
+    webp_data = None
 
     try:
-        from PIL import Image
         file_storage.seek(0)
         img = Image.open(file_storage.stream)
 
@@ -89,20 +89,58 @@ def _save_uploaded_image(file_storage, folder='portfolio'):
         if img.width > max_dimension or img.height > max_dimension:
             img.thumbnail((max_dimension, max_dimension), Image.Resampling.LANCZOS)
 
-        unique_name = f"{unique_base}.webp"
-        file_path = os.path.join(upload_dir, unique_name)
-        img.save(file_path, 'WEBP', quality=85, method=6)
-        return f"/static/uploads/{folder}/{unique_name}"
+        out_buffer = io.BytesIO()
+        img.save(out_buffer, 'WEBP', quality=85, method=6)
+        webp_data = out_buffer.getvalue()
+        file_name = f"{unique_base}.webp"
+        content_type = "image/webp"
     except Exception as e:
-        print(f"[upload] Pillow WebP conversion failed, fallback to raw save: {e}")
+        print(f"[upload] Pillow WebP conversion failed: {e}")
+        file_storage.seek(0)
+        webp_data = file_storage.read()
         ext = os.path.splitext(filename)[1].lower()
         if ext not in ('.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'):
             ext = '.jpg'
-        unique_name = f"{unique_base}{ext}"
-        file_path = os.path.join(upload_dir, unique_name)
-        file_storage.seek(0)
-        file_storage.save(file_path)
-        return f"/static/uploads/{folder}/{unique_name}"
+        file_name = f"{unique_base}{ext}"
+        content_type = file_storage.content_type or "image/jpeg"
+
+    # 1. S3 / Cloudflare R2 / Supabase Storage tekshiruvi
+    s3_bucket = os.getenv("S3_BUCKET") or os.getenv("R2_BUCKET")
+    s3_endpoint = os.getenv("S3_ENDPOINT_URL") or os.getenv("R2_ENDPOINT_URL")
+    s3_access_key = os.getenv("S3_ACCESS_KEY_ID") or os.getenv("R2_ACCESS_KEY_ID")
+    s3_secret_key = os.getenv("S3_SECRET_ACCESS_KEY") or os.getenv("R2_SECRET_ACCESS_KEY")
+    public_url_base = os.getenv("STORAGE_PUBLIC_URL") or os.getenv("R2_PUBLIC_URL")
+
+    if s3_bucket and s3_access_key and s3_secret_key:
+        try:
+            import boto3
+            s3_client = boto3.client(
+                's3',
+                endpoint_url=s3_endpoint,
+                aws_access_key_id=s3_access_key,
+                aws_secret_access_key=s3_secret_key,
+            )
+            object_key = f"{folder}/{file_name}"
+            s3_client.put_object(
+                Bucket=s3_bucket,
+                Key=object_key,
+                Body=webp_data,
+                ContentType=content_type,
+            )
+            if public_url_base:
+                return f"{public_url_base.rstrip('/')}/{object_key}"
+            return f"{s3_endpoint.rstrip('/')}/{s3_bucket}/{object_key}"
+        except Exception as s3_err:
+            print(f"[upload] S3/R2 upload failed, fallback to local storage: {s3_err}")
+
+    # 2. Lokal saqlash (Fallback)
+    upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', folder)
+    os.makedirs(upload_dir, exist_ok=True)
+    file_path = os.path.join(upload_dir, file_name)
+    with open(file_path, 'wb') as f:
+        f.write(webp_data)
+
+    return f"/static/uploads/{folder}/{file_name}"
 
 
 # ========== AUTH ROUTES ==========

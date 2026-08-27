@@ -15,8 +15,6 @@ from flask import (
     jsonify,
     request,
 )
-import google.generativeai as genai
-
 from config import (
     CATEGORIES,
     CRON_SECRET,
@@ -214,8 +212,6 @@ def api_chat():
         })
 
     try:
-        genai.configure(api_key=api_key)
-
         system_prompt = """Siz TrendoAI kompaniyasining bosh AI Savdo va Avtomatlashtirish Konsultantisiz (AI Sales Manager).
 TrendoAI — O'zbekistonda bizneslar uchun AI Agentlar, Telegram Botlar, CRM va Veb-saytlar ishlab chiquvchi yetakchi IT agentligi.
 
@@ -616,11 +612,11 @@ def cron_debug_generate():
 
         result['steps'].append('1. Gemini API oddiy test...')
         try:
-            import google.generativeai as test_genai
-            test_genai.configure(api_key=GEMINI_API_KEY)
-            test_model = test_genai.GenerativeModel(GEMINI_MODEL)
-            test_response = test_model.generate_content("Salom, 1+1 nechta?")
-            result['steps'].append(f'✅ Gemini API ishlaydi! Javob: {test_response.text[:100]}')
+            from google import genai
+            test_client = genai.Client(api_key=GEMINI_API_KEY)
+            test_response = test_client.models.generate_content(model=GEMINI_MODEL, contents="Salom, 1+1 nechta?")
+            resp_text = (getattr(test_response, "text", "") or "")[:100]
+            result['steps'].append(f'✅ Gemini API ishlaydi! Javob: {resp_text}')
             result['gemini_test'] = 'OK'
         except Exception as gemini_err:
             result['steps'].append(f'❌ Gemini API xatosi: {str(gemini_err)}')
@@ -692,12 +688,11 @@ def cron_test_ai():
         return jsonify(result), 500
 
     try:
-        import google.generativeai as test_genai
-        test_genai.configure(api_key=GEMINI_API_KEY)
-        test_model = test_genai.GenerativeModel(GEMINI_MODEL)
-        resp = test_model.generate_content("1+1=?")
+        from google import genai
+        test_client = genai.Client(api_key=GEMINI_API_KEY)
+        resp = test_client.models.generate_content(model=GEMINI_MODEL, contents="1+1=?")
         result['gemini_status'] = 'OK'
-        result['gemini_response'] = resp.text[:200]
+        result['gemini_response'] = (getattr(resp, "text", "") or "")[:200]
     except Exception as e:
         result['gemini_status'] = 'ERROR'
         result['gemini_error'] = str(e)

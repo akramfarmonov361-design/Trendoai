@@ -1,8 +1,8 @@
-"""Thin Gemini wrapper with model and API-key fallback."""
+"""Thin Gemini wrapper using the official google-genai SDK with model and API-key fallback."""
 
 import os
-
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 from config import GEMINI_MODEL, GEMINI_MODEL_BACKUP
 
@@ -28,9 +28,10 @@ def _candidate_models():
         _preferred_model,
         GEMINI_MODEL,
         GEMINI_MODEL_BACKUP,
+        "gemini-3.7-flash",
+        "gemini-3.5-flash-lite",
         "gemini-2.5-flash",
-        "gemini-2.0-flash",
-        "gemini-2.0-flash-lite",
+        "gemini-2.5-pro",
     ):
         candidate = (candidate or "").strip()
         if candidate and "live" not in candidate.lower() and candidate not in chain:
@@ -64,27 +65,65 @@ def _mark_working(model_id, api_key):
     _preferred_key = api_key
 
 
+def _format_contents(prompt, history=None):
+    """Convert history and prompt into types.Content objects or standard content list."""
+    if not history:
+        return prompt
+
+    contents = []
+    for item in history:
+        role = "user" if item.get("role") == "user" else "model"
+        parts = item.get("parts")
+        if not parts:
+            c = item.get("content")
+            parts = [c] if c else []
+        text_parts = [p if isinstance(p, str) else getattr(p, "text", str(p)) for p in parts if p]
+        if text_parts:
+            contents.append(
+                types.Content(
+                    role=role,
+                    parts=[types.Part.from_text(text=" ".join(text_parts))],
+                )
+            )
+
+    contents.append(
+        types.Content(
+            role="user",
+            parts=[types.Part.from_text(text=prompt)],
+        )
+    )
+    return contents
+
+
 def generate_text(prompt, system_instruction=None, history=None):
     """Generate a text reply, trying available keys and text-safe models."""
     candidates = _candidate_models()
     last_error = None
 
     for api_key in _candidate_api_keys() or [None]:
-        if api_key:
-            genai.configure(api_key=api_key)
+        if not api_key:
+            continue
+
+        try:
+            client = genai.Client(api_key=api_key)
+        except Exception as init_err:
+            last_error = init_err
+            continue
 
         for model_id in candidates:
             try:
-                kwargs = {}
+                config_kwargs = {}
                 if system_instruction:
-                    kwargs["system_instruction"] = system_instruction
-                model = genai.GenerativeModel(model_id, **kwargs)
+                    config_kwargs["system_instruction"] = system_instruction
 
-                if history is not None:
-                    chat = model.start_chat(history=history)
-                    response = chat.send_message(prompt)
-                else:
-                    response = model.generate_content(prompt)
+                config = types.GenerateContentConfig(**config_kwargs) if config_kwargs else None
+                contents = _format_contents(prompt, history=history)
+
+                response = client.models.generate_content(
+                    model=model_id,
+                    contents=contents,
+                    config=config,
+                )
 
                 text = (getattr(response, "text", "") or "").strip()
                 _mark_working(model_id, api_key)
@@ -97,4 +136,4 @@ def generate_text(prompt, system_instruction=None, history=None):
                     continue
                 raise
 
-    raise last_error if last_error else RuntimeError("No Gemini models configured")
+    raise last_error if last_error else RuntimeError("No Gemini models or API keys configured")
