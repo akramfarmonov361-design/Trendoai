@@ -210,13 +210,15 @@ _CSP_DIRECTIVES = [
         "https://analytics.google.com https://stats.g.doubleclick.net "
         "https://www.facebook.com"
     ),
-    "frame-src 'self' https://www.youtube.com",
+    # Meta Pixel iframe fallback ishlatadi (brauzerda tasdiqlangan)
+    "frame-src 'self' https://www.youtube.com https://www.facebook.com",
     "media-src 'self' https:",
     "worker-src 'self'",
     "manifest-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
-    "form-action 'self'",
+    # Pixel https://www.facebook.com/tr/ ga form POST qiladi
+    "form-action 'self' https://www.facebook.com",
     "frame-ancestors 'self'",
 ]
 
@@ -229,7 +231,9 @@ CSP_REPORT_ONLY_POLICY = "; ".join(_CSP_DIRECTIVES)
 # Allaqachon jonli ishlayotgan va hech narsani buzmasligi tasdiqlangan minimal to'plam.
 CSP_BASELINE_POLICY = (
     "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; "
-    "form-action 'self'; upgrade-insecure-requests"
+    # form-action 'self' Meta Pixel'ning /tr/ ga form POSTini bloklab kelgan —
+    # brauzer konsolida "The request has been blocked" bilan tasdiqlandi.
+    "form-action 'self' https://www.facebook.com; upgrade-insecure-requests"
 )
 
 # Yangi siyosat avval kuzatuv rejimida ishlaydi. Konsolda buzilish

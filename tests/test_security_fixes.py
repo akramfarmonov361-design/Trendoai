@@ -403,3 +403,49 @@ def test_dead_base_v2_template_is_removed():
     import os
 
     assert not os.path.exists('templates/base_v2.html')
+
+
+def test_base_template_has_no_inline_event_handlers():
+    """base.html Bosqich 2 dan keyin inline handlersiz bo'lishi kerak"""
+    html = open('templates/base.html', encoding='utf-8').read()
+    handlers = re.findall(r'\son[a-z]+="', html)
+    assert not handlers, f"base.html da inline handler qoldi: {handlers}"
+
+
+def test_base_template_loads_application_js_externally():
+    """Katta inline bloklar tashqi fayllarga chiqarilgan bo'lishi kerak"""
+    import os
+
+    html = open('templates/base.html', encoding='utf-8').read()
+    assert "js/site.js" in html
+    assert "js/chatbot.js" in html
+    for path in ('static/js/site.js', 'static/js/chatbot.js'):
+        assert os.path.exists(path), f"{path} yo'q"
+        source = open(path, encoding='utf-8').read()
+        # Tashqi .js fayl Jinja orqali render qilinmaydi — shablon sintaksisi
+        # u yerda matn bo'lib qolib, jimgina buziladi.
+        assert '{{' not in source and '{%' not in source, f"{path} da Jinja sintaksisi bor"
+
+
+def test_vapid_key_is_passed_through_data_attribute():
+    """VAPID kaliti inline JS o'rniga body data-atributidan olinadi"""
+    html = open('templates/base.html', encoding='utf-8').read()
+    site_js = open('static/js/site.js', encoding='utf-8').read()
+    assert 'data-vapid-key=' in html
+    assert 'document.body.dataset.vapidKey' in site_js
+
+
+def test_csp_allows_meta_pixel_form_and_frame_fallbacks():
+    """Brauzerda tasdiqlangan: Pixel /tr/ ga form POST va iframe ishlatadi.
+
+    form-action 'self' bu POSTni bloklab kelgan — Pixel qisman ishlamagan.
+    """
+    from config import CSP_BASELINE_POLICY, CSP_POLICY
+
+    for policy in (CSP_POLICY, CSP_BASELINE_POLICY):
+        form_action = next(p for p in policy.split('; ') if p.startswith('form-action'))
+        assert 'https://www.facebook.com' in form_action, f"form-action Pixelni bloklaydi: {form_action}"
+
+    frame_src = next(p for p in CSP_POLICY.split('; ') if p.startswith('frame-src'))
+    assert 'https://www.facebook.com' in frame_src
+    assert 'https://www.youtube.com' in frame_src
