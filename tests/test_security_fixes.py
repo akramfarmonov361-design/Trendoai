@@ -407,7 +407,11 @@ def test_dead_base_v2_template_is_removed():
 
 # Bosqich 2 da inline handlerlardan tozalangan shablonlar.
 # Yangi shablon konvertatsiya qilinganda shu ro'yxatga qo'shiladi.
-CSP_CLEAN_TEMPLATES = ('templates/base.html', 'templates/services.html')
+CSP_CLEAN_TEMPLATES = (
+    'templates/base.html',
+    'templates/services.html',
+    'templates/portfolio.html',
+)
 
 
 def test_converted_templates_have_no_inline_event_handlers():
@@ -485,3 +489,62 @@ def test_services_handlers_became_data_attributes():
 
     # Pixel yuklanmagan sahifada ham xato bermasligi kerak
     assert "typeof fbq === 'undefined'" in js
+
+
+def test_portfolio_data_block_is_valid_json():
+    """Ma'lumot bajariladigan skript emas, JSON data-blokida bo'lishi kerak.
+
+    <script type="application/json"> bajarilmaydi, shuning uchun CSP
+    script-src unga taalluqli emas — inline JS'siz ma'lumot uzatish yo'li.
+    """
+    import json
+    import re as _re
+
+    from extensions import db
+
+    with app.app_context():
+        db.create_all()
+
+    with app.test_client() as client:
+        resp = client.get('/portfolio')
+        assert resp.status_code == 200
+        html = resp.get_data(as_text=True)
+
+    match = _re.search(
+        r'<script type="application/json" id="portfolios-data">(.*?)</script>',
+        html, _re.DOTALL)
+    assert match, 'portfolios-data bloki topilmadi'
+
+    payload = json.loads(match.group(1))
+    assert set(payload) == {'items', 'useFallback', 'orderUrl'}
+    assert isinstance(payload['items'], list)
+    assert isinstance(payload['useFallback'], bool)
+    assert payload['orderUrl'].startswith('/')
+
+
+def test_portfolio_modal_lookup_tolerates_string_ids():
+    """data-atributdan kelgan id doim satr; baza id'lari esa son.
+
+    Qat'iy `p.id === projectId` taqqoslash hech bir modalni ochmasdi.
+    """
+    js = open('static/js/portfolio.js', encoding='utf-8').read()
+    assert 'String(p.id) === String(projectId)' in js
+    assert 'p.id === projectId' not in js
+
+
+def test_portfolio_handlers_became_delegated_listeners():
+    """66 ta inline handler bitta delegatsiyaga yig'ilgan bo'lishi kerak"""
+    html = open('templates/portfolio.html', encoding='utf-8').read()
+    js = open('static/js/portfolio.js', encoding='utf-8').read()
+
+    assert 'data-modal-id=' in html
+    assert 'data-modal-close' in html
+    # stopPropagation endi umuman kerak emas — delegatsiya buni hal qiladi
+    assert 'stopPropagation' not in html
+
+    assert "e.target.closest('[data-modal-id]')" in js
+    assert "e.target.closest('[data-modal-close]')" in js
+    assert '{{' not in js and '{%' not in js, 'portfolio.js da Jinja sintaksisi bor'
+
+    # Baza bo'sh bo'lganda ko'rsatiladigan namoyish loyihalari saqlanib qolgan
+    assert js.count("id: 'manual-") == 12
