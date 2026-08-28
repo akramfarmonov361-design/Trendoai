@@ -405,11 +405,17 @@ def test_dead_base_v2_template_is_removed():
     assert not os.path.exists('templates/base_v2.html')
 
 
-def test_base_template_has_no_inline_event_handlers():
-    """base.html Bosqich 2 dan keyin inline handlersiz bo'lishi kerak"""
-    html = open('templates/base.html', encoding='utf-8').read()
-    handlers = re.findall(r'\son[a-z]+="', html)
-    assert not handlers, f"base.html da inline handler qoldi: {handlers}"
+# Bosqich 2 da inline handlerlardan tozalangan shablonlar.
+# Yangi shablon konvertatsiya qilinganda shu ro'yxatga qo'shiladi.
+CSP_CLEAN_TEMPLATES = ('templates/base.html', 'templates/services.html')
+
+
+def test_converted_templates_have_no_inline_event_handlers():
+    """Tozalangan shablonlarga inline handler qaytib kirmasligi kerak"""
+    for path in CSP_CLEAN_TEMPLATES:
+        html = open(path, encoding='utf-8').read()
+        handlers = re.findall(r'\son[a-z]+="[^"]*"', html)
+        assert not handlers, f"{path} da inline handler qaytdi: {handlers}"
 
 
 def test_base_template_loads_application_js_externally():
@@ -449,3 +455,33 @@ def test_csp_allows_meta_pixel_form_and_frame_fallbacks():
     frame_src = next(p for p in CSP_POLICY.split('; ') if p.startswith('frame-src'))
     assert 'https://www.facebook.com' in frame_src
     assert 'https://www.youtube.com' in frame_src
+
+
+def test_services_page_js_is_external_and_jinja_free():
+    """Bosh sahifa (services.html) skriptlari tashqi faylda bo'lishi kerak"""
+    import os
+
+    html = open('templates/services.html', encoding='utf-8').read()
+    assert 'js/services.js' in html
+    assert os.path.exists('static/js/services.js')
+
+    source = open('static/js/services.js', encoding='utf-8').read()
+    assert '{{' not in source and '{%' not in source, 'services.js da Jinja sintaksisi bor'
+
+    # JSON-LD data-bloklari qoladi: ular bajarilmaydi va script-src ularga tegmaydi
+    assert html.count('<script type="application/ld+json">') == 2
+
+
+def test_services_handlers_became_data_attributes():
+    """18 ta inline handler data-atribut + addEventListener ga o'tgan bo'lishi kerak"""
+    html = open('templates/services.html', encoding='utf-8').read()
+    js = open('static/js/services.js', encoding='utf-8').read()
+
+    assert html.count('data-fb-addtocart=') == 4, 'Pixel AddToCart tugmalari'
+    assert html.count('data-calc-input') == 9, 'kalkulyator inputlari'
+
+    for hook in ('[data-fb-addtocart]', '[data-calc-input]', '.type-card', '.btn-calc-apply'):
+        assert hook in js, f'{hook} uchun listener yo\'q'
+
+    # Pixel yuklanmagan sahifada ham xato bermasligi kerak
+    assert "typeof fbq === 'undefined'" in js
