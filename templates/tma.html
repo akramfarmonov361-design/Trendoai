@@ -405,10 +405,10 @@
 
     <!-- TABS -->
     <div class="tabs-nav">
-        <button class="tab-btn active" onclick="switchTab('catalog')">🚀 Xizmatlar</button>
-        <button class="tab-btn" onclick="switchTab('calc')">🧮 Narx Kalkulyatori</button>
-        <button class="tab-btn" onclick="switchTab('chat')">💬 AI Assistent</button>
-        <button class="tab-btn" onclick="switchTab('about')">ℹ️ Biz haqimizda</button>
+        <button class="tab-btn active" data-tab="catalog">🚀 Xizmatlar</button>
+        <button class="tab-btn" data-tab="calc">🧮 Narx Kalkulyatori</button>
+        <button class="tab-btn" data-tab="chat">💬 AI Assistent</button>
+        <button class="tab-btn" data-tab="about">ℹ️ Biz haqimizda</button>
     </div>
 
     <main class="container">
@@ -417,7 +417,7 @@
             <div class="promo-card">
                 <div class="promo-title">Biznesingizni avtomatlashtiring ⚡</div>
                 <div class="promo-text">Telegram botlar, zamonaviy veb-saytlar va 24/7 ishlaydigan aqlli AI chatbotlar bilan savdongizni 2x ga oshiring.</div>
-                <button class="service-btn" onclick="openOrderModal('Tezkor Konsultatsiya', 'Kelishilgan')">📞 Bepul Konsultatsiya Olish</button>
+                <button class="service-btn" data-order-name="Tezkor Konsultatsiya" data-order-price="Kelishilgan">📞 Bepul Konsultatsiya Olish</button>
             </div>
 
             <div class="service-list">
@@ -430,7 +430,7 @@
                         </div>
                     </div>
                     <div class="service-desc">Katalog, savat, Click/Payme to'lovlari, buyurtma boshqaruvi va CRM integratsiyali aqlli botlar.</div>
-                    <button class="service-btn" onclick="openOrderModal('Telegram Bot', '300,000 - 3,000,000 so\'m')">Buyurtma berish</button>
+                    <button class="service-btn" data-order-name="Telegram Bot" data-order-price="300,000 - 3,000,000 so'm">Buyurtma berish</button>
                 </div>
 
                 <div class="service-item">
@@ -442,7 +442,7 @@
                         </div>
                     </div>
                     <div class="service-desc">Tezkor Landing Page, biznes vizitka va korporativ saytlar. Mobilga to'liq mos va SEO optimizatsiyalangan.</div>
-                    <button class="service-btn" onclick="openOrderModal('Veb-sayt', '500,000 - 5,000,000 so\'m')">Buyurtma berish</button>
+                    <button class="service-btn" data-order-name="Veb-sayt" data-order-price="500,000 - 5,000,000 so'm">Buyurtma berish</button>
                 </div>
 
                 <div class="service-item">
@@ -454,7 +454,7 @@
                         </div>
                     </div>
                     <div class="service-desc">ChatGPT / Gemini asosida mijoz savollariga 24/7 tushunarli javob qaytaruvchi va lid yig'uvchi virtual sotuvchi.</div>
-                    <button class="service-btn" onclick="openOrderModal('AI Chatbot', '1,000,000 - 4,000,000 so\'m')">Buyurtma berish</button>
+                    <button class="service-btn" data-order-name="AI Chatbot" data-order-price="1,000,000 - 4,000,000 so'm">Buyurtma berish</button>
                 </div>
 
                 <div class="service-item">
@@ -466,7 +466,7 @@
                         </div>
                     </div>
                     <div class="service-desc">Instagram va Facebook Ads orqali eng ko'p haridor topuvchi professional target reklama sozlash.</div>
-                    <button class="service-btn" onclick="openOrderModal('Target Reklama', '600,000 - 1,200,000 so\'m')">Buyurtma berish</button>
+                    <button class="service-btn" data-order-name="Target Reklama" data-order-price="600,000 - 1,200,000 so'm">Buyurtma berish</button>
                 </div>
             </div>
         </section>
@@ -475,7 +475,7 @@
         <section id="tab-calc" class="tab-content">
             <div class="calc-card">
                 <label class="calc-label" for="calc-service">Asosiy xizmat turi:</label>
-                <select id="calc-service" class="select-input" onchange="calculatePrice()">
+                <select id="calc-service" class="select-input" data-calc-input>
                     <option value="bot" data-price="400000" data-days="3">📱 Telegram Bot (Boshlang'ich - 400,000 so'm)</option>
                     <option value="web" data-price="700000" data-days="5">🌐 Landing Page / Veb-sayt (700,000 so'm)</option>
                     <option value="ai" data-price="1200000" data-days="7">🧠 AI Chatbot Yordamchi (1,200,000 so'm)</option>
@@ -487,23 +487,23 @@
                 <div class="options-group">
                     <label class="option-checkbox">
                         <span>💳 Click & Payme to'lov tizimi</span>
-                        <input type="checkbox" id="opt-payment" data-price="350000" data-days="2" onchange="calculatePrice()">
+                        <input type="checkbox" id="opt-payment" data-price="350000" data-days="2" data-calc-input>
                     </label>
                     <label class="option-checkbox">
                         <span>📊 Admin Boshqaruv Paneli (Web CRM)</span>
-                        <input type="checkbox" id="opt-admin" data-price="400000" data-days="2" onchange="calculatePrice()">
+                        <input type="checkbox" id="opt-admin" data-price="400000" data-days="2" data-calc-input>
                     </label>
                     <label class="option-checkbox">
                         <span>🤖 Gemini AI Javob Beruvchi</span>
-                        <input type="checkbox" id="opt-ai" data-price="600000" data-days="3" onchange="calculatePrice()">
+                        <input type="checkbox" id="opt-ai" data-price="600000" data-days="3" data-calc-input>
                     </label>
                     <label class="option-checkbox">
                         <span>🌐 Ko'p tilli interfeys (UZ / RU / EN)</span>
-                        <input type="checkbox" id="opt-lang" data-price="250000" data-days="1" onchange="calculatePrice()">
+                        <input type="checkbox" id="opt-lang" data-price="250000" data-days="1" data-calc-input>
                     </label>
                     <label class="option-checkbox">
                         <span>⚡ Tezkor topshirish (Express 48 soat)</span>
-                        <input type="checkbox" id="opt-express" data-price="450000" data-days="-2" onchange="calculatePrice()">
+                        <input type="checkbox" id="opt-express" data-price="450000" data-days="-2" data-calc-input>
                     </label>
                 </div>
 
@@ -513,7 +513,7 @@
                     <div class="calc-time-val" id="calc-time">⏱ Tayyor bo'lish muddati: ~3 kun</div>
                 </div>
 
-                <button class="service-btn" style="margin-top: 14px;" onclick="orderFromCalculator()">🚀 Ushbu hisob bilan buyurtma berish</button>
+                <button class="service-btn" style="margin-top: 14px;" data-calc-order>🚀 Ushbu hisob bilan buyurtma berish</button>
             </div>
         </section>
 
@@ -525,7 +525,7 @@
                 <p style="font-size: 0.85rem; color: var(--hint-color); margin: 8px 0 16px;">
                     Savolingizni botimizga to'g'ridan-to'g'ri yozishingiz yoki veb-saytimiz orqali jonli muloqot qilishingiz mumkin.
                 </p>
-                <button class="service-btn" onclick="window.location.href='https://trendoai.uz'">🌐 Saytda AI Chat ochish</button>
+                <button class="service-btn" data-href="https://trendoai.uz">🌐 Saytda AI Chat ochish</button>
             </div>
         </section>
 
@@ -548,28 +548,28 @@
 
     <!-- BOTTOM NAVBAR -->
     <nav class="bottom-nav">
-        <button class="nav-item active" onclick="switchTab('catalog')">
+        <button class="nav-item active" data-tab="catalog">
             <span class="nav-icon">🚀</span>
             <span>Xizmatlar</span>
         </button>
-        <button class="nav-item" onclick="switchTab('calc')">
+        <button class="nav-item" data-tab="calc">
             <span class="nav-icon">🧮</span>
             <span>Kalkulyator</span>
         </button>
-        <button class="nav-item" onclick="switchTab('chat')">
+        <button class="nav-item" data-tab="chat">
             <span class="nav-icon">💬</span>
             <span>AI Maslahat</span>
         </button>
-        <button class="nav-item" onclick="switchTab('about')">
+        <button class="nav-item" data-tab="about">
             <span class="nav-icon">ℹ️</span>
             <span>Biz haqimizda</span>
         </button>
     </nav>
 
     <!-- ORDER MODAL -->
-    <div class="modal" id="order-modal" onclick="if(event.target === this) closeOrderModal()">
+    <div class="modal" id="order-modal">
         <div class="modal-body">
-            <button class="close-btn" onclick="closeOrderModal()">✕</button>
+            <button class="close-btn" data-modal-close>✕</button>
             <div class="modal-title">📝 Buyurtma berish</div>
             
             <label class="calc-label">Xizmat:</label>
@@ -587,135 +587,10 @@
             <label class="calc-label">Loyiha haqida qisqacha:</label>
             <input type="text" id="modal-comment" class="text-input" placeholder="Qo'shimcha talablaringiz...">
 
-            <button class="service-btn" id="modal-submit-btn" onclick="submitOrder()">Yuborish 🚀</button>
+            <button class="service-btn" id="modal-submit-btn">Yuborish 🚀</button>
         </div>
     </div>
 
-    <script>
-        // Telegram WebApp Initialization
-        const tg = window.Telegram?.WebApp;
-        if (tg) {
-            tg.ready();
-            tg.expand();
-            if (tg.initDataUnsafe?.user) {
-                const u = tg.initDataUnsafe.user;
-                const name = u.first_name || u.username || 'Foydalanuvchi';
-                document.getElementById('user-greeting').innerText = `👋 ${name}`;
-                document.getElementById('modal-name').value = `${u.first_name || ''} ${u.last_name || ''}`.trim();
-                if (u.username) {
-                    document.getElementById('modal-contact').value = `@${u.username}`;
-                }
-            }
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-
-            const target = document.getElementById(`tab-${tabId}`);
-            if (target) target.classList.add('active');
-
-            const tabBtns = document.querySelectorAll('.tab-btn');
-            const navItems = document.querySelectorAll('.nav-item');
-            const tabMap = { 'catalog': 0, 'calc': 1, 'chat': 2, 'about': 3 };
-            const idx = tabMap[tabId] || 0;
-            if (tabBtns[idx]) tabBtns[idx].classList.add('active');
-            if (navItems[idx]) navItems[idx].classList.add('active');
-        }
-
-        function formatNumber(num) {
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-        }
-
-        function calculatePrice() {
-            const serviceSelect = document.getElementById('calc-service');
-            const selectedOpt = serviceSelect.options[serviceSelect.selectedIndex];
-            let price = parseInt(selectedOpt.getAttribute('data-price') || 0);
-            let days = parseInt(selectedOpt.getAttribute('data-days') || 3);
-
-            const options = ['opt-payment', 'opt-admin', 'opt-ai', 'opt-lang', 'opt-express'];
-            options.forEach(id => {
-                const el = document.getElementById(id);
-                if (el && el.checked) {
-                    price += parseInt(el.getAttribute('data-price') || 0);
-                    days += parseInt(el.getAttribute('data-days') || 0);
-                }
-            });
-
-            if (days < 2) days = 2;
-
-            document.getElementById('calc-total').innerText = `${formatNumber(price)} so'm`;
-            document.getElementById('calc-time').innerText = `⏱ Tayyor bo'lish muddati: ~${days} kun`;
-            return { price: `${formatNumber(price)} so'm`, days, serviceTitle: selectedOpt.text.split('(')[0].trim() };
-        }
-
-        function openOrderModal(service, price) {
-            document.getElementById('modal-service').value = service;
-            document.getElementById('modal-price').value = price;
-            document.getElementById('order-modal').classList.add('open');
-        }
-
-        function closeOrderModal() {
-            document.getElementById('order-modal').classList.remove('open');
-        }
-
-        function orderFromCalculator() {
-            const calc = calculatePrice();
-            openOrderModal(`Kalkulyator: ${calc.serviceTitle}`, `${calc.price} (~${calc.days} kun)`);
-        }
-
-        async function submitOrder() {
-            const service = document.getElementById('modal-service').value;
-            const price = document.getElementById('modal-price').value;
-            const name = document.getElementById('modal-name').value.trim();
-            const contact = document.getElementById('modal-contact').value.trim();
-            const comment = document.getElementById('modal-comment').value.trim();
-
-            if (!contact) {
-                alert("Iltimos, telefon raqamingiz yoki Telegram profilingizni kiriting!");
-                return;
-            }
-
-            const btn = document.getElementById('modal-submit-btn');
-            btn.disabled = true;
-            btn.innerText = "Yuborilmoqda...";
-
-            try {
-                const payload = {
-                    name: name || "Telegram Mini App Mijoz",
-                    contact: contact,
-                    source: `Mini App (${service} - ${price}) ${comment ? '| Izoh: ' + comment : ''}`
-                };
-
-                const res = await fetch('/api/lead', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await res.json();
-                if (res.ok && data.status === 'success') {
-                    if (tg && tg.showPopup) {
-                        tg.showPopup({
-                            title: 'Muvaffaqiyatli!',
-                            message: 'Buyurtmangiz qabul qilindi. Tez orada mutaxassisimiz siz bilan bog\'lanadi.',
-                            buttons: [{ type: 'ok' }]
-                        });
-                    } else {
-                        alert("Rahmat! Buyurtmangiz qabul qilindi. Tez orada bog'lanamiz.");
-                    }
-                    closeOrderModal();
-                } else {
-                    alert(data.message || "Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.");
-                }
-            } catch (err) {
-                alert("Tarmoq xatosi. Iltimos, qaytadan urinib ko'ring.");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Yuborish 🚀";
-            }
-        }
-    </script>
+    <script src="{{ url_for('static', filename='js/tma.js') }}" defer></script>
 </body>
 </html>

@@ -411,6 +411,7 @@ CSP_CLEAN_TEMPLATES = (
     'templates/base.html',
     'templates/services.html',
     'templates/portfolio.html',
+    'templates/tma.html',
 )
 
 
@@ -548,3 +549,54 @@ def test_portfolio_handlers_became_delegated_listeners():
 
     # Baza bo'sh bo'lganda ko'rsatiladigan namoyish loyihalari saqlanib qolgan
     assert js.count("id: 'manual-") == 12
+
+
+def test_tma_page_js_is_external_and_jinja_free():
+    """Telegram Mini App skripti tashqi faylda bo'lishi kerak"""
+    import os
+
+    html = open('templates/tma.html', encoding='utf-8').read()
+    assert 'js/tma.js' in html
+    assert os.path.exists('static/js/tma.js')
+
+    js = open('static/js/tma.js', encoding='utf-8').read()
+    assert '{{' not in js and '{%' not in js, 'tma.js da Jinja sintaksisi bor'
+
+
+def test_tma_handlers_became_data_attributes():
+    """24 ta inline handler data-atribut + addEventListener ga o'tgan bo'lishi kerak"""
+    html = open('templates/tma.html', encoding='utf-8').read()
+    js = open('static/js/tma.js', encoding='utf-8').read()
+
+    kutilgan = {
+        'data-tab=': 8,
+        'data-calc-input': 6,
+        'data-order-name=': 5,
+        'data-order-price=': 5,
+        'data-calc-order': 1,
+        'data-modal-close': 1,
+        'data-href=': 1,
+    }
+    for atribut, son in kutilgan.items():
+        assert html.count(atribut) == son, f'{atribut}: {html.count(atribut)} != {son}'
+
+    for hook in ('[data-tab]', '[data-calc-input]', '[data-order-name]',
+                 '[data-calc-order]', '[data-modal-close]', '[data-href]'):
+        assert hook in js, f'{hook} uchun listener yo\'q'
+
+    # Modal fonini bosish faqat fonning o'zida yopishi kerak, ichida emas
+    assert 'e.target === orderModal' in js
+    assert "getElementById('modal-submit-btn')" in js
+
+
+def test_tma_prices_kept_their_apostrophes():
+    """onclick ichida narx \' bilan escape qilingan edi.
+
+    data-atributga ko'chirishda escape olib tashlanishi kerak, aks holda
+    modalda "so\'m" ko'rinardi.
+    """
+    html = open('templates/tma.html', encoding='utf-8').read()
+
+    assert 'data-order-price="300,000 - 3,000,000 so\'m"' in html
+    # Ikki belgili ketma-ketlik: teskari chiziq + apostrof
+    assert (chr(92) + "'") not in html, 'escape qilingan apostrof qoldi'
