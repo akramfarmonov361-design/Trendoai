@@ -186,9 +186,9 @@ FB_CONVERSIONS_API_TOKEN = os.getenv("FB_CONVERSIONS_API_TOKEN")
 FB_APP_SECRET = os.getenv("FB_APP_SECRET")
 
 # ========== CONTENT SECURITY POLICY ==========
-# Barcha bajariladigan JS tashqi fayllarda (static/js/), shablonlarda inline
-# skript ham, inline event handler ham yo'q. style-src da 'unsafe-inline'
-# saqlanadi: 126 ta style="" atributi bor va ularni nonce qamrab olmaydi.
+# Barcha JS va CSS tashqi fayllarda (static/js/, static/css/). Shablonlarda
+# inline skript, inline event handler, <style> bloki va style="" atributi
+# qolmagan, shuning uchun siyosatda 'unsafe-inline' ham, 'unsafe-eval' ham yo'q.
 _CSP_DIRECTIVES = [
     "default-src 'self'",
     # Bosqich 2 tugadi: shablonlarda bajariladigan inline skript ham,
@@ -199,7 +199,11 @@ _CSP_DIRECTIVES = [
         "https://www.googletagmanager.com https://www.google-analytics.com "
         "https://connect.facebook.net https://telegram.org"
     ),
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+    # Shablonlarda style="" atributi ham, <style> bloki ham qolmadi:
+    # hammasi static/css/ ga chiqarildi, shuning uchun 'unsafe-inline'
+    # bu yerda ham kerak emas. JS orqali element.style.prop = ... o'rnatish
+    # CSSOM chaqiruvi bo'lgani uchun CSP unga taalluqli emas.
+    "style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
     "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
     # Post va portfolio rasmlari bazadan keladi va admin istalgan domen
     # kiritishi mumkin, shuning uchun hozircha barcha HTTPS manbalar ochiq.

@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="dashboard">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="is-13">
         <h1>📋 Bot Menyusi</h1>
         <button class="btn btn-primary" data-modal-open="addModal">+ Yangi Mahsulot</button>
     </div>
@@ -48,7 +48,7 @@
                         <td><span class="category-tag">{{ item.category }}</span></td>
                         <td>{{ item.price }} so'm</td>
                         <td>
-                            <form action="{{ url_for('admin_menu') }}" method="POST" style="display:inline;">
+                            <form action="{{ url_for('admin_menu') }}" method="POST" class="is-14">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <input type="hidden" name="action" value="delete_item">
                                 <input type="hidden" name="item_id" value="{{ item.id }}">
@@ -68,18 +68,18 @@
         <div class="recent-posts">
             <h2>📋 Kategoriyalar ({% if categories %}{{ categories|length }}{% else %}0{% endif %})</h2>
             
-            <form action="{{ url_for('admin_menu') }}" method="POST" style="margin-bottom: 20px; display: flex; gap: 10px;">
+            <form action="{{ url_for('admin_menu') }}" method="POST" class="is-15">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <input type="hidden" name="action" value="add_category">
-                <input type="text" name="emoji" placeholder="Emoji (Masalan: 🍕)" required style="width: 80px; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
-                <input type="text" name="name" placeholder="Kategoriya nomi" required style="flex:1; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
-                <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Qo'shish</button>
+                <input type="text" name="emoji" placeholder="Emoji (Masalan: 🍕)" required class="is-16">
+                <input type="text" name="name" placeholder="Kategoriya nomi" required class="is-17">
+                <button type="submit" class="btn btn-primary is-18">Qo'shish</button>
             </form>
 
             {% if categories %}
-            <ul style="list-style: none; padding: 0;">
+            <ul class="is-19">
                 {% for cat in categories %}
-                <li style="padding: 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;">
+                <li class="is-20">
                     <span>{{ cat.emoji }} {{ cat.name }}</span>
                     <span class="category-tag">Status: {% if cat.is_active %}Aktiv{% else %}Noaktiv{% endif %}</span>
                 </li>
@@ -129,50 +129,13 @@
         
         <div class="form-group">
             <label>Tavsifi (ixtiyoriy)</label>
-            <textarea name="description" rows="3" placeholder="Masalan: Mazali pishloq va pepperoni kolbasasi bilan..." style="min-height: 80px;"></textarea>
+            <textarea name="description" rows="3" placeholder="Masalan: Mazali pishloq va pepperoni kolbasasi bilan..." class="is-21"></textarea>
         </div>
         
-        <button type="submit" class="btn btn-primary" style="width:100%">Saqlash</button>
+        <button type="submit" class="btn btn-primary is-22">Saqlash</button>
     </form>
   </div>
 </div>
 
-<style>
-/* Modal CSS */
-.modal {
-  display: none; 
-  position: fixed; 
-  z-index: 1000; 
-  left: 0;
-  top: 0;
-  width: 100%; 
-  height: 100%; 
-  overflow: auto; 
-  background-color: rgba(0,0,0,0.4); 
-}
-
-.modal-content {
-  background-color: #fefefe;
-  margin: 10% auto; 
-  padding: 30px;
-  border: 1px solid #888;
-  width: 90%;
-  max-width: 500px;
-  border-radius: 16px;
-}
-
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
-}
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/admin-menu_manage.css') }}">
 {% endblock %}

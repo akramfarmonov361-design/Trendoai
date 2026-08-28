@@ -46,12 +46,10 @@
                     </td>
                     <td>{{ post.created_at.strftime('%d.%m.%Y %H:%M') if post.created_at else 'N/A' }}</td>
                     <td class="actions">
-                        <a href="{{ url_for('admin_edit_post', post_id=post.id) }}" class="btn-sm"
-                            style="background: #dbeafe; color: #2563eb; margin-right: 5px;" title="Tahrirlash">✏️</a>
-                        <form action="{{ url_for('admin_delete_post', post_id=post.id) }}" method="POST"
-                            style="display: inline;" data-confirm="Rostdan ham o&#39;chirmoqchimisiz?">
+                        <a href="{{ url_for('admin_edit_post', post_id=post.id) }}" class="btn-sm is-28" title="Tahrirlash">✏️</a>
+                        <form action="{{ url_for('admin_delete_post', post_id=post.id) }}" method="POST" data-confirm="Rostdan ham o&#39;chirmoqchimisiz?" class="is-29">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                            <button type="submit" class="btn-sm danger" style="padding: 6px 10px;"
+                            <button type="submit" class="btn-sm danger is-30"
                                 title="O'chirish">🗑️</button>
                         </form>
                     </td>
@@ -85,76 +83,5 @@
     {% endif %}
 </div>
 
-<style>
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-    }
-
-    .header-actions {
-        display: flex;
-        gap: 10px;
-    }
-
-    .posts-list {
-        background: white;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    }
-
-    .status-badge {
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-    }
-
-    .status-badge.published {
-        background: #d1fae5;
-        color: #059669;
-    }
-
-    .status-badge.draft {
-        background: #fef3c7;
-        color: #d97706;
-    }
-
-    .actions {
-        display: flex;
-        gap: 8px;
-    }
-
-    .btn-sm.danger {
-        background: #fee2e2;
-        border: none;
-        cursor: pointer;
-    }
-
-    .empty-state {
-        background: white;
-        padding: 60px;
-        text-align: center;
-        border-radius: 16px;
-    }
-
-    .empty-icon {
-        font-size: 4rem;
-    }
-
-    .empty-state h3 {
-        margin: 20px 0 10px;
-    }
-
-    .empty-state p {
-        color: var(--gray);
-        margin-bottom: 20px;
-    }
-
-    .page-info {
-        padding: 10px 16px;
-        color: var(--gray);
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/admin-posts.css') }}">
 {% endblock %}

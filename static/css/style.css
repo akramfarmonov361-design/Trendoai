@@ -2721,3 +2721,17 @@ footer {
     }
 }
 
+
+/* Til almashtirgich. Ilgari shartli style="" atributi edi; CSP style-src
+   uchun inline uslublar olib tashlanganda shartli klassga o'tkazildi. */
+.lang-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 2px 6px;
+    border-radius: 12px;
+}
+
+.lang-link-active {
+    color: var(--primary-light);
+    background: rgba(99, 102, 241, 0.2);
+}

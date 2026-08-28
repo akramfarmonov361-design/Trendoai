@@ -1,0 +1,82 @@
+.admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .admin-header h1 {
+        font-size: 1.8rem;
+        background: var(--gradient-text);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .emoji-cell {
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    .badge-featured {
+        background: var(--accent);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        margin-left: 8px;
+    }
+
+    .category-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .category-bot {
+        background: #10B981;
+        color: white;
+    }
+
+    .category-web {
+        background: #3B82F6;
+        color: white;
+    }
+
+    .category-ai {
+        background: #8B5CF6;
+        color: white;
+    }
+
+    .category-mobile {
+        background: #F59E0B;
+        color: white;
+    }
+
+    .tech-tag {
+        display: inline-block;
+        padding: 2px 8px;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font-size: 0.75rem;
+        margin: 2px;
+    }
+
+    .status-active {
+        color: #10B981;
+    }
+
+    .status-draft {
+        color: #F59E0B;
+    }
+
+    .actions-cell {
+        white-space: nowrap;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-muted);
+    }

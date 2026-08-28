@@ -4,19 +4,18 @@
 
 {% block content %}
 <div class="quick-actions">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="is-13">
         <h2>{{ 'Yangi Xizmat Qo\'shish' if not service else 'Tahrirlash: ' + service.title }}</h2>
-        <button type="button" id="ai-generate-btn" class="btn btn-primary"
-            style="display: flex; align-items: center; gap: 8px;">
+        <button type="button" id="ai-generate-btn" class="btn btn-primary is-31">
             🤖 AI bilan to'ldirish
         </button>
     </div>
 
-    <form method="POST" id="service-form" style="max-width: 800px;">
+    <form method="POST" id="service-form" class="is-32">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <!-- Asosiy Ma'lumotlar -->
-        <div style="background: var(--light); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <h3 style="margin-bottom: 15px; color: var(--primary);">Asosiy ma'lumotlar</h3>
+        <div class="is-33">
+            <h3 class="is-34">Asosiy ma'lumotlar</h3>
 
             <div class="form-group">
                 <label for="title">Xizmat nomi *</label>
@@ -28,32 +27,30 @@
                 <label for="slug">Slug (URL) - lotin harflarida</label>
                 <input type="text" id="slug" name="slug" value="{{ service.slug if service else '' }}"
                     placeholder="masalan: web-sites">
-                <small style="color: var(--gray);">Sayt manzilida ko'rinadi: trendoai.uz/services/<b>slug</b></small>
+                <small class="is-35">Sayt manzilida ko'rinadi: trendoai.uz/services/<b>slug</b></small>
             </div>
 
             <div class="form-group">
                 <label for="description">Qisqa tavsif (Tagline)</label>
-                <textarea id="description" name="description"
-                    style="min-height: 80px;">{{ service.description if service else '' }}</textarea>
+                <textarea id="description" name="description" class="is-21">{{ service.description if service else '' }}</textarea>
             </div>
 
             <div class="form-group">
                 <label for="full_description">To'liq tavsif (Batafsil sahifa uchun)</label>
-                <textarea id="full_description" name="full_description"
-                    style="min-height: 200px;">{{ service.full_description if service else '' }}</textarea>
+                <textarea id="full_description" name="full_description" class="is-36">{{ service.full_description if service else '' }}</textarea>
             </div>
 
             <div class="form-group">
                 <label for="features">Xususiyatlar (JSON formatda)</label>
-                <textarea id="features" name="features" style="min-height: 100px;"
-                    placeholder='["Feature 1", "Feature 2"]'>{{ service.features if service else '' }}</textarea>
-                <small style="color: var(--gray);">Format: ["Tezkor", "Sifatli", "Professional"]</small>
+                <textarea id="features" name="features"
+                    placeholder='["Feature 1", "Feature 2"]' class="is-37">{{ service.features if service else '' }}</textarea>
+                <small class="is-35">Format: ["Tezkor", "Sifatli", "Professional"]</small>
             </div>
         </div>
 
         <!-- SEO & Media -->
-        <div style="background: var(--light); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <h3 style="margin-bottom: 15px; color: var(--primary);">Rasm va SEO</h3>
+        <div class="is-33">
+            <h3 class="is-34">Rasm va SEO</h3>
 
             <div class="form-group">
                 <label for="image_url">Rasm URL (Facebook Katalog uchun)</label>
@@ -68,10 +65,10 @@
         </div>
 
         <!-- Sozlamalar -->
-        <div style="background: var(--light); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <h3 style="margin-bottom: 15px; color: var(--primary);">Sozlamalar va Narx</h3>
+        <div class="is-33">
+            <h3 class="is-34">Sozlamalar va Narx</h3>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="is-38">
                 <div class="form-group">
                     <label for="price">Narxi</label>
                     <input type="text" id="price" name="price" value="{{ service.price if service and service.price else '' }}"
@@ -95,8 +92,8 @@
                 <input type="number" id="order" name="order" value="{{ service.order if service else 0 }}">
             </div>
 
-            <h4 style="margin: 15px 0 10px;">Chegirma (Aksiya)</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <h4 class="is-39">Chegirma (Aksiya)</h4>
+            <div class="is-38">
                 <div class="form-group">
                     <label for="discount_percent">Foiz (%)</label>
                     <input type="number" id="discount_percent" name="discount_percent"
@@ -110,10 +107,9 @@
             </div>
         </div>
 
-        <div style="display: flex; gap: 15px; margin-top: 30px;">
-            <button type="submit" class="btn btn-primary"
-                style="padding: 14px 30px; font-size: 1.1rem;">Saqlash</button>
-            <a href="{{ url_for('admin_services') }}" class="btn" style="background: var(--gray); color: white;">Bekor
+        <div class="is-40">
+            <button type="submit" class="btn btn-primary is-41">Saqlash</button>
+            <a href="{{ url_for('admin_services') }}" class="btn is-42">Bekor
                 qilish</a>
         </div>
     </form>

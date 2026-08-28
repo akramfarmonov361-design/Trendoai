@@ -105,13 +105,13 @@
 <section class="portfolio-grid">
     {% if portfolios %}
     {% for item in portfolios %}
-    <article class="portfolio-card {% if item.is_featured %}featured{% endif %}" data-category="{{ item.category }}"
-        data-modal-id="{{ item.id }}" style="cursor: pointer;">
+    <article class="portfolio-card {% if item.is_featured %}featured{% endif %} is-63" data-category="{{ item.category }}"
+        data-modal-id="{{ item.id }}">
         {% if item.is_featured %}
         <div class="card-badge">⭐ Featured</div>
         {% endif %}
         {% if item.video_url %}
-        <div class="card-video-badge" style="position: absolute; top: 12px; left: 12px; background: rgba(239, 68, 68, 0.9); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; z-index: 2; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">▶ Video</div>
+        <div class="card-video-badge is-64">▶ Video</div>
         {% endif %}
         <div class="card-image">
             <span class="card-emoji">{{ item.emoji }}</span>
@@ -125,7 +125,7 @@
             </div>
         </div>
         <div class="card-content">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <div class="is-65">
                 <span class="card-category">
                     {% if item.category == 'bot' %}Telegram Bot
                     {% elif item.category == 'web' %}Web Sayt
@@ -135,12 +135,12 @@
                     {% endif %}
                 </span>
                 {% if item.problem or item.result %}
-                <span style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px;">📊 Case Study</span>
+                <span class="is-66">📊 Case Study</span>
                 {% endif %}
             </div>
 
             {% if item.client_name %}
-            <div style="font-size: 0.8rem; color: #38bdf8; font-weight: 600; margin-bottom: 4px;">🏢 {{ item.client_name }}</div>
+            <div class="is-67">🏢 {{ item.client_name }}</div>
             {% endif %}
 
             <h3>{{ item.title }}</h3>
@@ -334,7 +334,7 @@
     </article>
 
     <!-- Project 9 -->
-    <article class="portfolio-card" data-category="web" data-modal-id="manual-kfc" style="cursor: pointer;">
+    <article class="portfolio-card is-63" data-category="web" data-modal-id="manual-kfc">
         <div class="card-image">
             <span class="card-emoji">🍗</span>
             <div class="card-overlay">
@@ -365,7 +365,7 @@
     </article>
 
     <!-- Project 10 -->
-    <article class="portfolio-card" data-category="web" data-modal-id="manual-realnews" style="cursor: pointer;">
+    <article class="portfolio-card is-63" data-category="web" data-modal-id="manual-realnews">
         <div class="card-image">
             <span class="card-emoji">📰</span>
             <div class="card-overlay">
@@ -396,7 +396,7 @@
     </article>
 
     <!-- Project 11 -->
-    <article class="portfolio-card" data-category="ai" data-modal-id="manual-trendoaispeak" style="cursor: pointer;">
+    <article class="portfolio-card is-63" data-category="ai" data-modal-id="manual-trendoaispeak">
         <div class="card-image">
             <span class="card-emoji">AI</span>
             <div class="card-overlay">
@@ -427,7 +427,7 @@
     </article>
 
     <!-- Project 12 -->
-    <article class="portfolio-card" data-category="ai" data-modal-id="manual-shifo-nur-chatbot" style="cursor: pointer;">
+    <article class="portfolio-card is-63" data-category="ai" data-modal-id="manual-shifo-nur-chatbot">
         <div class="card-image">
             <span class="card-emoji">MED</span>
             <div class="card-overlay">
@@ -460,7 +460,7 @@
     {% if false %}
     <!-- Legacy fallback projects 13–20 are kept in source but not rendered. -->
     <!-- Project 13 -->
-    <article class="portfolio-card" data-category="web" data-modal-id="manual-ozbek-talaffuz-kontent" style="cursor: pointer;">
+    <article class="portfolio-card is-63" data-category="web" data-modal-id="manual-ozbek-talaffuz-kontent">
         <div class="card-image">
             <span class="card-emoji">EDU</span>
             <div class="card-overlay">
@@ -491,7 +491,7 @@
     </article>
 
     <!-- Project 14 -->
-    <article class="portfolio-card" data-category="ai" data-modal-id="manual-ai-project-scoper" style="cursor: pointer;">
+    <article class="portfolio-card is-63" data-category="ai" data-modal-id="manual-ai-project-scoper">
         <div class="card-image">
             <span class="card-emoji">SCOPE</span>
             <div class="card-overlay">
@@ -522,7 +522,7 @@
     </article>
 
     <!-- Project 15 -->
-    <article class="portfolio-card" data-category="web" data-modal-id="manual-texnomarket" style="cursor: pointer;">
+    <article class="portfolio-card is-63" data-category="web" data-modal-id="manual-texnomarket">
         <div class="card-image">
             <span class="card-emoji">SHOP</span>
             <div class="card-overlay">
@@ -553,7 +553,7 @@
     </article>
 
     <!-- Project 16 -->
-    <article class="portfolio-card" data-category="web" data-modal-id="manual-paketshop" style="cursor: pointer;">
+    <article class="portfolio-card is-63" data-category="web" data-modal-id="manual-paketshop">
         <div class="card-image">
             <span class="card-emoji">PKG</span>
             <div class="card-overlay">
@@ -584,7 +584,7 @@
     </article>
 
     <!-- Project 17 -->
-    <article class="portfolio-card" data-category="web" data-modal-id="manual-restoran-kfc-site" style="cursor: pointer;">
+    <article class="portfolio-card is-63" data-category="web" data-modal-id="manual-restoran-kfc-site">
         <div class="card-image">
             <span class="card-emoji">FOOD</span>
             <div class="card-overlay">
@@ -615,7 +615,7 @@
     </article>
 
     <!-- Project 18 -->
-    <article class="portfolio-card" data-category="web" data-modal-id="manual-nomoz-vaqtlari" style="cursor: pointer;">
+    <article class="portfolio-card is-63" data-category="web" data-modal-id="manual-nomoz-vaqtlari">
         <div class="card-image">
             <span class="card-emoji">TIME</span>
             <div class="card-overlay">
@@ -646,7 +646,7 @@
     </article>
 
     <!-- Project 19 -->
-    <article class="portfolio-card" data-category="bot" data-modal-id="manual-botfactory" style="cursor: pointer;">
+    <article class="portfolio-card is-63" data-category="bot" data-modal-id="manual-botfactory">
         <div class="card-image">
             <span class="card-emoji">BOT</span>
             <div class="card-overlay">
@@ -677,7 +677,7 @@
     </article>
 
     <!-- Project 20 -->
-    <article class="portfolio-card" data-category="ai" data-modal-id="manual-instadub" style="cursor: pointer;">
+    <article class="portfolio-card is-63" data-category="ai" data-modal-id="manual-instadub">
         <div class="card-image">
             <span class="card-emoji">DUB</span>
             <div class="card-overlay">
@@ -779,539 +779,7 @@
     </div>
 </section>
 
-<style>
-    /* Portfolio Hero */
-    .portfolio-hero {
-        background: var(--gradient-hero);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xl);
-        padding: 80px 50px;
-        margin-bottom: 40px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .portfolio-hero::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background:
-            radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(244, 114, 182, 0.2) 0%, transparent 50%);
-    }
-
-    .portfolio-hero .hero-content {
-        position: relative;
-        z-index: 1;
-    }
-
-    .portfolio-hero h1 {
-        font-size: 3rem;
-        font-weight: 800;
-        margin-bottom: 16px;
-        background: var(--gradient-text);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    /* Filter Buttons */
-    .portfolio-filter {
-        display: flex;
-        justify-content: center;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-bottom: 40px;
-    }
-
-    .filter-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 44px;
-        padding: 12px 24px;
-        background: var(--bg-elevated);
-        border: 1px solid var(--border);
-        border-radius: 50px;
-        color: var(--text-secondary);
-        font-weight: 600;
-        font-family: inherit;
-        text-decoration: none;
-        cursor: pointer;
-        transition: var(--transition-smooth);
-    }
-
-    .filter-btn:hover,
-    .filter-btn.active {
-        background: var(--gradient-main);
-        border-color: transparent;
-        color: white;
-    }
-
-    /* Portfolio Grid */
-    .portfolio-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 28px;
-        margin-bottom: 60px;
-    }
-
-    /* Portfolio Card */
-    .portfolio-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        overflow: hidden;
-        transition: var(--transition-smooth);
-        position: relative;
-    }
-
-    .portfolio-card:hover {
-        transform: translateY(-10px);
-        border-color: var(--primary);
-        box-shadow: var(--shadow-glow);
-    }
-
-    .portfolio-card.featured {
-        border-color: var(--accent);
-    }
-
-    .portfolio-pagination {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 16px;
-        margin: -24px 0 56px;
-    }
-
-    .portfolio-pagination .page-link {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 44px;
-        padding: 10px 18px;
-        border: 1px solid var(--border-light);
-        border-radius: 12px;
-        color: var(--text-primary);
-        text-decoration: none;
-        background: var(--bg-card);
-    }
-
-    .portfolio-pagination .page-link:hover {
-        border-color: var(--primary);
-        color: var(--primary-light);
-    }
-
-    .card-badge {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        background: var(--gradient-main);
-        padding: 6px 14px;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        z-index: 10;
-    }
-
-    .card-image {
-        height: 200px;
-        background: var(--bg-elevated);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .card-emoji {
-        font-size: 5rem;
-        filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3));
-        transition: var(--transition-smooth);
-    }
-
-    .portfolio-card:hover .card-emoji {
-        transform: scale(1.2);
-    }
-
-    .card-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: var(--transition-smooth);
-    }
-
-    .portfolio-card:hover .card-overlay {
-        opacity: 1;
-    }
-
-    .view-btn {
-        padding: 12px 28px;
-        background: white;
-        color: var(--bg-dark);
-        border-radius: 50px;
-        font-weight: 700;
-    }
-
-    .card-content {
-        padding: 24px;
-    }
-
-    .card-category {
-        display: inline-block;
-        padding: 4px 12px;
-        background: var(--bg-elevated);
-        border-radius: 50px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--primary-light);
-        margin-bottom: 12px;
-    }
-
-    .card-content h3 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin-bottom: 10px;
-        color: var(--text-primary);
-    }
-
-    .card-content p {
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-        line-height: 1.6;
-        margin-bottom: 16px;
-    }
-
-    .card-tech {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .card-tech span {
-        padding: 4px 10px;
-        background: var(--bg-elevated);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        font-size: 0.75rem;
-        color: var(--text-muted);
-    }
-
-    /* Card Action Buttons */
-    .card-actions-bottom {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        margin-top: 16px;
-        flex-wrap: wrap;
-    }
-
-    .btn-order {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 10px 20px;
-        background: var(--gradient-main);
-        color: white;
-        text-decoration: none;
-        border-radius: 50px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        transition: var(--transition-smooth);
-        white-space: nowrap;
-    }
-
-    .btn-order:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
-    }
-
-    .btn-detail {
-        color: var(--primary);
-        text-decoration: none;
-        font-size: 0.85rem;
-        font-weight: 500;
-        transition: var(--transition-smooth);
-        white-space: nowrap;
-    }
-
-    .btn-detail:hover {
-        color: var(--secondary);
-    }
-
-    /* Detail button - visible on all screens now */
-    .card-detail-btn {
-        display: none;
-    }
-
-    /* Testimonials */
-    .testimonials-section {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xl);
-        padding: 50px;
-        margin-bottom: 40px;
-    }
-
-    .testimonials-section h2 {
-        text-align: center;
-        font-size: 2rem;
-        margin-bottom: 40px;
-        background: var(--gradient-text);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .testimonials-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 24px;
-    }
-
-    .testimonial-card {
-        background: var(--bg-elevated);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        padding: 28px;
-        transition: var(--transition-smooth);
-    }
-
-    .testimonial-card:hover {
-        border-color: var(--primary);
-        transform: translateY(-4px);
-    }
-
-    .testimonial-content p {
-        color: var(--text-secondary);
-        font-size: 1rem;
-        line-height: 1.7;
-        margin-bottom: 20px;
-        font-style: italic;
-    }
-
-    .testimonial-author {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-    }
-
-    .author-avatar {
-        width: 50px;
-        height: 50px;
-        background: var(--gradient-main);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-    }
-
-    .author-info strong {
-        display: block;
-        color: var(--text-primary);
-        font-size: 0.95rem;
-    }
-
-    .author-info span {
-        color: var(--text-muted);
-        font-size: 0.85rem;
-    }
-
-    /* CTA Buttons */
-    .cta-buttons {
-        display: flex;
-        gap: 16px;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .cta-button.primary {
-        background: white;
-        color: var(--primary-dark);
-    }
-
-    .cta-button.secondary {
-        background: transparent;
-        border: 2px solid white;
-        color: white;
-    }
-
-    .cta-button.secondary:hover {
-        background: white;
-        color: var(--primary-dark);
-    }
-
-    @media (max-width: 768px) {
-        .portfolio-hero {
-            padding: 24px 16px;
-            margin-bottom: 16px;
-        }
-
-        .portfolio-hero h1 {
-            font-size: 1.4rem;
-            margin-bottom: 8px;
-        }
-
-        .portfolio-hero .hero-subtitle {
-            font-size: 0.85rem;
-            margin-bottom: 16px;
-        }
-
-        .portfolio-hero .hero-stats {
-            flex-direction: row;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        .portfolio-hero .hero-stat .stat-value {
-            font-size: 1.4rem;
-        }
-
-        .portfolio-hero .hero-stat .stat-label {
-            font-size: 0.75rem;
-        }
-
-        .portfolio-filter {
-            gap: 6px;
-            margin-bottom: 16px;
-        }
-
-        .filter-btn {
-            padding: 9px 14px;
-            font-size: 0.875rem;
-        }
-
-        /* One-column mobile grid keeps text and actions readable. */
-        .portfolio-grid {
-            grid-template-columns: 1fr;
-            gap: 18px;
-            margin-bottom: 24px;
-            padding: 0;
-        }
-
-        .card-image {
-            height: 170px;
-        }
-
-        .card-emoji {
-            font-size: 2.5rem;
-        }
-
-        /* Hide hover overlay on mobile */
-        .card-overlay {
-            display: none;
-        }
-
-        .card-content {
-            padding: 18px;
-        }
-
-        .card-category {
-            font-size: 0.75rem !important;
-            padding: 4px 9px !important;
-            margin-bottom: 8px !important;
-        }
-
-        .card-content h3 {
-            font-size: 1.15rem;
-            margin-bottom: 8px;
-            line-height: 1.3;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .card-content p {
-            display: -webkit-box;
-            font-size: 0.9rem;
-            line-height: 1.55;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .card-tech {
-            display: flex;
-        }
-
-        /* Mobile action buttons */
-        .card-actions-bottom {
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .btn-order {
-            width: 100%;
-            justify-content: center;
-            min-height: 44px;
-            padding: 10px 14px;
-            font-size: 0.875rem;
-        }
-
-        .btn-detail {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 44px;
-            font-size: 0.875rem;
-            text-align: center;
-        }
-
-        .portfolio-pagination {
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 0 0 32px;
-        }
-
-        /* Hide old card-detail-btn */
-        .card-detail-btn {
-            display: none;
-        }
-
-        .testimonials-section {
-            padding: 20px 14px;
-            margin-bottom: 16px;
-        }
-
-        .testimonials-section h2 {
-            font-size: 1.3rem;
-            margin-bottom: 20px;
-        }
-
-        .testimonial-card {
-            padding: 16px;
-        }
-
-        .cta-section {
-            padding: 24px 16px;
-        }
-
-        .cta-section h3 {
-            font-size: 1.2rem;
-        }
-    }
-
-    /* Very small mobile */
-    @media (max-width: 380px) {
-        .portfolio-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .card-content p {
-            display: block;
-            font-size: 0.8rem;
-            margin-bottom: 8px;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/portfolio.css') }}">
 
 <!-- Project Detail Modal -->
 <div id="projectModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
@@ -1364,288 +832,7 @@
     </div>
 </div>
 
-<style>
-    /* Modal Styles */
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-        padding: 20px;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .modal-overlay.active {
-        display: flex;
-        opacity: 1;
-    }
-
-    .modal-content {
-        width: 100%;
-        max-width: 900px;
-        max-height: 90vh;
-        background: var(--glass);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius-xl);
-        position: relative;
-        overflow-y: auto;
-        transform: scale(0.9);
-        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        scrollbar-width: thin;
-        scrollbar-color: var(--primary) transparent;
-    }
-
-    .modal-overlay.active .modal-content {
-        transform: scale(1);
-    }
-
-    .modal-close {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: rgba(255, 255, 255, 0.1);
-        border: none;
-        color: white;
-        font-size: 2rem;
-        cursor: pointer;
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: var(--transition-fast);
-        z-index: 10;
-    }
-
-    .modal-close:hover {
-        background: var(--primary);
-        transform: rotate(90deg);
-    }
-
-    .modal-layout {
-        display: grid;
-        grid-template-columns: 350px 1fr;
-        min-height: 500px;
-    }
-
-    .modal-image-side {
-        background: var(--bg-elevated);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 40px;
-        border-right: 1px solid var(--border);
-        position: relative;
-    }
-
-    .modal-emoji {
-        font-size: 8rem;
-        filter: drop-shadow(0 0 40px rgba(99, 102, 241, 0.4));
-        margin-bottom: 20px;
-    }
-
-    .modal-category-badge {
-        padding: 6px 16px;
-        background: var(--gradient-main);
-        border-radius: 50px;
-        font-weight: 700;
-        font-size: 0.9rem;
-    }
-
-    .modal-info-side {
-        padding: 40px;
-    }
-
-    .modal-info-side h2 {
-        font-size: 2.2rem;
-        font-weight: 800;
-        margin-bottom: 16px;
-        background: var(--gradient-text);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .modal-tech-list {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-bottom: 30px;
-    }
-
-    .modal-tech-list span {
-        padding: 6px 14px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        font-size: 0.85rem;
-        color: var(--text-muted);
-    }
-
-    .modal-info-side h3 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: 12px;
-        color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .modal-description-section p {
-        color: var(--text-secondary);
-        line-height: 1.7;
-        margin-bottom: 30px;
-        font-size: 1.05rem;
-    }
-
-    .modal-features-section {
-        margin-bottom: 30px;
-    }
-
-    .modal-features-section ul {
-        list-style: none;
-        padding: 0;
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 10px;
-    }
-
-    .modal-features-section li {
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-        padding-left: 24px;
-        position: relative;
-    }
-
-    .modal-features-section li::before {
-        content: '✓';
-        position: absolute;
-        left: 0;
-        color: var(--accent);
-        font-weight: bold;
-    }
-
-    .modal-details-section {
-        margin-bottom: 40px;
-        padding-top: 20px;
-        border-top: 1px solid var(--border);
-    }
-
-    .modal-details-content {
-        color: var(--text-secondary);
-        line-height: 1.7;
-    }
-
-    .modal-actions {
-        display: flex;
-        gap: 16px;
-    }
-
-    .modal-btn {
-        padding: 14px 28px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: var(--transition-smooth);
-        border: none;
-        text-align: center;
-        flex: 1;
-    }
-
-    .modal-btn.primary {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-
-    .modal-btn.order-now {
-        background: var(--gradient-main);
-        color: white;
-        animation: pulse-small 2s infinite;
-    }
-
-    .modal-cta-box {
-        margin-top: 40px;
-        padding: 24px;
-        background: rgba(99, 102, 241, 0.1);
-        border: 1px solid rgba(99, 102, 241, 0.2);
-        border-radius: var(--radius-lg);
-        text-align: center;
-    }
-
-    .modal-cta-box h4 {
-        margin-bottom: 8px;
-        font-size: 1.2rem;
-    }
-
-    .modal-cta-box p {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        margin-bottom: 20px;
-    }
-
-    @keyframes pulse-small {
-        0% {
-            transform: scale(1);
-        }
-
-        50% {
-            transform: scale(1.03);
-        }
-
-        100% {
-            transform: scale(1);
-        }
-    }
-
-    .modal-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    @media (max-width: 992px) {
-        .modal-layout {
-            grid-template-columns: 1fr;
-        }
-
-        .modal-image-side {
-            padding: 30px;
-            border-right: none;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .modal-emoji {
-            font-size: 5rem;
-        }
-
-        .modal-info-side {
-            padding: 30px;
-        }
-    }
-
-    @media (max-width: 600px) {
-        .modal-info-side h2 {
-            font-size: 1.6rem;
-        }
-
-        .modal-actions {
-            flex-direction: column;
-        }
-
-        .modal-features-section ul {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/portfolio-2.css') }}">
 
 <script type="application/json" id="portfolios-data">
 {"items": [{% for item in portfolios %}{{ item.to_dict() | tojson | safe }}{% if not loop.last %},{% endif %}{% endfor %}],

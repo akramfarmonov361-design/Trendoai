@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="quick-actions">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="is-13">
         <h2>Xizmatlar</h2>
         <a href="{{ url_for('admin_service_new') }}" class="btn btn-primary">
             + Yangi Xizmat
@@ -27,41 +27,37 @@
             <tr>
                 <td>
                     {% if service.image_url %}
-                    <img src="{{ service.image_url }}" alt=""
-                        style="height: 40px; width: 40px; object-fit: cover; border-radius: 8px;">
+                    <img src="{{ service.image_url }}" alt="" class="is-43">
                     {% else %}
-                    <span style="font-size: 24px;">{{ service.icon }}</span>
+                    <span class="is-44">{{ service.icon }}</span>
                     {% endif %}
                 </td>
                 <td>
                     <b>{{ service.title }}</b><br>
-                    <small style="color: var(--gray);">/services/{{ service.slug }}</small>
+                    <small class="is-35">/services/{{ service.slug }}</small>
                 </td>
                 <td>{{ service.price }}</td>
                 <td>
                     {% if service.is_active %}
-                    <span class="category-tag" style="background: #d1fae5; color: #059669;">Faol</span>
+                    <span class="category-tag is-45">Faol</span>
                     {% else %}
-                    <span class="category-tag" style="background: #f3f4f6; color: #6b7280;">Nofaol</span>
+                    <span class="category-tag is-46">Nofaol</span>
                     {% endif %}
                 </td>
                 <td>
                     {% if service.discount_percent > 0 %}
-                    <span class="category-tag" style="background: #fee2e2; color: #dc2626;">-{{ service.discount_percent
+                    <span class="category-tag is-47">-{{ service.discount_percent
                         }}%</span>
                     {% else %}
                     -
                     {% endif %}
                 </td>
                 <td>
-                    <div style="display: flex; gap: 8px;">
-                        <a href="{{ url_for('admin_service_edit', service_id=service.id) }}" class="btn"
-                            style="padding: 6px 12px; font-size: 0.9rem; background: var(--light);">✏️</a>
-                        <form action="{{ url_for('admin_service_delete', service_id=service.id) }}" method="POST"
-                            style="display:inline;" data-confirm="O&#39;chirmoqchimisiz?">
+                    <div class="is-48">
+                        <a href="{{ url_for('admin_service_edit', service_id=service.id) }}" class="btn is-49">✏️</a>
+                        <form action="{{ url_for('admin_service_delete', service_id=service.id) }}" method="POST" data-confirm="O&#39;chirmoqchimisiz?" class="is-14">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                            <button type="submit" class="btn btn-danger"
-                                style="padding: 6px 12px; font-size: 0.9rem;">🗑️</button>
+                            <button type="submit" class="btn btn-danger is-50">🗑️</button>
                         </form>
                     </div>
                 </td>

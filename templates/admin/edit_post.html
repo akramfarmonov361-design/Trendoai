@@ -14,13 +14,13 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
             <div class="form-row">
-                <div class="form-group" style="flex: 2;">
+                <div class="form-group is-3">
                     <label for="title">📌 Sarlavha</label>
                     <input type="text" id="title" name="title" value="{{ post.title if post else '' }}" required
                         placeholder="Maqola sarlavhasini kiriting...">
                 </div>
 
-                <div class="form-group" style="flex: 1;">
+                <div class="form-group is-4">
                     <label for="category">📂 Kategoriya</label>
                     <select id="category" name="category">
                         {% for cat in categories %}
@@ -80,41 +80,5 @@
     </div>
 </div>
 
-<style>
-    .form-container {
-        background: white;
-        padding: 30px;
-        border-radius: 16px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    }
-
-    .form-row {
-        display: flex;
-        gap: 20px;
-    }
-
-    .form-help {
-        display: block;
-        margin-top: 8px;
-        color: var(--gray);
-        font-size: 0.85rem;
-    }
-
-    .form-actions {
-        display: flex;
-        gap: 12px;
-        margin-top: 30px;
-    }
-
-    .btn-secondary {
-        background: var(--light);
-        color: var(--dark);
-    }
-
-    @media (max-width: 768px) {
-        .form-row {
-            flex-direction: column;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/admin-edit_post.css') }}">
 {% endblock %}

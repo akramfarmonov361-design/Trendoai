@@ -1,0 +1,517 @@
+/* Shablonlardagi style="" atributlaridan avtomatik chiqarilgan qoidalar.
+ * Inline uslub har qanday selektordan ustun turardi, shuning uchun bu
+ * yerda !important ishlatiladi — aks holda mavjud CSS ularni bosib
+ * ketishi mumkin edi. Fayl eng oxirida yuklanadi.
+ * CSP: style-src dan 'unsafe-inline' ni olib tashlash uchun kerak. */
+
+.is-1 {
+    color:var(--gray) !important;
+}
+
+.is-2 {
+    margin-top:5px !important;
+    background:var(--primary) !important;
+    color:white !important;
+}
+
+.is-3 {
+    flex: 2 !important;
+}
+
+.is-4 {
+    flex: 1 !important;
+}
+
+.is-5 {
+    width: 50px !important;
+}
+
+.is-6 {
+    width: 80px !important;
+    text-align: center !important;
+}
+
+.is-7 {
+    width: 160px !important;
+    text-align: right !important;
+}
+
+.is-8 {
+    text-align: center !important;
+}
+
+.is-9 {
+    text-align: right !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+}
+
+.is-10 {
+    height: 70px !important;
+}
+
+.is-11 {
+    font-size: 0.75rem !important;
+    color: #94a3b8 !important;
+    margin-left: auto !important;
+}
+
+.is-12 {
+    text-align:center !important;
+    padding: 2.5rem 1rem !important;
+    color: #64748b !important;
+    font-size: 0.85rem !important;
+}
+
+.is-13 {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 20px !important;
+}
+
+.is-14 {
+    display:inline !important;
+}
+
+.is-15 {
+    margin-bottom: 20px !important;
+    display: flex !important;
+    gap: 10px !important;
+}
+
+.is-16 {
+    width: 80px !important;
+    padding: 10px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+}
+
+.is-17 {
+    flex:1 !important;
+    padding: 10px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+}
+
+.is-18 {
+    padding: 10px 20px !important;
+}
+
+.is-19 {
+    list-style: none !important;
+    padding: 0 !important;
+}
+
+.is-20 {
+    padding: 12px !important;
+    border-bottom: 1px solid var(--border) !important;
+    display: flex !important;
+    justify-content: space-between !important;
+}
+
+.is-21 {
+    min-height: 80px !important;
+}
+
+.is-22 {
+    width:100% !important;
+}
+
+.is-23 {
+    background-color: #3B82F6 !important;
+    color: white !important;
+    margin-left: 5px !important;
+}
+
+.is-24 {
+    display: none !important;
+}
+
+.is-25 {
+    padding: 8px !important;
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 6px !important;
+    color: var(--text-primary) !important;
+    width: 100% !important;
+}
+
+.is-26 {
+    color: var(--text-muted) !important;
+    display: block !important;
+    margin-top: 4px !important;
+}
+
+.is-27 {
+    margin-top: 4px !important;
+}
+
+.is-28 {
+    background: #dbeafe !important;
+    color: #2563eb !important;
+    margin-right: 5px !important;
+}
+
+.is-29 {
+    display: inline !important;
+}
+
+.is-30 {
+    padding: 6px 10px !important;
+}
+
+.is-31 {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.is-32 {
+    max-width: 800px !important;
+}
+
+.is-33 {
+    background: var(--light) !important;
+    padding: 20px !important;
+    border-radius: 12px !important;
+    margin-bottom: 20px !important;
+}
+
+.is-34 {
+    margin-bottom: 15px !important;
+    color: var(--primary) !important;
+}
+
+.is-35 {
+    color: var(--gray) !important;
+}
+
+.is-36 {
+    min-height: 200px !important;
+}
+
+.is-37 {
+    min-height: 100px !important;
+}
+
+.is-38 {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 20px !important;
+}
+
+.is-39 {
+    margin: 15px 0 10px !important;
+}
+
+.is-40 {
+    display: flex !important;
+    gap: 15px !important;
+    margin-top: 30px !important;
+}
+
+.is-41 {
+    padding: 14px 30px !important;
+    font-size: 1.1rem !important;
+}
+
+.is-42 {
+    background: var(--gray) !important;
+    color: white !important;
+}
+
+.is-43 {
+    height: 40px !important;
+    width: 40px !important;
+    object-fit: cover !important;
+    border-radius: 8px !important;
+}
+
+.is-44 {
+    font-size: 24px !important;
+}
+
+.is-45 {
+    background: #d1fae5 !important;
+    color: #059669 !important;
+}
+
+.is-46 {
+    background: #f3f4f6 !important;
+    color: #6b7280 !important;
+}
+
+.is-47 {
+    background: #fee2e2 !important;
+    color: #dc2626 !important;
+}
+
+.is-48 {
+    display: flex !important;
+    gap: 8px !important;
+}
+
+.is-49 {
+    padding: 6px 12px !important;
+    font-size: 0.9rem !important;
+    background: var(--light) !important;
+}
+
+.is-50 {
+    padding: 6px 12px !important;
+    font-size: 0.9rem !important;
+}
+
+.is-51 {
+    display:none !important;
+}
+
+.is-52 {
+    display: inline-flex !important;
+    align-items: center !important;
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 20px !important;
+    padding: 2px 6px !important;
+    gap: 3px !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    margin-left: 8px !important;
+}
+
+.is-53 {
+    color: var(--border) !important;
+    font-size: 0.65rem !important;
+}
+
+.is-54 {
+    margin-left: 10px !important;
+}
+
+.is-55 {
+    display: none !important;
+    margin-left: 10px !important;
+}
+
+.is-56 {
+    margin-top: 20px !important;
+    display: flex !important;
+    gap: 12px !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+}
+
+.is-57 {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.is-58 {
+    display: flex !important;
+    gap: 12px !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+}
+
+.is-59 {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+}
+
+.is-60 {
+    width: 100% !important;
+}
+
+.is-61 {
+    text-align: center !important;
+    margin-top: 24px !important;
+    padding: 20px !important;
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-lg) !important;
+}
+
+.is-62 {
+    color: var(--text-secondary) !important;
+    margin-bottom: 12px !important;
+}
+
+.is-63 {
+    cursor: pointer !important;
+}
+
+.is-64 {
+    position: absolute !important;
+    top: 12px !important;
+    left: 12px !important;
+    background: rgba(239, 68, 68, 0.9) !important;
+    color: #fff !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    padding: 3px 8px !important;
+    border-radius: 6px !important;
+    z-index: 2 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+}
+
+.is-65 {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 6px !important;
+}
+
+.is-66 {
+    background: rgba(16, 185, 129, 0.15) !important;
+    color: #10b981 !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    padding: 2px 8px !important;
+    border-radius: 6px !important;
+}
+
+.is-67 {
+    font-size: 0.8rem !important;
+    color: #38bdf8 !important;
+    font-weight: 600 !important;
+    margin-bottom: 4px !important;
+}
+
+.is-68 {
+    position: relative !important;
+    padding-bottom: 56.25% !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+    margin-bottom: 20px !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
+}
+
+.is-69 {
+    position: absolute !important;
+    top:0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border:0 !important;
+}
+
+.is-70 {
+    width: 100% !important;
+    border-radius: 12px !important;
+    margin-bottom: 20px !important;
+    max-height: 540px !important;
+    background: #000 !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
+}
+
+.is-71 {
+    margin-top: 10px !important;
+    font-weight: 700 !important;
+    color: var(--primary-light) !important;
+}
+
+.is-72 {
+    color: #fff !important;
+}
+
+.is-73 {
+    background: rgba(56, 189, 248, 0.15) !important;
+    color: #38bdf8 !important;
+    border: 1px solid #38bdf8 !important;
+}
+
+.is-74 {
+    display:none !important;
+    position:fixed !important;
+    z-index:9999 !important;
+    left:0 !important;
+    top:0 !important;
+    width:100% !important;
+    height:100% !important;
+    background:rgba(0,0,0,0.85) !important;
+    backdrop-filter:blur(8px) !important;
+    align-items:center !important;
+    justify-content:center !important;
+    cursor:pointer !important;
+}
+
+.is-75 {
+    max-width:90% !important;
+    max-height:90% !important;
+    border-radius:12px !important;
+    box-shadow:0 10px 30px rgba(0,0,0,0.5) !important;
+}
+
+.is-76 {
+    margin-top: 20px !important;
+    padding: 16px !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    border-radius: 12px !important;
+}
+
+.is-77 {
+    margin-bottom: 10px !important;
+}
+
+.is-78 {
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    margin-bottom: 12px !important;
+}
+
+.is-79 {
+    color:#6366f1 !important;
+    font-weight:700 !important;
+    text-transform:uppercase !important;
+    letter-spacing:0.08em !important;
+}
+
+.is-80 {
+    color:var(--text-muted) !important;
+    font-size:0.95rem !important;
+    margin-top:8px !important;
+}
+
+.is-81 {
+    margin-top: 14px !important;
+}
+
+.is-82 {
+    text-align: center !important;
+    padding: 24px 16px !important;
+}
+
+.is-83 {
+    font-size: 3rem !important;
+    margin-bottom: 10px !important;
+}
+
+.is-84 {
+    font-size: 0.85rem !important;
+    color: var(--hint-color) !important;
+    margin: 8px 0 16px !important;
+}
+
+.is-85 {
+    margin-bottom: 8px !important;
+}
+
+.is-86 {
+    font-size: 0.85rem !important;
+    color: var(--hint-color) !important;
+    line-height: 1.5 !important;
+    margin-bottom: 14px !important;
+}
+
+.is-87 {
+    font-size: 0.85rem !important;
+    color: var(--text-color) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+}

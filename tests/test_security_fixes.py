@@ -443,17 +443,17 @@ def test_no_template_has_executable_inline_script():
 
 
 def test_script_src_no_longer_allows_unsafe_inline():
-    """Inline skriptlar tugagach 'unsafe-inline' olib tashlanishi kerak,
-    aks holda CSP XSS'dan himoya qilmaydi."""
+    """Inline skriptlar va inline stillar tugagach 'unsafe-inline' olib tashlanishi kerak,
+    aks holda CSP to'liq himoya qilmaydi."""
     from config import CSP_POLICY
 
     script_src = next(p for p in CSP_POLICY.split('; ') if p.startswith('script-src'))
     assert "'unsafe-inline'" not in script_src, script_src
     assert "'unsafe-eval'" not in CSP_POLICY
 
-    # style-src da hozircha qoladi: 126 ta style="" atributi bor
+    # Barcha inline stillar ham CSS fayllariga chiqarilgan, style-src da ham 'unsafe-inline' yo'q
     style_src = next(p for p in CSP_POLICY.split('; ') if p.startswith('style-src'))
-    assert "'unsafe-inline'" in style_src
+    assert "'unsafe-inline'" not in style_src, style_src
 
 
 def test_static_urls_are_versioned():
@@ -681,3 +681,59 @@ def test_tma_prices_kept_their_apostrophes():
     assert 'data-order-price="300,000 - 3,000,000 so\'m"' in html
     # Ikki belgili ketma-ketlik: teskari chiziq + apostrof
     assert (chr(92) + "'") not in html, 'escape qilingan apostrof qoldi'
+
+
+def test_no_template_has_inline_styles():
+    """style-src 'unsafe-inline' olib tashlangach, shablonlarda inline uslub
+    qolmasligi kerak — aks holda ular jimgina qo'llanmay qoladi."""
+    style_attrs = {}
+    style_blocks = {}
+    for path in _template_files():
+        html = open(path, encoding='utf-8').read()
+        attrs = re.findall(r'\sstyle="[^"]*"', html)
+        if attrs:
+            style_attrs[path] = len(attrs)
+        if '<style' in html:
+            style_blocks[path] = html.count('<style')
+
+    assert not style_attrs, f'style="" atributlari qoldi: {style_attrs}'
+    assert not style_blocks, f'<style> bloklari qoldi: {style_blocks}'
+
+
+def test_extracted_css_has_no_template_syntax():
+    """Chiqarilgan CSS ichida Jinja qolsa, brauzer qoidani jimgina tashlab
+    yuboradi — til almashtirgichda aynan shunday bo'lgan edi."""
+    import glob
+
+    for path in glob.glob('static/css/**/*.css', recursive=True):
+        css = open(path, encoding='utf-8').read()
+        assert '{%' not in css, f'{path} da Jinja bloki bor'
+        assert '{{' not in css, f'{path} da Jinja ifodasi bor'
+
+
+def test_language_switcher_uses_conditional_class():
+    """Til havolalari shartli style="" ishlatardi; u statik klassga
+    aylantirilganda uchala til ham 'aktiv' ko'rinib qolgandi."""
+    html = open('templates/base.html', encoding='utf-8').read()
+    css = open('static/css/style.css', encoding='utf-8').read()
+
+    assert html.count('lang-link-active') == 3
+    assert '.lang-link {' in css and '.lang-link-active {' in css
+    # Shartli uslub qaytib kelmasligi kerak
+    assert 'current_lang ==' in html
+    assert not re.search(r'style="[^"]*current_lang', html)
+
+
+def test_page_css_is_linked_where_the_style_block_was():
+    """Har bir chiqarilgan CSS fayli o'z shabloniga ulangan bo'lishi kerak"""
+    import glob
+    import os
+
+    linked = set()
+    for path in _template_files():
+        html = open(path, encoding='utf-8').read()
+        linked.update(re.findall(r"css/pages/([a-z0-9_-]+\.css)", html))
+
+    mavjud = {os.path.basename(p) for p in glob.glob('static/css/pages/*.css')}
+    assert mavjud, 'css/pages/ bo\'sh'
+    assert mavjud == linked, f'ulanmagan: {mavjud - linked} | yo\'q fayl: {linked - mavjud}'

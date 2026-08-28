@@ -113,11 +113,11 @@
             <div class="article-featured-image">
                 {% if item.video_url %}
                     {% if 'embed' in (item.embed_video_url or '') or 'youtube' in (item.video_url or '') or 'youtu.be' in (item.video_url or '') %}
-                        <div class="video-responsive-wrapper" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
-                            <iframe src="{{ item.embed_video_url }}" style="position: absolute; top:0; left: 0; width: 100%; height: 100%; border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                        <div class="video-responsive-wrapper is-68">
+                            <iframe src="{{ item.embed_video_url }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen class="is-69"></iframe>
                         </div>
                     {% else %}
-                        <video src="{{ item.video_url }}" controls preload="metadata" style="width: 100%; border-radius: 12px; margin-bottom: 20px; max-height: 540px; background: #000; box-shadow: 0 8px 24px rgba(0,0,0,0.3);"></video>
+                        <video src="{{ item.video_url }}" controls preload="metadata" class="is-70"></video>
                     {% endif %}
                 {% else %}
                     <img src="{{ item.image_url or url_for('static', filename='img/og-image.jpg') }}" alt="{{ item.title }}" class="main-project-img" width="1280" height="720" fetchpriority="high" decoding="async" data-fallback-src="/static/img/og-image.jpg">
@@ -129,8 +129,8 @@
                     <h3>Loyiha haqida</h3>
                     <p>{{ item.description }}</p>
                     {% if item.client_name %}
-                    <div style="margin-top: 10px; font-weight: 700; color: var(--primary-light);">
-                        🏢 Buyurtmachi: <span style="color: #fff;">{{ item.client_name }}</span>
+                    <div class="is-71">
+                        🏢 Buyurtmachi: <span class="is-72">{{ item.client_name }}</span>
                     </div>
                     {% endif %}
                 </div>
@@ -221,7 +221,7 @@
                             🚀 Buyurtma berish
                         </a>
                         {% if item.demo_url or item.link %}
-                        <a href="{{ item.demo_url or item.link }}" target="_blank" class="secondary-btn" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid #38bdf8;">
+                        <a href="{{ item.demo_url or item.link }}" target="_blank" class="secondary-btn is-73">
                             🌐 Jonli Demoni Ko'rish
                         </a>
                         {% endif %}
@@ -258,371 +258,11 @@
 </div>
 
 <!-- LIGHTBOX MODAL -->
-<div id="lightboxModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; cursor:pointer;">
-    <img id="lightboxImg" src="" style="max-width:90%; max-height:90%; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.5);" alt="Zoomed screenshot">
+<div id="lightboxModal" class="is-74">
+    <img id="lightboxImg" src="" alt="Zoomed screenshot" class="is-75">
 </div>
 
 <script src="{{ url_for('static', filename='js/portfolio-detail.js') }}" defer></script>
 
-<style>
-    .portfolio-detail-header {
-        margin-bottom: 30px;
-    }
-
-    .portfolio-cat-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        background: var(--bg-elevated);
-        border: 1px solid var(--primary);
-        color: var(--primary-light);
-        border-radius: 4px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        margin-bottom: 12px;
-    }
-
-    .portfolio-meta-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 16px;
-    }
-
-    .tech-tag {
-        padding: 4px 10px;
-        background: var(--bg-elevated);
-        border-radius: 4px;
-        font-size: 0.8rem;
-        color: var(--text-muted);
-    }
-
-    .main-project-img {
-        width: 100%;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-lg);
-    }
-
-    .project-brief {
-        background: var(--bg-elevated);
-        padding: 25px;
-        border-radius: var(--radius-md);
-        margin-bottom: 30px;
-        border-left: 4px solid var(--primary);
-    }
-
-    .project-brief h3 {
-        margin-bottom: 12px;
-    }
-
-    /* CASE STUDY STYLES */
-    .case-study-container {
-        margin-bottom: 35px;
-    }
-
-    .case-study-heading {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: #fff;
-        margin-bottom: 16px;
-    }
-
-    .case-study-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 16px;
-    }
-
-    .case-card {
-        background: rgba(30, 41, 59, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 14px;
-        padding: 18px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        backdrop-filter: blur(10px);
-    }
-
-    .case-card.problem { border-left: 4px solid #ef4444; }
-    .case-card.solution { border-left: 4px solid #38bdf8; }
-    .case-card.result { border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); }
-
-    .case-card-header {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .case-card-header h4 {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #f8fafc;
-        margin: 0;
-    }
-
-    .case-card p {
-        font-size: 0.875rem;
-        color: #cbd5e1;
-        line-height: 1.45;
-        margin: 0;
-    }
-
-    /* GALLERY STYLES */
-    .project-gallery-section {
-        margin-bottom: 35px;
-    }
-
-    .project-gallery-section h3 {
-        font-size: 1.2rem;
-        font-weight: 700;
-        margin-bottom: 14px;
-        color: #fff;
-    }
-
-    .gallery-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 12px;
-    }
-
-    .gallery-item {
-        border-radius: 10px;
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        cursor: pointer;
-        aspect-ratio: 16/10;
-        transition: transform 0.2s ease, border-color 0.2s ease;
-    }
-
-    .gallery-item:hover {
-        transform: scale(1.03);
-        border-color: #38bdf8;
-    }
-
-    .gallery-item img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .project-details-content ul {
-        list-style: none;
-        padding: 0;
-        margin: 20px 0;
-    }
-
-    .project-details-content li {
-        padding: 8px 0;
-        padding-left: 25px;
-        position: relative;
-    }
-
-    .project-details-content li::before {
-        content: '•';
-        color: var(--primary);
-        position: absolute;
-        left: 0;
-        font-weight: bold;
-    }
-
-    .related-portfolio-sidebar {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .related-project-sidebar {
-        display: flex;
-        gap: 12px;
-        text-decoration: none;
-        color: var(--text-primary);
-        padding: 8px;
-        border-radius: var(--radius-sm);
-        transition: background 0.3s;
-    }
-
-    .related-project-sidebar:hover {
-        background: var(--bg-elevated);
-    }
-
-    .related-project-sidebar img {
-        width: 70px;
-        height: 70px;
-        object-fit: cover;
-        border-radius: 8px;
-    }
-
-    .rp-info {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .rp-title {
-        font-size: 0.9rem;
-        font-weight: 600;
-        line-height: 1.2;
-    }
-
-    .rp-cat {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        margin-top: 4px;
-    }
-
-    .cta-actions {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    /* ========== MOBILE RESPONSIVE ========== */
-    @media (max-width: 768px) {
-        .article-container {
-            flex-direction: column;
-            padding: 0 12px;
-        }
-
-        .article-main {
-            width: 100%;
-            margin-right: 0;
-        }
-
-        .article-sidebar {
-            width: 100%;
-            margin-top: 30px;
-        }
-
-        .portfolio-detail-header {
-            margin-bottom: 20px;
-        }
-
-        .portfolio-detail-header h1 {
-            font-size: 1.4rem;
-            line-height: 1.3;
-        }
-
-        .portfolio-cat-badge {
-            font-size: 0.7rem;
-            padding: 3px 10px;
-        }
-
-        .portfolio-meta-tags {
-            gap: 6px;
-            margin-top: 12px;
-        }
-
-        .tech-tag {
-            font-size: 0.7rem;
-            padding: 3px 8px;
-        }
-
-        .article-featured-image {
-            margin-bottom: 20px;
-        }
-
-        .main-project-img {
-            border-radius: var(--radius-md);
-        }
-
-        .project-brief {
-            padding: 16px;
-            margin-bottom: 24px;
-        }
-
-        .project-brief h3 {
-            font-size: 1.1rem;
-        }
-
-        .project-brief p {
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        .project-details-content h3,
-        .project-features-list h3 {
-            font-size: 1.1rem;
-        }
-
-        .features-grid-landing {
-            grid-template-columns: 1fr;
-            gap: 10px;
-        }
-
-        .feature-landing-card {
-            padding: 12px;
-            font-size: 0.9rem;
-        }
-
-        .service-cta-box.portfolio-cta {
-            padding: 20px 16px;
-            border-radius: var(--radius-md);
-        }
-
-        .service-cta-box h3 {
-            font-size: 1.2rem;
-        }
-
-        .service-cta-box p {
-            font-size: 0.9rem;
-        }
-
-        .cta-actions {
-            flex-direction: column;
-        }
-
-        .cta-actions .primary-btn,
-        .cta-actions .secondary-btn {
-            width: 100%;
-            text-align: center;
-            padding: 14px 20px;
-        }
-
-        .sidebar-card {
-            padding: 16px;
-        }
-
-        .sidebar-card h3 {
-            font-size: 1rem;
-        }
-
-        .related-project-sidebar {
-            padding: 6px;
-        }
-
-        .related-project-sidebar img {
-            width: 50px;
-            height: 50px;
-        }
-
-        .rp-title {
-            font-size: 0.8rem;
-        }
-
-        .rp-cat {
-            font-size: 0.7rem;
-        }
-
-        .breadcrumb-nav {
-            font-size: 0.75rem;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .portfolio-detail-header h1 {
-            font-size: 1.25rem;
-        }
-
-        .project-brief {
-            padding: 12px;
-        }
-
-        .service-cta-box.portfolio-cta {
-            padding: 16px 12px;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/portfolio_detail.css') }}">
 {% endblock %}

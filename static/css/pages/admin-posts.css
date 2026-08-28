@@ -1,0 +1,70 @@
+.page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .posts-list {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+    }
+
+    .status-badge.published {
+        background: #d1fae5;
+        color: #059669;
+    }
+
+    .status-badge.draft {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-sm.danger {
+        background: #fee2e2;
+        border: none;
+        cursor: pointer;
+    }
+
+    .empty-state {
+        background: white;
+        padding: 60px;
+        text-align: center;
+        border-radius: 16px;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+    }
+
+    .empty-state h3 {
+        margin: 20px 0 10px;
+    }
+
+    .empty-state p {
+        color: var(--gray);
+        margin-bottom: 20px;
+    }
+
+    .page-info {
+        padding: 10px 16px;
+        color: var(--gray);
+    }
