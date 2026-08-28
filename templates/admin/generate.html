@@ -42,16 +42,16 @@
                 <div class="topic-suggestions">
                     <h4>💡 Mavzu takliflari:</h4>
                     <div class="suggestions-grid">
-                        <button type="button" onclick="setTopic('Python yordamida Telegram bot yaratish')">🤖 Telegram
+                        <button type="button" data-topic="Python yordamida Telegram bot yaratish">🤖 Telegram
                             bot</button>
-                        <button type="button" onclick="setTopic('Sun\'iy intellekt 2025 trendlari')">🧠 AI
+                        <button type="button" data-topic="Sun&#39;iy intellekt 2025 trendlari">🧠 AI
                             trendlari</button>
-                        <button type="button" onclick="setTopic('React vs Vue qaysi biri yaxshi')">⚛️ React vs
+                        <button type="button" data-topic="React vs Vue qaysi biri yaxshi">⚛️ React vs
                             Vue</button>
-                        <button type="button" onclick="setTopic('Startap uchun MVP yaratish bosqichlari')">🚀 Startap
+                        <button type="button" data-topic="Startap uchun MVP yaratish bosqichlari">🚀 Startap
                             MVP</button>
-                        <button type="button" onclick="setTopic('Kiberxavfsizlik asoslari')">🔒 Kiberxavfsizlik</button>
-                        <button type="button" onclick="setTopic('ChatGPT va Gemini farqlari')">💬 ChatGPT vs
+                        <button type="button" data-topic="Kiberxavfsizlik asoslari">🔒 Kiberxavfsizlik</button>
+                        <button type="button" data-topic="ChatGPT va Gemini farqlari">💬 ChatGPT vs
                             Gemini</button>
                     </div>
                 </div>
@@ -146,9 +146,4 @@
     }
 </style>
 
-<script>
-    function setTopic(topic) {
-        document.getElementById('topic').value = topic;
-    }
-</script>
 {% endblock %}

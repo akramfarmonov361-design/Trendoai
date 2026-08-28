@@ -44,7 +44,7 @@
                     </td>
                     <td>{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
                     <td>
-                        <select onchange="updateStatus('{{ order.id }}', this.value)" class="status-select">
+                        <select data-order-status data-order-id="{{ order.id }}" class="status-select">
                             <option value="">Status o'zgartirish...</option>
                             <option value="new" {% if order.status == 'new' %}disabled{% endif %}>🆕 Yangi</option>
                             <option value="confirmed" {% if order.status == 'confirmed' %}disabled{% endif %}>✅ Qabul qilish</option>
@@ -54,7 +54,7 @@
                             <option value="cancelled" {% if order.status == 'cancelled' %}disabled{% endif %}>❌ Bekor qilish</option>
                         </select>
                         <br>
-                        <button class="btn-sm" style="margin-top:5px; background:var(--primary); color:white" onclick="alert('Manzil:\n{{ order.address }}\nIzoh: {{ order.note }}\nMahsulotlar: {{ order.items_json }}')">Ma'lumot</button>
+                        <button class="btn-sm" style="margin-top:5px; background:var(--primary); color:white" data-order-details data-address="{{ order.address }}" data-note="{{ order.note }}" data-items="{{ order.items_json }}">Ma'lumot</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -88,33 +88,4 @@
     }
 </style>
 
-<script>
-function updateStatus(orderId, newStatus) {
-    if(!newStatus) return;
-    
-    if(!confirm("Haqiqatdan ham statusni o'zgartirmoqchimisiz? Mijozga Telegram orqali xabar boradi!")) {
-        return;
-    }
-    
-    fetch('/api/bot-order-status', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token() }}',
-        },
-        body: JSON.stringify({
-            order_id: orderId,
-            status: newStatus
-        })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if(data.success) {
-            window.location.reload();
-        } else {
-            alert('Xatolik yuz berdi: ' + data.error);
-        }
-    });
-}
-</script>
 {% endblock %}

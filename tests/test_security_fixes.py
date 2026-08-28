@@ -138,7 +138,9 @@ def _assert_kanban_csrf_flow(lead_id):
 
         match = re.search(r'<meta name="csrf-token" content="([^"]+)"', html)
         assert match, "base_admin.html csrf-token meta tagini render qilmadi"
-        assert "'X-CSRFToken': csrfToken()" in html, "kanban.html CSRF sarlavhasini yubormayapti"
+        admin_js = open('static/js/admin.js', encoding='utf-8').read()
+        assert "'X-CSRFToken': csrfToken()" in admin_js, 'admin.js CSRF sarlavhasini yubormayapti'
+        assert 'js/admin.js' in html, 'admin.js sahifaga ulanmagan'
         token = match.group(1)
 
         payload = {'type': 'lead', 'id': lead_id, 'status': 'contacted'}
@@ -405,22 +407,101 @@ def test_dead_base_v2_template_is_removed():
     assert not os.path.exists('templates/base_v2.html')
 
 
-# Bosqich 2 da inline handlerlardan tozalangan shablonlar.
-# Yangi shablon konvertatsiya qilinganda shu ro'yxatga qo'shiladi.
-CSP_CLEAN_TEMPLATES = (
-    'templates/base.html',
-    'templates/services.html',
-    'templates/portfolio.html',
-    'templates/tma.html',
-)
+def _template_files():
+    import glob
+    return sorted(glob.glob('templates/**/*.html', recursive=True))
 
 
-def test_converted_templates_have_no_inline_event_handlers():
-    """Tozalangan shablonlarga inline handler qaytib kirmasligi kerak"""
-    for path in CSP_CLEAN_TEMPLATES:
+def test_no_template_has_inline_event_handlers():
+    """Bosqich 2 yakunlandi: birorta shablonda onclick= va shunga o'xshash
+    atributlar qolmasligi kerak — CSP nonce ularni qamrab ololmaydi."""
+    topilgan = {}
+    for path in _template_files():
         html = open(path, encoding='utf-8').read()
         handlers = re.findall(r'\son[a-z]+="[^"]*"', html)
-        assert not handlers, f"{path} da inline handler qaytdi: {handlers}"
+        if handlers:
+            topilgan[path] = handlers
+    assert not topilgan, f'inline handler qaytdi: {topilgan}'
+
+
+def test_no_template_has_executable_inline_script():
+    """Bajariladigan inline <script> qolmasligi kerak.
+
+    <script type="application/ld+json"> va "application/json" data-bloklari
+    bajarilmaydi, shuning uchun ular hisobga olinmaydi.
+    """
+    topilgan = {}
+    for path in _template_files():
+        html = open(path, encoding='utf-8').read()
+        bad = [
+            attrs for attrs in re.findall(r'<script([^>]*)>', html)
+            if 'src=' not in attrs and 'json' not in attrs
+        ]
+        if bad:
+            topilgan[path] = bad
+    assert not topilgan, f'inline skript qoldi: {topilgan}'
+
+
+def test_script_src_no_longer_allows_unsafe_inline():
+    """Inline skriptlar tugagach 'unsafe-inline' olib tashlanishi kerak,
+    aks holda CSP XSS'dan himoya qilmaydi."""
+    from config import CSP_POLICY
+
+    script_src = next(p for p in CSP_POLICY.split('; ') if p.startswith('script-src'))
+    assert "'unsafe-inline'" not in script_src, script_src
+    assert "'unsafe-eval'" not in CSP_POLICY
+
+    # style-src da hozircha qoladi: 126 ta style="" atributi bor
+    style_src = next(p for p in CSP_POLICY.split('; ') if p.startswith('style-src'))
+    assert "'unsafe-inline'" in style_src
+
+
+def test_static_urls_are_versioned():
+    """/static/ bir yillik immutable kesh bilan beriladi, shuning uchun URL
+    fayl o'zgarganda o'zgarishi shart — aks holda JS tuzatishi yetib bormaydi."""
+    from flask import url_for
+
+    with app.test_request_context():
+        url = url_for('static', filename='js/site.js')
+
+    assert '?v=' in url, f'versiyasiz static URL: {url}'
+    assert re.search(r'\?v=\d+$', url), url
+
+
+def test_form_scripts_render_inside_content_block():
+    """{% extends %} shablonida blokdan tashqaridagi teg umuman render
+    qilinmaydi — skript jimgina yuklanmay qolardi."""
+    from extensions import db
+
+    with app.app_context():
+        db.create_all()
+
+    with app.test_client() as client:
+        with client.session_transaction() as sess:
+            sess['logged_in'] = True
+            sess['username'] = 'admin'
+
+        portfolio = client.get('/admin/portfolio/new').get_data(as_text=True)
+        service = client.get('/admin/services/new').get_data(as_text=True)
+
+    assert 'js/admin-portfolio-form.js' in portfolio
+    assert 'js/admin-service-form.js' in service
+    # Ikkalasi ham #ai-generate-btn ishlatadi, shuning uchun aralashmasligi shart
+    assert 'js/admin-service-form.js' not in portfolio
+    assert 'js/admin-portfolio-form.js' not in service
+
+
+def test_admin_common_script_is_loaded_everywhere():
+    """admin.js base_admin.html dan yuklanadi va data-* handlerlarni ulaydi"""
+    js = open('static/js/admin.js', encoding='utf-8').read()
+    base = open('templates/admin/base_admin.html', encoding='utf-8').read()
+
+    assert 'js/admin.js' in base
+    for hook in ('[data-confirm]', '[data-modal-open]', '[data-modal-hide]',
+                 '[data-autosubmit]', '[data-print]', '[data-reload]',
+                 '[data-topic]', '[data-filter-input]', '[data-save-note]',
+                 '[data-crm-status]', '[data-order-status]', '[data-order-details]'):
+        assert hook in js, f'{hook} uchun listener yo\'q'
 
 
 def test_base_template_loads_application_js_externally():

@@ -73,33 +73,14 @@
 }
 </script>
 
-<script>
-    var viewContentData = {
-        content_name: '{{ item.title }}',
-        content_category: '{{ item.category }}',
-        content_ids: ['portfolio_{{ item.id }}'],
-        content_type: 'product'
-    };
-    {% if item.price %}
-    viewContentData.value = {{ item.price | replace('$', '') | replace(' ', '') | int | default(0) }};
-    viewContentData.currency = 'USD';
-    {% endif %}
-    fbq('track', 'ViewContent', viewContentData);
-
-    function trackAddToCart() {
-        var addToCartData = {
-            content_name: '{{ item.title }}',
-            content_category: '{{ item.category }}',
-            content_ids: ['portfolio_{{ item.id }}'],
-            content_type: 'product'
-        };
-        {% if item.price %}
-        addToCartData.value = {{ item.price | replace('$', '') | replace(' ', '') | int | default(0) }};
-        addToCartData.currency = 'USD';
-        {% endif %}
-        fbq('track', 'AddToCart', addToCartData);
-    }
+<script type="application/json" id="pixel-track-data">
+{"contentName": {{ item.title | tojson }},
+ "contentCategory": {{ item.category | tojson }},
+ "contentIds": ["portfolio_{{ item.id }}"],
+ "value": {% if item.price %}{{ item.price | replace('$', '') | replace(' ', '') | int | default(0) }}{% else %}null{% endif %},
+ "currency": "USD"}
 </script>
+<script src="{{ url_for('static', filename='js/pixel-track.js') }}" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -139,7 +120,7 @@
                         <video src="{{ item.video_url }}" controls preload="metadata" style="width: 100%; border-radius: 12px; margin-bottom: 20px; max-height: 540px; background: #000; box-shadow: 0 8px 24px rgba(0,0,0,0.3);"></video>
                     {% endif %}
                 {% else %}
-                    <img src="{{ item.image_url or url_for('static', filename='img/og-image.jpg') }}" alt="{{ item.title }}" class="main-project-img" width="1280" height="720" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='/static/img/og-image.jpg';">
+                    <img src="{{ item.image_url or url_for('static', filename='img/og-image.jpg') }}" alt="{{ item.title }}" class="main-project-img" width="1280" height="720" fetchpriority="high" decoding="async" data-fallback-src="/static/img/og-image.jpg">
                 {% endif %}
             </div>
 
@@ -199,7 +180,7 @@
                     <div class="gallery-grid">
                         {% for img_url in (item.gallery_images or '').split(',') %}
                         {% if img_url and img_url.strip() %}
-                        <div class="gallery-item" onclick="openLightbox('{{ img_url.strip() }}')">
+                        <div class="gallery-item" data-lightbox-src="{{ img_url.strip() }}">
                             <img src="{{ img_url.strip() }}" alt="{{ item.title }} skrinshot" loading="lazy">
                         </div>
                         {% endif %}
@@ -236,7 +217,7 @@
                     <p>Biz aynan sizning biznesingiz uchun moslashtirilgan, sotuvni oshiruvchi yechimni ishlab chiqamiz.</p>
                     <div class="cta-actions">
                         <a href="{{ url_for('order_page') }}?service={{ item.category }}" class="primary-btn pulse-glow"
-                            onclick="trackAddToCart()">
+                            data-track-add-to-cart>
                             🚀 Buyurtma berish
                         </a>
                         {% if item.demo_url or item.link %}
@@ -277,18 +258,11 @@
 </div>
 
 <!-- LIGHTBOX MODAL -->
-<div id="lightboxModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; cursor:pointer;" onclick="this.style.display='none'">
+<div id="lightboxModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; cursor:pointer;">
     <img id="lightboxImg" src="" style="max-width:90%; max-height:90%; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.5);" alt="Zoomed screenshot">
 </div>
 
-<script>
-function openLightbox(url) {
-    const modal = document.getElementById('lightboxModal');
-    const img = document.getElementById('lightboxImg');
-    img.src = url;
-    modal.style.display = 'flex';
-}
-</script>
+<script src="{{ url_for('static', filename='js/portfolio-detail.js') }}" defer></script>
 
 <style>
     .portfolio-detail-header {

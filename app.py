@@ -277,6 +277,27 @@ def create_app(config_overrides=None):
             'now': datetime.now()
         }
 
+    # Static fayllar bir yillik immutable kesh bilan beriladi, shuning uchun
+    # URL fayl o'zgarganda o'zgarishi shart — aks holda deploy qilingan JS
+    # tuzatishi qaytgan foydalanuvchilarga yetib bormaydi.
+    _static_versions = {}
+
+    @application.url_defaults
+    def add_static_version(endpoint, values):
+        if endpoint != 'static' or 'filename' not in values:
+            return
+        filename = values['filename']
+        version = _static_versions.get(filename)
+        if version is None:
+            try:
+                version = int(os.stat(os.path.join(application.static_folder, filename)).st_mtime)
+            except OSError:
+                version = 0
+            if not DEBUG:
+                _static_versions[filename] = version
+        if version:
+            values['v'] = version
+
     # Blueprintlarni ro'yxatdan o'tkazish
     application.register_blueprint(web_bp)
     application.register_blueprint(admin_bp)

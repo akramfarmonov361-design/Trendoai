@@ -12,45 +12,20 @@
     <!-- Facebook Domain Verification -->
     <meta name="facebook-domain-verification" content="ccxnu91a8fcr43l9x3iffm0hhpseop" />
 
-    <!-- Google Analytics 4 (GA4) -->
+    <!-- Analitika: ID'lar data-blokda, mantiq static/js/analytics.js da -->
+    <script type="application/json" id="analytics-config">
+{"ga4Id": {{ GA4_ID | tojson }},
+ "googleAdsId": {{ GOOGLE_ADS_ID | tojson }},
+ "facebookPixelId": {{ FACEBOOK_PIXEL_ID | tojson }}}
+    </script>
+    <script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
     {% if GA4_ID %}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ GA4_ID }}"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', '{{ GA4_ID }}');
-    </script>
     {% endif %}
-
-    <!-- Google Ads Remarketing Tag -->
     {% if GOOGLE_ADS_ID %}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ GOOGLE_ADS_ID }}"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', '{{ GOOGLE_ADS_ID }}');
-    </script>
     {% endif %}
-
-    <!-- Facebook Pixel -->
     {% if FACEBOOK_PIXEL_ID %}
-    <script>
-        !function (f, b, e, v, n, t, s) {
-            if (f.fbq) return; n = f.fbq = function () {
-                n.callMethod ?
-                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
-            };
-            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
-            n.queue = []; t = b.createElement(e); t.async = !0;
-            t.src = v; s = b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t, s)
-        }(window, document, 'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '{{ FACEBOOK_PIXEL_ID }}', { autoConfig: true, debug: false });
-        fbq('track', 'PageView');
-    </script>
     <noscript><img height="1" width="1" style="display:none"
             src="https://www.facebook.com/tr?id={{ FACEBOOK_PIXEL_ID }}&ev=PageView&noscript=1" /></noscript>
     {% endif %}

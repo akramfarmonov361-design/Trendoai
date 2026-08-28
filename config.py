@@ -186,14 +186,16 @@ FB_CONVERSIONS_API_TOKEN = os.getenv("FB_CONVERSIONS_API_TOKEN")
 FB_APP_SECRET = os.getenv("FB_APP_SECRET")
 
 # ========== CONTENT SECURITY POLICY ==========
-# Bosqich 1: tashqi manbalar qat'iy ro'yxatlanadi, lekin 'unsafe-inline'
-# saqlanadi — shablonlarda 139 ta inline event handler (onclick= va h.k.)
-# bor va ularni nonce qamrab olmaydi. Bosqich 2 da handlerlar
-# addEventListener ga ko'chiriladi va nonce joriy qilinadi.
+# Barcha bajariladigan JS tashqi fayllarda (static/js/), shablonlarda inline
+# skript ham, inline event handler ham yo'q. style-src da 'unsafe-inline'
+# saqlanadi: 126 ta style="" atributi bor va ularni nonce qamrab olmaydi.
 _CSP_DIRECTIVES = [
     "default-src 'self'",
+    # Bosqich 2 tugadi: shablonlarda bajariladigan inline skript ham,
+    # inline event handler ham qolmadi, shuning uchun 'unsafe-inline' olib
+    # tashlandi. Endi CSP haqiqiy XSS himoyasi beradi.
     (
-        "script-src 'self' 'unsafe-inline' "
+        "script-src 'self' "
         "https://www.googletagmanager.com https://www.google-analytics.com "
         "https://connect.facebook.net https://telegram.org"
     ),
