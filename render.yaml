@@ -44,6 +44,8 @@ services:
         sync: false
       - key: GUNICORN_TIMEOUT
         value: "120"
+      - key: CSP_ENFORCE
+        value: "false"
       - key: SITE_URL
         sync: false
       - key: REDIS_URL

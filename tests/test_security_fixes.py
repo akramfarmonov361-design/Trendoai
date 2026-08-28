@@ -336,3 +336,70 @@ def test_dead_google_sitemap_ping_is_removed():
         if line.strip() and not line.strip().startswith('#')
     ]
     assert not any('google.com/ping' in line for line in code_lines)
+
+
+def test_csp_defaults_to_report_only_mode():
+    """Yangi qat'iy siyosat avval kuzatuv rejimida bo'lishi kerak"""
+    import app as trendo_app
+
+    with app.test_client() as client:
+        resp = client.get('/api/health')
+
+    enforced = resp.headers.get('Content-Security-Policy')
+    report_only = resp.headers.get('Content-Security-Policy-Report-Only')
+
+    if trendo_app.CSP_ENFORCE:
+        assert report_only is None
+        assert "default-src 'self'" in enforced
+    else:
+        # Jonli siyosat o'zgarmaydi, yangi qoidalar faqat kuzatiladi
+        assert enforced == trendo_app.CSP_BASELINE_POLICY
+        assert report_only and "default-src 'self'" in report_only
+        # upgrade-insecure-requests report-only rejimda e'tiborsiz qoldiriladi
+        assert 'upgrade-insecure-requests' not in report_only
+
+
+def test_csp_enforce_mode_emits_full_policy(monkeypatch):
+    """CSP_ENFORCE=true da to'liq siyosat majburiy sarlavhada bo'lishi kerak"""
+    import app as trendo_app
+
+    monkeypatch.setattr(trendo_app, 'CSP_ENFORCE', True)
+    with app.test_client() as client:
+        resp = client.get('/api/health')
+
+    assert resp.headers.get('Content-Security-Policy-Report-Only') is None
+    assert resp.headers['Content-Security-Policy'] == trendo_app.CSP_POLICY
+    assert 'upgrade-insecure-requests' in resp.headers['Content-Security-Policy']
+
+
+def test_csp_covers_every_external_origin_used_by_templates():
+    """Inventarizatsiyada topilgan har bir tashqi manba siyosatda bo'lishi shart"""
+    from config import CSP_POLICY
+
+    required = {
+        'script-src': ['www.googletagmanager.com', 'connect.facebook.net', 'telegram.org'],
+        'style-src': ['fonts.googleapis.com', 'cdnjs.cloudflare.com'],
+        'font-src': ['fonts.gstatic.com', 'cdnjs.cloudflare.com'],
+        'frame-src': ['www.youtube.com'],
+        'connect-src': ['www.google-analytics.com', 'www.facebook.com'],
+    }
+    directives = {
+        part.split(' ', 1)[0]: part
+        for part in CSP_POLICY.split('; ')
+        if ' ' in part
+    }
+    for name, origins in required.items():
+        assert name in directives, f"{name} direktivasi yo'q"
+        for origin in origins:
+            assert origin in directives[name], f"{origin} {name} da yo'q"
+
+    assert "object-src 'none'" in CSP_POLICY
+    # Alpine.js o'lik shablon bilan birga o'chirildi — unsafe-eval kerak emas
+    assert 'unsafe-eval' not in CSP_POLICY
+
+
+def test_dead_base_v2_template_is_removed():
+    """base_v2.html hech qayerda ishlatilmasdi va Alpine.js CDN'ini olib kelardi"""
+    import os
+
+    assert not os.path.exists('templates/base_v2.html')
