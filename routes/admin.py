@@ -22,6 +22,7 @@ from flask import (
 
 from config import (
     ADMIN_PASSWORD,
+    ADMIN_PASSWORD_HASH,
     ADMIN_USERNAME,
     CATEGORIES,
     SITE_URL,
@@ -39,12 +40,54 @@ admin_bp = Blueprint('admin', __name__)
 
 LOGIN_MAX_ATTEMPTS = 5
 LOGIN_WINDOW_SECONDS = 15 * 60
+
+# Bu lug'at faqat to'ldirilardi: har bir yangi IP uchun yozuv qolib,
+# jarayon xotirasi cheksiz o'sardi (oddiy DoS vektori).
+LOGIN_TRACKER_MAX_IPS = 10_000
 _failed_logins = {}
+_failed_logins_lock = threading.Lock()
+
+
+def _prune_failed_logins(now):
+    """Muddati o'tgan urinish yozuvlarini o'chiradi."""
+    with _failed_logins_lock:
+        for ip in [
+            ip for ip, times in _failed_logins.items()
+            if not any(now - t < LOGIN_WINDOW_SECONDS for t in times)
+        ]:
+            _failed_logins.pop(ip, None)
+
+        # Hammasi yangi bo'lsa ham lug'at cheksiz o'smasligi kerak.
+        overflow = len(_failed_logins) - LOGIN_TRACKER_MAX_IPS
+        if overflow > 0:
+            oldest = sorted(_failed_logins.items(), key=lambda kv: max(kv[1], default=0))
+            for ip, _ in oldest[:overflow]:
+                _failed_logins.pop(ip, None)
 
 
 def _client_ip():
     """ProxyFix orqali xavfsiz olingan mijoz IP manzili"""
     return request.remote_addr or 'unknown'
+
+
+def _check_admin_credentials(username, password):
+    """Admin login ma'lumotlarini vaqt-bardosh (constant-time) tekshirish.
+
+    ADMIN_PASSWORD_HASH berilgan bo'lsa hash solishtiriladi; aks holda
+    ochiq parolga qaytiladi, lekin `==` o'rniga compare_digest ishlatiladi —
+    oddiy taqqoslash parolni belgima-belgi topish imkonini berardi.
+    """
+    import hmac
+
+    username_ok = hmac.compare_digest((username or ''), ADMIN_USERNAME or '')
+
+    if ADMIN_PASSWORD_HASH:
+        from werkzeug.security import check_password_hash
+        password_ok = check_password_hash(ADMIN_PASSWORD_HASH, password or '')
+    else:
+        password_ok = hmac.compare_digest((password or ''), ADMIN_PASSWORD or '')
+
+    return username_ok and password_ok
 
 
 def login_required(f):
@@ -132,6 +175,15 @@ def _save_uploaded_image(file_storage, folder='portfolio'):
             print(f"[upload] S3/R2 upload failed, fallback to local storage: {s3_err}")
 
     # 2. Lokal saqlash (Fallback)
+    # Render'da konteyner diski efemer: bu yo'lga tushgan rasmlar keyingi
+    # deploy yoki restartda yo'qoladi. Sabab ko'rinib turishi uchun log qoldiramiz.
+    if not (s3_bucket and s3_access_key and s3_secret_key):
+        print(
+            "[upload] OGOHLANTIRISH: S3/R2 sozlanmagan, rasm lokal diskka saqlanmoqda. "
+            "Render'da bu fayl keyingi deploy'da yo'qoladi. "
+            "S3_BUCKET / S3_ACCESS_KEY_ID / S3_SECRET_ACCESS_KEY ni bering."
+        )
+
     upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', folder)
     os.makedirs(upload_dir, exist_ok=True)
     file_path = os.path.join(upload_dir, file_name)
@@ -152,6 +204,7 @@ def admin_login():
     if request.method == 'POST':
         ip = _client_ip()
         now = time.time()
+        _prune_failed_logins(now)
         attempts = [t for t in _failed_logins.get(ip, []) if now - t < LOGIN_WINDOW_SECONDS]
 
         if len(attempts) >= LOGIN_MAX_ATTEMPTS:
@@ -162,7 +215,7 @@ def admin_login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+        if _check_admin_credentials(username, password):
             _failed_logins.pop(ip, None)
             session['logged_in'] = True
             session['username'] = username
@@ -905,11 +958,10 @@ def admin_fix_webhook():
     webhook_url = f"{SITE_URL}/webhook"
     try:
         if bot:
-            from config import CRON_SECRET
-            secret_token = (CRON_SECRET or 'trendoai_super_secret_123')[:256]
+            from config import TELEGRAM_WEBHOOK_SECRET
             bot.remove_webhook()
             time.sleep(0.5)
-            bot.set_webhook(url=webhook_url, secret_token=secret_token)
+            bot.set_webhook(url=webhook_url, secret_token=TELEGRAM_WEBHOOK_SECRET)
             return f"✅ Webhook muvaffaqiyatli o'rnatildi (secret_token bilan): {webhook_url}.", 200
         return "❌ Bot sozlanmagan", 400
     except Exception as e:

@@ -155,7 +155,7 @@
         
         <div class="card-actions">
             <a href="{{ url_for('order_page') }}?service=telegram_bot" class="btn-order"
-                onclick="typeof fbq!=='undefined' && fbq('track', 'AddToCart', {content_ids: ['service_telegram-bot'], content_type: 'product'})">
+                data-fb-addtocart="service_telegram-bot">
                 {{ t('btn_order_now', '🚀 Buyurtma berish') }}
             </a>
             <a href="{{ url_for('portfolio') }}" class="btn-demo">{{ t('btn_view_demo', '💼 Namuna ko\'rish') }}</a>
@@ -190,7 +190,7 @@
         
         <div class="card-actions">
             <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order"
-                onclick="typeof fbq!=='undefined' && fbq('track', 'AddToCart', {content_ids: ['service_web-site'], content_type: 'product'})">
+                data-fb-addtocart="service_web-site">
                 {{ t('btn_order_now', '🚀 Buyurtma berish') }}
             </a>
             <a href="{{ url_for('portfolio') }}" class="btn-demo">{{ t('btn_view_demo', '💼 Namuna ko\'rish') }}</a>
@@ -226,7 +226,7 @@
         
         <div class="card-actions">
             <a href="{{ url_for('order_page') }}?service=ai_chatbot" class="btn-order"
-                onclick="typeof fbq!=='undefined' && fbq('track', 'AddToCart', {content_ids: ['service_ai-chatbot'], content_type: 'product'})">
+                data-fb-addtocart="service_ai-chatbot">
                 🚀 Buyurtma berish
             </a>
             <a href="{{ url_for('portfolio') }}" class="btn-demo">💼 Namuna ko'rish</a>
@@ -261,7 +261,7 @@
         
         <div class="card-actions">
             <a href="{{ url_for('order_page') }}?service=target_ads" class="btn-order"
-                onclick="typeof fbq!=='undefined' && fbq('track', 'AddToCart', {content_ids: ['service_target-ads'], content_type: 'product'})">
+                data-fb-addtocart="service_target-ads">
                 {{ t('btn_order_now', '🚀 Buyurtma berish') }}
             </a>
             <a href="{{ url_for('portfolio') }}" class="btn-demo">{{ t('btn_view_demo', '💼 Namuna ko\'rish') }}</a>
@@ -284,26 +284,26 @@
                 <div class="calc-field">
                     <label class="field-title">{{ t('calc_step1', '1. Asosiy Yo\'nalishni Tanlang:') }}</label>
                     <div class="service-type-selector">
-                        <label class="type-card active" onclick="selectTypeCard(this)">
-                            <input type="radio" name="calc_base" value="Telegram Bot" data-price="400000" data-days="4" checked onchange="updateCalc()">
+                        <label class="type-card active">
+                            <input type="radio" name="calc_base" value="Telegram Bot" data-price="400000" data-days="4" checked data-calc-input>
                             <span class="type-icon">🤖</span>
                             <span class="type-name">{{ t('srv_bot_title', 'Telegram Bot') }}</span>
                             <span class="type-cost">400 000 so'mdan</span>
                         </label>
-                        <label class="type-card" onclick="selectTypeCard(this)">
-                            <input type="radio" name="calc_base" value="Web Sayt" data-price="700000" data-days="6" onchange="updateCalc()">
+                        <label class="type-card">
+                            <input type="radio" name="calc_base" value="Web Sayt" data-price="700000" data-days="6" data-calc-input>
                             <span class="type-icon">🌐</span>
                             <span class="type-name">{{ t('srv_web_title', 'Web Sayt') }}</span>
                             <span class="type-cost">700 000 so'mdan</span>
                         </label>
-                        <label class="type-card" onclick="selectTypeCard(this)">
-                            <input type="radio" name="calc_base" value="AI Chatbot" data-price="1200000" data-days="7" onchange="updateCalc()">
+                        <label class="type-card">
+                            <input type="radio" name="calc_base" value="AI Chatbot" data-price="1200000" data-days="7" data-calc-input>
                             <span class="type-icon">🧠</span>
                             <span class="type-name">{{ t('srv_ai_title', 'AI Chatbot') }}</span>
                             <span class="type-cost">1 200 000 so'mdan</span>
                         </label>
-                        <label class="type-card" onclick="selectTypeCard(this)">
-                            <input type="radio" name="calc_base" value="Target Reklama" data-price="600000" data-days="3" onchange="updateCalc()">
+                        <label class="type-card">
+                            <input type="radio" name="calc_base" value="Target Reklama" data-price="600000" data-days="3" data-calc-input>
                             <span class="type-icon">🎯</span>
                             <span class="type-name">{{ t('srv_ads_title', 'Target Reklama') }}</span>
                             <span class="type-cost">600 000 so'mdan</span>
@@ -315,7 +315,7 @@
                     <label class="field-title">{{ t('calc_step2', '2. Qo\'shimcha Modullar va Integratsiyalar:') }}</label>
                     <div class="features-checklist">
                         <label class="feature-item">
-                            <input type="checkbox" id="feat-pay" data-price="350000" data-days="2" onchange="updateCalc()">
+                            <input type="checkbox" id="feat-pay" data-price="350000" data-days="2" data-calc-input>
                             <div class="feature-info">
                                 <span class="feature-name">{{ t('calc_feat_pay_name', '💳 Click va Payme To\'lov Tizimi') }}</span>
                                 <span class="feature-desc">{{ t('calc_feat_pay_desc', 'Mijozlar to\'g\'ridan-to\'g\'ri karta orqali avtomatik to\'lov qiladi') }}</span>
@@ -324,7 +324,7 @@
                         </label>
 
                         <label class="feature-item">
-                            <input type="checkbox" id="feat-admin" data-price="400000" data-days="2" onchange="updateCalc()">
+                            <input type="checkbox" id="feat-admin" data-price="400000" data-days="2" data-calc-input>
                             <div class="feature-info">
                                 <span class="feature-name">{{ t('calc_feat_admin_name', '📊 Veb Admin Panel & CRM') }}</span>
                                 <span class="feature-desc">{{ t('calc_feat_admin_desc', 'Mijozlar bazasi, buyurtmalar statistikasi va mahsulotlar boshqaruvi') }}</span>
@@ -333,7 +333,7 @@
                         </label>
 
                         <label class="feature-item">
-                            <input type="checkbox" id="feat-ai-engine" data-price="600000" data-days="3" onchange="updateCalc()">
+                            <input type="checkbox" id="feat-ai-engine" data-price="600000" data-days="3" data-calc-input>
                             <div class="feature-info">
                                 <span class="feature-name">{{ t('calc_feat_ai_name', '🧠 Gemini AI Aqlli Maslahatchi') }}</span>
                                 <span class="feature-desc">{{ t('calc_feat_ai_desc', 'Mijozlarning savollariga 24/7 inson kabi mustaqil javob beradi') }}</span>
@@ -342,7 +342,7 @@
                         </label>
 
                         <label class="feature-item">
-                            <input type="checkbox" id="feat-multilingual" data-price="250000" data-days="1" onchange="updateCalc()">
+                            <input type="checkbox" id="feat-multilingual" data-price="250000" data-days="1" data-calc-input>
                             <div class="feature-info">
                                 <span class="feature-name">{{ t('calc_feat_lang_name', '🌐 Ko\'p Tilli Interfeys (UZ / RU / EN)') }}</span>
                                 <span class="feature-desc">{{ t('calc_feat_lang_desc', 'Rus va ingliz tilidagi auditoriyani ham qamrab olasiz') }}</span>
@@ -351,7 +351,7 @@
                         </label>
 
                         <label class="feature-item">
-                            <input type="checkbox" id="feat-express" data-price="450000" data-days="-2" onchange="updateCalc()">
+                            <input type="checkbox" id="feat-express" data-price="450000" data-days="-2" data-calc-input>
                             <div class="feature-info">
                                 <span class="feature-name">{{ t('calc_feat_exp_name', '⚡ Express Tezkor Topshirish') }}</span>
                                 <span class="feature-desc">{{ t('calc_feat_exp_desc', 'Navbatsiz, 48–72 soat ichida birinchi versiya ishga tushadi') }}</span>
@@ -385,7 +385,7 @@
                             <strong>{{ t('calc_res_consult_val', 'Mavjud') }}</strong>
                         </div>
                     </div>
-                    <button type="button" class="btn-calc-apply" onclick="applyCalculationToOrder()">
+                    <button type="button" class="btn-calc-apply">
                         {{ t('calc_res_btn', '🚀 Ushbu hisob bilan buyurtma berish') }}
                     </button>
                     <p class="res-disclaimer">{{ t('calc_res_disclaimer', '*Aniq smeta loyihaning batafsil texnik topshirig\'i (TZ) tasdiqlangandan so\'ng rasmiylashtiriladi.') }}</p>
@@ -587,59 +587,6 @@
     <a href="https://t.me/TrendoAibot" class="cta-button" target="_blank">{{ t('cta_fast_btn', '📱 Bot orqali bog\'lanish (@TrendoAibot)') }}</a>
 </section>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const urlParams = new URLSearchParams(window.location.search);
-        const service = urlParams.get('service');
-        if (service) {
-            const select = document.getElementById('service');
-            if (select) {
-                select.value = service;
-                setTimeout(() => {
-                    const el = document.getElementById('order');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }, 500);
-            }
-        }
-
-        // Animate cards on scroll
-        const cards = document.querySelectorAll('.service-card-new');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry, index) => {
-                if (entry.isIntersecting) {
-                    setTimeout(() => {
-                        entry.target.classList.add('visible');
-                    }, index * 150);
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.1 });
-        cards.forEach(card => observer.observe(card));
-    });
-
-    const form = document.querySelector('.order-form');
-    if (form && typeof fbq !== 'undefined') {
-        form.addEventListener('submit', function () {
-            const serviceId = document.getElementById('service').value;
-            const serviceName = document.getElementById('service').selectedOptions[0]?.text || 'Unknown';
-            const catalogId = 'service_' + serviceId.replace('_', '-');
-
-            fbq('track', 'Purchase', {
-                content_name: serviceName,
-                content_category: 'Service Order',
-                content_ids: [catalogId],
-                content_type: 'product',
-                value: 0.00,
-                currency: 'UZS'
-            });
-
-            fbq('track', 'Lead', {
-                content_name: serviceName,
-                content_category: 'Service Order'
-            });
-        });
-    }
-</script>
 
 <style>
     /* ========== HERO ========== */
@@ -1263,75 +1210,6 @@
     }
 </style>
 
-<script>
-    function formatMoney(num) {
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-    }
-
-    function selectTypeCard(labelElement) {
-        document.querySelectorAll('.type-card').forEach(el => el.classList.remove('active'));
-        labelElement.classList.add('active');
-        const radio = labelElement.querySelector('input[type="radio"]');
-        if (radio) {
-            radio.checked = true;
-            updateCalc();
-        }
-    }
-
-    function updateCalc() {
-        const checkedRadio = document.querySelector('input[name="calc_base"]:checked');
-        if (!checkedRadio) return;
-
-        let total = parseInt(checkedRadio.getAttribute('data-price') || 0);
-        let days = parseInt(checkedRadio.getAttribute('data-days') || 4);
-        const title = checkedRadio.value;
-
-        const features = [
-            'feat-pay', 'feat-admin', 'feat-ai-engine', 'feat-multilingual', 'feat-express'
-        ];
-
-        features.forEach(id => {
-            const el = document.getElementById(id);
-            if (el && el.checked) {
-                total += parseInt(el.getAttribute('data-price') || 0);
-                days += parseInt(el.getAttribute('data-days') || 0);
-            }
-        });
-
-        if (days < 2) days = 2;
-
-        document.getElementById('res-selected-title').innerText = title;
-        document.getElementById('res-total-cost').innerHTML = `${formatMoney(total)} <small>so'm</small>`;
-        document.getElementById('res-total-days').innerText = `~${days} ish kuni`;
-    }
-
-    function applyCalculationToOrder() {
-        const checkedRadio = document.querySelector('input[name="calc_base"]:checked');
-        const serviceName = checkedRadio ? checkedRadio.value : 'Telegram Bot';
-        const costText = document.getElementById('res-total-cost').innerText.replace(/\s+/g, ' ').trim();
-        const daysText = document.getElementById('res-total-days').innerText.trim();
-
-        // Check if there is an order form on page or redirect to /order
-        const orderForm = document.querySelector('.order-form');
-        if (orderForm) {
-            const msgField = document.getElementById('message') || document.querySelector('textarea[name="message"]');
-            if (msgField) {
-                msgField.value = `Kalkulyatordan tanlangan loyiha:\n- Yo'nalish: ${serviceName}\n- Taxminiy smeta: ${costText}\n- Muddat: ${daysText}\n`;
-            }
-            const svcSelect = document.getElementById('service') || document.querySelector('select[name="service"]');
-            if (svcSelect) {
-                if (serviceName.includes('Bot')) svcSelect.value = 'telegram_bot';
-                else if (serviceName.includes('Sayt')) svcSelect.value = 'web_site';
-                else if (serviceName.includes('AI')) svcSelect.value = 'ai_chatbot';
-                else if (serviceName.includes('Target')) svcSelect.value = 'smm';
-            }
-            orderForm.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            window.location.href = `/order?service=${encodeURIComponent(serviceName)}&budget=${encodeURIComponent(costText)}`;
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', updateCalc);
-</script>
+<script src="{{ url_for('static', filename='js/services.js') }}" defer></script>
 {% endblock %}
 

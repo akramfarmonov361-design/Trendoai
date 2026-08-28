@@ -6,7 +6,7 @@
 <div class="dashboard">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h1>📋 Bot Menyusi</h1>
-        <button class="btn btn-primary" onclick="document.getElementById('addModal').style.display='block'">+ Yangi Mahsulot</button>
+        <button class="btn btn-primary" data-modal-open="addModal">+ Yangi Mahsulot</button>
     </div>
 
     <!-- Stats -->
@@ -52,7 +52,7 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <input type="hidden" name="action" value="delete_item">
                                 <input type="hidden" name="item_id" value="{{ item.id }}">
-                                <button type="submit" class="btn-sm btn-danger" onclick="return confirm('Rostdan ohcirmoqchimisiz?');">O'chirish</button>
+                                <button type="submit" class="btn-sm btn-danger" data-confirm="Rostdan ohcirmoqchimisiz?">O'chirish</button>
                             </form>
                         </td>
                     </tr>
@@ -95,7 +95,7 @@
 <!-- Modal for Adding Item -->
 <div id="addModal" class="modal">
   <div class="modal-content">
-    <span class="close" onclick="document.getElementById('addModal').style.display='none'">&times;</span>
+    <span class="close" data-modal-hide="addModal">&times;</span>
     <h2>Yangi Mahsulot Qo'shish</h2>
     <form action="{{ url_for('admin_menu') }}" method="POST">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>

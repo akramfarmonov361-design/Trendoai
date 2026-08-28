@@ -53,23 +53,32 @@ pip install -r requirements.txt
 ```
 
 ### 4. `.env` faylini sozlash
-```env
-# Gemini API (Google AI Studio'dan oling)
-GEMINI_API_KEY=your_api_key_here
 
-# Telegram (@BotFather dan oling)
-TELEGRAM_BOT_TOKEN=your_bot_token_here
-TELEGRAM_CHANNEL_ID=@your_channel_name
+To'liq ro'yxat [`.env.example`](.env.example) da — uni nusxalab to'ldiring:
 
-# Admin Panel
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=your_secure_password
-
-# Production uchun
-SECRET_KEY=your-secret-key-here
-SITE_URL=https://your-domain.com
-FLASK_ENV=production
+```bash
+cp .env.example .env
 ```
+
+Ishga tushirish uchun majburiy bo'lganlari:
+
+| O'zgaruvchi | Nima uchun |
+|---|---|
+| `GEMINI_API_KEY` | AI kontent va chatbot (Google AI Studio) |
+| `SECRET_KEY` | Flask sessiya imzosi — production'da majburiy |
+| `CRON_SECRET` | Cron endpointlarini himoyalash — production'da majburiy |
+| `ADMIN_USERNAME` + `ADMIN_PASSWORD_HASH` | Admin panel (hash: `python scripts/generate_admin_hash.py`) |
+| `SITE_URL` | Kanonik manzil, sitemap va webhook uchun |
+| `FLASK_ENV=production` | Xavfsizlik tekshiruvlarini yoqadi |
+
+Xavfsizlik uchun kuchli tavsiya etiladi:
+
+| O'zgaruvchi | Bo'lmasa nima bo'ladi |
+|---|---|
+| `TELEGRAM_WEBHOOK_SECRET` | Webhook siri `CRON_SECRET` bilan bir xil bo'lib qoladi |
+| `FB_APP_SECRET` | Meta lead webhook imzosiz, ya'ni ochiq qabul qiladi |
+| `REDIS_URL` | Rate-limit workerlar bo'ylab taqsimlanmaydi |
+| `S3_BUCKET` va boshqa S3 kalitlari | Yuklangan rasmlar Render'da har deploy'da yo'qoladi |
 
 ### 5. Ilovani ishga tushirish
 ```bash
@@ -125,8 +134,10 @@ Render.com'da Node.js yo'q, shuning uchun build mahalliy mashinada amalga oshiri
 
 | Vaqt (Toshkent) | Vazifa |
 |-----------------|--------|
-| 09:00 | SEO blog maqolasi generatsiyasi |
-| 12:00 | Marketing posti Telegramga |
+| 09:00 | SEO blog maqolasi generatsiyasi + Telegramga yuborish |
+
+Vaqtni `config.py` dagi `SEO_POST_HOUR` / `SEO_POST_MINUTE` orqali o'zgartiring.
+Tashqi cron ishlatmoqchi bo'lsangiz: `POST /api/cron/generate?secret=<CRON_SECRET>`.
 
 ## 🧵 Redis rate-limit
 
@@ -143,52 +154,49 @@ unga ajratiladi.
 
 1. [Render.com](https://render.com) da yangi Web Service yarating
 2. GitHub repo'ni ulang
-3. Environment variables qo'shing:
-   - `GEMINI_API_KEY`
-   - `TELEGRAM_BOT_TOKEN`
-   - `TELEGRAM_CHANNEL_ID`
-   - `ADMIN_USERNAME`
-   - `ADMIN_PASSWORD`
-   - `SITE_URL` (masalan: `https://trendoai.onrender.com`)
+3. Environment variables qo'shing — ro'yxat [`render.yaml`](render.yaml) da,
+   `sync: false` belgilanganlarini qo'lda kiriting
 4. Deploy tugmasini bosing
+
+`healthCheckPath` sifatida `/api/health` ishlatiladi.
 
 
 ## 📁 Loyiha Strukturasi
 
 ```
 trendoai/
-├── app.py              # Flask main + routes + API
-├── config.py           # Configuration
-├── ai_generator.py     # Gemini AI integration
-├── scheduler.py        # APScheduler jobs
-├── telegram_poster.py  # Telegram API
-├── requirements.txt    # Dependencies
-├── Dockerfile          # Docker build
-├── render.yaml         # Render.com config
-├── .env               # Environment (gitignore)
-├── .gitignore
-├── static/
-│   └── css/
-│       └── style.css
-├── templates/
-│   ├── base.html
-│   ├── index.html
-│   ├── post.html
-│   ├── search.html
-│   ├── about.html
-│   ├── services.html
-│   ├── admin/
-│   │   ├── base_admin.html
-│   │   ├── login.html
-│   │   ├── dashboard.html
-│   │   ├── posts.html
-│   │   ├── edit_post.html
-│   │   └── generate.html
-│   └── errors/
-│       ├── 404.html
-│       └── 500.html
-└── instance/
-    └── blog.db
+├── app.py                 # Flask fabrikasi, CSRF/xavfsizlik, boot ketma-ketligi
+├── config.py              # Barcha sozlamalar va muhit o'zgaruvchilari
+├── extensions.py          # db / csrf / migrate (sirkulyar importni oldini oladi)
+├── models/                # SQLAlchemy modellari
+│   ├── post.py            # Blog postlari
+│   ├── order.py           # Order, BotOrder
+│   ├── interaction.py     # Lead, PushSubscription
+│   ├── portfolio.py       # Portfolio keyslari
+│   ├── service.py         # Xizmatlar
+│   └── bot_models.py      # MenuCategory, MenuItem
+├── routes/                # Blueprint'lar
+│   ├── web.py             # Ommaviy sahifalar, SEO, sitemap, feed'lar
+│   ├── admin.py           # Admin panel va Kanban CRM
+│   └── api.py             # REST API, AI chat, webhook, cron
+├── services/              # Biznes mantiq
+│   ├── cache_service.py   # Redis + in-memory kesh
+│   ├── rate_limit_service.py  # Redis sliding-window (atomar, Lua)
+│   ├── crm_service.py     # Lead aniqlash va dedup
+│   ├── meta_capi.py       # Meta Conversions API
+│   ├── push_service.py    # Web Push
+│   └── voice_service.py   # Gemini Live audio
+├── ai_helpers.py          # Gemini wrapper (kalit + model fallback)
+├── ai_generator.py        # SEO maqola generatsiyasi
+├── scheduler.py           # APScheduler (kunlik post)
+├── bot_service.py         # Telegram bot handlerlari
+├── telegram_poster.py     # Telegram xabar yuborish
+├── seo_indexer.py         # IndexNow
+├── translations.py        # UZ / RU / EN
+├── scripts/               # Yordamchi skriptlar (VAPID, admin hash, migratsiya)
+├── tests/                 # Pytest to'plami
+├── templates/             # Jinja shablonlari
+└── static/                # CSS, ikonkalar, sw.js, manifest
 ```
 
 ## 📞 Aloqa

@@ -67,23 +67,13 @@
 }
 </script>
 
-<script>
-    fbq('track', 'ViewContent', {
-        content_name: '{{ service.title }}',
-        content_category: 'Service',
-        content_ids: ['service_{{ service.slug }}'],
-        content_type: 'product'
-    });
-
-    function trackAddToCart() {
-        fbq('track', 'AddToCart', {
-            content_name: '{{ service.title }}',
-            content_category: 'Service',
-            content_ids: ['service_{{ service.slug }}'],
-            content_type: 'product'
-        });
-    }
+<script type="application/json" id="pixel-track-data">
+{"contentName": {{ service.title | tojson }},
+ "contentCategory": "Service",
+ "contentIds": ["service_{{ service.slug }}"],
+ "value": null}
 </script>
+<script src="{{ url_for('static', filename='js/pixel-track.js') }}" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -156,7 +146,7 @@
                     <h3>Ushbu xizmat bo'yicha buyurtma bermoqchimisiz?</h3>
                     <p>Mutaxassislarimiz siz bilan bog'lanib, loyihangizni batafsil muhokama qilishadi.</p>
                     <a href="{{ url_for('order_page') }}?service={{ service.slug }}" class="primary-btn pulse-glow"
-                        onclick="trackAddToCart()">
+                        data-track-add-to-cart>
                         🚀 Hozirroq buyurtma berish
                     </a>
                 </div>

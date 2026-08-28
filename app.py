@@ -25,6 +25,10 @@ import markdown2
 from config import (
     CATEGORIES,
     CRON_SECRET,
+    CSP_BASELINE_POLICY,
+    CSP_ENFORCE,
+    CSP_POLICY,
+    CSP_REPORT_ONLY_POLICY,
     DATABASE_URI,
     DEBUG,
     FACEBOOK_PIXEL_ID,
@@ -190,10 +194,13 @@ def create_app(config_overrides=None):
         response.headers['X-XSS-Protection'] = '1; mode=block'
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-        response.headers['Content-Security-Policy'] = (
-            "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; "
-            "form-action 'self'; upgrade-insecure-requests"
-        )
+        if CSP_ENFORCE:
+            response.headers['Content-Security-Policy'] = CSP_POLICY
+        else:
+            # Jonli siyosat o'zgarishsiz qoladi, yangi qat'iy qoidalar esa
+            # faqat kuzatiladi — sayt buzilmaydi, buzilishlar konsolda ko'rinadi.
+            response.headers['Content-Security-Policy'] = CSP_BASELINE_POLICY
+            response.headers['Content-Security-Policy-Report-Only'] = CSP_REPORT_ONLY_POLICY
         response.headers['Permissions-Policy'] = (
             'camera=(), geolocation=(), payment=(), usb=(), microphone=(self)'
         )
@@ -269,6 +276,27 @@ def create_app(config_overrides=None):
             't': lambda key, default=None: get_translation(key, lang, default),
             'now': datetime.now()
         }
+
+    # Static fayllar bir yillik immutable kesh bilan beriladi, shuning uchun
+    # URL fayl o'zgarganda o'zgarishi shart — aks holda deploy qilingan JS
+    # tuzatishi qaytgan foydalanuvchilarga yetib bormaydi.
+    _static_versions = {}
+
+    @application.url_defaults
+    def add_static_version(endpoint, values):
+        if endpoint != 'static' or 'filename' not in values:
+            return
+        filename = values['filename']
+        version = _static_versions.get(filename)
+        if version is None:
+            try:
+                version = int(os.stat(os.path.join(application.static_folder, filename)).st_mtime)
+            except OSError:
+                version = 0
+            if not DEBUG:
+                _static_versions[filename] = version
+        if version:
+            values['v'] = version
 
     # Blueprintlarni ro'yxatdan o'tkazish
     application.register_blueprint(web_bp)

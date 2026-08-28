@@ -24,6 +24,12 @@ services:
         value: gemini-3.1-flash-live-preview
       - key: TELEGRAM_BOT_TOKEN
         sync: false
+      - key: TELEGRAM_WEBHOOK_SECRET
+        sync: false
+      - key: FB_APP_SECRET
+        sync: false
+      - key: FB_LEAD_VERIFY_TOKEN
+        sync: false
       - key: TELEGRAM_CHANNEL_ID
         sync: false
       - key: SECRET_KEY
@@ -34,6 +40,12 @@ services:
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
+      - key: ADMIN_PASSWORD_HASH
+        sync: false
+      - key: GUNICORN_TIMEOUT
+        value: "120"
+      - key: CSP_ENFORCE
+        value: "false"
       - key: SITE_URL
         sync: false
       - key: REDIS_URL

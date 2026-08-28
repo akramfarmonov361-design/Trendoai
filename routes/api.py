@@ -18,6 +18,7 @@ from flask import (
 from config import (
     CATEGORIES,
     CRON_SECRET,
+    TELEGRAM_WEBHOOK_SECRET,
     GEMINI_API_KEY,
     GEMINI_LIVE_MODEL,
     GEMINI_MODEL,
@@ -30,7 +31,7 @@ from models.order import BotOrder, Order
 from models.interaction import Lead, PushSubscription
 from models.post import Post
 from routes.admin import login_required
-from services.crm_service import capture_lead_from_message
+from services.crm_service import capture_lead_from_message, is_duplicate_contact
 from services.push_service import notify_all_subscribers
 from services.rate_limit_service import allow_request
 from services.voice_service import (
@@ -41,7 +42,7 @@ from services.voice_service import (
 
 api_bp = Blueprint('api', __name__)
 
-TELEGRAM_WEBHOOK_SECRET = CRON_SECRET[:256] if CRON_SECRET else 'trendoai_super_secret_123'
+# TELEGRAM_WEBHOOK_SECRET config.py'da aniqlanadi va shu yerda qayta eksport qilinadi.
 
 def _client_ip():
     """ProxyFix orqali xavfsiz olingan mijoz IP manzili"""
@@ -52,6 +53,36 @@ def _check_rate_limit(key, limit=30, window_seconds=60):
     """Redis bilan workerlar orasida umumiy bo'lgan rate limiter."""
     scope, _, client_ip = key.partition(':')
     return allow_request(scope or 'api', client_ip or 'unknown', limit, window_seconds)
+
+
+def _verify_meta_signature():
+    """Meta lead webhook imzosini (X-Hub-Signature-256) tekshiradi.
+
+    FB_APP_SECRET berilmagan bo'lsa endpoint eskicha imzosiz ishlaydi —
+    bu holat logga yoziladi, chunki u endpointni ochiq qoldiradi.
+    """
+    import hashlib
+    import hmac
+
+    from config import FB_APP_SECRET
+
+    if not FB_APP_SECRET:
+        print(
+            "[api] OGOHLANTIRISH: FB_APP_SECRET yo'q, Facebook lead webhook imzosi "
+            "tekshirilmadi. Endpoint autentifikatsiyasiz ishlamoqda."
+        )
+        return True
+
+    header = request.headers.get('X-Hub-Signature-256') or ''
+    if not header.startswith('sha256='):
+        return False
+
+    expected = hmac.new(
+        FB_APP_SECRET.encode('utf-8'),
+        request.get_data(),
+        hashlib.sha256,
+    ).hexdigest()
+    return hmac.compare_digest(header[len('sha256='):], expected)
 
 
 def _cron_secret_error():
@@ -157,16 +188,30 @@ def api_stats():
 @csrf.exempt
 def submit_lead():
     """Lead Magnet yoki Chatbot orqali kelgan ma'lumotni saqlash"""
-    data = request.json
-    if not data or not data.get('contact'):
+    client_ip = _client_ip()
+    if not _check_rate_limit(f"lead:{client_ip}", limit=5, window_seconds=600):
+        return jsonify({
+            'status': 'error',
+            'message': "Juda ko'p ariza yuborildi. Iltimos, birozdan so'ng qayta urinib ko'ring."
+        }), 429
+
+    data = request.get_json(silent=True) or {}
+    contact = (data.get('contact') or '').strip()
+    if not contact:
         return jsonify({'status': 'error', 'message': "Iltimos, aloqa ma'lumotini kiriting."}), 400
 
+    name = (data.get('name') or "Noma'lum").strip()
+    source = (data.get('source') or 'Sayt Orqali').strip()
+    if len(contact) > 100 or len(name) > 100 or len(source) > 50:
+        return jsonify({'status': 'error', 'message': "Yuborilgan ma'lumot juda uzun."}), 400
+
+    # Takroriy kontakt bazani ham, adminning Telegramini ham spam qilmasligi uchun
+    # yangi yozuv ochilmaydi, lekin mijozga xato ko'rsatilmaydi.
+    if is_duplicate_contact(contact):
+        return jsonify({'status': 'success', 'message': "Ma'lumot allaqachon qabul qilingan!"})
+
     try:
-        new_lead = Lead(
-            name=data.get('name', "Noma'lum"),
-            contact=data['contact'],
-            source=data.get('source', 'Sayt Orqali')
-        )
+        new_lead = Lead(name=name, contact=contact, source=source)
         db.session.add(new_lead)
         db.session.commit()
 
@@ -176,8 +221,10 @@ def submit_lead():
 
         return jsonify({'status': 'success', 'message': "Ma'lumot muvaffaqiyatli qabul qilindi!"})
     except Exception as e:
+        db.session.rollback()
+        # Ichki xato matni mijozga chiqarilmaydi — faqat logga yoziladi.
         print(f"[api] Lead error: {e}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        return jsonify({'status': 'error', 'message': "Ma'lumotni saqlashda xato yuz berdi."}), 500
 
 
 # ========== AI CHATBOT & AUDIO ==========
@@ -345,7 +392,10 @@ def api_chat_audio():
 @api_bp.route('/api/push/subscribe', methods=['POST'])
 def push_subscribe():
     """Web Push obunasini saqlash yoki yangilash"""
-    data = request.json
+    if not _check_rate_limit(f"push:{_client_ip()}", limit=10, window_seconds=600):
+        return jsonify({'error': "Juda ko'p so'rov yuborildi."}), 429
+
+    data = request.get_json(silent=True) or {}
     if not data or not data.get('endpoint'):
         return jsonify({'error': 'Invalid data'}), 400
 
@@ -520,8 +570,9 @@ def telegram_webhook():
         from bot_service import bot
         import telebot
 
-        secret_token = request.headers.get('X-Telegram-Bot-Api-Secret-Token')
-        if not secret_token or secret_token != TELEGRAM_WEBHOOK_SECRET:
+        import hmac
+        secret_token = request.headers.get('X-Telegram-Bot-Api-Secret-Token') or ''
+        if not TELEGRAM_WEBHOOK_SECRET or not hmac.compare_digest(secret_token, TELEGRAM_WEBHOOK_SECRET):
             return 'Unauthorized', 403
 
         if bot and request.headers.get('content-type') == 'application/json':
@@ -751,6 +802,9 @@ def facebook_lead_webhook():
             return challenge or 'OK', 200
         return jsonify({'error': 'Invalid verification token'}), 403
 
+    if not _verify_meta_signature():
+        return jsonify({'error': 'Invalid signature'}), 403
+
     data = request.get_json(silent=True) or {}
     try:
         from config import FB_CONVERSIONS_API_TOKEN
@@ -765,9 +819,21 @@ def facebook_lead_webhook():
                     leadgen_id = change.get('value', {}).get('leadgen_id')
                     form_id = change.get('value', {}).get('form_id')
 
+                    # leadgen_id tashqaridan keladi: raqam bo'lmasa Graph API
+                    # manzilining yo'l qismini o'zgartirib yuborishi mumkin.
+                    if leadgen_id and not str(leadgen_id).isdigit():
+                        current_app.logger.warning(
+                            "Facebook Lead Webhook: yaroqsiz leadgen_id e'tiborsiz qoldirildi"
+                        )
+                        continue
+
                     if leadgen_id and FB_CONVERSIONS_API_TOKEN:
-                        url = f"https://graph.facebook.com/v19.0/{leadgen_id}?access_token={FB_CONVERSIONS_API_TOKEN}"
-                        resp = requests.get(url, timeout=5)
+                        url = f"https://graph.facebook.com/v19.0/{leadgen_id}"
+                        resp = requests.get(
+                            url,
+                            headers={'Authorization': f'Bearer {FB_CONVERSIONS_API_TOKEN}'},
+                            timeout=5,
+                        )
                         if resp.status_code == 200:
                             lead_data = resp.json()
                             field_data = {f.get('name'): f.get('values', [''])[0] for f in lead_data.get('field_data', [])}

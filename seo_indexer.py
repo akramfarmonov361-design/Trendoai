@@ -3,12 +3,27 @@ Google Search Console & IndexNow Auto-Indexing Helper for TrendoAI.
 Supports IndexNow (Bing, Yandex, Seznam) and Google Sitemap Ping.
 """
 
-import json
+import os
+import re
 import threading
 import requests
 from config import SITE_URL
 
-INDEXNOW_KEY = "trendoai_indexnow_key_2026"
+# IndexNow spetsifikatsiyasi kalitga faqat [a-zA-Z0-9-] va 8-128 belgi ruxsat beradi.
+# Eski qiymat ("trendoai_indexnow_key_2026") pastki chiziq tutgani uchun
+# spetsifikatsiyaga mos emas edi va submission rad etilishi mumkin edi.
+DEFAULT_INDEXNOW_KEY = "trendoai-indexnow-2026"
+INDEXNOW_KEY_PATTERN = re.compile(r"[A-Za-z0-9-]{8,128}")
+
+_raw_indexnow_key = (os.getenv("INDEXNOW_KEY") or DEFAULT_INDEXNOW_KEY).strip()
+if INDEXNOW_KEY_PATTERN.fullmatch(_raw_indexnow_key):
+    INDEXNOW_KEY = _raw_indexnow_key
+else:
+    print(
+        f"[seo_indexer] INDEXNOW_KEY='{_raw_indexnow_key}' spetsifikatsiyaga mos emas "
+        f"(faqat A-Z a-z 0-9 - va 8-128 belgi), '{DEFAULT_INDEXNOW_KEY}' ishlatiladi."
+    )
+    INDEXNOW_KEY = DEFAULT_INDEXNOW_KEY
 
 
 def get_indexnow_key():
@@ -44,14 +59,9 @@ def _async_ping(urls):
     except Exception as exc:
         print(f"[seo_indexer] IndexNow ping failed: {exc}")
 
-    # 2. Google Sitemap Ping
-    try:
-        sitemap_url = f"{SITE_URL}/sitemap.xml"
-        google_ping_url = f"https://www.google.com/ping?sitemap={sitemap_url}"
-        res = requests.get(google_ping_url, timeout=5)
-        print(f"[seo_indexer] Google sitemap ping status: {res.status_code}")
-    except Exception as exc:
-        print(f"[seo_indexer] Google sitemap ping failed: {exc}")
+    # Google sitemap ping endpoint'i (google.com/ping?sitemap=) 2024-yil yanvarda
+    # butunlay o'chirilgan — chaqiruv 404 qaytarardi va status log'i chalg'itardi.
+    # Google uchun sitemap robots.txt orqali va Search Console'da e'lon qilinadi.
 
 
 def ping_search_engines(urls):
