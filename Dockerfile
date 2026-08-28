@@ -1,5 +1,5 @@
 # TrendoAI Dockerfile
-FROM python:3.11-slim
+FROM python:3.11.9-slim
 
 # Working directory
 WORKDIR /app

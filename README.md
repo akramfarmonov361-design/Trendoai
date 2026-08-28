@@ -3,7 +3,7 @@
 O'zbekistonda trending texnologiya yangiliklari va sun'iy intellekt haqida professional blog platformasi.
 
 ![TrendoAI](https://img.shields.io/badge/TrendoAI-v2.0-667eea?style=for-the-badge)
-![Python](https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python)
+![Python](https://img.shields.io/badge/Python-3.11.9-blue?style=for-the-badge&logo=python)
 ![Flask](https://img.shields.io/badge/Flask-3.0-black?style=for-the-badge&logo=flask)
 ![Gemini](https://img.shields.io/badge/Gemini-AI-4285F4?style=for-the-badge&logo=google)
 

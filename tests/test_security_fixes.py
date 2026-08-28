@@ -737,3 +737,22 @@ def test_page_css_is_linked_where_the_style_block_was():
     mavjud = {os.path.basename(p) for p in glob.glob('static/css/pages/*.css')}
     assert mavjud, 'css/pages/ bo\'sh'
     assert mavjud == linked, f'ulanmagan: {mavjud - linked} | yo\'q fayl: {linked - mavjud}'
+
+
+def test_python_version_pins_agree():
+    """Python versiyasi to'rt joyda ko'rsatiladi va ular bir-biridan
+    ajralib ketgan edi (.python-version 3.11.11, render.yaml 3.11.0,
+    Dockerfile esa suzuvchi 3.11 tegi). Lokal muhit production'dan
+    boshqa versiyada ishlab qolmasligi uchun ular bir xil bo'lsin."""
+    kutilgan = open('.python-version', encoding='utf-8').read().strip()
+    assert re.fullmatch(r'3\.\d+\.\d+', kutilgan), kutilgan
+
+    render = open('render.yaml', encoding='utf-8').read()
+    m = re.search(r'key:\s*PYTHON_VERSION\s*\n\s*value:\s*"?([\d.]+)"?', render)
+    assert m, 'render.yaml da PYTHON_VERSION topilmadi'
+    assert m.group(1) == kutilgan, f'render.yaml: {m.group(1)} != {kutilgan}'
+
+    dockerfile = open('Dockerfile', encoding='utf-8').read()
+    d = re.search(r'^FROM python:([\d.]+)-slim', dockerfile, re.M)
+    assert d, 'Dockerfile da aniq versiya yo\'q (suzuvchi teg qaytdi)'
+    assert d.group(1) == kutilgan, f'Dockerfile: {d.group(1)} != {kutilgan}'
