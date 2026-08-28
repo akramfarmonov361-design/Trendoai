@@ -756,3 +756,53 @@ def test_python_version_pins_agree():
     d = re.search(r'^FROM python:([\d.]+)-slim', dockerfile, re.M)
     assert d, 'Dockerfile da aniq versiya yo\'q (suzuvchi teg qaytdi)'
     assert d.group(1) == kutilgan, f'Dockerfile: {d.group(1)} != {kutilgan}'
+
+
+def _scripts_reachable_from(path, seen=None):
+    """Shablon va uning barcha bazalari yuklaydigan JS fayllar."""
+    seen = seen if seen is not None else set()
+    if path in seen:
+        return set()
+    seen.add(path)
+
+    html = open(path, encoding='utf-8').read()
+    scripts = set(re.findall(r"filename='js/([a-z0-9_.-]+\.js)'", html))
+
+    parent = re.search(r"\{%\s*extends\s*'([^']+)'", html)
+    if parent:
+        scripts |= _scripts_reachable_from('templates/' + parent.group(1), seen)
+    return scripts
+
+
+def test_every_data_hook_has_a_script_that_wires_it():
+    """Har bir data-* hook uni ulaydigan JS bilan bir sahifada bo'lishi kerak.
+
+    invoice.html mustaqil shablon bo'lgani uchun admin.js ni yuklamasdi va
+    data-print tugmasi jimgina ishlamay qolgandi: inline onclick olib
+    tashlangan, o'rniga listener esa hech qachon biriktirilmagan.
+    """
+    import glob
+    import os
+
+    egalar = {}
+    for js_path in glob.glob('static/js/*.js'):
+        src = open(js_path, encoding='utf-8').read()
+        for hook in re.findall(r'\[data-([a-z-]+)\]', src):
+            egalar.setdefault(hook, set()).add(os.path.basename(js_path))
+
+    assert egalar, 'JS fayllarda data-* listener topilmadi'
+
+    uzilganlar = []
+    for path in _template_files():
+        html = open(path, encoding='utf-8').read()
+        hooks = {h for h in re.findall(r'\sdata-([a-z-]+)=?[">\s]', html) if h in egalar}
+        if not hooks:
+            continue
+        yuklangan = _scripts_reachable_from(path)
+        for hook in sorted(hooks):
+            if not (egalar[hook] & yuklangan):
+                uzilganlar.append(
+                    f'{path}: data-{hook} uchun {sorted(egalar[hook])} kerak, '
+                    f'lekin {sorted(yuklangan) or "hech narsa"} yuklangan')
+
+    assert not uzilganlar, 'ulanmagan hooklar:\n  ' + '\n  '.join(uzilganlar)
