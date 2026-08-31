@@ -117,15 +117,24 @@ def create_app(config_overrides=None):
     application.config['SESSION_COOKIE_SECURE'] = not DEBUG
     application.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max payload limit
 
-    application.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-        'pool_pre_ping': True,
-        'pool_recycle': 300,
-        'pool_size': 5,
-        'max_overflow': 10,
-    }
-
     if config_overrides:
         application.config.update(config_overrides)
+
+    # Pool sozlamalari amaldagi bazaga qarab tanlanadi (override'lardan keyin).
+    # `pool_size` va `max_overflow` faqat QueuePool uchun ma'noga ega; SQLite
+    # `:memory:` da SQLAlchemy StaticPool ishlatadi va bu argumentlarni
+    # TypeError bilan rad etadi — CI aynan shu sababdan yiqilgan edi.
+    engine_options = {
+        'pool_pre_ping': True,
+        'pool_recycle': 300,
+    }
+    if not str(application.config.get('SQLALCHEMY_DATABASE_URI', '')).startswith('sqlite'):
+        engine_options['pool_size'] = 5
+        engine_options['max_overflow'] = 10
+
+    application.config.setdefault('SQLALCHEMY_ENGINE_OPTIONS', {})
+    if not application.config['SQLALCHEMY_ENGINE_OPTIONS']:
+        application.config['SQLALCHEMY_ENGINE_OPTIONS'] = engine_options
 
     # Kengaytmalarni ulash
     db.init_app(application)
