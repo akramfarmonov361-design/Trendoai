@@ -1,0 +1,45 @@
+name: Kunlik AI post
+
+# Ilova ichidagi APScheduler Render'ning free tier'ida ishonchsiz: servis
+# 15 daqiqa harakatsizlikdan keyin uxlab qoladi va soat 09:00 da uyg'onmaydi.
+# Shuning uchun triggerni tashqariga chiqardik. Ikkalasi bir kunda ishga
+# tushib qolsa, scheduler.py dagi takrorlanish qalqoni ikkinchisini to'xtatadi.
+
+on:
+  schedule:
+    # 04:00 UTC = 09:00 Asia/Tashkent
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Servisni uyg'otish
+        # Free tier cold start ~50 soniya davom etadi, shuning uchun
+        # generatsiyani so'rashdan oldin servis oyoqqa turishini kutamiz.
+        run: |
+          curl -sS -m 180 --retry 4 --retry-all-errors --retry-delay 20 \
+            -o /dev/null -w "uyg'otish: %{http_code} (%{time_total}s)\n" \
+            https://trendoai.uz/api/health
+
+      - name: Post generatsiyasini boshlash
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::CRON_SECRET GitHub sekreti sozlanmagan." >&2
+            exit 1
+          fi
+          # Sekret sarlavhada yuboriladi — URL query'dagi sekretlar
+          # proksi va server loglarida ochiq qolib ketadi.
+          code=$(curl -sS -m 120 -o response.json -w "%{http_code}" \
+            -X POST -H "X-Cron-Secret: $CRON_SECRET" \
+            https://trendoai.uz/api/cron/generate)
+          cat response.json; echo
+          if [ "$code" != "200" ]; then
+            echo "::error::Kutilmagan javob kodi: $code" >&2
+            exit 1
+          fi
+          # 200 "generatsiya boshlandi" degani — endpoint ishni fon oqimiga
+          # topshiradi. Natijani Telegram kanali yoki /blog dan tekshiring.

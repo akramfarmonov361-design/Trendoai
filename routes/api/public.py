@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from flask import jsonify, request, current_app
+from sqlalchemy import text
 from extensions import csrf, db
 from models.order import BotOrder, Order
 from models.interaction import Lead, PushSubscription
@@ -19,13 +20,30 @@ logger = setup_logger("public")
 
 @api_bp.route('/api/health')
 def api_health():
-    """Health check endpoint"""
-    return jsonify({
+    """Health check endpoint.
+
+    Render shu manzil orqali servis sog'ligini tekshiradi. Ilgari bu yerda
+    faqat statik JSON qaytarilardi, shuning uchun baza butunlay yiqilgan
+    bo'lsa ham "ok" javob kelib, avtomatik restart ishga tushmasdi.
+    Endi bazaga eng yengil so'rov yuboriladi va nosozlikda 503 qaytadi.
+    """
+    payload = {
         'status': 'ok',
         'service': 'TrendoAI',
         'version': '2.0.0',
+        'database': 'ok',
         'timestamp': datetime.now().isoformat()
-    })
+    }
+    try:
+        db.session.execute(text('SELECT 1'))
+    except Exception as exc:
+        db.session.rollback()
+        logger.error(f"[health] Baza tekshiruvi muvaffaqiyatsiz: {exc}")
+        payload['status'] = 'error'
+        payload['database'] = 'error'
+        return jsonify(payload), 503
+
+    return jsonify(payload)
 
 
 @api_bp.route('/api/posts')
@@ -176,7 +194,7 @@ def update_bot_order_status():
     try:
         order_id = (request.json or {}).get('order_id') or request.form.get('order_id')
         status = (request.json or {}).get('status') or request.form.get('status')
-        order = BotOrder.query.get(order_id)
+        order = db.session.get(BotOrder, order_id)
         if order:
             order.status = status
             db.session.commit()
@@ -219,13 +237,13 @@ def api_crm_update_status():
 
     try:
         if item_type == 'order':
-            order = Order.query.get(item_id)
+            order = db.session.get(Order, item_id)
             if order:
                 order.status = new_status
                 db.session.commit()
                 return jsonify({'success': True, 'message': f'Order #{item_id} statusi yangilandi.'})
         elif item_type == 'lead':
-            lead = Lead.query.get(item_id)
+            lead = db.session.get(Lead, item_id)
             if lead:
                 lead.status = new_status
                 db.session.commit()
@@ -249,13 +267,13 @@ def api_crm_update_note():
 
     try:
         if item_type == 'order':
-            order = Order.query.get(item_id)
+            order = db.session.get(Order, item_id)
             if order:
                 order.admin_note = note
                 db.session.commit()
                 return jsonify({'success': True, 'message': 'Eslatma saqlandi.'})
         elif item_type == 'lead':
-            lead = Lead.query.get(item_id)
+            lead = db.session.get(Lead, item_id)
             if lead:
                 lead.admin_note = note
                 db.session.commit()

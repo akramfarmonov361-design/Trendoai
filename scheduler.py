@@ -10,7 +10,7 @@ import random
 import sys
 import time
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 from utils.logger import setup_logger
 logger = setup_logger("scheduler")
 
@@ -82,12 +82,39 @@ TOPICS = [
 
 
 
-def generate_and_publish_post(topic=None, category=None):
+# Kunlik post bir marta chiqishi kerak. Ichki APScheduler bilan tashqi cron
+# bir kunda ikkalasi ham ishga tushsa, ikkinchisi shu oyna ichida to'xtaydi.
+_DUPLICATE_WINDOW_HOURS = 20
+
+
+def _post_published_recently(window_hours=_DUPLICATE_WINDOW_HOURS):
+    """Oxirgi ``window_hours`` soat ichida post chiqqan-chiqmaganini aytadi.
+
+    Ikkala vaqt ham bazaning o'z soatidan olinadi: ``Post.created_at`` ustuni
+    ``server_default=now()`` bilan to'ladi, shuning uchun uni ilova soati bilan
+    solishtirish mintaqa farqi bo'lganda noto'g'ri natija berardi.
+    """
+    from app import Post, db
+
+    last_created = db.session.query(db.func.max(Post.created_at)).scalar()
+    if not isinstance(last_created, datetime):
+        return False
+
+    reference = db.session.query(db.func.now()).scalar()
+    if not isinstance(reference, datetime):
+        # SQLite ``now()`` ni matn qaytaradi — u holda ilova soatiga qaytamiz.
+        reference = datetime.now()
+
+    return (reference - last_created) < timedelta(hours=window_hours)
+
+
+def generate_and_publish_post(topic=None, category=None, force=False):
     """
     Yangi post generatsiya qilib, bazaga saqlaydi va Telegramga yuboradi.
 
     topic: Agar berilsa, ushbu mavzuda yozadi. Aks holda takrorlanmagan yangi trend mavzu tanlaydi.
     category: Agar berilsa, ushbu kategoriyani qo'yadi. Aks holda random tanlaydi.
+    force: Kunlik takrorlanish qalqonini chetlab o'tadi (qo'lda chaqiruvlar uchun).
     """
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logger.info(f"\n{'=' * 60}", flush=True)
@@ -98,6 +125,16 @@ def generate_and_publish_post(topic=None, category=None):
     from app import Post, app, db
 
     with app.app_context():
+        # Avtomatik chaqiruvlarda kuniga bitta post. Tekshiruvning o'zi yiqilsa
+        # generatsiya davom etadi — post ikkilangandan ko'ra chiqmay qolgani yomonroq.
+        if not force and topic is None:
+            try:
+                if _post_published_recently():
+                    logger.info("[scheduler] Bugun post allaqachon chiqarilgan — o'tkazib yuborildi.")
+                    return None
+            except Exception as exc:
+                logger.warning(f"[scheduler] Takrorlanish tekshiruvi ishlamadi, davom etamiz: {exc}")
+
         # Takrorlanmagan yangi trend mavzuni tanlash
         if topic:
             selected_topic = topic

@@ -477,7 +477,7 @@ def _boot_sequence():
                 from services.seed_portfolio import seed_desktop_portfolios
                 seed_desktop_portfolios()
         except Exception as exc:
-            logger.info(f"[boot] DB init/migratsiya xatosi: {exc}")
+            logger.error(f"[boot] DB init/migratsiya xatosi: {exc}", exc_info=True)
 
         try:
             from scheduler import scheduler
@@ -485,15 +485,15 @@ def _boot_sequence():
                 scheduler.start()
                 logger.info(f"[boot] Scheduler ishga tushdi: {len(scheduler.get_jobs())} ta vazifa")
         except Exception as exc:
-            logger.info(f"[boot] Scheduler startup xatosi: {exc}")
+            logger.error(f"[boot] Scheduler startup xatosi: {exc}", exc_info=True)
 
         try:
             from bot_service import setup_webhook
             setup_webhook(app)
         except Exception as exc:
-            logger.info(f"[boot] Telegram webhook xatosi: {exc}")
+            logger.error(f"[boot] Telegram webhook xatosi: {exc}", exc_info=True)
     except Exception as exc:
-        logger.info(f"[boot] Xizmatlar startup xatosi: {exc}")
+        logger.error(f"[boot] Xizmatlar startup xatosi: {exc}", exc_info=True)
 
 
 is_testing_env = "pytest" in sys.modules or bool(os.getenv("TESTING")) or bool(os.getenv("PYTEST_CURRENT_TEST"))

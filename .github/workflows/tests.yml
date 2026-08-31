@@ -1,4 +1,4 @@
-﻿name: TrendoAI Tests
+name: TrendoAI Tests
 
 on:
   push:

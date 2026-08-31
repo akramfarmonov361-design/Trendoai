@@ -165,7 +165,8 @@ def admin_generate_post():
     """Manual post generation"""
     try:
         from scheduler import generate_and_publish_post
-        success = generate_and_publish_post()
+        # Admin ataylab bosgan tugma — kunlik takrorlanish qalqoni chetlab o'tiladi.
+        success = generate_and_publish_post(force=True)
         if success:
             return "✅ Yangi post muvaffaqiyatli generatsiya qilindi va Telegramga yuborildi!", 200
         else:
