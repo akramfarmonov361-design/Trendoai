@@ -443,6 +443,57 @@ def migrate_service_discount_dates():
         logger.error(f"WARN: Service discount date migration failed: {e}")
 
 
+def migrate_portfolio_images():
+    """Portfolio loyihalarining rasmlarini yangi mahalliy WebP rasmlarga sinxronlash"""
+    try:
+        mapping = {
+            'insta': '/static/img/portfolio/instadubuz.webp',
+            'bolajon': '/static/img/portfolio/bolajon-ai-english.webp',
+            'english': '/static/img/portfolio/bolajon-ai-english.webp',
+            'botfactory': '/static/img/portfolio/botfactory.webp',
+            'chatbot factory': '/static/img/portfolio/botfactory.webp',
+            'ismlar': '/static/img/portfolio/ismlar-manosi-ai.webp',
+            'luxe': '/static/img/portfolio/luxe-core.webp',
+            'optom': '/static/img/portfolio/optombazar.webp',
+            'restoran': '/static/img/portfolio/restoran.webp',
+            'voice ai delivery': '/static/img/portfolio/restoran.webp',
+            'mijoz': '/static/img/portfolio/mijoz-topar.webp',
+            'finder': '/static/img/portfolio/mijoz-topar.webp',
+            'text': '/static/img/portfolio/text-ovoz.webp',
+            'ovoz': '/static/img/portfolio/text-ovoz.webp',
+            'nova': '/static/img/portfolio/novatech.webp',
+            'real-smart': '/static/img/portfolio/real-smart-ai.webp',
+            'smart': '/static/img/portfolio/real-smart-ai.webp',
+            'paket': '/static/img/portfolio/paketshop.webp',
+            'assistent': '/static/img/portfolio/paketshop-assistent.webp',
+            'texno': '/static/img/portfolio/texnomarket.webp',
+            'speak': '/static/img/portfolio/trendospeak.webp',
+            'uzum': '/static/img/portfolio/uzum-tezkor.webp',
+            'vibe': '/static/img/portfolio/vibecoding.webp',
+            'viral': '/static/img/portfolio/viral-video.webp',
+            'quiz': '/static/img/portfolio/quiz-video-generator.webp',
+            'trendoai': '/static/img/portfolio/trendoai-uz.webp',
+        }
+        items = Portfolio.query.all()
+        updated = 0
+        for item in items:
+            t_lower = (item.title or '').lower()
+            s_lower = (item.slug or '').lower()
+            combined = f"{t_lower} {s_lower}"
+            for key, img_path in mapping.items():
+                if key in combined:
+                    if item.image_url != img_path:
+                        item.image_url = img_path
+                        updated += 1
+                    break
+        if updated:
+            db.session.commit()
+            logger.info(f"OK: synchronized {updated} portfolio image(s) to local WebP.")
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"WARN: Portfolio image migration failed: {e}")
+
+
 def migrate_remove_post_freshness_notes():
     """Eski statik sana eslatmalarini tozalash"""
     pattern = re.compile(
@@ -483,6 +534,7 @@ def _boot_sequence():
             with app.app_context():
                 migrate_service_discount_dates()
                 migrate_remove_post_freshness_notes()
+                migrate_portfolio_images()
                 from services.seed_portfolio import seed_desktop_portfolios
                 seed_desktop_portfolios()
         except Exception as exc:

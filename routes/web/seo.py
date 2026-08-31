@@ -236,40 +236,45 @@ def _resolve_feed_image(image_url, title, category, item_id, site_url):
     t_lower = (title or '').lower()
     cat_lower = (category or '').lower()
 
-    if any(w in t_lower for w in ['voice', 'ovoz', 'chatbot', 'kundalik', 'trendospeak', 'nutq']):
-        return "https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=1000&auto=format&fit=crop"
-    elif any(w in t_lower for w in ['video', 'viral', 'dublyaj', 'insta-dub', 'youtube', 'klip']):
-        return "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=1000&auto=format&fit=crop"
-    elif any(w in t_lower for w in ['telegram', 'bot', 'botfactory']):
-        return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop"
-    elif any(w in t_lower for w in ['crm', 'boshqaruv', 'maktab', 'talim', 'kontakt', 'finder', 'baza']):
-        return "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop"
-    elif any(w in t_lower for w in ['restoran', 'kfc', 'fast-food', 'delivery', 'ovqat', 'taom']):
-        return "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1000&auto=format&fit=crop"
-    elif any(w in t_lower for w in ['paket', 'shop', 'dokon', 'savdo', 'market', 'e-commerce', 'store']):
-        return "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1000&auto=format&fit=crop"
-    elif any(w in t_lower for w in ['smm', 'target', 'reklama', 'marketing']):
-        return "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop"
-    elif any(w in t_lower for w in ['muloqot', 'lovebilda', 'tanishuv', 'chat', 'ijtimoiy']):
-        return "https://images.unsplash.com/photo-1516251193007-45ef944ab0c6?q=80&w=1000&auto=format&fit=crop"
-    elif any(w in t_lower for w in ['konsalting', 'consulting', 'ai']):
-        return "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1000&auto=format&fit=crop"
-    elif cat_lower == 'web' or 'sayt' in t_lower or 'portal' in t_lower:
-        return "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop"
-    else:
-        pool = [
-            "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1000&auto=format&fit=crop",
-            "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1000&auto=format&fit=crop",
-            "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1000&auto=format&fit=crop",
-            "https://images.unsplash.com/photo-1531403009284-440f080d1e12?q=80&w=1000&auto=format&fit=crop",
-            "https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1000&auto=format&fit=crop",
-        ]
-        try:
-            digits = ''.join(filter(str.isdigit, str(item_id)))
-            num = int(digits) if digits else 0
-            return pool[num % len(pool)]
-        except Exception:
-            return pool[0]
+    if any(w in t_lower for w in ['insta', 'dub', 'video', 'dublyaj']):
+        return f"{site_url}/static/img/portfolio/instadubuz.webp"
+    elif any(w in t_lower for w in ['bolajon', 'english', 'bola']):
+        return f"{site_url}/static/img/portfolio/bolajon-ai-english.webp"
+    elif any(w in t_lower for w in ['botfactory', 'chatbot factory', 'factory']):
+        return f"{site_url}/static/img/portfolio/botfactory.webp"
+    elif any(w in t_lower for w in ['ism', 'ismlar']):
+        return f"{site_url}/static/img/portfolio/ismlar-manosi-ai.webp"
+    elif any(w in t_lower for w in ['luxe', 'kiyim', 'brend']):
+        return f"{site_url}/static/img/portfolio/luxe-core.webp"
+    elif any(w in t_lower for w in ['optom', 'optombazar']):
+        return f"{site_url}/static/img/portfolio/optombazar.webp"
+    elif any(w in t_lower for w in ['restoran', 'voice ai delivery', 'ovqat', 'fastfood']):
+        return f"{site_url}/static/img/portfolio/restoran.webp"
+    elif any(w in t_lower for w in ['mijoz', 'finder', 'lid', 'topar']):
+        return f"{site_url}/static/img/portfolio/mijoz-topar.webp"
+    elif any(w in t_lower for w in ['text', 'ovoz', 'speech', 'diktor']):
+        return f"{site_url}/static/img/portfolio/text-ovoz.webp"
+    elif any(w in t_lower for w in ['nova', 'novatech']):
+        return f"{site_url}/static/img/portfolio/novatech.webp"
+    elif any(w in t_lower for w in ['real', 'smart', 'rieltor']):
+        return f"{site_url}/static/img/portfolio/real-smart-ai.webp"
+    elif any(w in t_lower for w in ['paket', 'qadoq', 'assistent']):
+        return f"{site_url}/static/img/portfolio/paketshop-assistent.webp"
+    elif any(w in t_lower for w in ['texno', 'elektronika']):
+        return f"{site_url}/static/img/portfolio/texnomarket.webp"
+    elif any(w in t_lower for w in ['speak', 'trendospeak']):
+        return f"{site_url}/static/img/portfolio/trendospeak.webp"
+    elif any(w in t_lower for w in ['uzum', 'yetkazib']):
+        return f"{site_url}/static/img/portfolio/uzum-tezkor.webp"
+    elif any(w in t_lower for w in ['vibe', 'kodlash', 'kurs']):
+        return f"{site_url}/static/img/portfolio/vibecoding.webp"
+    elif any(w in t_lower for w in ['viral', 'reels', 'tiktok']):
+        return f"{site_url}/static/img/portfolio/viral-video.webp"
+    elif cat_lower == 'bot' or 'bot' in t_lower:
+        return f"{site_url}/static/img/portfolio/botfactory.webp"
+    elif cat_lower == 'ai' or 'ai' in t_lower:
+        return f"{site_url}/static/img/portfolio/instadubuz.webp"
+    return f"{site_url}/static/img/portfolio/trendoai-uz.webp"
 
 def _format_feed_price(raw_price, default_amount=1000000):
     """Ensure price is strictly formatted as 'XXXXXX UZS' or 'XX USD' for Meta Commerce."""

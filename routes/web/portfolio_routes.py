@@ -43,21 +43,41 @@ def _get_item_image(item):
         return img
     
     t_lower = (item.title or '').lower()
-    if any(w in t_lower for w in ['voice', 'ovoz', 'chatbot', 'kundalik', 'rag']):
-        return "https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=1000&auto=format&fit=crop"
-    elif any(w in t_lower for w in ['video', 'dublyaj', 'insta-dub', 'youtube']):
-        return "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=1000&auto=format&fit=crop"
-    elif any(w in t_lower for w in ['telegram', 'bot', 'botfactory']):
-        return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop"
-    elif any(w in t_lower for w in ['crm', 'smart', 'boshqaruv', 'tahlil', 'finder']):
-        return "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop"
-    elif any(w in t_lower for w in ['restoran', 'delivery', 'ovqat', 'fast-food']):
-        return "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1000&auto=format&fit=crop"
-    elif any(w in t_lower for w in ['paket', 'shop', 'dokon', 'savdo', 'optombazar']):
-        return "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1000&auto=format&fit=crop"
-    elif item.category == 'web' or 'sayt' in t_lower:
-        return "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop"
-    return "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1000&auto=format&fit=crop"
+    if any(w in t_lower for w in ['insta', 'dub', 'video', 'dublyaj']):
+        return "/static/img/portfolio/instadubuz.webp"
+    elif any(w in t_lower for w in ['bolajon', 'english', 'bola']):
+        return "/static/img/portfolio/bolajon-ai-english.webp"
+    elif any(w in t_lower for w in ['botfactory', 'chatbot factory', 'factory']):
+        return "/static/img/portfolio/botfactory.webp"
+    elif any(w in t_lower for w in ['ism', 'ismlar']):
+        return "/static/img/portfolio/ismlar-manosi-ai.webp"
+    elif any(w in t_lower for w in ['luxe', 'kiyim', 'brend']):
+        return "/static/img/portfolio/luxe-core.webp"
+    elif any(w in t_lower for w in ['optom', 'optombazar']):
+        return "/static/img/portfolio/optombazar.webp"
+    elif any(w in t_lower for w in ['restoran', 'voice ai delivery', 'ovqat', 'fastfood']):
+        return "/static/img/portfolio/restoran.webp"
+    elif any(w in t_lower for w in ['mijoz', 'finder', 'lid', 'topar']):
+        return "/static/img/portfolio/mijoz-topar.webp"
+    elif any(w in t_lower for w in ['text', 'ovoz', 'speech', 'diktor']):
+        return "/static/img/portfolio/text-ovoz.webp"
+    elif any(w in t_lower for w in ['nova', 'novatech']):
+        return "/static/img/portfolio/novatech.webp"
+    elif any(w in t_lower for w in ['real', 'smart', 'rieltor']):
+        return "/static/img/portfolio/real-smart-ai.webp"
+    elif any(w in t_lower for w in ['paket', 'qadoq', 'assistent']):
+        return "/static/img/portfolio/paketshop-assistent.webp"
+    elif any(w in t_lower for w in ['texno', 'elektronika']):
+        return "/static/img/portfolio/texnomarket.webp"
+    elif any(w in t_lower for w in ['speak', 'trendospeak']):
+        return "/static/img/portfolio/trendospeak.webp"
+    elif any(w in t_lower for w in ['uzum', 'yetkazib']):
+        return "/static/img/portfolio/uzum-tezkor.webp"
+    elif any(w in t_lower for w in ['vibe', 'kodlash', 'kurs']):
+        return "/static/img/portfolio/vibecoding.webp"
+    elif any(w in t_lower for w in ['viral', 'reels', 'tiktok']):
+        return "/static/img/portfolio/viral-video.webp"
+    return "/static/img/portfolio/trendoai-uz.webp"
 
 @web_bp.route('/portfolio/project/<slug>')
 def portfolio_item(slug):
