@@ -57,6 +57,32 @@
         </div>
     </div>
 
+    <!-- Analytics Charts Section -->
+    <div class="analytics-charts-grid">
+        <div class="chart-card">
+            <h3 class="chart-title">📈 7 Kunlik Buyurtmalar Dinamikasi</h3>
+            <div class="chart-wrapper">
+                <canvas id="ordersTrendChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3 class="chart-title">🍰 Yo'nalishlar Taqsimoti</h3>
+            <div class="chart-wrapper">
+                <canvas id="categoryPieChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Data Storage -->
+    <script type="application/json" id="dashboard-chart-data">
+    {
+        "daysLabels": {{ days_labels | tojson }},
+        "ordersData": {{ orders_data | tojson }},
+        "catLabels": {{ cat_labels | tojson }},
+        "catValues": {{ cat_values | tojson }}
+    }
+    </script>
+
     <!-- Quick Actions -->
     <div class="quick-actions">
         <h2>⚡ Tezkor Amallar</h2>

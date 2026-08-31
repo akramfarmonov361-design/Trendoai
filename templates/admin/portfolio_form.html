@@ -6,7 +6,7 @@
 {% block content %}
 <div class="admin-header">
     <h1>{% if portfolio %}✏️ Portfolio Tahrirlash{% else %}➕ Yangi Portfolio Qo'shish{% endif %}</h1>
-    <a href="{{ url_for('admin_portfolio') }}" class="btn btn-secondary">← Orqaga</a>
+    <a href="{{ url_for('admin.admin_portfolio') }}" class="btn btn-secondary">← Orqaga</a>
 </div>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -95,7 +95,12 @@
         <div class="form-row">
             <div class="form-group flex-grow">
                 <label for="image_file">📁 Kompyuterdan Rasm Yuklash</label>
-                <input type="file" id="image_file" name="image_file" accept="image/*" class="is-25">
+                <input type="file" id="image_file" name="image_file" accept="image/*" class="is-25" data-image-preview="#image-preview-box">
+                <div id="image-preview-box" class="preview-box">
+                    {% if portfolio and portfolio.image_url %}
+                    <img src="{{ portfolio.image_url }}" alt="Preview" class="preview-thumb">
+                    {% endif %}
+                </div>
                 <small class="is-26">Yoki pastga rasm URL havolasini yozing:</small>
                 <input type="url" id="image_url" name="image_url" value="{{ portfolio.image_url if portfolio and portfolio.image_url else '' }}"
                     placeholder="https://example.com/image.jpg" class="is-27">

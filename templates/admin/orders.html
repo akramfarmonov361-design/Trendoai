@@ -15,32 +15,24 @@
 </div>
 
 <!-- Filters -->
-<div class="filters-bar">
-    <a href="{{ url_for('admin_orders') }}" class="filter-btn {% if not current_status %}active{% endif %}">
-        Barchasi
-    </a>
-    <a href="{{ url_for('admin_orders', status='new') }}"
-        class="filter-btn {% if current_status == 'new' %}active{% endif %}">
-        🆕 Yangi
-    </a>
-    <a href="{{ url_for('admin_orders', status='contacted') }}"
-        class="filter-btn {% if current_status == 'contacted' %}active{% endif %}">
-        📞 Bog'lanildi
-    </a>
-    <a href="{{ url_for('admin_orders', status='completed') }}"
-        class="filter-btn {% if current_status == 'completed' %}active{% endif %}">
-        ✅ Bajarildi
-    </a>
-    <a href="{{ url_for('admin_orders', status='cancelled') }}"
-        class="filter-btn {% if current_status == 'cancelled' %}active{% endif %}">
-        ❌ Bekor
-    </a>
+<div class="admin-filter-bar">
+    <div class="search-box">
+        <input type="text" id="crmSearch" class="form-control" placeholder="🔍 Buyurtmalarni qidirish (ism, telefon, xizmat)..." data-filter-input>
+    </div>
+    <div class="filter-pills">
+        <a href="{{ url_for('admin.admin_orders') }}" class="filter-pill {% if not current_status %}active{% endif %}">Barchasi</a>
+        <a href="{{ url_for('admin.admin_orders', status='new') }}" class="filter-pill {% if current_status == 'new' %}active{% endif %}">🆕 Yangi</a>
+        <a href="{{ url_for('admin.admin_orders', status='contacted') }}" class="filter-pill {% if current_status == 'contacted' %}active{% endif %}">📞 Bog'lanildi</a>
+        <a href="{{ url_for('admin.admin_orders', status='completed') }}" class="filter-pill {% if current_status == 'completed' %}active{% endif %}">✅ Bajarildi</a>
+        <a href="{{ url_for('admin.admin_orders', status='cancelled') }}" class="filter-pill {% if current_status == 'cancelled' %}active{% endif %}">❌ Bekor</a>
+    </div>
 </div>
 
 {% if orders.items %}
 <div class="orders-list">
     {% for order in orders.items %}
-    <div class="order-card status-{{ order.status }}">
+    {% set clean_phone = (order.phone or '') | replace('+', '') | replace(' ', '') | replace('-', '') %}
+    <div class="order-card status-{{ order.status }} crm-card" data-search="{{ order.name|lower }} {{ order.phone }} {{ order.service_name|lower }} {{ order.message|lower }}">
         <div class="order-header">
             <span class="order-id">#{{ order.id }}</span>
             <span class="order-status status-{{ order.status }}">
@@ -50,8 +42,7 @@
                 {% elif order.status == 'cancelled' %}❌ Bekor qilindi
                 {% endif %}
             </span>
-            <span class="order-date">{{ order.created_at.strftime('%d.%m.%Y %H:%M') if order.created_at else 'N/A'
-                }}</span>
+            <span class="order-date">{{ order.created_at.strftime('%d.%m.%Y %H:%M') if order.created_at else 'N/A' }}</span>
         </div>
 
         <div class="order-body">
@@ -62,7 +53,13 @@
                 </div>
                 <div class="info-row">
                     <span class="label">📞 Telefon:</span>
-                    <a href="tel:{{ order.phone }}" class="value phone">{{ order.phone }}</a>
+                    <div class="phone-action-group">
+                        <a href="tel:{{ order.phone }}" class="value phone">{{ order.phone }}</a>
+                        {% if clean_phone %}
+                        <a href="https://t.me/+{{ clean_phone }}" target="_blank" class="contact-quick-btn tg-btn" title="Telegramda yozish">✈️ TG</a>
+                        <a href="https://wa.me/{{ clean_phone }}" target="_blank" class="contact-quick-btn wa-btn" title="WhatsAppda yozish">💬 WA</a>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="info-row">
                     <span class="label">🛠️ Xizmat:</span>
@@ -85,25 +82,26 @@
         </div>
 
         <div class="order-actions">
-            <form action="{{ url_for('admin_update_order_status', order_id=order.id) }}" method="POST"
+            <form action="{{ url_for('admin.admin_update_order_status', order_id=order.id) }}" method="POST"
                 class="status-form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <select name="status" data-autosubmit>
                     <option value="new" {% if order.status=='new' %}selected{% endif %}>🆕 Yangi</option>
-                    <option value="contacted" {% if order.status=='contacted' %}selected{% endif %}>📞 Bog'lanildi
-                    </option>
+                    <option value="contacted" {% if order.status=='contacted' %}selected{% endif %}>📞 Bog'lanildi</option>
                     <option value="completed" {% if order.status=='completed' %}selected{% endif %}>✅ Bajarildi</option>
                     <option value="cancelled" {% if order.status=='cancelled' %}selected{% endif %}>❌ Bekor</option>
                 </select>
             </form>
 
-            <form action="{{ url_for('admin_delete_order', order_id=order.id) }}" method="POST"
+            <form action="{{ url_for('admin.admin_delete_order', order_id=order.id) }}" method="POST"
                 data-confirm="Buyurtmani o&#39;chirmoqchimisiz?">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <button type="submit" class="btn-delete">🗑️</button>
             </form>
         </div>
     </div>
+    {% endfor %}
+</div>
     {% endfor %}
 </div>
 
@@ -111,13 +109,13 @@
 {% if orders.pages > 1 %}
 <div class="pagination">
     {% if orders.has_prev %}
-    <a href="{{ url_for('admin_orders', page=orders.prev_num, status=current_status) }}" class="page-btn">← Oldingi</a>
+    <a href="{{ url_for('admin.admin_orders', page=orders.prev_num, status=current_status) }}" class="page-btn">← Oldingi</a>
     {% endif %}
 
     <span class="page-info">{{ orders.page }} / {{ orders.pages }}</span>
 
     {% if orders.has_next %}
-    <a href="{{ url_for('admin_orders', page=orders.next_num, status=current_status) }}" class="page-btn">Keyingi →</a>
+    <a href="{{ url_for('admin.admin_orders', page=orders.next_num, status=current_status) }}" class="page-btn">Keyingi →</a>
     {% endif %}
 </div>
 {% endif %}

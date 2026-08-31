@@ -148,4 +148,51 @@ def admin_portfolio_send_telegram(portfolio_id):
     except Exception as e:
         flash(f'Xatolik: {e}', 'error')
 
-    return redirect(url_for('admin.admin_portfolio'))
+@admin_bp.route('/admin/portfolio/ai-generate', methods=['POST'])
+@login_required
+def admin_portfolio_ai_generate():
+    """Loyiha nomiga qarab AI orqali to'liq ma'lumotlarni generatsiya qilish"""
+    from flask import jsonify
+    from services.ai_service import generate_text
+    import json
+
+    data = request.get_json() or {}
+    title = data.get('title', '').strip()
+    category = data.get('category', 'web').strip()
+
+    if not title:
+        return jsonify({'success': False, 'error': 'Loyiha nomini kiriting!'}), 400
+
+    prompt = f"""
+Siz professional IT loyihalar kopirayterisiz. Quyidagi IT loyiha uchun o'zbek tilida to'liq portfolio ma'lumotlarini JSON formatida tayyorlab bering.
+
+Loyiha nomi: {title}
+Kategoriya: {category}
+
+Faqat va faqat quyidagi kalitlar bilan to'g'ri JSON qaytaring (hech qanday markdown belgilari, faqat JSON):
+{{
+    "description": "Loyiha haqida 2-3 jumlali jozibali qisqacha ma'lumot",
+    "details": "Loyiha haqida batafsil ma'lumot (2-3 paragraf)",
+    "technologies": "Texnologiyalar vergul bilan (masalan: Python, Flask, React, PostgreSQL)",
+    "features": "Asosiy 4-5 ta imkoniyati vergul bilan ajratilgan",
+    "problem": "Mijoz duch kelgan asosiy biznes muammosi",
+    "solution": "Biz ishlab chiqqan sun'iy intellekt / IT yechimi",
+    "result": "Loyiha ishga tushgach erishilgan biznes natijasi (masalan: Sotuvlar 40% oshdi)",
+    "meta_description": "SEO uchun 150 belgili meta tavsif",
+    "meta_keywords": "SEO kalit so'zlari vergul bilan",
+    "emoji": "Loyiha mazmuniga mos bitta emoji"
+}}
+"""
+    try:
+        raw_res = generate_text(prompt)
+        # JSON ni tozalab olish
+        clean_json = raw_res.strip()
+        if clean_json.startswith('```'):
+            lines = clean_json.split('\n')
+            clean_json = '\n'.join([l for l in lines if not l.startswith('```')])
+        
+        parsed = json.loads(clean_json)
+        return jsonify({'success': True, 'data': parsed})
+    except Exception as e:
+        logger.error(f"[admin] Portfolio AI generate error: {e}")
+        return jsonify({'success': False, 'error': f'AI generatsiyada xatolik: {str(e)}'}), 500

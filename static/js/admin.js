@@ -9,7 +9,7 @@ function csrfToken() {
 
 // Real-time Card Search
 function filterCards() {
-    const q = document.getElementById('crmSearch').value.toLowerCase().trim();
+    const q = (document.getElementById('crmSearch') ? document.getElementById('crmSearch').value : '').toLowerCase().trim();
     const cards = document.querySelectorAll('.crm-card');
 
     cards.forEach(card => {
@@ -20,6 +20,34 @@ function filterCards() {
             card.style.display = 'none';
         }
     });
+}
+
+// Universal Table Live Search & Category Filter
+function filterTable(tableSelector, queryInputId, categoryFilter) {
+    const qInput = document.getElementById(queryInputId);
+    const q = qInput ? qInput.value.toLowerCase().trim() : '';
+    const rows = document.querySelectorAll(tableSelector + ' tbody tr:not(.empty-state)');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const rowText = (row.textContent || '').toLowerCase();
+        const rowCat = (row.getAttribute('data-category') || '').toLowerCase();
+
+        const matchesQuery = !q || rowText.includes(q);
+        const matchesCat = !categoryFilter || categoryFilter === 'all' || rowCat === categoryFilter.toLowerCase();
+
+        if (matchesQuery && matchesCat) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    const counter = document.getElementById('itemCount');
+    if (counter) {
+        counter.textContent = visibleCount;
+    }
 }
 
 // CSRF: admin panel POST so'rovlari base_admin.html dagi meta tokenni yuboradi
@@ -188,3 +216,104 @@ document.querySelectorAll('[data-order-details]').forEach(function (btn) {
               '\nMahsulotlar: ' + (btn.dataset.items || ''));
     });
 });
+
+// Jadval qidiruvi va toifalar filtrlari
+document.querySelectorAll('[data-table-search]').forEach(function (input) {
+    input.addEventListener('input', function () {
+        const table = input.dataset.tableSearch;
+        const activeFilterBtn = document.querySelector('[data-cat-filter].active');
+        const cat = activeFilterBtn ? activeFilterBtn.dataset.catFilter : 'all';
+        filterTable(table, input.id, cat);
+    });
+});
+
+document.querySelectorAll('[data-cat-filter]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        document.querySelectorAll('[data-cat-filter]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const inputId = btn.dataset.searchTarget || 'tableSearch';
+        const table = btn.dataset.tableTarget || '.admin-table';
+        filterTable(table, inputId, btn.dataset.catFilter);
+    });
+});
+
+// Dashboard Analitika Grafiklari (Chart.js)
+function initDashboardCharts() {
+    const dataElem = document.getElementById('dashboard-chart-data');
+    if (!dataElem) return;
+
+    let chartData = {};
+    try {
+        chartData = JSON.parse(dataElem.textContent);
+    } catch (e) {
+        return;
+    }
+
+    const ordersCtx = document.getElementById('ordersTrendChart');
+    if (ordersCtx && typeof Chart !== 'undefined') {
+        new Chart(ordersCtx, {
+            type: 'line',
+            data: {
+                labels: chartData.daysLabels || [],
+                datasets: [{
+                    label: 'Buyurtmalar soni',
+                    data: chartData.ordersData || [],
+                    borderColor: '#3B82F6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#3B82F6',
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+    }
+
+    const catCtx = document.getElementById('categoryPieChart');
+    if (catCtx && typeof Chart !== 'undefined') {
+        new Chart(catCtx, {
+            type: 'doughnut',
+            data: {
+                labels: chartData.catLabels || [],
+                datasets: [{
+                    data: chartData.catValues || [],
+                    backgroundColor: ['#10B981', '#3B82F6', '#8B5CF6'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    }
+}
+
+// Rasm yuklanganda Preview chiqarish
+document.querySelectorAll('[data-image-preview]').forEach(function (fileInput) {
+    fileInput.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        const previewTarget = document.querySelector(fileInput.dataset.imagePreview);
+        if (!file || !previewTarget) return;
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            previewTarget.innerHTML = `<img src="${event.target.result}" alt="Preview" class="preview-thumb" style="max-height: 140px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--border);">`;
+        };
+        reader.readAsDataURL(file);
+    });
+});
+
+document.addEventListener('DOMContentLoaded', initDashboardCharts);

@@ -18,7 +18,8 @@
 
     aiBtn.addEventListener('click', async function () {
         const title = document.getElementById('title').value.trim();
-        const category = document.getElementById('category').value;
+        const categoryElem = document.getElementById('category');
+        const category = categoryElem ? categoryElem.value : 'web';
 
         if (!title) {
             alert("Iltimos, avval 'Loyiha Nomi' kiriting!");
@@ -27,31 +28,43 @@
         }
 
         aiBtn.disabled = true;
-        aiBtn.textContent = '⏳ Generatsiya...';
-        aiLoading.style.display = 'block';
+        aiBtn.textContent = '⏳ AI Yozmoqda...';
+        if (aiLoading) aiLoading.style.display = 'block';
 
         try {
-            const response = await fetch(`/admin/api/generate-portfolio?title=${encodeURIComponent(title)}&category=${category}`);
-            const data = await response.json();
+            const response = await fetch('/admin/portfolio/ai-generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': typeof csrfToken === 'function' ? csrfToken() : ''
+                },
+                body: JSON.stringify({ title, category })
+            });
+            const resData = await response.json();
 
-            if (data.error) {
-                alert('AI xatosi: ' + data.error);
+            if (!resData.success || !resData.data) {
+                alert('AI xatosi: ' + (resData.error || 'Ma\'lumot olinmadi'));
             } else {
-                if (data.description) document.getElementById('description').value = data.description;
-                if (data.technologies) document.getElementById('technologies').value = data.technologies;
-                if (data.features) document.getElementById('features').value = data.features;
-                if (data.details) document.getElementById('details').value = data.details;
-                if (data.meta_description) {
+                const data = resData.data;
+                if (data.emoji && document.getElementById('emoji')) document.getElementById('emoji').value = data.emoji;
+                if (data.description && document.getElementById('description')) document.getElementById('description').value = data.description;
+                if (data.technologies && document.getElementById('technologies')) document.getElementById('technologies').value = data.technologies;
+                if (data.features && document.getElementById('features')) document.getElementById('features').value = data.features;
+                if (data.details && document.getElementById('details')) document.getElementById('details').value = data.details;
+                if (data.problem && document.getElementById('problem')) document.getElementById('problem').value = data.problem;
+                if (data.solution && document.getElementById('solution')) document.getElementById('solution').value = data.solution;
+                if (data.result && document.getElementById('result')) document.getElementById('result').value = data.result;
+                if (data.meta_description && document.getElementById('meta_description')) {
                     document.getElementById('meta_description').value = data.meta_description;
-                    charCount.textContent = data.meta_description.length + '/160';
+                    if (charCount) charCount.textContent = data.meta_description.length + '/160';
                 }
-                if (data.meta_keywords) document.getElementById('meta_keywords').value = data.meta_keywords;
+                if (data.meta_keywords && document.getElementById('meta_keywords')) document.getElementById('meta_keywords').value = data.meta_keywords;
             }
         } catch (error) {
             alert('Xatolik yuz berdi: ' + error.message);
         } finally {
             aiBtn.disabled = false;
             aiBtn.textContent = '🤖 AI bilan yozish';
-            aiLoading.style.display = 'none';
+            if (aiLoading) aiLoading.style.display = 'none';
         }
     });

@@ -60,6 +60,8 @@ def admin_logout():
     return redirect(url_for('web.index'))
 
 
+from datetime import datetime, timedelta
+
 @admin_bp.route('/admin')
 @admin_bp.route('/admin/dashboard')
 @login_required
@@ -76,6 +78,27 @@ def admin_dashboard():
     recent_posts = Post.query.order_by(Post.created_at.desc()).limit(5).all()
     top_posts = Post.query.filter_by(is_published=True).order_by(Post.views.desc()).limit(5).all()
 
+    # So'nggi 7 kunlik buyurtmalar dinamikasi (Chart.js uchun)
+    days_labels = []
+    orders_data = []
+    today = datetime.now().date()
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        day_str = day.strftime('%d-%b')
+        days_labels.append(day_str)
+        # Shu kundagi buyurtmalar soni
+        count = Order.query.filter(
+            db.func.date(Order.created_at) == day.strftime('%Y-%m-%d')
+        ).count()
+        orders_data.append(count)
+
+    # Xizmatlar / Portfolio toifalari taqsimoti
+    cat_counts = {
+        'Bot': Portfolio.query.filter_by(category='bot').count(),
+        'Web': Portfolio.query.filter_by(category='web').count(),
+        'AI': Portfolio.query.filter_by(category='ai').count(),
+    }
+
     return render_template('admin/dashboard.html',
                            total_posts=total_posts,
                            published_posts=published_posts,
@@ -84,4 +107,8 @@ def admin_dashboard():
                            new_orders=new_orders,
                            total_portfolio=total_portfolio,
                            recent_posts=recent_posts,
-                           top_posts=top_posts)
+                           top_posts=top_posts,
+                           days_labels=days_labels,
+                           orders_data=orders_data,
+                           cat_labels=list(cat_counts.keys()),
+                           cat_values=list(cat_counts.values()))

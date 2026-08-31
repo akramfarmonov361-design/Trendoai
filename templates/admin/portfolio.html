@@ -18,6 +18,19 @@
 {% endif %}
 {% endwith %}
 
+<!-- LIVE SEARCH VA FILTRLAR -->
+<div class="admin-filter-bar">
+    <div class="search-box">
+        <input type="text" id="portfolioSearch" class="form-control" placeholder="🔍 Loyihalarni qidirish (nomi, texnologiya, kategoriya)..." data-table-search=".admin-table">
+    </div>
+    <div class="filter-pills">
+        <button type="button" class="filter-pill active" data-cat-filter="all" data-search-target="portfolioSearch" data-table-target=".admin-table">Barchasi (<span id="itemCount">{{ portfolios|length }}</span>)</button>
+        <button type="button" class="filter-pill" data-cat-filter="web" data-search-target="portfolioSearch" data-table-target=".admin-table">Web</button>
+        <button type="button" class="filter-pill" data-cat-filter="bot" data-search-target="portfolioSearch" data-table-target=".admin-table">Bot</button>
+        <button type="button" class="filter-pill" data-cat-filter="ai" data-search-target="portfolioSearch" data-table-target=".admin-table">AI</button>
+    </div>
+</div>
+
 <div class="admin-table-container">
     <table class="admin-table">
         <thead>
@@ -32,7 +45,7 @@
         </thead>
         <tbody>
             {% for item in portfolios %}
-            <tr>
+            <tr data-category="{{ item.category }}">
                 <td class="emoji-cell">{{ item.emoji }}</td>
                 <td>
                     <strong>{{ item.title }}</strong>

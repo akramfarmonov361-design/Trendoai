@@ -18,55 +18,47 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-logo">
-                <a href="{{ url_for('admin_dashboard') }}">
+                <a href="{{ url_for('admin.admin_dashboard') }}">
                     <span class="logo-icon">🔥</span>
                     <span class="logo-text">Trendo<span class="logo-highlight">AI</span></span>
                 </a>
             </div>
 
             <nav class="sidebar-nav">
-                <a href="{{ url_for('admin_dashboard') }}"
+                <a href="{{ url_for('admin.admin_dashboard') }}"
                     class="{% if request.endpoint in ['admin.admin_dashboard', 'admin_dashboard'] %}active{% endif %}">
                     📊 Dashboard
                 </a>
-                <a href="{{ url_for('admin_kanban') }}"
+                <a href="{{ url_for('admin.admin_kanban') }}"
                     class="{% if request.endpoint in ['admin.admin_kanban', 'admin_kanban'] %}active{% endif %}">
                     📈 CRM Kanban
                 </a>
                 <a class="nav-link {% if 'services' in request.endpoint %}active{% endif %}"
-                    href="{{ url_for('admin_services') }}">
+                    href="{{ url_for('admin.admin_services') }}">
                     <span data-feather="briefcase"></span>
-                    Xizmatlar
+                    💼 Xizmatlar
                 </a>
-                <a href="{{ url_for('admin_orders') }}"
+                <a href="{{ url_for('admin.admin_portfolio') }}"
+                    class="{% if request.endpoint in ['admin.admin_portfolio', 'admin_portfolio'] %}active{% endif %}">
+                    🎨 Portfolio
+                </a>
+                <a href="{{ url_for('admin.admin_posts') }}"
+                    class="{% if request.endpoint in ['admin.admin_posts', 'admin_posts'] %}active{% endif %}">
+                    📝 Blog Postlar
+                </a>
+                <a href="{{ url_for('admin.admin_orders') }}"
                     class="{% if request.endpoint in ['admin.admin_orders', 'admin_orders'] %}active{% endif %}">
                     📦 Buyurtmalar
                 </a>
-                <a href="{{ url_for('admin_posts') }}"
-                    class="{% if request.endpoint in ['admin.admin_posts', 'admin_posts'] %}active{% endif %}">
-                    📝 Postlar
-                </a>
-                <a href="{{ url_for('admin_new_post') }}"
-                    class="{% if request.endpoint in ['admin.admin_new_post', 'admin_new_post'] %}active{% endif %}">
-                    ✏️ Yangi Post
-                </a>
-                <a href="{{ url_for('admin_generate') }}"
-                    class="{% if request.endpoint in ['admin.admin_generate', 'admin_generate'] %}active{% endif %}">
-                    🤖 AI Generatsiya
-                </a>
-                <a href="{{ url_for('admin_portfolio') }}"
-                    class="{% if request.endpoint in ['admin.admin_portfolio', 'admin.admin_portfolio_new', 'admin.admin_portfolio_edit', 'admin_portfolio', 'admin_portfolio_new', 'admin_portfolio_edit'] %}active{% endif %}">
-                    🎨 Portfolio
-                </a>
-                <a href="{{ url_for('admin_bot_orders') }}"
+                <a href="{{ url_for('admin.admin_bot_orders') }}"
                     class="{% if request.endpoint in ['admin.admin_bot_orders', 'admin_bot_orders'] %}active{% endif %}">
                     🤖 Bot Buyurtmalari
                 </a>
-                <a href="{{ url_for('admin_menu') }}"
+                <a href="{{ url_for('admin.admin_menu') }}"
                     class="{% if request.endpoint in ['admin.admin_menu', 'admin_menu'] %}active{% endif %}">
                     📋 Bot Menyusi
                 </a>
-                <a href="{{ url_for('index') }}" target="_blank">
+                <a href="{{ url_for('web.index') }}" target="_blank">
                     🌐 Saytni Ko'rish
                 </a>
             </nav>
@@ -89,6 +81,7 @@
             {% block content %}{% endblock %}
         </main>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="{{ url_for('static', filename='js/admin.js') }}" defer></script>
 </body>
 
