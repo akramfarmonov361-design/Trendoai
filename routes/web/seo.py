@@ -4,7 +4,7 @@ from datetime import datetime
 from xml.etree.ElementTree import Element, SubElement, tostring
 from xml.sax.saxutils import escape as xml_escape
 
-from flask import Response, abort, make_response, send_from_directory
+from flask import Response, abort, current_app, make_response, send_from_directory
 from markupsafe import escape as html_escape
 
 from models.portfolio import Portfolio
@@ -298,6 +298,13 @@ def _format_feed_price(raw_price, default_amount=1000000):
 @web_bp.route('/feed/facebook-catalog.xml')
 def facebook_catalog_feed():
     """Facebook & Meta Commerce Manager uchun Dynamic Product Catalog Feed"""
+    from services.cache_service import cache_get, cache_set
+    is_testing = bool(current_app.config.get('TESTING'))
+    cache_key = "meta_catalog_feed_xml"
+    cached_xml = cache_get(cache_key, is_testing=is_testing)
+    if cached_xml:
+        return Response(cached_xml, mimetype='application/xml')
+
     site_url = SITE_URL.rstrip('/')
     site_name = SITE_NAME
 
@@ -390,6 +397,7 @@ def facebook_catalog_feed():
 {chr(10).join(items_xml)}
   </channel>
 </rss>"""
+    cache_set(cache_key, xml_content, ttl=3600, is_testing=is_testing)
     return Response(xml_content, mimetype='application/xml')
 
 @web_bp.route('/indexnow-key.txt')
