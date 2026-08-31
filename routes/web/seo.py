@@ -226,11 +226,9 @@ def api_catalog_xml():
 
 def _resolve_feed_image(image_url, title, category, item_id, site_url):
     """Har bir xizmat yoki keys uchun unikal, chiroyli va sifatli rasmni aniqlash"""
-    if image_url and str(image_url).strip() and not any(str(image_url).endswith(x) for x in ('og-image.jpg', 'hero-social.png')):
-        img = str(image_url).strip()
-        if not img.startswith('http'):
-            return f"{site_url}{img if img.startswith('/') else '/' + img}"
-        return img
+    # Agar rasm ishonchli tashqi CDN (masalan Unsplash, Cloudinary, Imgur) bo'lsa
+    if image_url and str(image_url).startswith('http') and not any(str(image_url).endswith(x) for x in ('og-image.jpg', 'hero-social.png', '.svg')) and 'static/uploads' not in str(image_url):
+        return str(image_url).strip()
 
     t_lower = (title or '').lower()
     cat_lower = (category or '').lower()
