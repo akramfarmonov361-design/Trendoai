@@ -5,7 +5,7 @@
 {% block content %}
 <div class="admin-header">
     <h1>🎨 Portfolio Boshqaruvi</h1>
-    <a href="{{ url_for('admin_portfolio_new') }}" class="btn btn-primary">
+    <a href="{{ url_for('admin.admin_portfolio_new') }}" class="btn btn-primary">
         ➕ Yangi Loyiha Qo'shish
     </a>
 </div>
@@ -62,15 +62,16 @@
                     {% endif %}
                 </td>
                 <td class="actions-cell">
-                    <a href="{{ url_for('admin_portfolio_edit', portfolio_id=item.id) }}" class="btn btn-sm btn-edit">
+                    <a href="{{ url_for('admin.admin_portfolio_edit', portfolio_id=item.id) }}" class="btn btn-sm btn-edit">
                         ✏️ Tahrirlash
                     </a>
-                    <button type="submit" class="btn btn-sm btn-danger">🗑️ O'chirish</button>
+                    <form action="{{ url_for('admin.admin_portfolio_delete', portfolio_id=item.id) }}" method="POST" data-confirm="Haqiqatan ham ushbu loyihani o'chirmoqchimisiz?" class="is-14">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-sm btn-danger">🗑️ O'chirish</button>
                     </form>
-                    <form action="{{ url_for('admin_portfolio_send_telegram', portfolio_id=item.id) }}" method="POST" data-confirm="Bu loyiha Telegram kanalga yuborilsinmi?" class="is-14">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                        <button type="submit" class="btn btn-sm is-23"
-                            title="Telegramga yuborish">
+                    <form action="{{ url_for('admin.admin_portfolio_send_telegram', portfolio_id=item.id) }}" method="POST" data-confirm="Bu loyiha Telegram kanalga yuborilsinmi?" class="is-14">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-sm is-23" title="Telegramga yuborish">
                             ✈️
                         </button>
                     </form>
@@ -80,7 +81,7 @@
             <tr>
                 <td colspan="6" class="empty-state">
                     <p>Hech qanday loyiha topilmadi.</p>
-                    <a href="{{ url_for('admin_portfolio_new') }}" class="btn btn-primary">Birinchi loyihani
+                    <a href="{{ url_for('admin.admin_portfolio_new') }}" class="btn btn-primary">Birinchi loyihani
                         qo'shing</a>
                 </td>
             </tr>
