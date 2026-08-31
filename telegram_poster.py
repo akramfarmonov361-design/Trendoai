@@ -4,6 +4,9 @@ Telegram channel posting helpers for TrendoAI.
 
 import time
 import requests
+from utils.logger import setup_logger
+logger = setup_logger("telegram_poster")
+
 
 from config import (
     TELEGRAM_BOT_TOKEN,
@@ -85,7 +88,7 @@ def _is_photo_url_error(description):
 def _send_text(chat_id, message, parse_mode="Markdown", disable_web_page_preview=False, chat_label="chat"):
     """Send a text message with retry and parse-mode fallback."""
     if not BOT_TOKEN or not chat_id:
-        print(f"[telegram] Missing BOT_TOKEN or {chat_label} id.")
+        logger.info(f"[telegram] Missing BOT_TOKEN or {chat_label} id.")
         return False
 
     payload_base = {
@@ -110,29 +113,29 @@ def _send_text(chat_id, message, parse_mode="Markdown", disable_web_page_preview
                 response = requests.post(_telegram_api_url("sendMessage"), data=payload, timeout=30)
             except requests.exceptions.Timeout:
                 last_error = "Timeout"
-                print(f"[telegram] Timeout sending to {chat_label} ({attempt + 1}/{TELEGRAM_RETRY_ATTEMPTS})")
+                logger.info(f"[telegram] Timeout sending to {chat_label} ({attempt + 1}/{TELEGRAM_RETRY_ATTEMPTS})")
             except requests.exceptions.RequestException as exc:
                 last_error = str(exc)
-                print(f"[telegram] Network error sending to {chat_label} ({attempt + 1}/{TELEGRAM_RETRY_ATTEMPTS}): {exc}")
+                logger.error(f"[telegram] Network error sending to {chat_label} ({attempt + 1}/{TELEGRAM_RETRY_ATTEMPTS}): {exc}")
             else:
                 if response.status_code == 200:
-                    print(f"[telegram] Message sent to {chat_label}.")
+                    logger.info(f"[telegram] Message sent to {chat_label}.")
                     return True
 
                 description = _extract_error_description(response)
                 last_error = description
 
                 if _is_parse_error(description) and candidate_parse_mode is not None:
-                    print("[telegram] Parse error detected, retrying without parse_mode.")
+                    logger.error("[telegram] Parse error detected, retrying without parse_mode.")
                     break
 
-                print(f"[telegram] API error sending to {chat_label}: {description}")
+                logger.error(f"[telegram] API error sending to {chat_label}: {description}")
 
             if attempt < TELEGRAM_RETRY_ATTEMPTS - 1:
                 wait_time = 2 * (attempt + 1)
                 time.sleep(wait_time)
 
-    print(f"[telegram] Failed to send message to {chat_label}. Last error: {last_error}")
+    logger.error(f"[telegram] Failed to send message to {chat_label}. Last error: {last_error}")
     return False
 
 
@@ -150,11 +153,11 @@ def send_to_telegram_channel(message, parse_mode="Markdown"):
 def send_photo_to_channel(photo_url, caption=""):
     """Send photo + caption to Telegram channel with robust fallback behavior."""
     if not BOT_TOKEN or not CHANNEL_ID:
-        print("[telegram] Missing BOT_TOKEN or CHANNEL_ID.")
+        logger.info("[telegram] Missing BOT_TOKEN or CHANNEL_ID.")
         return False
 
     if not photo_url:
-        print("[telegram] photo_url is empty, sending text only.")
+        logger.info("[telegram] photo_url is empty, sending text only.")
         return send_to_telegram_channel(caption)
 
     caption = _truncate_message(caption, 1024)
@@ -175,34 +178,34 @@ def send_photo_to_channel(photo_url, caption=""):
                 response = requests.post(_telegram_api_url("sendPhoto"), data=payload, timeout=30)
             except requests.exceptions.Timeout:
                 last_error = "Timeout"
-                print(f"[telegram] Photo send timeout ({attempt + 1}/{TELEGRAM_RETRY_ATTEMPTS})")
+                logger.info(f"[telegram] Photo send timeout ({attempt + 1}/{TELEGRAM_RETRY_ATTEMPTS})")
             except requests.exceptions.RequestException as exc:
                 last_error = str(exc)
-                print(f"[telegram] Photo send network error ({attempt + 1}/{TELEGRAM_RETRY_ATTEMPTS}): {exc}")
+                logger.error(f"[telegram] Photo send network error ({attempt + 1}/{TELEGRAM_RETRY_ATTEMPTS}): {exc}")
             else:
                 if response.status_code == 200:
-                    print("[telegram] Photo sent to channel.")
+                    logger.info("[telegram] Photo sent to channel.")
                     return True
 
                 description = _extract_error_description(response)
                 last_error = description
 
                 if _is_parse_error(description) and candidate_parse_mode is not None:
-                    print("[telegram] Photo caption parse error, retrying without parse_mode.")
+                    logger.error("[telegram] Photo caption parse error, retrying without parse_mode.")
                     break
 
                 if _is_photo_url_error(description):
-                    print("[telegram] Photo URL failed, falling back to text message.")
+                    logger.error("[telegram] Photo URL failed, falling back to text message.")
                     return send_to_telegram_channel(caption)
 
-                print(f"[telegram] Photo send API error: {description}")
+                logger.error(f"[telegram] Photo send API error: {description}")
 
             if attempt < TELEGRAM_RETRY_ATTEMPTS - 1:
                 wait_time = 2 * (attempt + 1)
                 time.sleep(wait_time)
 
-    print(f"[telegram] Failed to send photo. Last error: {last_error}")
-    print("[telegram] Falling back to text message.")
+    logger.error(f"[telegram] Failed to send photo. Last error: {last_error}")
+    logger.info("[telegram] Falling back to text message.")
     return send_to_telegram_channel(caption)
 
 
@@ -236,7 +239,7 @@ def send_to_admin(message, parse_mode="Markdown"):
 def send_portfolio_to_channel(portfolio_item):
     """Send portfolio item to Telegram channel."""
     if not BOT_TOKEN or not CHANNEL_ID:
-        print("[telegram] Missing Telegram configuration for portfolio posting.")
+        logger.info("[telegram] Missing Telegram configuration for portfolio posting.")
         return False
 
     emoji = portfolio_item.emoji or "🚀"
@@ -276,9 +279,9 @@ def send_portfolio_to_channel(portfolio_item):
 
 
 if __name__ == "__main__":
-    print("=" * 60)
-    print("TrendoAI Telegram Poster Test")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("TrendoAI Telegram Poster Test")
+    logger.info("=" * 60)
 
     test_message = (
         "Salom!\\n\\n"
@@ -286,6 +289,6 @@ if __name__ == "__main__":
         "#test #TrendoAI"
     )
 
-    print("Testing send_to_telegram_channel...")
+    logger.info("Testing send_to_telegram_channel...")
     result = send_to_telegram_channel(test_message)
-    print("OK" if result else "FAILED")
+    logger.error("OK" if result else "FAILED")

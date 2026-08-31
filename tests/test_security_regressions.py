@@ -39,21 +39,21 @@ class SecurityRegressionTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_text_generation_models_skip_live_audio_and_image_models(self):
-        import ai_generator
+        from services import ai_service
 
-        self.assertFalse(ai_generator._is_text_generation_model("gemini-3.1-flash-live-preview"))
-        self.assertFalse(ai_generator._is_text_generation_model("gemini-2.5-flash-preview-native-audio"))
-        self.assertFalse(ai_generator._is_text_generation_model("gemini-3.1-flash-tts-preview"))
-        self.assertFalse(ai_generator._is_text_generation_model("gemini-2.5-flash-image"))
-        self.assertTrue(ai_generator._is_text_generation_model("gemini-2.5-flash"))
+        self.assertFalse(ai_service._is_text_generation_model("gemini-3.1-flash-live-preview"))
+        self.assertFalse(ai_service._is_text_generation_model("gemini-2.5-flash-preview-native-audio"))
+        self.assertFalse(ai_service._is_text_generation_model("gemini-3.1-flash-tts-preview"))
+        self.assertFalse(ai_service._is_text_generation_model("gemini-2.5-flash-image"))
+        self.assertTrue(ai_service._is_text_generation_model("gemini-2.5-flash"))
 
     def test_chat_has_local_fallback_when_gemini_quota_is_exhausted(self):
-        import ai_helpers
+        from services import ai_service
         import app as trendo_app
 
         client = trendo_app.app.test_client()
 
-        with mock.patch.object(ai_helpers, "generate_text", side_effect=RuntimeError("429 quota exceeded")):
+        with mock.patch.object(ai_service, "generate_text", side_effect=RuntimeError("429 quota exceeded")):
             response = client.post(
                 "/api/chat",
                 json={"message": "salom", "messages": [{"role": "user", "content": "salom"}]},

@@ -2,6 +2,9 @@
 import sys
 import os
 import json
+from utils.logger import setup_logger
+logger = setup_logger("migrate_services")
+
 
 # Add parent directory to path to import app
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -14,14 +17,14 @@ def migrate_services():
         # Create table if not exists
         db.create_all()
         
-        print("Migrating services...")
+        logger.info("Migrating services...")
         count = 0
         
         for key, data in SERVICES_DATA.items():
             # Check if service already exists
             existing = Service.query.filter_by(slug=key).first()
             if existing:
-                print(f"Skipping {key} (already exists)")
+                logger.info(f"Skipping {key} (already exists)")
                 continue
                 
             # Create new service
@@ -45,11 +48,11 @@ def migrate_services():
                 service.discount_until = data['discount'].get('until', '')
             
             db.session.add(service)
-            print(f"Added: {data['title']}")
+            logger.info(f"Added: {data['title']}")
             count += 1
             
         db.session.commit()
-        print(f"Migration complete! Added {count} services.")
+        logger.info(f"Migration complete! Added {count} services.")
 
 if __name__ == "__main__":
     migrate_services()

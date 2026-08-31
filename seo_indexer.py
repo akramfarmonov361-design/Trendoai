@@ -8,6 +8,9 @@ import re
 import threading
 import requests
 from config import SITE_URL
+from utils.logger import setup_logger
+logger = setup_logger("seo_indexer")
+
 
 # IndexNow spetsifikatsiyasi kalitga faqat [a-zA-Z0-9-] va 8-128 belgi ruxsat beradi.
 # Eski qiymat ("trendoai_indexnow_key_2026") pastki chiziq tutgani uchun
@@ -19,7 +22,7 @@ _raw_indexnow_key = (os.getenv("INDEXNOW_KEY") or DEFAULT_INDEXNOW_KEY).strip()
 if INDEXNOW_KEY_PATTERN.fullmatch(_raw_indexnow_key):
     INDEXNOW_KEY = _raw_indexnow_key
 else:
-    print(
+    logger.info(
         f"[seo_indexer] INDEXNOW_KEY='{_raw_indexnow_key}' spetsifikatsiyaga mos emas "
         f"(faqat A-Z a-z 0-9 - va 8-128 belgi), '{DEFAULT_INDEXNOW_KEY}' ishlatiladi."
     )
@@ -55,9 +58,9 @@ def _async_ping(urls):
             headers={"Content-Type": "application/json; charset=utf-8"},
             timeout=5,
         )
-        print(f"[seo_indexer] IndexNow ping status: {res.status_code} for {len(urls)} URLs")
+        logger.info(f"[seo_indexer] IndexNow ping status: {res.status_code} for {len(urls)} URLs")
     except Exception as exc:
-        print(f"[seo_indexer] IndexNow ping failed: {exc}")
+        logger.error(f"[seo_indexer] IndexNow ping failed: {exc}")
 
     # Google sitemap ping endpoint'i (google.com/ping?sitemap=) 2024-yil yanvarda
     # butunlay o'chirilgan — chaqiruv 404 qaytarardi va status log'i chalg'itardi.

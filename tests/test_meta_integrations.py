@@ -20,6 +20,9 @@ def test_meta_capi_track_execution():
         track_meta_event("Lead", user_data={"phone": "+998901234567", "email": "test@trendoai.uz"})
 
 def test_facebook_catalog_feed():
+    from extensions import db
+    with app.app_context():
+        db.create_all()
     with app.test_client() as client:
         response = client.get('/facebook-catalog.xml')
         assert response.status_code == 200
@@ -30,6 +33,9 @@ def test_facebook_catalog_feed():
         assert b'<g:id>' in response.data
 
 def test_facebook_feed_alias():
+    from extensions import db
+    with app.app_context():
+        db.create_all()
     with app.test_client() as client:
         response = client.get('/facebook-feed.xml')
         assert response.status_code == 200

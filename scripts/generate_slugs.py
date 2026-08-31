@@ -2,6 +2,9 @@ import sys
 import os
 import re
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from utils.logger import setup_logger
+logger = setup_logger("generate_slugs")
+
 
 from app import app, db, Portfolio
 
@@ -40,7 +43,7 @@ def generate_slug(title):
 def migrate_slugs():
     """Barcha portfolio elementlariga slug qo'shish"""
     with app.app_context():
-        print("Generating slugs for portfolio items...")
+        logger.info("Generating slugs for portfolio items...")
         
         portfolios = Portfolio.query.all()
         updated = 0
@@ -58,13 +61,13 @@ def migrate_slugs():
                     
                     item.slug = new_slug
                     updated += 1
-                    print(f"  [{item.id}] {item.title} -> {new_slug}")
+                    logger.info(f"  [{item.id}] {item.title} -> {new_slug}")
         
         if updated > 0:
             db.session.commit()
-            print(f"\n✅ Successfully updated {updated} portfolio items with slugs.")
+            logger.info(f"\n✅ Successfully updated {updated} portfolio items with slugs.")
         else:
-            print("\n✅ All portfolio items already have slugs.")
+            logger.info("\n✅ All portfolio items already have slugs.")
 
 
 if __name__ == "__main__":

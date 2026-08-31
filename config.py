@@ -5,6 +5,9 @@ Barcha muhim sozlamalar shu yerda saqlanadi.
 """
 import os
 from dotenv import load_dotenv
+from utils.logger import setup_logger
+logger = setup_logger("config")
+
 
 load_dotenv()
 
@@ -69,7 +72,7 @@ def _resolve_model(env_name, default):
     if not raw:
         return default
     if raw in _DEPRECATED_MODELS:
-        print(f"⚠️ {env_name}={raw} is deprecated/unavailable, falling back to {default}")
+        logger.info(f"⚠️ {env_name}={raw} is deprecated/unavailable, falling back to {default}")
         return default
     return raw
 
@@ -125,7 +128,7 @@ else:
         DEFAULT_ADMIN_PASSWORD,
     )
     if not DEBUG:
-        print(
+        logger.info(
             "OGOHLANTIRISH: ADMIN_PASSWORD ochiq matnda saqlanmoqda. "
             "ADMIN_PASSWORD_HASH ga o'tish tavsiya etiladi "
             "(python scripts/generate_admin_hash.py)."
@@ -164,7 +167,7 @@ CRON_SECRET = _require_production_secret(
 _RAW_TELEGRAM_WEBHOOK_SECRET = os.getenv("TELEGRAM_WEBHOOK_SECRET")
 if not _RAW_TELEGRAM_WEBHOOK_SECRET:
     if not DEBUG:
-        print(
+        logger.info(
             "OGOHLANTIRISH: TELEGRAM_WEBHOOK_SECRET berilmagan, CRON_SECRET ishlatilmoqda. "
             "Ikkala sirni ajratish uchun Render'da alohida qiymat qo'ying."
         )

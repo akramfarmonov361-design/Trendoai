@@ -16,6 +16,9 @@ import argparse
 import re
 import sys
 from pathlib import Path
+from utils.logger import setup_logger
+logger = setup_logger("migrate_blog_cta")
+
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -51,17 +54,17 @@ def main():
             new_content, did_change = rewrite(post.content or "")
             if did_change:
                 changed += 1
-                print(f"  #{post.id}  {post.title[:60]}")
+                logger.info(f"  #{post.id}  {post.title[:60]}")
                 if args.apply:
                     post.content = new_content
 
         if args.apply and changed:
             db.session.commit()
-            print(f"\nUpdated {changed} post(s).")
+            logger.info(f"\nUpdated {changed} post(s).")
         elif changed:
-            print(f"\nWould update {changed} post(s). Re-run with --apply.")
+            logger.info(f"\nWould update {changed} post(s). Re-run with --apply.")
         else:
-            print("Nothing to change.")
+            logger.info("Nothing to change.")
 
 
 if __name__ == "__main__":

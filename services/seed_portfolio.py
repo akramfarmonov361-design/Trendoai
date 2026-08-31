@@ -4,6 +4,9 @@ Barcha rasmlar Meta Ads (1:1 va 16:9) standartlariga moslangan Premium HD format
 """
 from extensions import db
 from models.portfolio import Portfolio
+from utils.logger import setup_logger
+logger = setup_logger("seed_portfolio")
+
 
 PROJECTS_DATA = [
     {
@@ -160,7 +163,7 @@ def seed_desktop_portfolios():
                 db.session.commit()
                 p.slug = p.generate_slug()
                 db.session.commit()
-                print(f"[seed] Portfolio qo'shildi: {p.title}")
+                logger.info(f"[seed] Portfolio qo'shildi: {p.title}")
             else:
                 # Update image_url if exists
                 p = existing[data['title']]
@@ -168,4 +171,4 @@ def seed_desktop_portfolios():
                 db.session.commit()
     except Exception as e:
         db.session.rollback()
-        print(f"[seed] Xatolik: {e}")
+        logger.info(f"[seed] Xatolik: {e}")

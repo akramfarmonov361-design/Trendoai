@@ -7,6 +7,9 @@ import os
 import random
 import re
 from urllib.parse import urlparse
+from utils.logger import setup_logger
+logger = setup_logger("image_fetcher")
+
 
 import requests
 from dotenv import load_dotenv
@@ -79,7 +82,7 @@ def get_image_for_topic(topic, width=1200, height=630, exclude_image_urls=None):
         str: Rasm URL'i yoki fallback URL
     """
     if not UNSPLASH_ACCESS_KEY:
-        print("[image] UNSPLASH_ACCESS_KEY topilmadi")
+        logger.info("[image] UNSPLASH_ACCESS_KEY topilmadi")
         return get_fallback_image(topic)
 
     excluded_ids = _build_excluded_unsplash_ids(exclude_image_urls)
@@ -141,21 +144,21 @@ def get_image_for_topic(topic, width=1200, height=630, exclude_image_urls=None):
                 ]
 
                 if not available_results:
-                    print("[image] Topilgan Unsplash rasmlari allaqachon ishlatilgan")
+                    logger.info("[image] Topilgan Unsplash rasmlari allaqachon ishlatilgan")
                     return get_fallback_image(topic)
 
                 photo = random.choice(available_results)
                 raw_url = (photo.get("urls") or {}).get("raw")
                 if raw_url:
                     sized_url = f"{raw_url}&w={width}&h={height}&fit=crop&q=80"
-                    print(f"[image] Rasm topildi: {search_query}")
+                    logger.info(f"[image] Rasm topildi: {search_query}")
                     return sized_url
 
-        print(f"[image] Unsplash javob: {response.status_code}")
+        logger.info(f"[image] Unsplash javob: {response.status_code}")
         return get_fallback_image(topic)
 
     except Exception as e:
-        print(f"[image] Unsplash xatosi: {e}")
+        logger.info(f"[image] Unsplash xatosi: {e}")
         return get_fallback_image(topic)
 
 
@@ -187,6 +190,6 @@ def get_category_image(category):
 
 
 if __name__ == "__main__":
-    print("Testing Unsplash API...")
+    logger.info("Testing Unsplash API...")
     url = get_image_for_topic("sun'iy intellekt")
-    print(f"Result: {url}")
+    logger.info(f"Result: {url}")

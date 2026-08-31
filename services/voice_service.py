@@ -9,6 +9,9 @@ import shutil
 import tempfile
 import wave
 from config import GEMINI_LIVE_MODEL, GEMINI_API_KEY
+from utils.logger import setup_logger
+logger = setup_logger("voice_service")
+
 
 
 def get_gemini_api_key_candidates(extra_keys=None):
@@ -112,7 +115,7 @@ def convert_audio_for_live_api(audio_bytes, mime_type):
         if converted:
             return converted, 'audio/pcm;rate=16000'
     except Exception as exc:
-        print(f"[voice] Audio conversion for Gemini Live failed: {exc}")
+        logger.error(f"[voice] Audio conversion for Gemini Live failed: {exc}")
     finally:
         for path in [input_path, output_path]:
             if path and os.path.exists(path):
@@ -235,7 +238,7 @@ async def _generate_live_audio_reply(audio_bytes, mime_type, system_prompt):
                 }
         except Exception as exc:
             last_error = exc
-            print(f"[voice] Gemini Live audio failed on key #{index}: {type(exc).__name__}: {str(exc)[:160]}")
+            logger.error(f"[voice] Gemini Live audio failed on key #{index}: {type(exc).__name__}: {str(exc)[:160]}")
 
     raise last_error if last_error else RuntimeError("Gemini Live API kaliti topilmadi")
 

@@ -6,18 +6,41 @@
 {% block og_url %}{{ config.SITE_URL }}/portfolio/project/{{ item.slug }}{% endblock %}
 {% block og_title %}{{ item.title }} - TrendoAI{% endblock %}
 {% block og_description %}{{ item.description | truncate(160) }}{% endblock %}
-{% block og_type %}product{% endblock %}
-{% block og_image %}{{ item.image_url or config.SITE_URL ~ '/static/img/og-image.jpg' }}{% endblock %}
+{% block og_type %}article{% endblock %}
+
+{% set full_image_url = item.image_url if item.image_url and item.image_url.startswith('http') else (config.SITE_URL ~ item.image_url) if item.image_url else (config.SITE_URL ~ '/static/img/og-image.jpg') %}
+{% block og_image %}{{ full_image_url }}{% endblock %}
 {% block twitter_title %}{{ item.title }} - TrendoAI{% endblock %}
-{% block twitter_description %}{{ item.description | truncate(160) }}{% endblock %}
-{% block twitter_image %}{{ item.image_url or config.SITE_URL ~ '/static/img/og-image.jpg' }}{% endblock %}
+{% block twitter_description %}{{ item.meta_description or item.description | truncate(160) }}{% endblock %}
+{% block twitter_image %}{{ full_image_url }}{% endblock %}
+{% block og_image_alt %}{{ item.title }}{% endblock %}
 
 {% block extra_head %}
-<meta property="product:category" content="{{ item.category }}">
-{% if item.price %}
-<meta property="product:price:amount" content="{{ item.price | replace('$', '') | replace(' ', '') }}">
-<meta property="product:price:currency" content="USD">
-{% endif %}
+<!-- JSON-LD for rich snippets in Google Search -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "{{ item.title }}",
+  "operatingSystem": "All",
+  "applicationCategory": "WebApplication",
+  "description": "{{ item.meta_description or item.description | truncate(150) }}",
+  "image": "{{ full_image_url }}",
+  {% if item.price %}
+  "offers": {
+    "@type": "Offer",
+    "price": "{{ item.price | replace('$', '') | replace(' ', '') }}",
+    "priceCurrency": "USD"
+  },
+  {% endif %}
+  "author": {
+    "@type": "Organization",
+    "name": "TrendoAI",
+    "url": "{{ config.SITE_URL }}"
+  }
+}
+</script>
+<meta property="article:section" content="{{ item.category }}">
 
 <script type="application/ld+json">
 {

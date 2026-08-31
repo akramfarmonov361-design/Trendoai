@@ -8,8 +8,9 @@
 {% block og_description %}{{ post.content | striptags | truncate(200) }}{% endblock %}
 {% block og_type %}article{% endblock %}
 {% block og_url %}{% if post.slug %}{{ config.SITE_URL }}/blog/{{ post.slug }}{% else %}{{ config.SITE_URL }}/post/{{ post.id }}{% endif %}{% endblock %}
-{% block og_image %}{% if post.image_url %}{{ post.image_url }}{% else %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endif %}{% endblock %}
-{% block twitter_image %}{% if post.image_url %}{{ post.image_url }}{% else %}{{ config.SITE_URL }}/static/img/og-image.jpg{% endif %}{% endblock %}
+{% set full_image_url = post.image_url if post.image_url and post.image_url.startswith('http') else (config.SITE_URL ~ post.image_url) if post.image_url else (config.SITE_URL ~ '/static/img/og-image.jpg') %}
+{% block og_image %}{{ full_image_url }}{% endblock %}
+{% block twitter_image %}{{ full_image_url }}{% endblock %}
 
 {% block extra_head %}
 <meta property="article:published_time" content="{{ post.created_at.isoformat() if post.created_at else '' }}">
@@ -23,10 +24,14 @@
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{% if post.slug %}{{ config.SITE_URL }}/blog/{{ post.slug }}{% else %}{{ config.SITE_URL }}/post/{{ post.id }}{% endif %}"
+    },
     "headline": "{{ post.title }}",
-    "description": "{{ post.content | striptags | truncate(200) }}",
-    {% if post.image_url %}"image": "{{ post.image_url }}",{% endif %}
+    "description": "{{ post.content | striptags | truncate(200) | replace('"', '\\"') | replace('\n', ' ') }}",
+    "image": "{{ full_image_url }}",
     "datePublished": "{{ post.created_at.isoformat() if post.created_at else '' }}",
     {% if post.updated_at %}"dateModified": "{{ post.updated_at.isoformat() }}",{% endif %}
     "author": {
@@ -44,10 +49,6 @@
         }
     },
     "inLanguage": "uz",
-    "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "{% if post.slug %}{{ config.SITE_URL }}/blog/{{ post.slug }}{% else %}{{ config.SITE_URL }}/post/{{ post.id }}{% endif %}"
-    },
     "articleSection": "{{ post.category }}",
     "wordCount": {{ post.content.split()|length }},
     "timeRequired": "PT{{ post.reading_time }}M"

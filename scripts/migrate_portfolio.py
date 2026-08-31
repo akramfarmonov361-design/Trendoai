@@ -1,34 +1,37 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from utils.logger import setup_logger
+logger = setup_logger("migrate_portfolio")
+
 
 from app import app, db
 from sqlalchemy import text
 
 def migrate():
     with app.app_context():
-        print("Migrating Portfolio table...")
+        logger.info("Migrating Portfolio table...")
         try:
             # Check if columns exist and add if not
             with db.engine.connect() as conn:
                 # detail column
                 try:
                     conn.execute(text("ALTER TABLE portfolio ADD COLUMN details TEXT"))
-                    print("Added 'details' column.")
+                    logger.info("Added 'details' column.")
                 except Exception as e:
-                    print(f"'details' column might already exist: {e}")
+                    logger.info(f"'details' column might already exist: {e}")
                 
                 # features column
                 try:
                     conn.execute(text("ALTER TABLE portfolio ADD COLUMN features TEXT"))
-                    print("Added 'features' column.")
+                    logger.info("Added 'features' column.")
                 except Exception as e:
-                    print(f"'features' column might already exist: {e}")
+                    logger.info(f"'features' column might already exist: {e}")
                 
                 conn.commit()
-            print("Migration completed successfully.")
+            logger.info("Migration completed successfully.")
         except Exception as e:
-            print(f"Migration failed: {e}")
+            logger.error(f"Migration failed: {e}")
 
 if __name__ == "__main__":
     migrate()

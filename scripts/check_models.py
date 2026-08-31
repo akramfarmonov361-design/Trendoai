@@ -1,5 +1,8 @@
 import os
 import sys
+from utils.logger import setup_logger
+logger = setup_logger("check_models")
+
 
 from dotenv import load_dotenv
 from google import genai
@@ -12,26 +15,26 @@ load_dotenv()
 
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
-    print("ERROR: GEMINI_API_KEY not found in environment variables.")
+    logger.error("ERROR: GEMINI_API_KEY not found in environment variables.")
     raise SystemExit(1)
 
 client = genai.Client(api_key=api_key)
 
-print(f"Checking available models for key ending in ...{api_key[-4:]}")
+logger.info(f"Checking available models for key ending in ...{api_key[-4:]}")
 
 try:
-    print("\nAvailable models:")
+    logger.info("\nAvailable models:")
     found = False
     for model in client.models.list():
         display_name = getattr(model, "display_name", "") or ""
         suffix = f" (DisplayName: {display_name})" if display_name else ""
-        print(f"- {model.name}{suffix}")
+        logger.info(f"- {model.name}{suffix}")
         found = True
 
     if not found:
-        print("ERROR: No models found.")
+        logger.error("ERROR: No models found.")
     else:
-        print("\nOK: List complete.")
+        logger.info("\nOK: List complete.")
 except Exception as exc:
-    print(f"ERROR: Error listing models: {exc}")
+    logger.error(f"ERROR: Error listing models: {exc}")
     raise SystemExit(1)

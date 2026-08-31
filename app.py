@@ -7,6 +7,9 @@ import re
 import sys
 import threading
 from datetime import datetime
+from utils.logger import setup_logger
+logger = setup_logger("app")
+
 
 from dotenv import load_dotenv
 from flask import (
@@ -231,7 +234,7 @@ def create_app(config_overrides=None):
 
     @application.errorhandler(500)
     def server_error(e):
-        print(f"Server Error (500): {e}")
+        logger.error(f"Server Error (500): {e}")
         return render_template('errors/500.html'), 500
 
     # Template Filtrlari (XSS himoyasi bilan: safe_mode='escape')
@@ -250,8 +253,8 @@ def create_app(config_overrides=None):
     @application.context_processor
     def inject_globals():
         if not hasattr(application, '_log_shown'):
-            print(f"DEBUG: FACEBOOK_PIXEL_ID={FACEBOOK_PIXEL_ID}")
-            print(f"DEBUG: GA4_ID={GA4_ID}")
+            logger.info(f"DEBUG: FACEBOOK_PIXEL_ID={FACEBOOK_PIXEL_ID}")
+            logger.info(f"DEBUG: GA4_ID={GA4_ID}")
             application._log_shown = True
 
         from flask import session
@@ -341,7 +344,7 @@ def init_database():
         try:
             db.create_all()
         except Exception as e:
-            print(f"WARN: db.create_all failed: {e}")
+            logger.error(f"WARN: db.create_all failed: {e}")
             return
 
         try:
@@ -356,7 +359,7 @@ def init_database():
                     return
                 with db.engine.begin() as conn:
                     conn.execute(text(f'ALTER TABLE "{table_name}" ADD COLUMN {column_name} VARCHAR(100)'))
-                print(f"OK: added {table_name}.{column_name}.")
+                logger.info(f"OK: added {table_name}.{column_name}.")
 
             def ensure_text_column(table_name, column_name):
                 if table_name not in table_names:
@@ -366,7 +369,7 @@ def init_database():
                     return
                 with db.engine.begin() as conn:
                     conn.execute(text(f'ALTER TABLE "{table_name}" ADD COLUMN {column_name} TEXT'))
-                print(f"OK: added {table_name}.{column_name}.")
+                logger.info(f"OK: added {table_name}.{column_name}.")
 
             ensure_varchar_column("portfolio", "price")
             ensure_varchar_column("portfolio", "client_name")
@@ -401,16 +404,16 @@ def init_database():
                     index = indexes_by_name.get(index_name)
                     if index is not None:
                         index.create(bind=db.engine, checkfirst=True)
-                        print(f"INFO: ensured index {index_name}.")
+                        logger.info(f"INFO: ensured index {index_name}.")
 
             if "portfolio" in table_names and db.engine.dialect.name == "postgresql":
                 portfolio_columns = {col["name"] for col in inspector.get_columns("portfolio")}
                 if "meta_description" in portfolio_columns:
                     with db.engine.begin() as conn:
                         conn.execute(text("ALTER TABLE portfolio ALTER COLUMN meta_description TYPE TEXT"))
-                    print("OK: portfolio.meta_description converted to TEXT.")
+                    logger.info("OK: portfolio.meta_description converted to TEXT.")
         except Exception as e:
-            print(f"WARN: Database migration step failed: {e}")
+            logger.error(f"WARN: Database migration step failed: {e}")
 
 
 def migrate_service_discount_dates():
@@ -423,12 +426,12 @@ def migrate_service_discount_dates():
         )
         if updated_count:
             db.session.commit()
-            print(f"OK: updated {updated_count} service discount date(s) to 1-aprel.")
+            logger.info(f"OK: updated {updated_count} service discount date(s) to 1-aprel.")
         else:
             db.session.rollback()
     except Exception as e:
         db.session.rollback()
-        print(f"WARN: Service discount date migration failed: {e}")
+        logger.error(f"WARN: Service discount date migration failed: {e}")
 
 
 def migrate_remove_post_freshness_notes():
@@ -455,12 +458,12 @@ def migrate_remove_post_freshness_notes():
 
         if updated_count:
             db.session.commit()
-            print(f"OK: removed legacy freshness notes from {updated_count} post(s).")
+            logger.info(f"OK: removed legacy freshness notes from {updated_count} post(s).")
         else:
             db.session.rollback()
     except Exception as e:
         db.session.rollback()
-        print(f"WARN: Freshness-note cleanup failed: {e}")
+        logger.error(f"WARN: Freshness-note cleanup failed: {e}")
 
 
 def _boot_sequence():
@@ -474,23 +477,23 @@ def _boot_sequence():
                 from services.seed_portfolio import seed_desktop_portfolios
                 seed_desktop_portfolios()
         except Exception as exc:
-            print(f"[boot] DB init/migratsiya xatosi: {exc}")
+            logger.info(f"[boot] DB init/migratsiya xatosi: {exc}")
 
         try:
             from scheduler import scheduler
             if not scheduler.running:
                 scheduler.start()
-                print(f"[boot] Scheduler ishga tushdi: {len(scheduler.get_jobs())} ta vazifa")
+                logger.info(f"[boot] Scheduler ishga tushdi: {len(scheduler.get_jobs())} ta vazifa")
         except Exception as exc:
-            print(f"[boot] Scheduler startup xatosi: {exc}")
+            logger.info(f"[boot] Scheduler startup xatosi: {exc}")
 
         try:
             from bot_service import setup_webhook
             setup_webhook(app)
         except Exception as exc:
-            print(f"[boot] Telegram webhook xatosi: {exc}")
+            logger.info(f"[boot] Telegram webhook xatosi: {exc}")
     except Exception as exc:
-        print(f"[boot] Xizmatlar startup xatosi: {exc}")
+        logger.info(f"[boot] Xizmatlar startup xatosi: {exc}")
 
 
 is_testing_env = "pytest" in sys.modules or bool(os.getenv("TESTING")) or bool(os.getenv("PYTEST_CURRENT_TEST"))

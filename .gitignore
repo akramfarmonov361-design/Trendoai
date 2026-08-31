@@ -16,3 +16,7 @@ vapid_keys_env.txt
 *.log
 *.db
 venv*/
+
+# Logs
+logs/
+*.log

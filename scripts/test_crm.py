@@ -3,6 +3,9 @@ sys.path.append(".")
 # Load env explicitly if needed, but it should be loaded in app.py
 from dotenv import load_dotenv
 load_dotenv()
+from utils.logger import setup_logger
+logger = setup_logger("test_crm")
+
 
 from bot_service import handle_all, bot
 from app import app, db
@@ -24,23 +27,23 @@ class MockMessage:
         self.chat = MockChat()
 
 class MockBot:
-    def send_chat_action(self, chat_id, action): print(f"[MOCK] Action: bot is {action}...")
-    def reply_to(self, message, text, **kwargs): print(f"\n[BOT NATIVE REPLY TO USER]:\n{text}")
-    def send_message(self, chat_id, text, **kwargs): print(f"\n[BOT ADMIN SMS FIRE]: Notified Admin({chat_id}) -> \n{text}")
+    def send_chat_action(self, chat_id, action): logger.info(f"[MOCK] Action: bot is {action}...")
+    def reply_to(self, message, text, **kwargs): logger.info(f"\n[BOT NATIVE REPLY TO USER]:\n{text}")
+    def send_message(self, chat_id, text, **kwargs): logger.info(f"\n[BOT ADMIN SMS FIRE]: Notified Admin({chat_id}) -> \n{text}")
 
 if not bot:
     import bot_service
     bot_service.bot = MockBot()
     bot = bot_service.bot
 else:
-    bot.send_chat_action = lambda chat_id, action: print(f"[MOCK] Action: bot is {action}...")
-    bot.reply_to = lambda message, text, **kwargs: print(f"\n[BOT NATIVE REPLY TO USER]:\n{text}")
-    bot.send_message = lambda chat_id, text, **kwargs: print(f"\n[BOT ADMIN SMS FIRE]: Notified Admin({chat_id}) -> \n{text}")
+    bot.send_chat_action = lambda chat_id, action: logger.info(f"[MOCK] Action: bot is {action}...")
+    bot.reply_to = lambda message, text, **kwargs: logger.info(f"\n[BOT NATIVE REPLY TO USER]:\n{text}")
+    bot.send_message = lambda chat_id, text, **kwargs: logger.info(f"\n[BOT ADMIN SMS FIRE]: Notified Admin({chat_id}) -> \n{text}")
 
 def test_pipeline():
-    print("\n=== LIVE TEST BOSHLANDI ===")
+    logger.info("\n=== LIVE TEST BOSHLANDI ===")
     user_msg = "Assalomu alaykum. Men biznesim uchun telegram bot yasattirmoqchi edim. Raqamimga aloqaga chiqing, nomerim +998901234567, ismim Toshmat."
-    print(f"USER YOZDI: {user_msg}\n")
+    logger.info(f"USER YOZDI: {user_msg}\n")
     
     # Init DB locally just in case it wasn't
     with app.app_context():

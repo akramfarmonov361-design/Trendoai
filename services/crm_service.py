@@ -7,6 +7,9 @@ from datetime import datetime, timedelta
 from extensions import db
 from models.interaction import Lead
 from telegram_poster import send_admin_alert
+from utils.logger import setup_logger
+logger = setup_logger("crm_service")
+
 
 # @username oldida email belgilari turmasligi kerak — aks holda "ali@gmail.com"
 # ichidagi "@gmail" kontakt deb topilib, soxta lead yaratilardi.
@@ -58,7 +61,7 @@ def is_duplicate_contact(contact, window_minutes=DUPLICATE_WINDOW_MINUTES):
         recent = Lead.query.filter(Lead.created_at >= cutoff).all()
     except Exception as exc:
         # Tekshiruv imkoni bo'lmasa lead yo'qolmasin — dublikat bo'lsa ham yoziladi.
-        print(f"[crm] Dublikat tekshiruvi bajarilmadi: {exc}")
+        logger.info(f"[crm] Dublikat tekshiruvi bajarilmadi: {exc}")
         return False
 
     return any(normalize_contact(row.contact) == normalized for row in recent)
@@ -73,7 +76,7 @@ def capture_lead_from_message(message_text, source="AI Chat Vidjet", default_nam
         return None
 
     if is_duplicate_contact(contact):
-        print(f"[crm] Dublikat kontakt e'tiborsiz qoldirildi: {contact}")
+        logger.info(f"[crm] Dublikat kontakt e'tiborsiz qoldirildi: {contact}")
         return None
 
     try:
@@ -102,9 +105,9 @@ def capture_lead_from_message(message_text, source="AI Chat Vidjet", default_nam
             )
         except Exception:
             pass
-        print(f"[crm] Lead muvaffaqiyatli saqlandi va adminga yuborildi: {contact}")
+        logger.info(f"[crm] Lead muvaffaqiyatli saqlandi va adminga yuborildi: {contact}")
         return new_lead
     except Exception as exc:
         db.session.rollback()
-        print(f"[crm] Lead saqlashda xatolik: {exc}")
+        logger.info(f"[crm] Lead saqlashda xatolik: {exc}")
         return None

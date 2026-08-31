@@ -4,6 +4,9 @@ Helper script to generate translations.py with full multilingual coverage.
 """
 
 import json
+from utils.logger import setup_logger
+logger = setup_logger("write_translations")
+
 
 data = {
     # Navigatsiya
@@ -232,4 +235,4 @@ def get_translation(key, lang='uz', default=None):
 with open('translations.py', 'w', encoding='utf-8') as f:
     f.write(code)
 
-print("translations.py regenerated successfully with full dictionary!")
+logger.info("translations.py regenerated successfully with full dictionary!")

@@ -11,10 +11,13 @@ import sys
 import time
 import traceback
 from datetime import datetime
+from utils.logger import setup_logger
+logger = setup_logger("scheduler")
+
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from ai_generator import generate_post_for_seo, get_last_ai_error
+from services.ai_service import generate_post_for_seo, get_last_ai_error
 from config import CATEGORIES, SITE_URL, TIMEZONE
 
 # 80/20 QOIDASI BO'YICHA 2026-YILNING ENG ZAMONAVIY VA TALABGIR MAVZULARI
@@ -87,9 +90,9 @@ def generate_and_publish_post(topic=None, category=None):
     category: Agar berilsa, ushbu kategoriyani qo'yadi. Aks holda random tanlaydi.
     """
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"\n{'=' * 60}", flush=True)
-    print(f"[scheduler] TrendoAI post generatsiyasi boshlandi... [{current_time}]", flush=True)
-    print(f"{'=' * 60}", flush=True)
+    logger.info(f"\n{'=' * 60}", flush=True)
+    logger.info(f"[scheduler] TrendoAI post generatsiyasi boshlandi... [{current_time}]", flush=True)
+    logger.info(f"{'=' * 60}", flush=True)
     sys.stdout.flush()
 
     from app import Post, app, db
@@ -113,8 +116,8 @@ def generate_and_publish_post(topic=None, category=None):
 
         selected_category = category if category else random.choice(CATEGORIES)
 
-        print(f"[scheduler] Tanlangan trend mavzu: {selected_topic}")
-        print(f"[scheduler] Kategoriya: {selected_category}")
+        logger.info(f"[scheduler] Tanlangan trend mavzu: {selected_topic}")
+        logger.info(f"[scheduler] Kategoriya: {selected_category}")
         try:
             post_data = generate_post_for_seo(selected_topic)
 
@@ -138,7 +141,7 @@ def generate_and_publish_post(topic=None, category=None):
                     title=post_data.get("title"),
                     category=selected_category,
                 )
-                print(f"[scheduler] Rasm: {image_url[:50]}...")
+                logger.info(f"[scheduler] Rasm: {image_url[:50]}...")
 
                 new_post = Post(
                     title=post_data["title"],
@@ -158,7 +161,7 @@ def generate_and_publish_post(topic=None, category=None):
                 new_post.slug = new_post.generate_slug()
                 db.session.commit()
 
-                print(f"[scheduler] Yangi post '{new_post.title}' bazaga saqlandi.")
+                logger.info(f"[scheduler] Yangi post '{new_post.title}' bazaga saqlandi.")
 
                 from telegram_poster import send_photo_to_channel, send_to_telegram_channel
 
@@ -191,29 +194,29 @@ def generate_and_publish_post(topic=None, category=None):
                     success = send_to_telegram_channel(tg_caption)
 
                 if success:
-                    print("[scheduler] Telegram kanalga yuborildi!")
+                    logger.info("[scheduler] Telegram kanalga yuborildi!")
                 else:
-                    print("[scheduler] Telegram yuborishda muammo yuz berdi")
+                    logger.info("[scheduler] Telegram yuborishda muammo yuz berdi")
 
                 try:
                     from app import notify_all_subscribers
 
-                    print("[scheduler] Push xabar yuborilmoqda...")
+                    logger.info("[scheduler] Push xabar yuborilmoqda...")
                     push_count = notify_all_subscribers(
                         title=f"🆕 Yangi Maqola: {new_post.title}",
                         message=f"{selected_category} | O'qish uchun bosing!",
                         url=post_url,
                     )
-                    print(f"[scheduler] {push_count} ta obunachiga push yuborildi.")
+                    logger.info(f"[scheduler] {push_count} ta obunachiga push yuborildi.")
                 except Exception as push_err:
-                    print(f"[scheduler] Push yuborishda xato: {push_err}")
+                    logger.info(f"[scheduler] Push yuborishda xato: {push_err}")
 
                 try:
                     from seo_indexer import ping_search_engines
                     ping_search_engines([post_url, f"{SITE_URL}/sitemap.xml", f"{SITE_URL}/blog"])
-                    print("[scheduler] Google & IndexNow tezkor indekslashga ping yuborildi!")
+                    logger.info("[scheduler] Google & IndexNow tezkor indekslashga ping yuborildi!")
                 except Exception as seo_err:
-                    print(f"[scheduler] SEO ping error: {seo_err}")
+                    logger.error(f"[scheduler] SEO ping error: {seo_err}")
 
                 return True
 
@@ -224,7 +227,7 @@ def generate_and_publish_post(topic=None, category=None):
                 f"Mavzu: {selected_topic}\n"
                 f"Sabab: {ai_error_detail}"
             )
-            print(error_msg)
+            logger.error(error_msg)
             try:
                 from telegram_poster import send_admin_alert
 
@@ -238,7 +241,7 @@ def generate_and_publish_post(topic=None, category=None):
                 f"{str(exc)}\n\n"
                 f"Mavzu: {selected_topic}"
             )
-            print(error_msg, flush=True)
+            logger.error(error_msg, flush=True)
             traceback.print_exc()
             sys.stdout.flush()
             try:
@@ -249,7 +252,7 @@ def generate_and_publish_post(topic=None, category=None):
                 pass
             return False
 
-    print(f"{'=' * 60}\n", flush=True)
+    logger.info(f"{'=' * 60}\n", flush=True)
 
 
 scheduler = BackgroundScheduler(timezone=TIMEZONE)
@@ -269,7 +272,7 @@ scheduler.add_job(
     name=f"TrendoAI Kunlik Post ({SEO_POST_HOUR}:{SEO_POST_MINUTE:02d})",
 )
 
-print(f"[scheduler] Har kuni soat {SEO_POST_HOUR}:{SEO_POST_MINUTE:02d} da 1 ta post chiqishi sozlandi")
+logger.info(f"[scheduler] Har kuni soat {SEO_POST_HOUR}:{SEO_POST_MINUTE:02d} da 1 ta post chiqishi sozlandi")
 
 
 
@@ -290,12 +293,12 @@ def get_scheduled_jobs():
 
 if __name__ == "__main__":
     scheduler.start()
-    print("[scheduler] TrendoAI Scheduler ishga tushdi!")
-    print(f"[scheduler] Jami vazifalar: {len(scheduler.get_jobs())}")
+    logger.info("[scheduler] TrendoAI Scheduler ishga tushdi!")
+    logger.info(f"[scheduler] Jami vazifalar: {len(scheduler.get_jobs())}")
 
     try:
         while True:
             time.sleep(60)
     except KeyboardInterrupt:
         scheduler.shutdown()
-        print("Scheduler to'xtatildi.")
+        logger.info("Scheduler to'xtatildi.")

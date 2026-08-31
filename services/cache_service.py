@@ -8,6 +8,9 @@ import pickle
 import threading
 import time
 from config import REDIS_URL, CACHE_DEFAULT_TIMEOUT
+from utils.logger import setup_logger
+logger = setup_logger("cache_service")
+
 
 _redis_client = None
 _redis_available = False
@@ -18,9 +21,9 @@ if REDIS_URL:
         _redis_client = redis.from_url(REDIS_URL, decode_responses=False, socket_timeout=2)
         _redis_client.ping()
         _redis_available = True
-        print("[cache] Redis ulanishi muvaffaqiyatli!")
+        logger.info("[cache] Redis ulanishi muvaffaqiyatli!")
     except Exception as exc:
-        print(f"[cache] Redis ulanish xatosi (In-Memory rejimga o'tiladi): {exc}")
+        logger.info(f"[cache] Redis ulanish xatosi (In-Memory rejimga o'tiladi): {exc}")
         _redis_client = None
         _redis_available = False
 
@@ -51,7 +54,7 @@ def cache_get(key, is_testing=False):
             if data is not None:
                 return pickle.loads(data)
         except Exception as e:
-            print(f"[cache] Redis get xatosi: {e}")
+            logger.info(f"[cache] Redis get xatosi: {e}")
 
     with _IN_MEMORY_LOCK:
         entry = _IN_MEMORY_CACHE.get(key)
@@ -76,7 +79,7 @@ def cache_set(key, value, ttl=None, is_testing=False):
             _redis_client.setex(key, effective_ttl, pickle.dumps(value))
             return
         except Exception as e:
-            print(f"[cache] Redis set xatosi: {e}")
+            logger.info(f"[cache] Redis set xatosi: {e}")
 
     with _IN_MEMORY_LOCK:
         _IN_MEMORY_CACHE[key] = (time.time(), effective_ttl, value)

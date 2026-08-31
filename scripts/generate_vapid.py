@@ -2,6 +2,9 @@
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 import base64
+from utils.logger import setup_logger
+logger = setup_logger("generate_vapid")
+
 
 def to_base64url(data):
     return base64.urlsafe_b64encode(data).decode('utf-8').rstrip('=')
@@ -25,10 +28,10 @@ y = public_numbers.y.to_bytes(32, byteorder='big')
 public_bytes = b'\x04' + x + y
 public_b64 = to_base64url(public_bytes)
 
-print("---------- VAPID KEYS ----------")
-print(f"VAPID_PUBLIC_KEY={public_b64}")
-print(f"VAPID_PRIVATE_KEY={private_pem.decode('utf-8').replace(chr(10), '')}") # Oneline for .env
-print("--------------------------------")
+logger.info("---------- VAPID KEYS ----------")
+logger.info(f"VAPID_PUBLIC_KEY={public_b64}")
+logger.info(f"VAPID_PRIVATE_KEY={private_pem.decode('utf-8').replace(chr(10), '')}") # Oneline for .env
+logger.info("--------------------------------")
 
 # Save detailed private key to file
 with open("vapid_private.pem", "wb") as f:

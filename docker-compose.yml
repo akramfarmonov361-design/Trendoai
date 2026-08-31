@@ -1,0 +1,20 @@
+﻿version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: trendoai_web
+    restart: unless-stopped
+    ports:
+      - "80:5000"  # Tashqi trafikni 80 portdan olib, konteyner ichidagi 5000 ga beradi
+    env_file:
+      - .env
+    volumes:
+      # Fayl yuklangan papka serverda mustahkam turishi uchun xarita qilinadi
+      - ./static/uploads:/app/static/uploads
+      # SQLite bazasi yozilishi uchun (Agar PostgreSQL ishlatmasangiz)
+      - ./blog.db:/app/blog.db
+      - ./logs:/app/logs
+
+    environment:
+      - FLASK_ENV=production

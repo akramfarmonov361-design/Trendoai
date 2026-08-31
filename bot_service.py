@@ -7,16 +7,19 @@ import time
 from flask import Blueprint
 from config import TELEGRAM_BOT_TOKEN, GEMINI_API_KEY, GEMINI_MODEL, SITE_URL, TELEGRAM_ADMIN_ID
 from app import app, db, TelegramUser, Order, MenuItem, MenuCategory, BotOrder
-from ai_helpers import generate_text
+from services.ai_service import generate_text
+from utils.logger import setup_logger
+logger = setup_logger("bot_service")
+
 
 # Create bot instance safely
 bot = None
 if TELEGRAM_BOT_TOKEN:
     try:
         bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
-        print("✅ Telegram bot instansiyasi yaratildi.")
+        logger.info("✅ Telegram bot instansiyasi yaratildi.")
     except Exception as e:
-        print(f"⚠️ Telegram bot initialization error: {e}")
+        logger.error(f"⚠️ Telegram bot initialization error: {e}")
 
 bot_blueprint = Blueprint('bot', __name__)
 
@@ -106,7 +109,7 @@ def get_ai_response(user_message):
         )
         return text or "Uzr, javob shakllantirilmadi. Iltimos, savolingizni qayta yozing."
     except Exception as e:
-        print(f"❌ Gemini AI Error: {e}")
+        logger.error(f"❌ Gemini AI Error: {e}")
         return "Uzr, hozirda serverda xatolik yuz berdi. Birozdan so'ng urinib ko'ring."
 
 # --- KEYBOARDS ---
@@ -160,7 +163,7 @@ def send_welcome(message):
                 user.last_interaction = db.func.now()
             db.session.commit()
     except Exception as e:
-        print(f"Error saving user: {e}")
+        logger.error(f"Error saving user: {e}")
 
     welcome_text = (
         f"Salom, {message.from_user.first_name} 👋\n\n"
@@ -531,9 +534,9 @@ def setup_webhook(app):
             from config import TELEGRAM_WEBHOOK_SECRET
 
             bot.set_webhook(url=webhook_url, secret_token=TELEGRAM_WEBHOOK_SECRET)
-            print(f"✅ Webhook o'rnatildi: {webhook_url}")
+            logger.info(f"✅ Webhook o'rnatildi: {webhook_url}")
         except Exception as e:
-            print(f"⚠️ Webhook error: {e}")
+            logger.error(f"⚠️ Webhook error: {e}")
 
     import threading
     threading.Thread(target=_set_hook, daemon=True).start()

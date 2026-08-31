@@ -6,6 +6,9 @@ orqa fonda trend chizig'i, oq "T" harfi.
 Ishlatish: venv\\Scripts\\python.exe scripts\\generate_icons.py
 """
 import os
+from utils.logger import setup_logger
+logger = setup_logger("generate_icons")
+
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -80,7 +83,7 @@ def main():
         os.makedirs(os.path.dirname(path), exist_ok=True)
         im = master if size == SIZE else master.resize((size, size), Image.LANCZOS)
         im.save(path, optimize=True)
-        print(f"{rel}: {size}x{size}, {os.path.getsize(path) // 1024}KB")
+        logger.info(f"{rel}: {size}x{size}, {os.path.getsize(path) // 1024}KB")
 
 
 if __name__ == "__main__":

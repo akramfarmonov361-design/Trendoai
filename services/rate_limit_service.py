@@ -2,6 +2,9 @@
 import threading
 import time
 import uuid
+from utils.logger import setup_logger
+logger = setup_logger("rate_limit_service")
+
 
 from services.cache_service import get_redis_client
 
@@ -85,6 +88,6 @@ def allow_request(scope, client_ip, limit, window_seconds):
         except Exception as exc:
             # Do not fail open: retain the local limiter if Redis is temporarily
             # unavailable.  The warning helps operations notice the degradation.
-            print(f"[rate-limit] Redis xatosi, lokal fallback ishlatiladi: {exc}")
+            logger.info(f"[rate-limit] Redis xatosi, lokal fallback ishlatiladi: {exc}")
 
     return _allow_with_memory(key, limit, window_seconds, now)
