@@ -39,7 +39,7 @@ def portfolio():
 def _get_item_image(item):
     """Loyiha uchun to'g'ri va ishlaydigan rasm manzilini qaytaradi"""
     img = (item.image_url or '').strip()
-    if img and img.startswith('http') and not any(img.endswith(x) for x in ('og-image.jpg', 'hero-social.png', '.svg')) and 'static/uploads' not in img:
+    if img:
         return img
     
     t_lower = (item.title or '').lower()
@@ -69,12 +69,12 @@ def portfolio_item(slug):
         Portfolio.is_published == True
     ).limit(3).all()
 
-    # Rasm havolalarini kafolatlash
-    if not item.image_url or 'static/uploads' in str(item.image_url):
+    # Rasm bo'lmasa zaxira rasm
+    if not item.image_url:
         item.image_url = _get_item_image(item)
 
     for rel in related_items:
-        if not rel.image_url or 'static/uploads' in str(rel.image_url):
+        if not rel.image_url:
             rel.image_url = _get_item_image(rel)
 
     return render_template('portfolio_detail.html', item=item, related_items=related_items)

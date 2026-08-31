@@ -111,6 +111,16 @@ def admin_portfolio_edit(portfolio_id):
             portfolio.slug = portfolio.generate_slug()
 
         db.session.commit()
+
+        # Portfolio keshi tozalansin
+        try:
+            from services.cache_service import cache_delete
+            for cat in ('', 'bot', 'web', 'ai', 'mobile'):
+                for p in range(1, 10):
+                    cache_delete(f"portfolio:{p}:{cat}")
+        except Exception:
+            pass
+
         flash(f'"{portfolio.title}" yangilandi!', 'success')
         return redirect(url_for('admin.admin_portfolio'))
 
@@ -126,6 +136,16 @@ def admin_portfolio_delete(portfolio_id):
         title = portfolio.title
         db.session.delete(portfolio)
         db.session.commit()
+
+        # Portfolio keshi tozalansin
+        try:
+            from services.cache_service import cache_delete
+            for cat in ('', 'bot', 'web', 'ai', 'mobile'):
+                for p in range(1, 10):
+                    cache_delete(f"portfolio:{p}:{cat}")
+        except Exception:
+            pass
+
         flash(f'"{title}" muvaffaqiyatli o\'chirildi!', 'success')
     except Exception as e:
         db.session.rollback()
