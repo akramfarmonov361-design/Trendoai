@@ -36,6 +36,29 @@ def portfolio():
         active_category=category,
     )
 
+def _get_item_image(item):
+    """Loyiha uchun to'g'ri va ishlaydigan rasm manzilini qaytaradi"""
+    img = (item.image_url or '').strip()
+    if img and img.startswith('http') and not any(img.endswith(x) for x in ('og-image.jpg', 'hero-social.png', '.svg')) and 'static/uploads' not in img:
+        return img
+    
+    t_lower = (item.title or '').lower()
+    if any(w in t_lower for w in ['voice', 'ovoz', 'chatbot', 'kundalik', 'rag']):
+        return "https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=1000&auto=format&fit=crop"
+    elif any(w in t_lower for w in ['video', 'dublyaj', 'insta-dub', 'youtube']):
+        return "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=1000&auto=format&fit=crop"
+    elif any(w in t_lower for w in ['telegram', 'bot', 'botfactory']):
+        return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop"
+    elif any(w in t_lower for w in ['crm', 'smart', 'boshqaruv', 'tahlil', 'finder']):
+        return "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop"
+    elif any(w in t_lower for w in ['restoran', 'delivery', 'ovqat', 'fast-food']):
+        return "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1000&auto=format&fit=crop"
+    elif any(w in t_lower for w in ['paket', 'shop', 'dokon', 'savdo', 'optombazar']):
+        return "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1000&auto=format&fit=crop"
+    elif item.category == 'web' or 'sayt' in t_lower:
+        return "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop"
+    return "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1000&auto=format&fit=crop"
+
 @web_bp.route('/portfolio/project/<slug>')
 def portfolio_item(slug):
     """Loyiha batafsil sahifasi"""
@@ -45,5 +68,13 @@ def portfolio_item(slug):
         Portfolio.category == item.category,
         Portfolio.is_published == True
     ).limit(3).all()
+
+    # Rasm havolalarini kafolatlash
+    if not item.image_url or 'static/uploads' in str(item.image_url):
+        item.image_url = _get_item_image(item)
+
+    for rel in related_items:
+        if not rel.image_url or 'static/uploads' in str(rel.image_url):
+            rel.image_url = _get_item_image(rel)
 
     return render_template('portfolio_detail.html', item=item, related_items=related_items)

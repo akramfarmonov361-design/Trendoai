@@ -260,7 +260,7 @@
             <div class="related-portfolio-sidebar">
                 {% for related in related_items %}
                 <a href="{{ url_for('portfolio_item', slug=related.slug) }}" class="related-project-sidebar">
-                    <img src="{{ related.image_url }}" alt="{{ related.title }}" width="400" height="225" loading="lazy" decoding="async">
+                    <img src="{{ related.image_url or url_for('static', filename='img/og-image.jpg') }}" alt="{{ related.title }}" width="400" height="225" loading="lazy" decoding="async" data-fallback-src="{{ url_for('static', filename='img/og-image.jpg') }}">
                     <div class="rp-info">
                         <span class="rp-title">{{ related.title }}</span>
                         <span class="rp-cat">{{ related.category }}</span>
