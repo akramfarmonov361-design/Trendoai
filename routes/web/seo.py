@@ -270,6 +270,20 @@ def _resolve_feed_image(image_url, title, category, item_id, site_url):
         except Exception:
             return pool[0]
 
+def _format_feed_price(raw_price, default_amount=1000000):
+    """Ensure price is strictly formatted as 'XXXXXX UZS' or 'XX USD' for Meta Commerce."""
+    if not raw_price or not str(raw_price).strip():
+        return f"{default_amount} UZS"
+    
+    val = str(raw_price).strip()
+    digits = re.sub(r'[^0-9]', '', val)
+    if not digits:
+        return f"{default_amount} UZS"
+    
+    if '$' in val or 'USD' in val.upper():
+        return f"{digits} USD"
+    return f"{digits} UZS"
+
 @web_bp.route('/facebook-catalog.xml')
 @web_bp.route('/facebook-feed.xml')
 @web_bp.route('/api/catalog/facebook.xml')
@@ -320,11 +334,7 @@ def facebook_catalog_feed():
             link = f"{site_url}/services/{s.slug}" if s.slug else f"{site_url}/services"
             img = _resolve_feed_image(s.image_url, title, getattr(s, 'category', 'service'), item_id, site_url)
 
-            price_val = (s.price or "500000 UZS").strip()
-            if not any(curr in price_val.upper() for curr in ('UZS', 'USD', '$', "SO'M", 'SOM')):
-                price_str = f"{price_val} UZS"
-            else:
-                price_str = price_val.replace("so'm", "UZS").replace("som", "UZS").replace("$", "USD")
+            price_str = _format_feed_price(s.price, default_amount=700000)
 
             items_xml.append(f"""    <item>
       <g:id>{xml_escape(item_id)}</g:id>
@@ -347,12 +357,7 @@ def facebook_catalog_feed():
         desc = p.description or f"TrendoAI tomonidan yaratilgan {title} loyihasi"
         link = f"{site_url}/portfolio/project/{p.slug}" if p.slug else f"{site_url}/portfolio"
         img = _resolve_feed_image(p.image_url, title, p.category, item_id, site_url)
-
-        price_val = (p.price or "1000000 UZS").strip()
-        if not any(curr in price_val.upper() for curr in ('UZS', 'USD', '$', "SO'M", 'SOM')):
-            price_str = f"{price_val} UZS"
-        else:
-            price_str = price_val.replace("so'm", "UZS").replace("som", "UZS").replace("$", "USD")
+        price_str = _format_feed_price(p.price, default_amount=1500000)
 
         items_xml.append(f"""    <item>
       <g:id>{xml_escape(item_id)}</g:id>
