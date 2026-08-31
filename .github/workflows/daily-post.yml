@@ -1,14 +1,19 @@
 name: Kunlik AI post
 
-# Ilova ichidagi APScheduler Render'ning free tier'ida ishonchsiz: servis
-# 15 daqiqa harakatsizlikdan keyin uxlab qoladi va soat 09:00 da uyg'onmaydi.
-# Shuning uchun triggerni tashqariga chiqardik. Ikkalasi bir kunda ishga
-# tushib qolsa, scheduler.py dagi takrorlanish qalqoni ikkinchisini to'xtatadi.
+# Bu — zaxira trigger, asosiy emas. Ilova ichidagi APScheduler har kuni
+# 04:00 UTC (09:00 Toshkent) da post chiqaradi va tarixga ko'ra ishlab
+# turibdi. Ammo Render free tier'da servis uxlab qolsa yoki boot ketma-ketligi
+# yiqilsa, scheduler umuman ishga tushmaydi — o'shanda shu workflow qutqaradi.
+#
+# Ataylab 2 soat kechroq ishlaydi: agar scheduler o'z ishini qilgan bo'lsa,
+# scheduler.py dagi takrorlanish qalqoni buni ko'radi va o'tkazib yuboradi.
+# Bir vaqtda ishga tushirilsa ikkalasi ham qalqondan o'tib ketishi mumkin edi,
+# chunki qalqon generatsiya boshlanishida tekshiriladi, tugashida emas.
 
 on:
   schedule:
-    # 04:00 UTC = 09:00 Asia/Tashkent
-    - cron: "0 4 * * *"
+    # 06:00 UTC = 11:00 Asia/Tashkent — scheduler'nikidan 2 soat keyin
+    - cron: "0 6 * * *"
   workflow_dispatch:
 
 jobs:
