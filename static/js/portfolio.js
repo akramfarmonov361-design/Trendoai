@@ -19,7 +19,7 @@ const FALLBACK_PROJECTS = [
             emoji: '🍗',
             technologies: ['Frontend', 'Responsive UI', 'Vercel'],
             link: 'https://restorankfc-frontend.vercel.app/',
-            image_url: '',
+            image_url: '/static/img/portfolio/restoran.webp',
             is_featured: false,
             details: "",
             details_html: "<p>Fast food/restoran yo'nalishidagi landing sahifa. Foydalanuvchini menyu va promo bloklar orqali buyurtma jarayoniga olib kirishga mo'ljallangan.</p>",
@@ -34,7 +34,7 @@ const FALLBACK_PROJECTS = [
             emoji: '📰',
             technologies: ['Frontend', 'News UI', 'Vercel'],
             link: 'https://realnewsuz.vercel.app/',
-            image_url: '',
+            image_url: '/static/img/portfolio/trendoai-uz.webp',
             is_featured: false,
             details: "",
             details_html: "<p>Yangiliklar portali yo'nalishidagi web interfeys. Asosiy fokus kontentni toza ko'rsatish, sarlavhalarni ajratish va foydalanuvchi uchun qulay o'qish tajribasini berish.</p>",
@@ -49,7 +49,7 @@ const FALLBACK_PROJECTS = [
             emoji: 'AI',
             technologies: ['AI Tutor', 'Language Learning', 'Vercel'],
             link: 'https://trendoaispeak-uzbek-english-tutor.vercel.app/',
-            image_url: '',
+            image_url: '/static/img/portfolio/trendospeak.webp',
             is_featured: false,
             details: "",
             details_html: "<p>Til o'rganish uchun mo'ljallangan interaktiv AI tutor interfeysi. Asosiy fokus foydalanuvchiga o'zbek va ingliz tilida mashq qilish va suhbat orqali o'rganish imkonini berish.</p>",
@@ -64,7 +64,7 @@ const FALLBACK_PROJECTS = [
             emoji: 'MED',
             technologies: ['Healthcare', 'AI Chatbot', 'Vercel'],
             link: 'https://shifo-nur-klinikasi-chatbot.vercel.app/',
-            image_url: '',
+            image_url: '/static/img/portfolio/botfactory.webp',
             is_featured: false,
             details: "",
             details_html: "<p>Tibbiyot yo'nalishidagi chatbot interfeysi. Asosiy fokus foydalanuvchini klinika xizmatlari, savollar va tezkor murojaat jarayoniga yo'naltirish.</p>",
@@ -79,7 +79,7 @@ const FALLBACK_PROJECTS = [
             emoji: 'EDU',
             technologies: ['Education', 'Content Platform', 'Vercel'],
             link: 'https://o-zbek-talaffuz-kontent.vercel.app/',
-            image_url: '',
+            image_url: '/static/img/portfolio/bolajon-ai-english.webp',
             is_featured: false,
             details: "",
             details_html: "<p>Ta'lim yo'nalishidagi kontent platformasi. Asosiy fokus o'zbek talaffuzi bo'yicha materiallarni foydalanuvchi uchun qulay va tushunarli ko'rinishda berish.</p>",
@@ -94,7 +94,7 @@ const FALLBACK_PROJECTS = [
             emoji: 'SCOPE',
             technologies: ['AI Planning', 'Project Scope', 'Vercel'],
             link: 'https://ai-project-scoper.vercel.app/',
-            image_url: '',
+            image_url: '/static/img/portfolio/real-smart-ai.webp',
             is_featured: false,
             details: "",
             details_html: "<p>Loyiha scope va requirementlarni tezroq yig'ish uchun mo'ljallangan AI vosita. Asosiy fokus foydalanuvchiga vazifalar, deliverable va ish hajmini strukturali ko'rinishda shakllantirishga yordam berish.</p>",
@@ -109,7 +109,7 @@ const FALLBACK_PROJECTS = [
             emoji: 'SHOP',
             technologies: ['E-commerce', 'Frontend', 'Vercel'],
             link: 'https://texnomarket.vercel.app/',
-            image_url: '',
+            image_url: '/static/img/portfolio/texnomarket.webp',
             is_featured: false,
             details: "",
             details_html: "<p>Texnika va elektronika savdosi uchun mo'ljallangan web interfeys. Asosiy fokus foydalanuvchiga mahsulot katalogi va xarid oqimini qulay ko'rinishda ko'rsatish.</p>",
@@ -124,7 +124,7 @@ const FALLBACK_PROJECTS = [
             emoji: 'PKG',
             technologies: ['E-commerce', 'Catalog', 'Web Platform'],
             link: 'https://www.paketshop.uz/',
-            image_url: '',
+            image_url: '/static/img/portfolio/paketshop.webp',
             is_featured: false,
             details: "",
             details_html: "<p>Onlayn savdo va katalog ko'rsatishga mo'ljallangan web interfeys. Asosiy fokus foydalanuvchiga mahsulotlarni qulay ko'rinishda taqdim etish va murojaat jarayonini soddalashtirish.</p>",
@@ -139,7 +139,7 @@ const FALLBACK_PROJECTS = [
             emoji: 'FOOD',
             technologies: ['Restaurant', 'Landing Page', 'Vercel'],
             link: 'https://restoran-kfc.vercel.app/',
-            image_url: '',
+            image_url: '/static/img/portfolio/restoran.webp',
             is_featured: false,
             details: "",
             details_html: "<p>Restoran va fast food yo'nalishidagi landing sahifa. Asosiy fokus foydalanuvchiga menyu va promo bloklarni ko'rsatish hamda buyurtma oqimini soddalashtirish.</p>",
@@ -154,7 +154,7 @@ const FALLBACK_PROJECTS = [
             emoji: 'TIME',
             technologies: ['Prayer Times', 'Utility App', 'Vercel'],
             link: 'https://nomoz-vaqtlari-xi.vercel.app/',
-            image_url: '',
+            image_url: '/static/img/portfolio/ismlar-manosi-ai.webp',
             is_featured: false,
             details: "",
             details_html: "<p>Namoz vaqtlarini ko'rsatishga mo'ljallangan web interfeys. Asosiy fokus foydalanuvchiga vaqtlar va kunlik ma'lumotlarni qulay ko'rinishda taqdim etish.</p>",
@@ -169,7 +169,7 @@ const FALLBACK_PROJECTS = [
             emoji: 'BOT',
             technologies: ['Bot Platform', 'Automation', 'Render'],
             link: 'https://botfactory-am64.onrender.com/',
-            image_url: '',
+            image_url: '/static/img/portfolio/botfactory.webp',
             is_featured: false,
             details: "",
             details_html: "<p>Bot yaratish va avtomatlashtirishga mo'ljallangan platforma interfeysi. Asosiy fokus foydalanuvchiga bot xizmatlari va jarayonlarni qulay ko'rinishda taqdim etish.</p>",
@@ -184,7 +184,7 @@ const FALLBACK_PROJECTS = [
             emoji: 'DUB',
             technologies: ['AI Media', 'Voice Tool', 'Vercel'],
             link: 'https://instadub.vercel.app/',
-            image_url: '',
+            image_url: '/static/img/portfolio/instadubuz.webp',
             is_featured: false,
             details: "",
             details_html: "<p>Media va dublyaj ishloviga mo'ljallangan AI interfeys. Asosiy fokus foydalanuvchiga audio yoki media jarayonlarini qulay va tez boshqarish imkonini berish.</p>",
@@ -205,7 +205,17 @@ let lastFocusedElement = null;
 
         lastFocusedElement = document.activeElement;
 
-        document.getElementById('modalEmoji').textContent = project.emoji || '🚀';
+        const modalImg = document.getElementById('modalImg');
+        const modalEmoji = document.getElementById('modalEmoji');
+        if (project.image_url) {
+            modalImg.src = project.image_url;
+            modalImg.classList.remove('hidden');
+            modalEmoji.classList.add('hidden');
+        } else {
+            modalImg.classList.add('hidden');
+            modalEmoji.classList.remove('hidden');
+            modalEmoji.textContent = project.emoji || '🚀';
+        }
         document.getElementById('modalTitle').textContent = project.title;
         document.getElementById('modalDescription').textContent = project.description;
 

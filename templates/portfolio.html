@@ -114,7 +114,11 @@
         <div class="card-video-badge is-64">▶ Video</div>
         {% endif %}
         <div class="card-image">
+            {% if item.image_url %}
+            <img src="{{ item.image_url }}" alt="{{ item.title }}" class="card-img" loading="lazy" decoding="async">
+            {% else %}
             <span class="card-emoji">{{ item.emoji }}</span>
+            {% endif %}
             <div class="card-overlay">
                 <div class="card-actions">
                     <button class="view-btn" data-modal-id="{{ item.id }}">Modalda Ko'rish</button>
@@ -787,6 +791,7 @@
         <button class="modal-close" type="button" aria-label="Loyiha oynasini yopish" data-modal-close>&times;</button>
         <div class="modal-layout">
             <div class="modal-image-side">
+                <img id="modalImg" class="modal-cover-img hidden" alt="Loyiha rasmi">
                 <span id="modalEmoji" class="modal-emoji">🚀</span>
                 <div id="modalCategory" class="modal-category-badge">Web Sayt</div>
             </div>
