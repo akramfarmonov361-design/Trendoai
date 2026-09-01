@@ -1,3 +1,5 @@
+import csv
+import io
 import re
 import xml.dom.minidom
 from datetime import datetime
@@ -418,6 +420,48 @@ def facebook_catalog_feed():
 </rss>"""
     cache_set(cache_key, xml_content, ttl=3600, is_testing=is_testing)
     return Response(xml_content, mimetype='application/xml')
+
+
+@web_bp.route('/feed/meta-videos.csv')
+@web_bp.route('/meta-videos.csv')
+def meta_video_supplementary_feed():
+    """Meta katalogi uchun qo'shimcha (supplementary) video feedi.
+
+    Asosiy XML feed video yubora olmaydi: Meta'ning maydoni `video[0].url`
+    dan `video[19].url` gacha nomlanadi, kvadrat qavslar esa XML teg nomida
+    taqiqlangan. Shuning uchun `<g:video_link>` yozilgani bilan Meta uni
+    umuman o'qimaydi.
+
+    Yechim — alohida CSV: Commerce Manager uni asosiy feedga `id` ustuni
+    bo'yicha bog'laydi va faqat ko'rsatilgan maydonlarni to'ldiradi.
+
+    Faqat videosi bor loyihalar chiqariladi. Bo'sh qiymatli qator yuborilsa,
+    Meta mavjud ma'lumotni o'chirib yuborishi mumkin.
+    """
+    from services.cache_service import CATALOG_VIDEO_FEED_CACHE_KEY, cache_get, cache_set
+
+    is_testing = bool(current_app.config.get('TESTING'))
+    cached = cache_get(CATALOG_VIDEO_FEED_CACHE_KEY, is_testing=is_testing)
+    if cached:
+        return Response(cached, mimetype='text/csv')
+
+    site_url = SITE_URL.rstrip('/')
+
+    buffer = io.StringIO()
+    writer = csv.writer(buffer, lineterminator="\n")
+    writer.writerow(['id', 'video[0].url'])
+
+    for item in Portfolio.query.filter_by(is_published=True).all():
+        video_url = _resolve_feed_video(item, site_url)
+        if not video_url:
+            continue
+        # id asosiy feeddagi <g:id> bilan bir xil bo'lishi shart, aks holda
+        # Meta qatorni hech qaysi mahsulotga bog'lay olmaydi.
+        writer.writerow([f"portfolio_{item.id}", video_url])
+
+    csv_content = buffer.getvalue()
+    cache_set(CATALOG_VIDEO_FEED_CACHE_KEY, csv_content, ttl=3600, is_testing=is_testing)
+    return Response(csv_content, mimetype='text/csv')
 
 @web_bp.route('/indexnow-key.txt')
 @web_bp.route(f'/{INDEXNOW_KEY}.txt')
