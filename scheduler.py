@@ -87,6 +87,21 @@ TOPICS = [
 _DUPLICATE_WINDOW_HOURS = 20
 
 
+def _strip_tz(value):
+    """tz-aware vaqtni naive ga keltiradi.
+
+    Postgres ``now()`` ni ``timestamptz`` qaytaradi, ya'ni psycopg2 tz-aware
+    datetime beradi. ``Post.created_at`` esa oddiy ``DateTime`` — naive.
+    Ularni to'g'ridan-to'g'ri ayirish ``TypeError`` beradi va qalqon jim
+    ravishda ishlamay qolardi (chaqiruvchi xatoni yutib, generatsiyani davom
+    ettiradi). Ikkala qiymat ham bir xil sessiya mintaqasidagi ``now()`` dan
+    kelgani uchun tzinfo ni shunchaki olib tashlash to'g'ri natija beradi.
+    """
+    if isinstance(value, datetime) and value.tzinfo is not None:
+        return value.replace(tzinfo=None)
+    return value
+
+
 def _post_published_recently(window_hours=_DUPLICATE_WINDOW_HOURS):
     """Oxirgi ``window_hours`` soat ichida post chiqqan-chiqmaganini aytadi.
 
@@ -96,11 +111,11 @@ def _post_published_recently(window_hours=_DUPLICATE_WINDOW_HOURS):
     """
     from app import Post, db
 
-    last_created = db.session.query(db.func.max(Post.created_at)).scalar()
+    last_created = _strip_tz(db.session.query(db.func.max(Post.created_at)).scalar())
     if not isinstance(last_created, datetime):
         return False
 
-    reference = db.session.query(db.func.now()).scalar()
+    reference = _strip_tz(db.session.query(db.func.now()).scalar())
     if not isinstance(reference, datetime):
         # SQLite ``now()`` ni matn qaytaradi — u holda ilova soatiga qaytamiz.
         reference = datetime.now()

@@ -77,3 +77,25 @@ def test_daily_post_guard_blocks_second_run_same_day(app):
         db.session.commit()
 
         assert _post_published_recently() is True
+
+
+def test_guard_handles_timezone_aware_database_clock():
+    """Postgres `now()` ni tz-aware qaytaradi, `created_at` esa naive.
+
+    Ularni ayirish TypeError beradi va qalqon jim ravishda ishlamay qolardi —
+    ya'ni takrorlanish himoyasi aynan production'da o'chiq bo'lardi.
+    """
+    from datetime import datetime, timedelta, timezone
+    from scheduler import _strip_tz
+
+    aware = datetime(2026, 9, 1, 4, 0, tzinfo=timezone.utc)
+    naive = datetime(2026, 8, 31, 4, 0)
+
+    # Tuzatishdan oldin bu qator TypeError bilan yiqilardi.
+    delta = _strip_tz(aware) - _strip_tz(naive)
+    assert delta == timedelta(hours=24)
+
+    # Naive qiymatlar o'zgarishsiz qaytadi.
+    assert _strip_tz(naive) == naive
+    assert _strip_tz(None) is None
+
