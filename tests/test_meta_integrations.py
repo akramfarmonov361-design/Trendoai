@@ -95,3 +95,27 @@ def test_feed_video_comes_only_from_database():
 
     assert _resolve_feed_video(None, site) == ""
 
+
+def test_catalog_cache_clears_the_meta_feed_key():
+    """Loyiha yangilanganda katalog feedi keshi ham tozalanishi kerak.
+
+    Feed bir soatga keshlanadi (ttl=3600), admin paneldagi o'zgarish esa
+    ilgari faqat `portfolio:*` kalitlarini tozalardi. Natijada loyihaga
+    video qo'shilgach, feed bir soatgacha eski holicha qolar edi.
+    """
+    from services.cache_service import (
+        CATALOG_FEED_CACHE_KEY,
+        cache_get,
+        cache_set,
+        clear_catalog_cache,
+    )
+
+    cache_set(CATALOG_FEED_CACHE_KEY, "<rss>eski</rss>", ttl=3600)
+    cache_set("portfolio:1:", "eski ro'yxat", ttl=3600)
+    assert cache_get(CATALOG_FEED_CACHE_KEY) is not None
+
+    clear_catalog_cache()
+
+    assert cache_get(CATALOG_FEED_CACHE_KEY) is None
+    assert cache_get("portfolio:1:") is None
+

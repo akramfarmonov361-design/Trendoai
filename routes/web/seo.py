@@ -315,9 +315,9 @@ def _format_feed_price(raw_price, default_amount=700000):
 @web_bp.route('/meta-catalog.xml')
 def facebook_catalog_feed():
     """Facebook & Meta Commerce Manager uchun Dynamic Product Catalog Feed"""
-    from services.cache_service import cache_get, cache_set
+    from services.cache_service import CATALOG_FEED_CACHE_KEY, cache_get, cache_set
     is_testing = bool(current_app.config.get('TESTING'))
-    cache_key = "meta_catalog_feed_xml"
+    cache_key = CATALOG_FEED_CACHE_KEY
     cached_xml = cache_get(cache_key, is_testing=is_testing)
     if cached_xml:
         return Response(cached_xml, mimetype='application/xml')

@@ -109,3 +109,24 @@ def clear_list_cache():
 
     with _IN_MEMORY_LOCK:
         _IN_MEMORY_CACHE.clear()
+
+# Portfolio ro'yxati va Meta katalog feedi bir xil ma'lumotdan quriladi,
+# shuning uchun ular birga eskiradi.
+CATALOG_FEED_CACHE_KEY = "meta_catalog_feed_xml"
+_PORTFOLIO_CACHE_CATEGORIES = ('', 'bot', 'web', 'ai', 'mobile')
+_PORTFOLIO_CACHE_MAX_PAGES = 10
+
+
+def clear_catalog_cache():
+    """Portfolio ro'yxati va Meta katalog feedi keshini tozalaydi.
+
+    Feed bir soatga keshlanadi (``ttl=3600``). Ilgari admin paneldagi
+    o'zgarish faqat ``portfolio:*`` kalitlarini tozalardi, feed esa eski
+    holicha qolardi — ya'ni loyihaga video yoki rasm qo'shilgach, Meta bir
+    soatgacha eski katalogni ko'rar edi. Xizmatlar ham feedga kiradi,
+    shuning uchun ular o'zgarganda ham shu funksiya chaqiriladi.
+    """
+    for category in _PORTFOLIO_CACHE_CATEGORIES:
+        for page in range(1, _PORTFOLIO_CACHE_MAX_PAGES):
+            cache_delete(f"portfolio:{page}:{category}")
+    cache_delete(CATALOG_FEED_CACHE_KEY)

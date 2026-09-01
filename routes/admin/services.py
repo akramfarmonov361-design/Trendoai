@@ -88,6 +88,13 @@ def admin_service_new():
             )
             db.session.add(service)
             db.session.commit()
+
+            # Xizmatlar katalog feediga kiradi
+            try:
+                from services.cache_service import clear_catalog_cache
+                clear_catalog_cache()
+            except Exception:
+                pass
             flash(f'"{service.title}" muvaffaqiyatli qo\'shildi!', 'success')
             return redirect(url_for('admin.admin_services'))
         except Exception as e:
@@ -119,6 +126,13 @@ def admin_service_edit(service_id):
             service.discount_until = request.form.get('discount_until')
 
             db.session.commit()
+
+            # Xizmatlar katalog feediga kiradi
+            try:
+                from services.cache_service import clear_catalog_cache
+                clear_catalog_cache()
+            except Exception:
+                pass
             flash(f'"{service.title}" yangilandi!', 'success')
             return redirect(url_for('admin.admin_services'))
         except Exception as e:
@@ -134,5 +148,12 @@ def admin_service_delete(service_id):
     service = Service.query.get_or_404(service_id)
     db.session.delete(service)
     db.session.commit()
+
+    # Xizmatlar katalog feediga kiradi
+    try:
+        from services.cache_service import clear_catalog_cache
+        clear_catalog_cache()
+    except Exception:
+        pass
     flash('Xizmat o\'chirildi!', 'success')
     return redirect(url_for('admin.admin_services'))
