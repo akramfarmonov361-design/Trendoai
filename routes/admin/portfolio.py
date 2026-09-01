@@ -53,6 +53,13 @@ def admin_portfolio_new():
         portfolio.slug = portfolio.generate_slug()
         db.session.commit()
 
+        # Yangi loyiha ham ro'yxatda, ham katalog feedida darhol ko'rinsin
+        try:
+            from services.cache_service import clear_catalog_cache
+            clear_catalog_cache()
+        except Exception:
+            pass
+
         if portfolio.is_published:
             try:
                 from telegram_poster import send_portfolio_to_channel
@@ -112,12 +119,10 @@ def admin_portfolio_edit(portfolio_id):
 
         db.session.commit()
 
-        # Portfolio keshi tozalansin
+        # Portfolio ro'yxati ham, Meta katalog feedi ham yangilansin
         try:
-            from services.cache_service import cache_delete
-            for cat in ('', 'bot', 'web', 'ai', 'mobile'):
-                for p in range(1, 10):
-                    cache_delete(f"portfolio:{p}:{cat}")
+            from services.cache_service import clear_catalog_cache
+            clear_catalog_cache()
         except Exception:
             pass
 
@@ -137,12 +142,10 @@ def admin_portfolio_delete(portfolio_id):
         db.session.delete(portfolio)
         db.session.commit()
 
-        # Portfolio keshi tozalansin
+        # Portfolio ro'yxati ham, Meta katalog feedi ham yangilansin
         try:
-            from services.cache_service import cache_delete
-            for cat in ('', 'bot', 'web', 'ai', 'mobile'):
-                for p in range(1, 10):
-                    cache_delete(f"portfolio:{p}:{cat}")
+            from services.cache_service import clear_catalog_cache
+            clear_catalog_cache()
         except Exception:
             pass
 
