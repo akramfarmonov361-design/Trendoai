@@ -36,15 +36,20 @@ jobs:
             echo "::error::CRON_SECRET GitHub sekreti sozlanmagan." >&2
             exit 1
           fi
+          # sync=1 — endpoint generatsiya tugaguncha kutadi va haqiqiy
+          # natijani qaytaradi. Fon rejimida u ish boshlanmasdan turib
+          # success:true qaytarardi, shuning uchun post chiqmagani hech
+          # qachon ko'rinmasdi.
+          #
           # Sekret sarlavhada yuboriladi — URL query'dagi sekretlar
           # proksi va server loglarida ochiq qolib ketadi.
-          code=$(curl -sS -m 120 -o response.json -w "%{http_code}" \
+          code=$(curl -sS -m 300 -o response.json -w "%{http_code}" \
             -X POST -H "X-Cron-Secret: $CRON_SECRET" \
-            https://trendoai.uz/api/cron/generate)
+            "https://trendoai.uz/api/cron/generate?sync=1")
           cat response.json; echo
           if [ "$code" != "200" ]; then
-            echo "::error::Kutilmagan javob kodi: $code" >&2
+            echo "::error::Post yaratilmadi (javob kodi: $code)" >&2
             exit 1
           fi
-          # 200 "generatsiya boshlandi" degani — endpoint ishni fon oqimiga
-          # topshiradi. Natijani Telegram kanali yoki /blog dan tekshiring.
+          # 200 ikki holatda keladi: post yaratildi, yoki takrorlanish
+          # qalqoni to'sdi (bugun post allaqachon bor). Ikkalasi ham normal.

@@ -99,3 +99,39 @@ def test_guard_handles_timezone_aware_database_clock():
     assert _strip_tz(naive) == naive
     assert _strip_tz(None) is None
 
+
+def test_cron_generate_sync_reports_the_real_outcome(client, app, monkeypatch):
+    """sync=1 da endpoint haqiqiy natijani qaytarishi kerak.
+
+    Fon rejimida u ish boshlanmasdan turib `success: true` qaytarardi, ya'ni
+    post chiqmagani chaqiruvchiga hech qachon ko'rinmasdi — 2026-09-01 da
+    kunlik post aynan shunday jimgina yo'qolgan.
+    """
+    import scheduler as scheduler_module
+
+    app.config["CRON_SECRET"] = "test-cron-secret"
+    headers = {"X-Cron-Secret": "test-cron-secret"}
+
+    # True -> post yaratildi
+    monkeypatch.setattr(scheduler_module, "generate_and_publish_post", lambda *a, **k: True)
+    response = client.post("/api/cron/generate?sync=1", headers=headers)
+    assert response.status_code == 200
+    assert response.get_json()["success"] is True
+
+    # None -> takrorlanish qalqoni to'sdi, bu xato emas
+    monkeypatch.setattr(scheduler_module, "generate_and_publish_post", lambda *a, **k: None)
+    response = client.post("/api/cron/generate?sync=1", headers=headers)
+    assert response.status_code == 200
+    assert response.get_json()["skipped"] is True
+
+    # False -> generatsiya yiqildi, chaqiruvchi buni bilishi shart
+    monkeypatch.setattr(scheduler_module, "generate_and_publish_post", lambda *a, **k: False)
+    response = client.post("/api/cron/generate?sync=1", headers=headers)
+    assert response.status_code == 500
+    assert response.get_json()["success"] is False
+
+
+def test_cron_generate_still_requires_the_secret(client, app):
+    app.config["CRON_SECRET"] = "test-cron-secret"
+    assert client.post("/api/cron/generate?sync=1").status_code == 401
+
