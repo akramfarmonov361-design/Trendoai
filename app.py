@@ -474,6 +474,11 @@ def migrate_portfolio_images():
             'quiz': '/static/img/portfolio/quiz-video-generator.webp',
             'trendoai': '/static/img/portfolio/trendoai-uz.webp',
         }
+        video_mapping = {
+            'veo': 'https://www.youtube.com/watch?v=kYJvYf2oX2s',
+            'insta-dub': 'https://www.youtube.com/watch?v=ScMzIvxBSi4',
+            'quiz': 'https://www.youtube.com/watch?v=jNQXAC9IVRw',
+        }
         items = Portfolio.query.all()
         updated = 0
         for item in items:
@@ -486,9 +491,15 @@ def migrate_portfolio_images():
                         item.image_url = img_path
                         updated += 1
                     break
+            for vkey, v_url in video_mapping.items():
+                if vkey in combined:
+                    if not item.video_url:
+                        item.video_url = v_url
+                        updated += 1
+                    break
         if updated:
             db.session.commit()
-            logger.info(f"OK: synchronized {updated} portfolio image(s) to local WebP.")
+            logger.info(f"OK: synchronized {updated} portfolio image(s)/video(s).")
     except Exception as e:
         db.session.rollback()
         logger.error(f"WARN: Portfolio image migration failed: {e}")
