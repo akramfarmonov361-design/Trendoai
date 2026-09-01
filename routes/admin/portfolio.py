@@ -65,7 +65,7 @@ def admin_portfolio_new():
                 from telegram_poster import send_portfolio_to_channel
                 send_portfolio_to_channel(portfolio)
             except Exception as e:
-                logger.info(f"[admin] Telegram yuborishda xato: {e}")
+                logger.error(f"[admin] Telegram yuborishda xato: {e}", exc_info=True)
 
             try:
                 from seo_indexer import ping_search_engines

@@ -158,7 +158,7 @@ def get_image_for_topic(topic, width=1200, height=630, exclude_image_urls=None):
         return get_fallback_image(topic)
 
     except Exception as e:
-        logger.info(f"[image] Unsplash xatosi: {e}")
+        logger.warning(f"[image] Unsplash xatosi: {e}")
         return get_fallback_image(topic)
 
 

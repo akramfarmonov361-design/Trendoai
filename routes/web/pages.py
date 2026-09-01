@@ -178,7 +178,7 @@ def submit_order():
         else:
             logger.error(f"❌ Failed to send Order #{new_order.id} to Admin")
     except Exception as e:
-        logger.info(f"Telegram yuborishda xato: {e}")
+        logger.error(f"Telegram yuborishda xato: {e}", exc_info=True)
 
     try:
         from services.meta_capi import track_meta_event

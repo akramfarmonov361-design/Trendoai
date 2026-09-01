@@ -23,7 +23,7 @@ if REDIS_URL:
         _redis_available = True
         logger.info("[cache] Redis ulanishi muvaffaqiyatli!")
     except Exception as exc:
-        logger.info(f"[cache] Redis ulanish xatosi (In-Memory rejimga o'tiladi): {exc}")
+        logger.warning(f"[cache] Redis ulanish xatosi (In-Memory rejimga o'tiladi): {exc}")
         _redis_client = None
         _redis_available = False
 
@@ -54,7 +54,7 @@ def cache_get(key, is_testing=False):
             if data is not None:
                 return pickle.loads(data)
         except Exception as e:
-            logger.info(f"[cache] Redis get xatosi: {e}")
+            logger.warning(f"[cache] Redis get xatosi: {e}")
 
     with _IN_MEMORY_LOCK:
         entry = _IN_MEMORY_CACHE.get(key)
@@ -79,7 +79,7 @@ def cache_set(key, value, ttl=None, is_testing=False):
             _redis_client.setex(key, effective_ttl, pickle.dumps(value))
             return
         except Exception as e:
-            logger.info(f"[cache] Redis set xatosi: {e}")
+            logger.warning(f"[cache] Redis set xatosi: {e}")
 
     with _IN_MEMORY_LOCK:
         _IN_MEMORY_CACHE[key] = (time.time(), effective_ttl, value)

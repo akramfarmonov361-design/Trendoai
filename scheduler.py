@@ -261,7 +261,7 @@ def generate_and_publish_post(topic=None, category=None, force=False):
                     )
                     logger.info(f"[scheduler] {push_count} ta obunachiga push yuborildi.")
                 except Exception as push_err:
-                    logger.info(f"[scheduler] Push yuborishda xato: {push_err}")
+                    logger.warning(f"[scheduler] Push yuborishda xato: {push_err}", exc_info=True)
 
                 try:
                     from seo_indexer import ping_search_engines
