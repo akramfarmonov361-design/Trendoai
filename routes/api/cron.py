@@ -6,6 +6,9 @@ from config import CATEGORIES, GEMINI_API_KEY, GEMINI_MODEL, SITE_URL, TELEGRAM_
 from extensions import db
 from models.post import Post
 from routes.api._blueprint import api_bp, _has_valid_cron_secret, _cron_secret_error
+from utils.logger import setup_logger
+
+logger = setup_logger("cron")
 
 # ========== CRON ROUTES ==========
 
@@ -27,20 +30,74 @@ def cron_status():
 
 @api_bp.route('/api/cron/generate', methods=['GET', 'POST'])
 def cron_generate_post():
-    """Tashqi cron xizmatlari uchun post generatsiyasini web fonida boshlash."""
+    """Tashqi cron xizmatlari uchun post generatsiyasi.
+
+    Standart holatda ish fon oqimiga topshiriladi va endpoint darhol javob
+    qaytaradi. Bu tezkor, lekin natijani hech kim ko'rmaydi: `daemon=True`
+    oqimi worker qayta ishga tushganda (deploy, free tier uxlashi) jimgina
+    o'ladi, chaqiruvchi esa baribir `success: true` oladi. 2026-09-01 da
+    kunlik post aynan shu sababdan chiqmay qolgan va hech qayerda iz
+    qoldirmagan.
+
+    `?sync=1` bilan chaqirilganda generatsiya shu yerda tugaguncha kutiladi
+    va haqiqiy natija qaytariladi — shunda cron yoki CI muvaffaqiyatsizlikni
+    darhol ko'radi.
+
+    Eslatma: sinxron rejim `GUNICORN_TIMEOUT` (standart 120s) ichiga
+    sig'ishi kerak.
+    """
     if not _has_valid_cron_secret():
         return _cron_secret_error()
 
     topic = request.args.get('topic')
     category = request.args.get('category')
+    wait = (request.args.get('sync') or '').strip().lower() in ('1', 'true', 'yes', 'on')
 
     from scheduler import generate_and_publish_post
-    thread = threading.Thread(target=generate_and_publish_post, args=(topic, category), daemon=True)
-    thread.start()
+
+    if not wait:
+        thread = threading.Thread(target=generate_and_publish_post, args=(topic, category), daemon=True)
+        thread.start()
+
+        return jsonify({
+            'success': True,
+            'message': 'Post generation web fonida boshlandi',
+            'timestamp': datetime.now().isoformat()
+        })
+
+    # generate_and_publish_post uch xil qiymat qaytaradi:
+    #   True  - post yaratildi
+    #   None  - takrorlanish qalqoni to'sdi (xato emas, kutilgan holat)
+    #   False - generatsiya yiqildi
+    try:
+        created = generate_and_publish_post(topic, category)
+    except Exception as exc:
+        logger.error(f"[cron] Sinxron generatsiya xatosi: {exc}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': str(exc),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+    if created is None:
+        return jsonify({
+            'success': True,
+            'skipped': True,
+            'message': "Bugun post allaqachon chiqarilgan — o'tkazib yuborildi",
+            'timestamp': datetime.now().isoformat()
+        })
+
+    if not created:
+        logger.error("[cron] Sinxron generatsiya post yaratmadi")
+        return jsonify({
+            'success': False,
+            'error': 'Post yaratilmadi — generatsiya yiqildi',
+            'timestamp': datetime.now().isoformat()
+        }), 500
 
     return jsonify({
         'success': True,
-        'message': 'Post generation web fonida boshlandi',
+        'message': 'Post yaratildi',
         'timestamp': datetime.now().isoformat()
     })
 
