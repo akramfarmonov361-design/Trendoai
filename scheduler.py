@@ -132,9 +132,9 @@ def generate_and_publish_post(topic=None, category=None, force=False):
     force: Kunlik takrorlanish qalqonini chetlab o'tadi (qo'lda chaqiruvlar uchun).
     """
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    logger.info(f"\n{'=' * 60}", flush=True)
-    logger.info(f"[scheduler] TrendoAI post generatsiyasi boshlandi... [{current_time}]", flush=True)
-    logger.info(f"{'=' * 60}", flush=True)
+    logger.info(f"\n{'=' * 60}")
+    logger.info(f"[scheduler] TrendoAI post generatsiyasi boshlandi... [{current_time}]")
+    logger.info(f"{'=' * 60}")
     sys.stdout.flush()
 
     from app import Post, app, db
@@ -293,7 +293,7 @@ def generate_and_publish_post(topic=None, category=None, force=False):
                 f"{str(exc)}\n\n"
                 f"Mavzu: {selected_topic}"
             )
-            logger.error(error_msg, flush=True)
+            logger.error(error_msg)
             traceback.print_exc()
             sys.stdout.flush()
             try:
@@ -304,7 +304,7 @@ def generate_and_publish_post(topic=None, category=None, force=False):
                 pass
             return False
 
-    logger.info(f"{'=' * 60}\n", flush=True)
+    logger.info(f"{'=' * 60}\n")
 
 
 scheduler = BackgroundScheduler(timezone=TIMEZONE)
