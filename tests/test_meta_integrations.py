@@ -119,3 +119,73 @@ def test_catalog_cache_clears_the_meta_feed_key():
     assert cache_get(CATALOG_FEED_CACHE_KEY) is None
     assert cache_get("portfolio:1:") is None
 
+
+def _make_portfolio(**kwargs):
+    from models.portfolio import Portfolio
+    defaults = {"description": "tavsif", "category": "web", "is_published": True}
+    defaults.update(kwargs)
+    return Portfolio(**defaults)
+
+
+def test_meta_video_supplementary_feed():
+    """Meta katalogiga video faqat qo'shimcha CSV orqali yetadi.
+
+    Asosiy XML feed video yubora olmaydi: Meta'ning maydoni `video[0].url`,
+    kvadrat qavslar esa XML teg nomida taqiqlangan. Shuning uchun
+    `<g:video_link>` yozilgani bilan Meta uni umuman o'qimaydi.
+    """
+    from app import create_app
+    from extensions import db
+
+    app = create_app({
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "WTF_CSRF_ENABLED": False,
+    })
+
+    with app.app_context():
+        db.create_all()
+        db.session.add(_make_portfolio(title="Nisbiy", slug="n-1", video_url="/static/videos/a.mp4"))
+        db.session.add(_make_portfolio(title="Absolyut", slug="a-2", video_url="https://cdn.example.com/b.mp4"))
+        db.session.add(_make_portfolio(title="Videosiz", slug="v-3"))
+        db.session.add(_make_portfolio(title="YouTube", slug="y-4", video_url="https://youtube.com/watch?v=x"))
+        db.session.commit()
+
+        response = app.test_client().get("/feed/meta-videos.csv")
+        assert response.status_code == 200
+        assert response.headers["Content-Type"].startswith("text/csv")
+
+        rows = response.get_data(as_text=True).strip().splitlines()
+
+        # Ustun nomlari Meta spetsifikatsiyasidagidek bo'lishi shart.
+        assert rows[0] == "id,video[0].url"
+
+        # Nisbiy yo'l to'liq URL ga aylanadi, absolyut o'zgarishsiz qoladi.
+        assert "https://trendoai.uz/static/videos/a.mp4" in rows[1]
+        assert "https://cdn.example.com/b.mp4" in rows[2]
+
+        # Videosiz va YouTube havolali loyihalar tushmaydi: bo'sh qiymat
+        # yuborilsa Meta mavjud ma'lumotni o'chirib yuborishi mumkin, YouTube
+        # esa pleyer havolasi — Meta uni qabul qilmaydi.
+        assert len(rows) == 3
+        assert "youtube" not in response.get_data(as_text=True).lower()
+
+        db.session.remove()
+        db.drop_all()
+
+
+def test_catalog_cache_clears_the_video_feed_key():
+    from services.cache_service import (
+        CATALOG_VIDEO_FEED_CACHE_KEY,
+        cache_get,
+        cache_set,
+        clear_catalog_cache,
+    )
+
+    cache_set(CATALOG_VIDEO_FEED_CACHE_KEY, "id,video[0].url", ttl=3600)
+    assert cache_get(CATALOG_VIDEO_FEED_CACHE_KEY) is not None
+
+    clear_catalog_cache()
+
+    assert cache_get(CATALOG_VIDEO_FEED_CACHE_KEY) is None
+

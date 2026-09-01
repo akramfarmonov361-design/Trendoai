@@ -113,6 +113,7 @@ def clear_list_cache():
 # Portfolio ro'yxati va Meta katalog feedi bir xil ma'lumotdan quriladi,
 # shuning uchun ular birga eskiradi.
 CATALOG_FEED_CACHE_KEY = "meta_catalog_feed_xml"
+CATALOG_VIDEO_FEED_CACHE_KEY = "meta_catalog_video_csv"
 _PORTFOLIO_CACHE_CATEGORIES = ('', 'bot', 'web', 'ai', 'mobile')
 _PORTFOLIO_CACHE_MAX_PAGES = 10
 
@@ -130,3 +131,4 @@ def clear_catalog_cache():
         for page in range(1, _PORTFOLIO_CACHE_MAX_PAGES):
             cache_delete(f"portfolio:{page}:{category}")
     cache_delete(CATALOG_FEED_CACHE_KEY)
+    cache_delete(CATALOG_VIDEO_FEED_CACHE_KEY)
