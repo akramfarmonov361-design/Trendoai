@@ -278,13 +278,6 @@ def _resolve_feed_image(image_url, title, category, item_id, site_url):
         return f"{site_url}/static/img/portfolio/instadubuz.jpg?v=2026_sep"
     return f"{site_url}/static/img/portfolio/trendoai-uz.jpg?v=2026_sep"
 
-def _format_feed_price(raw_price, default_amount=1000000):
-    """Ensure price is strictly formatted as 'XXXXXX UZS' or 'XX USD' for Meta Commerce."""
-    if not raw_price or not str(raw_price).strip():
-        return f"{default_amount} UZS"
-    
-    val = str(raw_price).strip()
-    digits = re.sub(r'[^0-9]', '', val)
 def _resolve_feed_video(p, site_url):
     """Loyiha uchun to'g'ridan-to'g'ri MP4 video havolasini aniqlash"""
     if not p:
@@ -311,6 +304,7 @@ def _resolve_feed_video(p, site_url):
     return ""
 
 def _format_feed_price(raw_price, default_amount=700000):
+    """Narxni Meta Commerce kutgan 'XXXXXX UZS' ko'rinishiga keltiradi."""
     if raw_price:
         cleaned = re.sub(r'[^\d]', '', str(raw_price))
         if cleaned:
