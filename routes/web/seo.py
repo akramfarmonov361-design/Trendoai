@@ -285,17 +285,43 @@ def _format_feed_price(raw_price, default_amount=1000000):
     
     val = str(raw_price).strip()
     digits = re.sub(r'[^0-9]', '', val)
-    if not digits:
-        return f"{default_amount} UZS"
-    
-    if '$' in val or 'USD' in val.upper():
-        return f"{digits} USD"
-    return f"{digits} UZS"
+def _resolve_feed_video(p, site_url):
+    """Loyiha uchun to'g'ridan-to'g'ri MP4 video havolasini aniqlash"""
+    if not p:
+        return ""
+    v_url = (getattr(p, 'video_url', None) or '').strip()
+    if v_url.endswith('.mp4'):
+        if v_url.startswith('http'):
+            return v_url
+        return f"{site_url}{v_url}"
+
+    t_lower = (getattr(p, 'title', None) or '').lower()
+    s_lower = (getattr(p, 'slug', None) or '').lower()
+    combined = f"{t_lower} {s_lower}"
+    if 'botfactory' in combined:
+        return f"{site_url}/static/videos/botfactory-demo.mp4"
+    elif 'luxe' in combined:
+        return f"{site_url}/static/videos/luxe-core-demo.mp4"
+    elif 'quiz' in combined:
+        return f"{site_url}/static/videos/quiz-video-generator-demo.mp4"
+    elif 'real-smart' in combined or 'realsmart' in combined:
+        return f"{site_url}/static/videos/realsmart-ai-demo.mp4"
+    elif 'insta' in combined or 'dub' in combined:
+        return f"{site_url}/static/videos/instadub-demo.mp4"
+    return ""
+
+def _format_feed_price(raw_price, default_amount=700000):
+    if raw_price:
+        cleaned = re.sub(r'[^\d]', '', str(raw_price))
+        if cleaned:
+            return f"{cleaned} UZS"
+    return f"{default_amount} UZS"
 
 @web_bp.route('/facebook-catalog.xml')
 @web_bp.route('/facebook-feed.xml')
 @web_bp.route('/api/catalog/facebook.xml')
 @web_bp.route('/feed/facebook-catalog.xml')
+@web_bp.route('/meta-catalog.xml')
 def facebook_catalog_feed():
     """Facebook & Meta Commerce Manager uchun Dynamic Product Catalog Feed"""
     from services.cache_service import cache_get, cache_set
@@ -373,13 +399,15 @@ def facebook_catalog_feed():
         link = f"{site_url}/portfolio/project/{p.slug}" if p.slug else f"{site_url}/portfolio"
         img = _resolve_feed_image(p.image_url, title, p.category, item_id, site_url)
         price_str = _format_feed_price(p.price, default_amount=1500000)
+        v_link = _resolve_feed_video(p, site_url)
+        v_tag = f"\n      <g:video_link>{xml_escape(v_link)}</g:video_link>" if v_link else ""
 
         items_xml.append(f"""    <item>
       <g:id>{xml_escape(item_id)}</g:id>
       <g:title>{xml_escape(title)}</g:title>
       <g:description>{xml_escape(desc)}</g:description>
       <g:link>{xml_escape(link)}</g:link>
-      <g:image_link>{xml_escape(img)}</g:image_link>
+      <g:image_link>{xml_escape(img)}</g:image_link>{v_tag}
       <g:brand>{xml_escape(site_name)}</g:brand>
       <g:condition>new</g:condition>
       <g:availability>in stock</g:availability>
