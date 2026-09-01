@@ -279,29 +279,26 @@ def _resolve_feed_image(image_url, title, category, item_id, site_url):
     return f"{site_url}/static/img/portfolio/trendoai-uz.jpg?v=2026_sep"
 
 def _resolve_feed_video(p, site_url):
-    """Loyiha uchun to'g'ridan-to'g'ri MP4 video havolasini aniqlash"""
+    """Loyihaning haqiqiy MP4 video havolasini qaytaradi, bo'lmasa bo'sh satr.
+
+    Ilgari bu yerda sarlavha va slugdan taxmin qilinardi ("luxe" bo'lsa
+    luxe-core-demo.mp4 va hokazo). Natijada feed saytga zid tushardi: feed
+    videoni va'da qilardi, loyiha sahifasi esa `video_url` bazada bo'sh
+    bo'lgani uchun pleyerni ko'rsatmasdi. Endi yagona manba — baza.
+
+    Eslatma: `<g:video_link>` ni Meta katalogi o'qimaydi (uning maydoni
+    `video[0].url`, uni XML tegi qilib yozib bo'lmaydi). Bu teg sayt va
+    boshqa iste'molchilar uchun qoldirilgan; Meta'ga video qo'shish uchun
+    Commerce Manager yoki qo'shimcha (supplementary) CSV feed kerak.
+    """
     if not p:
         return ""
-    v_url = (getattr(p, 'video_url', None) or '').strip()
-    if v_url.endswith('.mp4'):
-        if v_url.startswith('http'):
-            return v_url
-        return f"{site_url}{v_url}"
 
-    t_lower = (getattr(p, 'title', None) or '').lower()
-    s_lower = (getattr(p, 'slug', None) or '').lower()
-    combined = f"{t_lower} {s_lower}"
-    if 'botfactory' in combined:
-        return f"{site_url}/static/videos/botfactory-demo.mp4"
-    elif 'luxe' in combined:
-        return f"{site_url}/static/videos/luxe-core-demo.mp4"
-    elif 'quiz' in combined:
-        return f"{site_url}/static/videos/quiz-video-generator-demo.mp4"
-    elif 'real-smart' in combined or 'realsmart' in combined:
-        return f"{site_url}/static/videos/realsmart-ai-demo.mp4"
-    elif 'insta' in combined or 'dub' in combined:
-        return f"{site_url}/static/videos/instadub-demo.mp4"
-    return ""
+    v_url = (getattr(p, 'video_url', None) or '').strip()
+    if not v_url.endswith('.mp4'):
+        return ""
+
+    return v_url if v_url.startswith('http') else f"{site_url}{v_url}"
 
 def _format_feed_price(raw_price, default_amount=700000):
     """Narxni Meta Commerce kutgan 'XXXXXX UZS' ko'rinishiga keltiradi."""
