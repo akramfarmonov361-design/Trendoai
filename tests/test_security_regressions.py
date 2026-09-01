@@ -110,6 +110,43 @@ class SecurityRegressionTests(unittest.TestCase):
                 f"{field} maydoni type=url bo'lsa nisbiy yo'llar bloklanadi",
             )
 
+    def test_logger_calls_have_no_print_only_kwargs(self):
+        """`logger.info(msg, flush=True)` INFO yoqilganda TypeError beradi.
+
+        print() dan logging'ga o'tishda `flush=True` qolib ketgan edi.
+        `generate_and_publish_post` birinchi qatoridayoq yiqilar, fon oqimida
+        esa bu hech qayerda ko'rinmasdi — kunlik post shu sababdan jimgina
+        chiqmay qolgan.
+
+        Testlarda sezilmagani ham shundan: logger darajasi INFO'dan past
+        bo'lsa, `info()` `_log()` gacha yetmaydi va yaroqsiz kwarg umuman
+        tekshirilmaydi. Ya'ni xato faqat production'da namoyon bo'ladi.
+        """
+        import re
+
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        pattern = re.compile(r"logger[.]\w+[(].*flush\s*=")
+
+        offenders = []
+        # tests/ chetlab o'tiladi: bu testning o'z docstringida namuna sifatida
+        # aynan shu naqsh yozilgan. Qo'riqlash ilova kodi uchun kerak.
+        skip_dirs = {"venv", "node_modules", ".git", "__pycache__", "migrations", "tests"}
+        for current_dir, dir_names, file_names in os.walk(root):
+            dir_names[:] = [d for d in dir_names if d not in skip_dirs]
+            for file_name in file_names:
+                if not file_name.endswith(".py"):
+                    continue
+                full = os.path.join(current_dir, file_name)
+                with open(full, encoding="utf-8", errors="replace") as handle:
+                    for line_no, line in enumerate(handle, 1):
+                        if pattern.search(line):
+                            offenders.append(f"{os.path.relpath(full, root)}:{line_no}")
+
+        self.assertEqual(
+            offenders, [], f"logger chaqiruvida print() kwargi qolgan: {offenders}"
+        )
+
+
 
 if __name__ == "__main__":
     unittest.main()
