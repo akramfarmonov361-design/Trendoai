@@ -114,8 +114,9 @@
         <div class="card-video-badge is-64">▶ Video</div>
         {% endif %}
         <div class="card-image">
-            {% if item.image_url %}
-            <img src="{{ item.image_url }}" alt="{{ item.title }}" class="card-img" loading="lazy" decoding="async">
+            {% set card_img = item._resolved_img or item.image_url %}
+            {% if card_img %}
+            <img src="{{ card_img }}" alt="{{ item.title }}" class="card-img" loading="lazy" decoding="async">
             {% else %}
             <span class="card-emoji">{{ item.emoji }}</span>
             {% endif %}
@@ -177,7 +178,7 @@
     <!-- Fallback static content -->
     <article class="portfolio-card" data-category="bot">
         <div class="card-image">
-            <span class="card-emoji">🤖</span>
+            <img src="/static/img/portfolio/botfactory.webp" alt="E-Commerce Bot" class="card-img" loading="lazy">
             <div class="card-overlay">
                 <span class="view-btn">Ko'rish →</span>
             </div>
@@ -199,7 +200,7 @@
     {% if not pagination.total %}
     <article class="portfolio-card" data-category="web">
         <div class="card-image">
-            <span class="card-emoji">🌐</span>
+            <img src="/static/img/portfolio/optombazar.webp" alt="Korporativ Sayt" class="card-img" loading="lazy">
             <div class="card-overlay">
                 <span class="view-btn">Ko'rish →</span>
             </div>
@@ -220,7 +221,7 @@
     <article class="portfolio-card featured" data-category="ai">
         <div class="card-badge">⭐ Featured</div>
         <div class="card-image">
-            <span class="card-emoji">🧠</span>
+            <img src="/static/img/portfolio/vibecoding.webp" alt="TrendoAI Blog" class="card-img" loading="lazy">
             <div class="card-overlay">
                 <span class="view-btn">Ko'rish →</span>
             </div>
@@ -240,7 +241,7 @@
     <!-- Project 4 -->
     <article class="portfolio-card" data-category="bot">
         <div class="card-image">
-            <span class="card-emoji">📊</span>
+            <img src="/static/img/portfolio/uzum-tezkor.webp" alt="CRM Bot" class="card-img" loading="lazy">
             <div class="card-overlay">
                 <span class="view-btn">Ko'rish →</span>
             </div>
@@ -260,7 +261,7 @@
     <!-- Project 5 -->
     <article class="portfolio-card" data-category="web">
         <div class="card-image">
-            <span class="card-emoji">🛒</span>
+            <img src="/static/img/portfolio/luxe-core.webp" alt="Online Do'kon" class="card-img" loading="lazy">
             <div class="card-overlay">
                 <span class="view-btn">Ko'rish →</span>
             </div>
@@ -280,7 +281,7 @@
     <!-- Project 6 -->
     <article class="portfolio-card" data-category="ai">
         <div class="card-image">
-            <span class="card-emoji">💬</span>
+            <img src="/static/img/portfolio/instadubuz.webp" alt="AI Chatbot" class="card-img" loading="lazy">
             <div class="card-overlay">
                 <span class="view-btn">Ko'rish →</span>
             </div>
@@ -300,7 +301,7 @@
     <!-- Project 7 -->
     <article class="portfolio-card" data-category="mobile">
         <div class="card-image">
-            <span class="card-emoji">📱</span>
+            <img src="/static/img/portfolio/real-smart-ai.webp" alt="Fitness Tracker" class="card-img" loading="lazy">
             <div class="card-overlay">
                 <span class="view-btn">Ko'rish →</span>
             </div>
@@ -320,7 +321,7 @@
     <!-- Project 8 -->
     <article class="portfolio-card" data-category="bot">
         <div class="card-image">
-            <span class="card-emoji">🎓</span>
+            <img src="/static/img/portfolio/bolajon-ai-english.webp" alt="Ta'lim Boti" class="card-img" loading="lazy">
             <div class="card-overlay">
                 <span class="view-btn">Ko'rish →</span>
             </div>
@@ -340,7 +341,7 @@
     <!-- Project 9 -->
     <article class="portfolio-card is-63" data-category="web" data-modal-id="manual-kfc">
         <div class="card-image">
-            <span class="card-emoji">🍗</span>
+            <img src="/static/img/portfolio/restoran.webp" alt="Restoran KFC" class="card-img" loading="lazy">
             <div class="card-overlay">
                 <div class="card-actions">
                     <button class="view-btn" data-modal-id="manual-kfc">Modalda Ko'rish</button>
@@ -371,7 +372,7 @@
     <!-- Project 10 -->
     <article class="portfolio-card is-63" data-category="web" data-modal-id="manual-realnews">
         <div class="card-image">
-            <span class="card-emoji">📰</span>
+            <img src="/static/img/portfolio/trendoai-uz.webp" alt="RealNewsUZ" class="card-img" loading="lazy">
             <div class="card-overlay">
                 <div class="card-actions">
                     <button class="view-btn" data-modal-id="manual-realnews">Modalda Ko'rish</button>
@@ -402,7 +403,7 @@
     <!-- Project 11 -->
     <article class="portfolio-card is-63" data-category="ai" data-modal-id="manual-trendoaispeak">
         <div class="card-image">
-            <span class="card-emoji">AI</span>
+            <img src="/static/img/portfolio/trendospeak.webp" alt="TrendoAI Speak" class="card-img" loading="lazy">
             <div class="card-overlay">
                 <div class="card-actions">
                     <button class="view-btn" data-modal-id="manual-trendoaispeak">Modalda Ko'rish</button>
@@ -433,7 +434,7 @@
     <!-- Project 12 -->
     <article class="portfolio-card is-63" data-category="ai" data-modal-id="manual-shifo-nur-chatbot">
         <div class="card-image">
-            <span class="card-emoji">MED</span>
+            <img src="/static/img/portfolio/botfactory.webp" alt="Shifo Nur Klinikasi Chatbot" class="card-img" loading="lazy">
             <div class="card-overlay">
                 <div class="card-actions">
                     <button class="view-btn" data-modal-id="manual-shifo-nur-chatbot">Modalda Ko'rish</button>
@@ -461,256 +462,6 @@
         </div>
     </article>
 
-    {% if false %}
-    <!-- Legacy fallback projects 13–20 are kept in source but not rendered. -->
-    <!-- Project 13 -->
-    <article class="portfolio-card is-63" data-category="web" data-modal-id="manual-ozbek-talaffuz-kontent">
-        <div class="card-image">
-            <span class="card-emoji">EDU</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" data-modal-id="manual-ozbek-talaffuz-kontent">Modalda Ko'rish</button>
-                    <a href="https://o-zbek-talaffuz-kontent.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Web Sayt</span>
-            <h3>O'zbek Talaffuz Kontent</h3>
-            <p>O'zbek talaffuzi va o'quv kontenti uchun tayyorlangan web interfeys. Foydalanuvchiga materiallarni sodda va tushunarli ko'rinishda taqdim etadigan yechim.</p>
-            <div class="card-tech">
-                <span>Education</span>
-                <span>Content Platform</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order">
-                    Buyurtma berish
-                </a>
-                <a href="https://o-zbek-talaffuz-kontent.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 14 -->
-    <article class="portfolio-card is-63" data-category="ai" data-modal-id="manual-ai-project-scoper">
-        <div class="card-image">
-            <span class="card-emoji">SCOPE</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" data-modal-id="manual-ai-project-scoper">Modalda Ko'rish</button>
-                    <a href="https://ai-project-scoper.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">AI Yechim</span>
-            <h3>AI Project Scoper</h3>
-            <p>Loyiha scope va talablarni tez shakllantirish uchun tayyorlangan AI interfeys. Foydalanuvchiga task, deliverable va ish hajmini aniqroq belgilashga yordam beradi.</p>
-            <div class="card-tech">
-                <span>AI Planning</span>
-                <span>Project Scope</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=ai_chatbot" class="btn-order">
-                    Buyurtma berish
-                </a>
-                <a href="https://ai-project-scoper.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 15 -->
-    <article class="portfolio-card is-63" data-category="web" data-modal-id="manual-texnomarket">
-        <div class="card-image">
-            <span class="card-emoji">SHOP</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" data-modal-id="manual-texnomarket">Modalda Ko'rish</button>
-                    <a href="https://texnomarket.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Web Sayt</span>
-            <h3>Texnomarket</h3>
-            <p>Elektronika va texnika mahsulotlari uchun tayyorlangan e-commerce interfeys. Foydalanuvchiga katalog, mahsulot va xarid jarayonini sodda ko'rinishda taqdim etadigan yechim.</p>
-            <div class="card-tech">
-                <span>E-commerce</span>
-                <span>Frontend</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order">
-                    Buyurtma berish
-                </a>
-                <a href="https://texnomarket.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 16 -->
-    <article class="portfolio-card is-63" data-category="web" data-modal-id="manual-paketshop">
-        <div class="card-image">
-            <span class="card-emoji">PKG</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" data-modal-id="manual-paketshop">Modalda Ko'rish</button>
-                    <a href="https://www.paketshop.uz/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Web Sayt</span>
-            <h3>Paketshop</h3>
-            <p>Onlayn savdo va mahsulot ko'rish uchun tayyorlangan web interfeys. Foydalanuvchiga katalog va murojaat jarayonini sodda ko'rinishda taqdim etadigan yechim.</p>
-            <div class="card-tech">
-                <span>E-commerce</span>
-                <span>Catalog</span>
-                <span>Web Platform</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order">
-                    Buyurtma berish
-                </a>
-                <a href="https://www.paketshop.uz/" target="_blank" rel="noopener noreferrer" class="btn-detail">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 17 -->
-    <article class="portfolio-card is-63" data-category="web" data-modal-id="manual-restoran-kfc-site">
-        <div class="card-image">
-            <span class="card-emoji">FOOD</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" data-modal-id="manual-restoran-kfc-site">Modalda Ko'rish</button>
-                    <a href="https://restoran-kfc.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Web Sayt</span>
-            <h3>Restoran KFC</h3>
-            <p>Restoran va fast food yo'nalishi uchun tayyorlangan web interfeys. Foydalanuvchiga menyu, promo bloklar va buyurtmaga o'tish jarayonini sodda ko'rinishda taqdim etadigan yechim.</p>
-            <div class="card-tech">
-                <span>Restaurant</span>
-                <span>Landing Page</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order">
-                    Buyurtma berish
-                </a>
-                <a href="https://restoran-kfc.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 18 -->
-    <article class="portfolio-card is-63" data-category="web" data-modal-id="manual-nomoz-vaqtlari">
-        <div class="card-image">
-            <span class="card-emoji">TIME</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" data-modal-id="manual-nomoz-vaqtlari">Modalda Ko'rish</button>
-                    <a href="https://nomoz-vaqtlari-xi.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Web Sayt</span>
-            <h3>Nomoz Vaqtlari</h3>
-            <p>Namoz vaqtlarini ko'rsatish uchun tayyorlangan web interfeys. Foydalanuvchiga vaqtlar, kunlik ko'rsatkichlar va kerakli ma'lumotlarni sodda ko'rinishda taqdim etadigan yechim.</p>
-            <div class="card-tech">
-                <span>Prayer Times</span>
-                <span>Utility App</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=web_site" class="btn-order">
-                    Buyurtma berish
-                </a>
-                <a href="https://nomoz-vaqtlari-xi.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 19 -->
-    <article class="portfolio-card is-63" data-category="bot" data-modal-id="manual-botfactory">
-        <div class="card-image">
-            <span class="card-emoji">BOT</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" data-modal-id="manual-botfactory">Modalda Ko'rish</button>
-                    <a href="https://botfactory-am64.onrender.com/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">Telegram Bot</span>
-            <h3>BotFactory</h3>
-            <p>Bot yaratish va avtomatlashtirish uchun tayyorlangan platforma interfeysi. Foydalanuvchiga bot xizmatlari va ish jarayonini sodda ko'rinishda taqdim etadigan yechim.</p>
-            <div class="card-tech">
-                <span>Bot Platform</span>
-                <span>Automation</span>
-                <span>Render</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=telegram_bot" class="btn-order">
-                    Buyurtma berish
-                </a>
-                <a href="https://botfactory-am64.onrender.com/" target="_blank" rel="noopener noreferrer" class="btn-detail">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-
-    <!-- Project 20 -->
-    <article class="portfolio-card is-63" data-category="ai" data-modal-id="manual-instadub">
-        <div class="card-image">
-            <span class="card-emoji">DUB</span>
-            <div class="card-overlay">
-                <div class="card-actions">
-                    <button class="view-btn" data-modal-id="manual-instadub">Modalda Ko'rish</button>
-                    <a href="https://instadub.vercel.app/" target="_blank" rel="noopener noreferrer" class="view-btn full-page-btn">Saytni ochish -></a>
-                </div>
-            </div>
-        </div>
-        <div class="card-content">
-            <span class="card-category">AI Yechim</span>
-            <h3>InstaDub</h3>
-            <p>Kontentni dublyaj va media ishloviga yo'naltirilgan AI interfeys. Foydalanuvchiga ovoz, media va tezkor ishlov jarayonini sodda ko'rinishda taqdim etadigan yechim.</p>
-            <div class="card-tech">
-                <span>AI Media</span>
-                <span>Voice Tool</span>
-                <span>Vercel</span>
-            </div>
-            <div class="card-actions-bottom">
-                <a href="{{ url_for('order_page') }}?service=ai_chatbot" class="btn-order">
-                    Buyurtma berish
-                </a>
-                <a href="https://instadub.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn-detail">
-                    Loyihani ko'rish ->
-                </a>
-            </div>
-        </div>
-    </article>
-    {% endif %}
     {% endif %}
 </section>
 

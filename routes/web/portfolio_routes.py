@@ -29,11 +29,16 @@ def portfolio():
         )
         cache_set(cache_key, pagination, ttl=60, is_testing=is_testing)
 
+    # Har bir loyiha uchun rasm manzilini kafolatli to'ldirish
+    for it in pagination.items:
+        it._resolved_img = _get_item_image(it)
+
     return render_template(
         'portfolio.html',
         portfolios=pagination.items,
         pagination=pagination,
         active_category=category,
+        get_item_image=_get_item_image,
     )
 
 def _get_item_image(item):
