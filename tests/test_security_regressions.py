@@ -87,6 +87,29 @@ class SecurityRegressionTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("production muhitida xavfsiz qiymat", result.stderr + result.stdout)
 
+    def test_admin_media_fields_accept_relative_paths(self):
+        """Yuklangan rasm nisbiy yo'l bilan saqlanadi, forma esa uni rad etmasligi kerak.
+
+        `_save_uploaded_image` S3 sozlanmagan holatda `/static/uploads/...`
+        qaytaradi. Agar forma maydoni `type="url"` bo'lsa, brauzer bu qiymatni
+        "Please enter a URL" deb rad etadi va loyihani umuman saqlab
+        bo'lmaydi — rasm yuklangan har bir loyiha tahrirlash uchun yopilib
+        qoladi.
+        """
+        form_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "templates", "admin", "portfolio_form.html",
+        )
+        with open(form_path, encoding="utf-8") as handle:
+            markup = handle.read()
+
+        for field in ("image_url", "video_url"):
+            self.assertNotIn(
+                f'type="url" id="{field}"',
+                markup,
+                f"{field} maydoni type=url bo'lsa nisbiy yo'llar bloklanadi",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
