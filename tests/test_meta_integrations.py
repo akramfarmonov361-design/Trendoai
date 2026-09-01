@@ -57,3 +57,41 @@ def test_facebook_lead_webhook_post_empty():
         resp = client.post('/api/webhook/facebook-leads', json={})
         assert resp.status_code == 200
         assert resp.json.get('status') == 'received'
+
+
+class _FakePortfolio:
+    def __init__(self, title="", slug="", video_url=None):
+        self.title = title
+        self.slug = slug
+        self.video_url = video_url
+
+
+def test_feed_video_comes_only_from_database():
+    """Feed videoni sarlavhadan taxmin qilmasligi kerak.
+
+    Ilgari "luxe" so'zini ko'rsa luxe-core-demo.mp4 ni qo'shardi, natijada
+    feed videoni va'da qilardi, loyiha sahifasi esa `video_url` bo'sh
+    bo'lgani uchun pleyerni ko'rsatmasdi — feed saytga zid tushardi.
+    """
+    from routes.web.seo import _resolve_feed_video
+
+    site = "https://trendoai.uz"
+
+    # Sarlavhada "luxe" bor, lekin bazada video yo'q -> bo'sh
+    guessable = _FakePortfolio(title="Luxe Core - Premium brend", slug="luxe-core-7")
+    assert _resolve_feed_video(guessable, site) == ""
+
+    # Bazada nisbiy havola bor -> to'liq URL
+    relative = _FakePortfolio(video_url="/static/videos/luxe-core-demo.mp4")
+    assert _resolve_feed_video(relative, site) == f"{site}/static/videos/luxe-core-demo.mp4"
+
+    # Bazada absolyut havola bor -> o'zgarishsiz
+    absolute = _FakePortfolio(video_url="https://cdn.example.com/a.mp4")
+    assert _resolve_feed_video(absolute, site) == "https://cdn.example.com/a.mp4"
+
+    # MP4 bo'lmagan havola (YouTube) feedga tushmaydi
+    youtube = _FakePortfolio(video_url="https://youtube.com/watch?v=abc")
+    assert _resolve_feed_video(youtube, site) == ""
+
+    assert _resolve_feed_video(None, site) == ""
+
