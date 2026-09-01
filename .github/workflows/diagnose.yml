@@ -1,0 +1,35 @@
+name: Diagnostika
+
+# Qo'lda ishga tushiriladi. `/api/cron/test-ai` Gemini, baza va Telegram
+# holatini bir joyda qaytaradi, lekin CRON_SECRET talab qiladi — shuning
+# uchun uni shu yerdan chaqiramiz: sekret repo sozlamalarida qoladi.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Servisni uyg'otish
+        run: |
+          curl -sS -m 180 --retry 4 --retry-all-errors --retry-delay 20 \
+            -o /dev/null -w "uyg'otish: %{http_code} (%{time_total}s)\n" \
+            https://trendoai.uz/api/health
+
+      - name: Scheduler holati
+        run: |
+          curl -sS -m 60 https://trendoai.uz/api/cron/status
+          echo
+
+      - name: AI, baza va Telegram holati
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::CRON_SECRET sozlanmagan." >&2
+            exit 1
+          fi
+          curl -sS -m 120 -H "X-Cron-Secret: $CRON_SECRET" \
+            https://trendoai.uz/api/cron/test-ai
+          echo
