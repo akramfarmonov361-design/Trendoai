@@ -6,6 +6,11 @@ name: Diagnostika
 
 on:
   workflow_dispatch:
+    inputs:
+      generate:
+        description: "Post generatsiyasini sinab ko'rish (haqiqiy post yaratadi)"
+        type: boolean
+        default: false
 
 jobs:
   diagnose:
@@ -32,4 +37,16 @@ jobs:
           fi
           curl -sS -m 120 -H "X-Cron-Secret: $CRON_SECRET" \
             https://trendoai.uz/api/cron/test-ai
+          echo
+
+      - name: Post generatsiyasini sinash
+        # Ataylab ixtiyoriy: /api/cron/debug-generate sinxron ishlaydi va
+        # muvaffaqiyatli bo'lsa haqiqiy post yaratadi. Buning evaziga aniq
+        # xato matnini va traceback'ni qaytaradi — fon oqimidagi jim
+        # yiqilishni boshqa yo'l bilan ko'rib bo'lmaydi.
+        if: inputs.generate
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl -sS -m 300 -H "X-Cron-Secret: $CRON_SECRET"             https://trendoai.uz/api/cron/debug-generate
           echo
