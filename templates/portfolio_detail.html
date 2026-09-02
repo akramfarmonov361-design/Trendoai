@@ -236,19 +236,29 @@
                 {% endif %}
 
                 <div class="service-cta-box portfolio-cta">
-                    <h3>Sizga ham shunday natijali loyiha kerakmi?</h3>
-                    <p>Biz aynan sizning biznesingiz uchun moslashtirilgan, sotuvni oshiruvchi yechimni ishlab chiqamiz.</p>
+                    <h3>Sizning biznesingizga ham shunday yechim kerakmi?</h3>
+                    <p>Biz aynan sizning sohangiz uchun sotuvni oshiruvchi Telegram bot, veb-sayt yoki AI tizim ishlab chiqamiz. Narxini 5 daqiqada bepul hisoblab beramiz!</p>
                     <div class="cta-actions">
-                        <a href="{{ url_for('order_page') }}?service={{ item.category }}" class="primary-btn pulse-glow"
+                        <a href="https://t.me/Akramjon1984?text=Salom%2C%20men%20{{ item.title | urlencode }}%20loyihangizni%20ko%27rdim.%20Biznesimga%20shunday%20yechim%20narxini%20bilmoqchi%20edim" target="_blank" rel="noopener" class="primary-btn tg-direct-cta pulse-glow"
                             data-track-add-to-cart>
-                            🚀 Buyurtma berish
+                            <i class="fab fa-telegram-plane"></i> 💬 Telegramda narxini bilish
+                        </a>
+                        <a href="{{ url_for('order_page') }}?service={{ item.category }}" class="secondary-btn">
+                            📋 Saytda ariza qoldirish
                         </a>
                         {% if item.demo_url or item.link %}
-                        <a href="{{ item.demo_url or item.link }}" target="_blank" class="secondary-btn is-73">
+                        <a href="{{ item.demo_url or item.link }}" target="_blank" rel="noopener" class="secondary-btn is-73">
                             🌐 Jonli Demoni Ko'rish
                         </a>
                         {% endif %}
                     </div>
+                </div>
+
+                <!-- FLOATING MOBILE STICKY CTA -->
+                <div class="sticky-mobile-cta">
+                    <a href="https://t.me/Akramjon1984?text=Salom%2C%20men%20{{ item.title | urlencode }}%20bo%27yicha%20maslahat%20olmoqchi%20edim" target="_blank" rel="noopener" class="sticky-tg-link">
+                        <i class="fab fa-telegram-plane"></i> 💬 Telegramda bepul hisoblatish
+                    </a>
                 </div>
             </div>
         </article>
