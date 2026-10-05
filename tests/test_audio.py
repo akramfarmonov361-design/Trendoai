@@ -45,7 +45,7 @@ class AudioChatTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
-        self.assertEqual(data['model'], 'gemini-3.1-flash-live-preview')
+        self.assertEqual(data['model'], trendo_app.GEMINI_LIVE_MODEL)
         self.assertEqual(data['response'], 'Salom, ovozingiz eshitildi.')
         self.assertEqual(captured['audio_bytes'], dummy_audio)
         self.assertEqual(captured['mime_type'], 'audio/webm')
@@ -67,7 +67,7 @@ class AudioChatTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 500)
         data = json.loads(response.data)
-        self.assertEqual(data['model'], 'gemini-3.1-flash-live-preview')
+        self.assertEqual(data['model'], trendo_app.GEMINI_LIVE_MODEL)
         self.assertIn('Gemini Live uchun API project access yoqilmagan', data['response'])
 
 if __name__ == '__main__':

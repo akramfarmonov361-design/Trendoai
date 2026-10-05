@@ -16,6 +16,9 @@ from routes.web._blueprint import web_bp
 from routes.web.services_routes import SERVICES_DATA
 from config import SITE_DESCRIPTION, SITE_NAME, SITE_URL
 from seo_indexer import INDEXNOW_KEY
+from utils.logger import setup_logger
+
+logger = setup_logger("seo")
 
 @web_bp.route('/robots.txt')
 def robots_txt():
@@ -40,15 +43,18 @@ def robots_txt():
 @web_bp.route('/sitemap.xml')
 def sitemap_xml():
     today = datetime.now().strftime('%Y-%m-%d')
-    latest_post = Post.query.filter_by(is_published=True).order_by(Post.created_at.desc()).first()
-    latest_portfolio = Portfolio.query.filter_by(is_published=True).order_by(Portfolio.created_at.desc()).first()
     candidates = [today]
-    if latest_post:
-        cand = latest_post.updated_at or latest_post.created_at
-        if cand:
-            candidates.append(cand.strftime('%Y-%m-%d'))
-    if latest_portfolio and latest_portfolio.created_at:
-        candidates.append(latest_portfolio.created_at.strftime('%Y-%m-%d'))
+    try:
+        latest_post = Post.query.filter_by(is_published=True).order_by(Post.created_at.desc()).first()
+        latest_portfolio = Portfolio.query.filter_by(is_published=True).order_by(Portfolio.created_at.desc()).first()
+        if latest_post:
+            cand = latest_post.updated_at or latest_post.created_at
+            if cand:
+                candidates.append(cand.strftime('%Y-%m-%d'))
+        if latest_portfolio and latest_portfolio.created_at:
+            candidates.append(latest_portfolio.created_at.strftime('%Y-%m-%d'))
+    except Exception as exc:
+        logger.warning(f"[sitemap] Baza ulanish xatosi (latest): {exc}")
     site_lastmod = max(candidates)
 
     pages = []
@@ -69,48 +75,50 @@ def sitemap_xml():
             'lastmod': lastmod,
         })
 
-    services_list = Service.query.filter_by(is_active=True).all()
-    for s in services_list:
-        pages.append({
-            'loc': f'{SITE_URL}/services/{s.slug}',
-            'priority': '0.8',
-            'changefreq': 'monthly',
-            'lastmod': '2026-08-15',
-        })
+    try:
+        services_list = Service.query.filter_by(is_active=True).all()
+        for s in services_list:
+            pages.append({
+                'loc': f'{SITE_URL}/services/{s.slug}',
+                'priority': '0.8',
+                'changefreq': 'monthly',
+                'lastmod': '2026-08-15',
+            })
 
-    posts = Post.query.filter_by(is_published=True).order_by(Post.created_at.desc()).all()
-    for p in posts:
-        # Exclude legacy corrupted json-* artifacts from sitemap
-        clean_slug = (p.slug or '').strip().lower()
-        if not clean_slug or clean_slug.startswith('json') or '```' in (p.title or ''):
-            continue
+        posts = Post.query.filter_by(is_published=True).order_by(Post.created_at.desc()).all()
+        for p in posts:
+            clean_slug = (p.slug or '').strip().lower()
+            if not clean_slug or clean_slug.startswith('json') or '```' in (p.title or ''):
+                continue
 
-        lastmod_dt = p.updated_at or p.created_at
-        page_item = {
-            'loc': f'{SITE_URL}/blog/{p.slug}',
-            'priority': '0.7',
-            'changefreq': 'monthly',
-            'lastmod': lastmod_dt.strftime('%Y-%m-%d') if lastmod_dt else today,
-        }
-        if p.image_url:
-            img_url = p.image_url if p.image_url.startswith('http') else f"{SITE_URL}{p.image_url}"
-            page_item['image'] = {'loc': img_url, 'title': p.title}
-        pages.append(page_item)
+            lastmod_dt = p.updated_at or p.created_at
+            page_item = {
+                'loc': f'{SITE_URL}/blog/{p.slug}',
+                'priority': '0.7',
+                'changefreq': 'monthly',
+                'lastmod': lastmod_dt.strftime('%Y-%m-%d') if lastmod_dt else today,
+            }
+            if p.image_url:
+                img_url = p.image_url if p.image_url.startswith('http') else f"{SITE_URL}{p.image_url}"
+                page_item['image'] = {'loc': img_url, 'title': p.title}
+            pages.append(page_item)
 
-    portfolios = Portfolio.query.filter_by(is_published=True).all()
-    for port in portfolios:
-        if not port.slug:
-            continue
-        page_item = {
-            'loc': f'{SITE_URL}/portfolio/project/{port.slug}',
-            'priority': '0.6',
-            'changefreq': 'monthly',
-            'lastmod': port.created_at.strftime('%Y-%m-%d') if port.created_at else today,
-        }
-        if port.image_url:
-            img_url = port.image_url if port.image_url.startswith('http') else f"{SITE_URL}{port.image_url}"
-            page_item['image'] = {'loc': img_url, 'title': port.title}
-        pages.append(page_item)
+        portfolios = Portfolio.query.filter_by(is_published=True).all()
+        for port in portfolios:
+            if not port.slug:
+                continue
+            page_item = {
+                'loc': f'{SITE_URL}/portfolio/project/{port.slug}',
+                'priority': '0.6',
+                'changefreq': 'monthly',
+                'lastmod': port.created_at.strftime('%Y-%m-%d') if port.created_at else today,
+            }
+            if port.image_url:
+                img_url = port.image_url if port.image_url.startswith('http') else f"{SITE_URL}{port.image_url}"
+                page_item['image'] = {'loc': img_url, 'title': port.title}
+            pages.append(page_item)
+    except Exception as exc:
+        logger.warning(f"[sitemap] Baza ulanish xatosi (elementlar): {exc}")
 
     parts = ['<?xml version="1.0" encoding="UTF-8"?>']
     parts.append(

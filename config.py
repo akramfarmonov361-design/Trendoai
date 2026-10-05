@@ -52,7 +52,7 @@ CACHE_DEFAULT_TIMEOUT = int(os.getenv("CACHE_DEFAULT_TIMEOUT", 60))
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY2") or os.getenv("GEMINI_API_KEY3")
 _DEFAULT_MODEL = "gemini-3.7-flash"
 _DEFAULT_MODEL_BACKUP = "gemini-3.5-flash-lite"
-_DEFAULT_LIVE_MODEL = "gemini-3.1-flash-live-preview"
+_DEFAULT_LIVE_MODEL = "gemini-3.8-live"
 
 # Models that Google has retired. If someone has one of these in their
 # .env / Render env vars, silently fall back to the safe default instead

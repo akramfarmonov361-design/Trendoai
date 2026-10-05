@@ -23,18 +23,36 @@ def blog():
     if cached is not None:
         pagination, popular_posts = cached
     else:
-        query = Post.query.filter_by(is_published=True)
-        if category:
-            query = query.filter_by(category=category)
+        try:
+            query = Post.query.filter_by(is_published=True)
+            if category:
+                query = query.filter_by(category=category)
 
-        pagination = query.order_by(Post.created_at.desc()).paginate(
-            page=page, per_page=POSTS_PER_PAGE, error_out=False
-        )
-        popular_posts = Post.query.filter_by(is_published=True).order_by(
-            Post.views.desc()
-        ).limit(5).all()
+            pagination = query.order_by(Post.created_at.desc()).paginate(
+                page=page, per_page=POSTS_PER_PAGE, error_out=False
+            )
+            popular_posts = Post.query.filter_by(is_published=True).order_by(
+                Post.views.desc()
+            ).limit(5).all()
 
-        cache_set(cache_key, (pagination, popular_posts), ttl=60, is_testing=is_testing)
+            cache_set(cache_key, (pagination, popular_posts), ttl=60, is_testing=is_testing)
+        except Exception as e:
+            from types import SimpleNamespace
+            from utils.logger import setup_logger
+            _logger = setup_logger("blog_routes")
+            _logger.error(f"[blog] Baza ulanish xatosi (fallback): {e}")
+            pagination = SimpleNamespace(
+                items=[],
+                total=0,
+                page=1,
+                pages=1,
+                per_page=POSTS_PER_PAGE,
+                has_prev=False,
+                has_next=False,
+                prev_num=None,
+                next_num=None,
+            )
+            popular_posts = []
 
     return render_template('index.html',
                            posts=pagination.items,

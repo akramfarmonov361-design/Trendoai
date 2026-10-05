@@ -41,6 +41,7 @@ class SecurityRegressionTests(unittest.TestCase):
     def test_text_generation_models_skip_live_audio_and_image_models(self):
         from services import ai_service
 
+        self.assertFalse(ai_service._is_text_generation_model("gemini-3.8-live"))
         self.assertFalse(ai_service._is_text_generation_model("gemini-3.1-flash-live-preview"))
         self.assertFalse(ai_service._is_text_generation_model("gemini-2.5-flash-preview-native-audio"))
         self.assertFalse(ai_service._is_text_generation_model("gemini-3.1-flash-tts-preview"))

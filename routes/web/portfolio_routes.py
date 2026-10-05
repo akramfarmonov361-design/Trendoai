@@ -18,24 +18,42 @@ def portfolio():
     pagination = cache_get(cache_key, is_testing=is_testing)
 
     if pagination is None:
-        query = Portfolio.query.filter_by(is_published=True)
-        if category:
-            query = query.filter_by(category=category)
+        try:
+            query = Portfolio.query.filter_by(is_published=True)
+            if category:
+                query = query.filter_by(category=category)
 
-        pagination = query.order_by(Portfolio.created_at.desc()).paginate(
-            page=page,
-            per_page=12,
-            error_out=False,
-        )
-        cache_set(cache_key, pagination, ttl=60, is_testing=is_testing)
+            pagination = query.order_by(Portfolio.created_at.desc()).paginate(
+                page=page,
+                per_page=12,
+                error_out=False,
+            )
+            cache_set(cache_key, pagination, ttl=60, is_testing=is_testing)
+        except Exception as e:
+            from types import SimpleNamespace
+            from utils.logger import setup_logger
+            _logger = setup_logger("portfolio_routes")
+            _logger.error(f"[portfolio] Baza ulanish xatosi (fallback ishlatiladi): {e}")
+            pagination = SimpleNamespace(
+                items=[],
+                total=0,
+                page=1,
+                pages=1,
+                per_page=12,
+                has_prev=False,
+                has_next=False,
+                prev_num=None,
+                next_num=None,
+            )
 
     # Har bir loyiha uchun rasm manzilini kafolatli to'ldirish
-    for it in pagination.items:
-        it._resolved_img = _get_item_image(it)
+    if pagination and hasattr(pagination, 'items'):
+        for it in pagination.items:
+            it._resolved_img = _get_item_image(it)
 
     return render_template(
         'portfolio.html',
-        portfolios=pagination.items,
+        portfolios=getattr(pagination, 'items', []),
         pagination=pagination,
         active_category=category,
         get_item_image=_get_item_image,
@@ -87,19 +105,25 @@ def _get_item_image(item):
 @web_bp.route('/portfolio/project/<slug>')
 def portfolio_item(slug):
     """Loyiha batafsil sahifasi"""
-    item = Portfolio.query.filter_by(slug=slug, is_published=True).first_or_404()
-    related_items = Portfolio.query.filter(
-        Portfolio.id != item.id,
-        Portfolio.category == item.category,
-        Portfolio.is_published == True
-    ).limit(3).all()
+    try:
+        item = Portfolio.query.filter_by(slug=slug, is_published=True).first_or_404()
+        related_items = Portfolio.query.filter(
+            Portfolio.id != item.id,
+            Portfolio.category == item.category,
+            Portfolio.is_published == True
+        ).limit(3).all()
 
-    # Rasm bo'lmasa zaxira rasm
-    if not item.image_url:
-        item.image_url = _get_item_image(item)
+        # Rasm bo'lmasa zaxira rasm
+        if not item.image_url:
+            item.image_url = _get_item_image(item)
 
-    for rel in related_items:
-        if not rel.image_url:
-            rel.image_url = _get_item_image(rel)
+        for rel in related_items:
+            if not rel.image_url:
+                rel.image_url = _get_item_image(rel)
 
-    return render_template('portfolio_detail.html', item=item, related_items=related_items)
+        return render_template('portfolio_detail.html', item=item, related_items=related_items)
+    except Exception as e:
+        from werkzeug.exceptions import HTTPException
+        if isinstance(e, HTTPException):
+            raise e
+        return redirect(url_for('web.portfolio'))
