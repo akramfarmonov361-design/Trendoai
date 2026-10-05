@@ -164,11 +164,9 @@ async def _generate_live_audio_reply(audio_bytes, mime_type, system_prompt):
     config = new_types.LiveConnectConfig(
         response_modalities=[new_types.Modality.AUDIO],
         system_instruction=system_prompt,
-        input_audio_transcription=new_types.AudioTranscriptionConfig(language_codes=['uz-UZ', 'en-US', 'ru-RU']),
-        output_audio_transcription=new_types.AudioTranscriptionConfig(language_codes=['uz-UZ']),
         speech_config=new_types.SpeechConfig(
             voice_config=new_types.VoiceConfig(
-                prebuilt_voice_config=new_types.PrebuiltVoiceConfig(voice_name='Puck')
+                prebuilt_voice_config=new_types.PrebuiltVoiceConfig(voice_name='Zephyr')
             )
         ),
     )
@@ -176,56 +174,59 @@ async def _generate_live_audio_reply(audio_bytes, mime_type, system_prompt):
     last_error = None
     for index, key in enumerate(get_gemini_api_key_candidates(), start=1):
         try:
-            client = new_genai.Client(api_key=key)
+            client = new_genai.Client(api_key=key, http_options={"api_version": "v1beta"})
             audio_chunks = []
             model_text_parts = []
             output_transcript_parts = []
             input_transcript_parts = []
 
-            async with client.aio.live.connect(model=GEMINI_LIVE_MODEL, config=config) as session:
-                if (live_mime_type or '').startswith('audio/pcm'):
-                    await session.send_realtime_input(
-                        audio=new_types.Blob(data=live_audio, mime_type=live_mime_type)
-                    )
+            model_target = GEMINI_LIVE_MODEL
+            if not model_target.startswith('models/'):
+                model_target = f"models/{model_target}"
+
+            async with client.aio.live.connect(model=model_target, config=config) as session:
+                blob = new_types.Blob(data=live_audio, mime_type=live_mime_type or 'audio/webm')
+                if hasattr(session, 'send_realtime_input'):
+                    await session.send_realtime_input(audio=blob)
                     await session.send_realtime_input(audio_stream_end=True)
+                elif hasattr(session, 'send'):
+                    await session.send(input={"data": live_audio, "mime_type": live_mime_type or 'audio/webm'}, end_of_turn=True)
                 else:
                     await session.send_client_content(
                         turns=new_types.Content(
                             role='user',
-                            parts=[
-                                new_types.Part(text="Foydalanuvchining audio xabariga javob bering."),
-                                new_types.Part(
-                                    inline_data=new_types.Blob(
-                                        data=live_audio,
-                                        mime_type=live_mime_type or 'audio/webm',
-                                    )
-                                ),
-                            ],
+                            parts=[new_types.Part(inline_data=blob)],
                         ),
                         turn_complete=True,
                     )
 
                 async for response in session.receive():
+                    raw_data = getattr(response, 'data', None)
+                    if raw_data:
+                        audio_chunks.append(raw_data)
+
+                    raw_text = getattr(response, 'text', None)
+                    if raw_text:
+                        model_text_parts.append(raw_text)
+
                     server_content = getattr(response, 'server_content', None)
-                    if server_content is None:
-                        continue
+                    if server_content is not None:
+                        input_transcription = getattr(server_content, 'input_transcription', None)
+                        if input_transcription and getattr(input_transcription, 'text', None):
+                            input_transcript_parts.append(input_transcription.text)
 
-                    input_transcription = getattr(server_content, 'input_transcription', None)
-                    if input_transcription and input_transcription.text:
-                        input_transcript_parts.append(input_transcription.text)
+                        output_transcription = getattr(server_content, 'output_transcription', None)
+                        if output_transcription and getattr(output_transcription, 'text', None):
+                            output_transcript_parts.append(output_transcription.text)
 
-                    output_transcription = getattr(server_content, 'output_transcription', None)
-                    if output_transcription and output_transcription.text:
-                        output_transcript_parts.append(output_transcription.text)
-
-                    model_turn = getattr(server_content, 'model_turn', None)
-                    if model_turn and model_turn.parts:
-                        for part in model_turn.parts:
-                            if getattr(part, 'text', None):
-                                model_text_parts.append(part.text)
-                            inline_data = getattr(part, 'inline_data', None)
-                            if inline_data and inline_data.data:
-                                audio_chunks.append(inline_data.data)
+                        model_turn = getattr(server_content, 'model_turn', None)
+                        if model_turn and model_turn.parts:
+                            for part in model_turn.parts:
+                                if getattr(part, 'text', None):
+                                    model_text_parts.append(part.text)
+                                inline_data = getattr(part, 'inline_data', None)
+                                if inline_data and getattr(inline_data, 'data', None):
+                                    audio_chunks.append(inline_data.data)
 
             response_text = ''.join(output_transcript_parts).strip() or ''.join(model_text_parts).strip()
             audio_base64_result = audio_chunks_to_wav_base64(audio_chunks)
