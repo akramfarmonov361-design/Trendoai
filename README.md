@@ -23,7 +23,7 @@ O'zbekistonda trending texnologiya yangiliklari va sun'iy intellekt haqida profe
 | Texnologiya | Versiya | Vazifasi |
 |------------|---------|----------|
 | Flask | 3.0.3 | Web framework |
-| SQLAlchemy | 3.1.1 | ORM / Database |
+| SQLAlchemy | 2.0.52 | ORM / Database |
 | Gemini AI | Flash | Kontent generatsiyasi |
 | APScheduler | 3.10.4 | Cron jobs |
 | Gunicorn | 21.2.0 | Production server |
@@ -107,6 +107,25 @@ npm run watch:css
 
 Build natijasi (`static/css/tailwind.css`) **git'ga commit qilinishi kerak** —
 Render.com'da Node.js yo'q, shuning uchun build mahalliy mashinada amalga oshiriladi.
+
+### 7. Static rasmlarni optimallashtirish (ixtiyoriy)
+
+Portfolio JPEG'lari katta bo'lsa, sahifa og'irlashadi (LCP sekinlashadi).
+Skript avval faqat hisobot ko'rsatadi, `--apply` bilan esa sifatni saqlab
+(quality 84, progressive) qayta kodlaydi:
+
+```bash
+# Hisobot — hech narsa yozilmaydi
+python scripts/optimize_static_images.py
+
+# Qo'llash
+python scripts/optimize_static_images.py --apply
+```
+
+Skript standart holatda faqat `static/img` ichidagi 300 KB'dan katta
+JPEG'larga tegadi. WebP'larni ham qayta kodlash uchun `--include-webp`
+qo'shing (masalan, `--min-kb 60 --webp-quality 85`); PNG/SVG hech qachon
+o'zgartirilmaydi. Natija originaldan kichik bo'lmasa fayl saqlanmaydi.
 
 ## 🌐 Sahifalar
 
@@ -193,7 +212,7 @@ trendoai/
 ├── telegram_poster.py     # Telegram xabar yuborish
 ├── seo_indexer.py         # IndexNow
 ├── translations.py        # UZ / RU / EN
-├── scripts/               # Yordamchi skriptlar (VAPID, admin hash, migratsiya)
+├── scripts/               # Yordamchi skriptlar (VAPID, admin hash, migratsiya, rasm optimizatsiyasi)
 ├── tests/                 # Pytest to'plami
 ├── templates/             # Jinja shablonlari
 └── static/                # CSS, ikonkalar, sw.js, manifest

@@ -9,6 +9,12 @@ from models.post import Post
 from routes.web._blueprint import web_bp
 from config import POSTS_PER_PAGE, SITE_DESCRIPTION, SITE_NAME, SITE_URL
 from services.cache_service import cache_get, cache_set
+from services.view_models import (
+    blog_page,
+    empty_page,
+    item_namespaces,
+    page_namespace,
+)
 
 @web_bp.route('/blog')
 def blog():
@@ -18,11 +24,9 @@ def blog():
 
     cache_key = f"blog:{page}:{category or ''}"
     is_testing = bool(current_app.config.get('TESTING'))
-    cached = cache_get(cache_key, is_testing=is_testing)
+    payload = cache_get(cache_key, is_testing=is_testing)
 
-    if cached is not None:
-        pagination, popular_posts = cached
-    else:
+    if payload is None:
         try:
             query = Post.query.filter_by(is_published=True)
             if category:
@@ -35,29 +39,25 @@ def blog():
                 Post.views.desc()
             ).limit(5).all()
 
-            cache_set(cache_key, (pagination, popular_posts), ttl=60, is_testing=is_testing)
+            # ORM obyektlari (Pagination/Post) pickle qilinmaydi — Redis'ga
+            # faqat plain dict yozamiz, aks holda kesh workerlar bo'ylab
+            # bo'linmaydi. Batafsil: services/view_models.py
+            payload = blog_page(pagination, popular_posts)
         except Exception as e:
-            from types import SimpleNamespace
             from utils.logger import setup_logger
             _logger = setup_logger("blog_routes")
             _logger.error(f"[blog] Baza ulanish xatosi (fallback): {e}")
-            pagination = SimpleNamespace(
-                items=[],
-                total=0,
-                page=1,
-                pages=1,
-                per_page=POSTS_PER_PAGE,
-                has_prev=False,
-                has_next=False,
-                prev_num=None,
-                next_num=None,
-            )
-            popular_posts = []
+            payload = empty_page(POSTS_PER_PAGE)
+            payload["popular"] = []
+        else:
+            cache_set(cache_key, payload, ttl=60, is_testing=is_testing)
+
+    page_view = page_namespace(payload)
 
     return render_template('index.html',
-                           posts=pagination.items,
-                           pagination=pagination,
-                           popular_posts=popular_posts)
+                           posts=page_view.items,
+                           pagination=page_view,
+                           popular_posts=item_namespaces(payload.get("popular", [])))
 
 @web_bp.route('/post/<int:post_id>')
 def post(post_id):

@@ -213,6 +213,12 @@ def generate_and_publish_post(topic=None, category=None, force=False):
                 new_post.slug = new_post.generate_slug()
                 db.session.commit()
 
+                try:
+                    from services.cache_service import cache_delete_prefix
+                    cache_delete_prefix("blog:")
+                except Exception as cache_err:
+                    logger.warning(f"[scheduler] Blog keshini tozalash xatosi: {cache_err}")
+
                 logger.info(f"[scheduler] Yangi post '{new_post.title}' bazaga saqlandi.")
 
                 from telegram_poster import send_photo_to_channel, send_to_telegram_channel

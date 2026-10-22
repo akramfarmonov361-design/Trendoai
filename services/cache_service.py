@@ -97,18 +97,32 @@ def cache_delete(key):
         _IN_MEMORY_CACHE.pop(key, None)
 
 
-def clear_list_cache():
-    """Barcha keshni yoki ro'yxat keshini tozalash."""
+def cache_delete_prefix(prefix):
+    """Berilgan prefiks bilan boshlanadigan barcha kalitlarni o'chiradi.
+
+    Ro'yxat keshining kalitlari dinamik (``blog:<page>:<category>``), shuning
+    uchun ularni bittalab sanab chiqib bo'lmaydi. Redis'da ``SCAN`` ishlatiladi,
+    in-memory rejimda esa kalitlar ro'yxati nusxasi ustidan yuriladi.
+    """
     if _redis_available and _redis_client:
         try:
-            # delete trendo_* or flush
-            for k in _redis_client.scan_iter("trendo:*"):
-                _redis_client.delete(k)
-        except Exception:
-            pass
+            for key in _redis_client.scan_iter(f"{prefix}*"):
+                _redis_client.delete(key)
+        except Exception as e:
+            logger.warning(f"[cache] Redis prefix delete xatosi: {e}")
 
     with _IN_MEMORY_LOCK:
-        _IN_MEMORY_CACHE.clear()
+        for key in [k for k in _IN_MEMORY_CACHE if k.startswith(prefix)]:
+            _IN_MEMORY_CACHE.pop(key, None)
+
+
+def clear_list_cache():
+    """Blog/portfolio ro'yxat keshini tozalash."""
+    # Kalitlar ``trendo:`` prefiksisiz yoziladi, shuning uchun haqiqiy
+    # prefikslar bo'yicha tozalanadi. Ilgari faqat ``trendo:*`` o'chirilar va
+    # Redis'dagi blog/portfolio kesh joyida qolardi.
+    for prefix in ("blog:", "portfolio:", "trendo:"):
+        cache_delete_prefix(prefix)
 
 # Portfolio ro'yxati va Meta katalog feedi bir xil ma'lumotdan quriladi,
 # shuning uchun ular birga eskiradi.

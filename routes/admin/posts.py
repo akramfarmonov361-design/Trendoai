@@ -8,6 +8,15 @@ from utils.logger import setup_logger
 logger = setup_logger("posts")
 
 
+def _clear_blog_cache():
+    """Post o'zgarganda ro'yxat keshini darhol yangilaydi."""
+    try:
+        from services.cache_service import cache_delete_prefix
+        cache_delete_prefix("blog:")
+    except Exception as exc:
+        logger.warning(f"[admin] Blog keshini tozalash xatosi: {exc}")
+
+
 # ========== POST ADMIN ROUTES ==========
 
 @admin_bp.route('/admin/posts')
@@ -58,6 +67,7 @@ def admin_new_post():
 
         new_p.slug = new_p.generate_slug()
         db.session.commit()
+        _clear_blog_cache()
 
         if is_published:
             try:
@@ -113,6 +123,7 @@ def admin_edit_post(post_id):
         p.reading_time = p.calculate_reading_time()
 
         db.session.commit()
+        _clear_blog_cache()
         flash('Post muvaffaqiyatli yangilandi!', 'success')
         return redirect(url_for('admin.admin_posts'))
 
@@ -128,6 +139,7 @@ def admin_delete_post(post_id):
         post_title = p.title
         db.session.delete(p)
         db.session.commit()
+        _clear_blog_cache()
         flash(f'"{post_title}" muvaffaqiyatli o\'chirildi!', 'success')
     except Exception as e:
         db.session.rollback()
@@ -189,5 +201,6 @@ def admin_migrate_slugs():
         count += 1
 
     db.session.commit()
+    _clear_blog_cache()
     flash(f'{count} ta postga slug qo\'shildi!', 'success')
     return redirect(url_for('admin.admin_posts'))

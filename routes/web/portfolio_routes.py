@@ -1,7 +1,8 @@
-from flask import current_app, render_template, request
+from flask import current_app, redirect, render_template, request, url_for
 from models.portfolio import Portfolio
 from routes.web._blueprint import web_bp
 from services.cache_service import cache_get, cache_set
+from services.view_models import empty_page, page_namespace, portfolio_page
 
 @web_bp.route('/portfolio')
 def portfolio():
@@ -15,9 +16,9 @@ def portfolio():
 
     cache_key = f"portfolio:{page}:{category}"
     is_testing = bool(current_app.config.get('TESTING'))
-    pagination = cache_get(cache_key, is_testing=is_testing)
+    payload = cache_get(cache_key, is_testing=is_testing)
 
-    if pagination is None:
+    if payload is None:
         try:
             query = Portfolio.query.filter_by(is_published=True)
             if category:
@@ -28,33 +29,25 @@ def portfolio():
                 per_page=12,
                 error_out=False,
             )
-            cache_set(cache_key, pagination, ttl=60, is_testing=is_testing)
+            # Keshga ORM obyekti emas, pickle-safe dict yoziladi. Aks holda
+            # Redis'ga saqlash jimgina muvaffaqiyatsiz bo'lib, kesh faqat
+            # bitta worker ichida qolardi (qarang: services/view_models.py).
+            payload = portfolio_page(pagination, _get_item_image)
+            cache_set(cache_key, payload, ttl=60, is_testing=is_testing)
         except Exception as e:
-            from types import SimpleNamespace
             from utils.logger import setup_logger
             _logger = setup_logger("portfolio_routes")
             _logger.error(f"[portfolio] Baza ulanish xatosi (fallback ishlatiladi): {e}")
-            pagination = SimpleNamespace(
-                items=[],
-                total=0,
-                page=1,
-                pages=1,
-                per_page=12,
-                has_prev=False,
-                has_next=False,
-                prev_num=None,
-                next_num=None,
-            )
+            payload = empty_page(12)
+            payload["json_items"] = []
 
-    # Har bir loyiha uchun rasm manzilini kafolatli to'ldirish
-    if pagination and hasattr(pagination, 'items'):
-        for it in pagination.items:
-            it._resolved_img = _get_item_image(it)
+    page_view = page_namespace(payload)
 
     return render_template(
         'portfolio.html',
-        portfolios=getattr(pagination, 'items', []),
-        pagination=pagination,
+        portfolios=page_view.items,
+        portfolios_json=payload.get('json_items', []),
+        pagination=page_view,
         active_category=category,
         get_item_image=_get_item_image,
     )
