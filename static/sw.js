@@ -1,4 +1,4 @@
-const CACHE_NAME = 'trendoai-v7';
+const CACHE_NAME = 'trendoai-v8';
 const urlsToCache = [
     '/static/manifest.json',
     '/static/favicon.svg',
@@ -22,7 +22,19 @@ self.addEventListener('install', event => {
 
 // Fetch event - network first for HTML, cache first for static assets
 self.addEventListener('fetch', event => {
+    if (event.request.method !== 'GET') {
+        return;
+    }
+
     const url = new URL(event.request.url);
+    if (
+        url.pathname.startsWith('/api/') ||
+        url.pathname.startsWith('/admin') ||
+        url.pathname.startsWith('/set-lang/') ||
+        url.pathname.startsWith('/webhook')
+    ) {
+        return;
+    }
 
     // For HTML pages (navigation requests) - always go to network first
     if (event.request.mode === 'navigate' || event.request.destination === 'document') {

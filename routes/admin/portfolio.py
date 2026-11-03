@@ -171,6 +171,8 @@ def admin_portfolio_send_telegram(portfolio_id):
     except Exception as e:
         flash(f'Xatolik: {e}', 'error')
 
+    return redirect(url_for('admin.admin_portfolio'))
+
 @admin_bp.route('/admin/portfolio/ai-generate', methods=['POST'])
 @login_required
 def admin_portfolio_ai_generate():

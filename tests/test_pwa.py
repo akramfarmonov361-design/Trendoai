@@ -31,7 +31,9 @@ class PWATests(unittest.TestCase):
         response = self.client.get('/sw.js')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers['Content-Type'], 'application/javascript')
-        self.assertIn(b'trendoai-v7', response.data)
+        self.assertIn(b'trendoai-v8', response.data)
+        self.assertIn(b"event.request.method !== 'GET'", response.data)
+        self.assertIn(b"url.pathname.startsWith('/api/')", response.data)
 
     def test_push_subscribe_valid(self):
         """Test subscribing to push notifications with valid keys"""
@@ -79,6 +81,34 @@ class PWATests(unittest.TestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 400)
+
+    def test_admin_portfolio_send_telegram_returns_redirect(self):
+        """admin_portfolio_send_telegram None qaytarmasdan /admin/portfolio ga redirect qilishi kerak."""
+        from unittest import mock
+        from models.portfolio import Portfolio
+
+        with app.app_context():
+            item = Portfolio.query.first()
+            if not item:
+                item = Portfolio(
+                    title="Telegram Test Loyiha",
+                    slug="telegram-test-loyiha",
+                    category="bot",
+                    description="Tavsif",
+                    is_published=True,
+                )
+                db.session.add(item)
+                db.session.commit()
+            pid = item.id
+
+        with self.client.session_transaction() as sess:
+            sess['logged_in'] = True
+
+        with mock.patch('telegram_poster.send_portfolio_to_channel', return_value=True):
+            resp = self.client.post(f'/admin/portfolio/{pid}/send-telegram')
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn('/admin/portfolio', resp.headers.get('Location', ''))
 
 if __name__ == '__main__':
     unittest.main()

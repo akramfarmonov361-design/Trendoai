@@ -14,15 +14,20 @@ logger = setup_logger("push_service")
 
 def notify_all_subscribers(title, message, url="/", vapid_key=None, claims_sub=None):
     """Barcha obunachilarga Web Push xabar yuborish"""
+    temp_pem_path = None
     try:
         from pywebpush import webpush, WebPushException
 
         vapid_private_key_path = vapid_key or VAPID_PRIVATE_KEY
         sub_claim = claims_sub or VAPID_CLAIMS_SUB or "mailto:admin@trendoai.uz"
-        temp_pem_path = None
 
-        if not str(vapid_private_key_path).strip():
+        if not str(vapid_private_key_path or "").strip():
             logger.info("[push] VAPID_PRIVATE_KEY sozlanmagan — push yuborilmadi")
+            return 0
+
+        subscriptions = PushSubscription.query.all()
+        if not subscriptions:
+            logger.info("[push] Faol obunachilar topilmadi")
             return 0
 
         if not os.path.exists(str(vapid_private_key_path)):
@@ -37,11 +42,6 @@ def notify_all_subscribers(title, message, url="/", vapid_key=None, claims_sub=N
             except Exception as e:
                 logger.error(f"[push] VAPID Temp file error: {e}")
                 return 0
-
-        subscriptions = PushSubscription.query.all()
-        if not subscriptions:
-            logger.info("[push] Faol obunachilar topilmadi")
-            return 0
 
         count = 0
         for sub in subscriptions:
@@ -62,14 +62,13 @@ def notify_all_subscribers(title, message, url="/", vapid_key=None, claims_sub=N
                 logger.error(f"[push] Individual push error: {e}")
 
         db.session.commit()
-
+        return count
+    except Exception as e:
+        logger.error(f"[push] Error notifying subscribers: {e}")
+        return 0
+    finally:
         if temp_pem_path and os.path.exists(temp_pem_path):
             try:
                 os.unlink(temp_pem_path)
             except Exception:
                 pass
-
-        return count
-    except Exception as e:
-        logger.error(f"[push] Error notifying subscribers: {e}")
-        return 0
