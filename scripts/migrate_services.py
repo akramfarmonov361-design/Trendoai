@@ -2,12 +2,11 @@
 import sys
 import os
 import json
-from utils.logger import setup_logger
-logger = setup_logger("migrate_services")
-
 
 # Add parent directory to path to import app
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils.logger import setup_logger
+logger = setup_logger("migrate_services")
 
 from app import app, db, Service, SERVICES_DATA
 

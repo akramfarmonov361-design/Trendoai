@@ -269,9 +269,14 @@ def create_app(config_overrides=None):
         from flask import session
         from translations import get_translation
 
-        lang = request.args.get('lang') or session.get('lang') or 'uz'
-        if lang not in ('uz', 'ru', 'en'):
-            lang = 'uz'
+        req_lang = request.args.get('lang')
+        if req_lang in ('uz', 'ru', 'en'):
+            session['lang'] = req_lang
+            lang = req_lang
+        else:
+            lang = session.get('lang') or 'uz'
+            if lang not in ('uz', 'ru', 'en'):
+                lang = 'uz'
 
         return {
             'config': {
@@ -328,13 +333,18 @@ def create_app(config_overrides=None):
             else:
                 response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
         elif request.method == 'GET' and response.status_code == 200 and not request.path.startswith('/admin') and not request.path.startswith('/api'):
-            # Public HTML pages: stale-while-revalidate for instantaneous repeat loading
-            response.headers['Cache-Control'] = 'public, max-age=120, stale-while-revalidate=86400'
+            from flask import session
+            if session.get('_flashes') or session.get('lang') in ('ru', 'en') or request.args.get('lang'):
+                # Til almashganda yoki flash xabar chiqqanda eski sahifa keshdan ko'rsatilmasligi kerak
+                response.headers['Cache-Control'] = 'private, no-cache, must-revalidate'
+            else:
+                # Public HTML pages: stale-while-revalidate for instantaneous repeat loading
+                response.headers['Cache-Control'] = 'public, max-age=120, stale-while-revalidate=86400'
 
         # Security & Core Web Vitals optimizations
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-        response.headers['Vary'] = 'Accept-Encoding, Accept'
+        response.headers['Vary'] = 'Accept-Encoding, Accept, Cookie'
         return response
 
     return application
@@ -472,6 +482,10 @@ def migrate_portfolio_images():
             'vibe': '/static/img/portfolio/vibecoding.webp',
             'viral': '/static/img/portfolio/viral-video.webp',
             'quiz': '/static/img/portfolio/quiz-video-generator.webp',
+            'jongiyoh': '/static/img/portfolio/jongiyoh.webp',
+            'futbol': '/static/img/portfolio/futbol-xabar.webp',
+            'shifo': '/static/img/portfolio/trendo-shifo-nur-clinic-ai.webp',
+            'sado': '/static/img/portfolio/trendo-mascot-corporate-ai.webp',
             'trendoai': '/static/img/portfolio/trendoai-uz.webp',
         }
         video_mapping = {
@@ -485,12 +499,21 @@ def migrate_portfolio_images():
             t_lower = (item.title or '').lower()
             s_lower = (item.slug or '').lower()
             combined = f"{t_lower} {s_lower}"
-            for key, img_path in mapping.items():
-                if key in combined:
-                    if item.image_url != img_path:
-                        item.image_url = img_path
-                        updated += 1
-                    break
+            is_custom_upload = bool(
+                item.image_url
+                and (
+                    item.image_url.startswith('/static/uploads/')
+                    or item.image_url.startswith('http://')
+                    or item.image_url.startswith('https://')
+                )
+            )
+            if not is_custom_upload:
+                for key, img_path in mapping.items():
+                    if key in combined:
+                        if item.image_url != img_path:
+                            item.image_url = img_path
+                            updated += 1
+                        break
             for vkey, v_url in video_mapping.items():
                 if vkey in combined:
                     if not item.video_url:

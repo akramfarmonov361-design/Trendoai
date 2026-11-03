@@ -20,3 +20,8 @@ venv*/
 # Logs
 logs/
 *.log
+.agent_chat_history.json
+
+# Lokal reklama skrinshotlari va vaqtinchalik media arxivlar
+video/
+/*.png

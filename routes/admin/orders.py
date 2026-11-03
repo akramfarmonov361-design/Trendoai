@@ -104,7 +104,7 @@ def admin_kanban():
             'contact': l.contact,
             'title': f"Lead ({l.source})",
             'budget': 'Ma\'lumot berilmagan',
-            'message': f"Manba: {l.source}",
+            'message': f"Manba: {l.source}" + (f" | {l.admin_note}" if l.admin_note else ""),
             'admin_note': l.admin_note or '',
             'status': st,
             'date': l.created_at.strftime('%d.%m.%Y %H:%M') if l.created_at else 'N/A'

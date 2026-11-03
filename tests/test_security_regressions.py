@@ -126,7 +126,7 @@ class SecurityRegressionTests(unittest.TestCase):
         import re
 
         root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        pattern = re.compile(r"logger[.]\w+[(].*flush\s*=")
+        pattern = re.compile(r"logger[.]\w+[(].*(?:flush|file|end)\s*=")
 
         offenders = []
         # tests/ chetlab o'tiladi: bu testning o'z docstringida namuna sifatida
@@ -146,6 +146,47 @@ class SecurityRegressionTests(unittest.TestCase):
         self.assertEqual(
             offenders, [], f"logger chaqiruvida print() kwargi qolgan: {offenders}"
         )
+
+    def test_scripts_configure_sys_path_before_local_imports(self):
+        """`scripts/*.py` fayllari `utils` importidan oldin `sys.path` ni sozlashi kerak."""
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        scripts_dir = os.path.join(root, "scripts")
+        offenders = []
+
+        for file_name in sorted(os.listdir(scripts_dir)):
+            if not file_name.endswith(".py"):
+                continue
+            full = os.path.join(scripts_dir, file_name)
+            with open(full, encoding="utf-8", errors="replace") as handle:
+                content = handle.read()
+            if "from utils." not in content and "from app " not in content and "from config " not in content:
+                continue
+            sys_path_pos = content.find("sys.path.")
+            local_import_positions = [
+                pos for pos in (
+                    content.find("from utils."),
+                    content.find("from app "),
+                    content.find("from config "),
+                ) if pos != -1
+            ]
+            first_local_import = min(local_import_positions)
+            if sys_path_pos == -1 or sys_path_pos > first_local_import:
+                offenders.append(file_name)
+
+        self.assertEqual(
+            offenders,
+            [],
+            f"Quyidagi skriptlarda sys.path lokal importdan oldin sozlanmagan: {offenders}",
+        )
+
+    def test_dockerfile_uses_gunicorn_config(self):
+        """Dockerfile multi-worker APScheduler dublikatsiyasini oldini olish uchun gunicorn.conf.py ishlatishi kerak."""
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        dockerfile_path = os.path.join(root, "Dockerfile")
+        with open(dockerfile_path, encoding="utf-8") as handle:
+            content = handle.read()
+        self.assertIn("gunicorn.conf.py", content)
+        self.assertNotIn('"--workers", "2"', content)
 
 
 

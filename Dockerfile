@@ -23,6 +23,7 @@ RUN mkdir -p /app/static/uploads && mkdir -p /app/logs
 
 # Ochiq bo'ladigan port
 EXPOSE 5000
+ENV PORT=5000
 
-# Gunicorn orqali ilovani ishga tushirish (2 ta ishchi jarayon (worker) yetarli)
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "app:create_app()"]
+# Gunicorn orqali ilovani ishga tushirish (gunicorn.conf.py: 1 worker + 8 thread, APScheduler dublikatsiyasi oldini oladi)
+CMD ["gunicorn", "app:app", "-c", "gunicorn.conf.py"]

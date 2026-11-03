@@ -16,11 +16,11 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from utils.logger import setup_logger
-logger = setup_logger("migrate_blog_cta")
-
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from utils.logger import setup_logger  # noqa: E402
+logger = setup_logger("migrate_blog_cta")
 
 from app import app, db, Post  # noqa: E402
 

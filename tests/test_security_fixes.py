@@ -340,25 +340,21 @@ def test_dead_google_sitemap_ping_is_removed():
     assert not any('google.com/ping' in line for line in code_lines)
 
 
-def test_csp_defaults_to_report_only_mode():
-    """Yangi qat'iy siyosat avval kuzatuv rejimida bo'lishi kerak"""
+def test_csp_defaults_to_report_only_mode(monkeypatch):
+    """CSP_ENFORCE=false rejimida siyosat kuzatuv (Report-Only) rejimida bo'lishi kerak"""
     import app as trendo_app
 
+    monkeypatch.setattr(trendo_app, 'CSP_ENFORCE', False)
     with app.test_client() as client:
         resp = client.get('/api/health')
 
     enforced = resp.headers.get('Content-Security-Policy')
     report_only = resp.headers.get('Content-Security-Policy-Report-Only')
 
-    if trendo_app.CSP_ENFORCE:
-        assert report_only is None
-        assert "default-src 'self'" in enforced
-    else:
-        # Jonli siyosat o'zgarmaydi, yangi qoidalar faqat kuzatiladi
-        assert enforced == trendo_app.CSP_BASELINE_POLICY
-        assert report_only and "default-src 'self'" in report_only
-        # upgrade-insecure-requests report-only rejimda e'tiborsiz qoldiriladi
-        assert 'upgrade-insecure-requests' not in report_only
+    assert enforced == trendo_app.CSP_BASELINE_POLICY
+    assert report_only and "default-src 'self'" in report_only
+    # upgrade-insecure-requests report-only rejimda e'tiborsiz qoldiriladi
+    assert 'upgrade-insecure-requests' not in report_only
 
 
 def test_csp_enforce_mode_emits_full_policy(monkeypatch):

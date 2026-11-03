@@ -16,21 +16,24 @@
 {% block og_image_alt %}{{ item.title }}{% endblock %}
 
 {% block extra_head %}
+{% set price_digits = (item.price or '') | replace(',', '') | replace(' ', '') | replace('UZS', '') | replace('uzs', '') | replace("so'm", '') | replace('som', '') | replace('$', '') | trim %}
+{% set schema_price = price_digits if price_digits and price_digits.isdigit() else '1500000' %}
+{% set schema_currency = 'USD' if '$' in (item.price or '') else 'UZS' %}
 <!-- JSON-LD for rich snippets in Google Search -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "{{ item.title }}",
+  "name": {{ item.title | tojson }},
   "operatingSystem": "All",
   "applicationCategory": "WebApplication",
-  "description": "{{ item.meta_description or item.description | truncate(150) }}",
-  "image": "{{ full_image_url }}",
+  "description": {{ (item.meta_description or item.description or '') | truncate(150) | tojson }},
+  "image": {{ full_image_url | tojson }},
   {% if item.price %}
   "offers": {
     "@type": "Offer",
-    "price": "{{ item.price | replace('$', '') | replace(' ', '') }}",
-    "priceCurrency": "USD"
+    "price": {{ schema_price | tojson }},
+    "priceCurrency": {{ schema_currency | tojson }}
   },
   {% endif %}
   "author": {
@@ -46,20 +49,20 @@
 {
     "@context": "https://schema.org",
     "@type": "Product",
-    "name": "{{ item.title }}",
-    "description": "{{ item.description | replace('"', '\\"') | truncate(500) }}",
-    "image": "{{ item.image_url }}",
+    "name": {{ item.title | tojson }},
+    "description": {{ (item.description or '') | truncate(500) | tojson }},
+    "image": {{ full_image_url | tojson }},
     "url": "{{ config.SITE_URL }}/portfolio/project/{{ item.slug }}",
     "brand": {
         "@type": "Brand",
         "name": "TrendoAI"
     },
-    "category": "{{ item.category }}",
+    "category": {{ (item.category or '') | tojson }},
     {% if item.price %}
     "offers": {
         "@type": "Offer",
-        "price": "{{ item.price | replace('$', '') | replace(' ', '') }}",
-        "priceCurrency": "USD",
+        "price": {{ schema_price | tojson }},
+        "priceCurrency": {{ schema_currency | tojson }},
         "availability": "https://schema.org/InStock",
         "url": "{{ config.SITE_URL }}/portfolio/project/{{ item.slug }}"
     },

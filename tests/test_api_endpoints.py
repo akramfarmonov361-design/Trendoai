@@ -135,3 +135,64 @@ def test_cron_generate_still_requires_the_secret(client, app):
     app.config["CRON_SECRET"] = "test-cron-secret"
     assert client.post("/api/cron/generate?sync=1").status_code == 401
 
+
+def test_tma_lead_submission_handles_calculator_and_notes(client, app, monkeypatch):
+    """Telegram Mini App (/tma) kalkulyatoridan keladigan uzun source/note
+    400 xato bermasdan Lead va admin_note sifatida saqlanishi kerak."""
+    from models.interaction import Lead
+
+    monkeypatch.setattr("telegram_poster.send_admin_alert", lambda *a, **k: True)
+
+    resp = client.post(
+        "/api/lead",
+        json={
+            "name": "TMA Mijoz",
+            "contact": "+998901234567",
+            "source": "Mini App (Kalkulyator: 📱 Telegram Bot - 750 000 so'm (~5 kun)) | Izoh: Click ulash kerak",
+            "note": "Qo'shimcha izoh",
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.get_json()["status"] == "success"
+
+    with app.app_context():
+        lead = Lead.query.filter_by(contact="+998901234567").first()
+        assert lead is not None
+        assert len(lead.source) <= 50
+        assert "Kalkulyator" in (lead.admin_note or "")
+
+
+def test_bot_order_status_update_sends_notification(client, app, monkeypatch):
+    """/api/bot-order-status chaqirilganda ImportError bermasdan statusni yangilashi kerak."""
+    from models.order import BotOrder
+
+    with app.app_context():
+        bot_order = BotOrder(
+            order_number="ORD-TEST1",
+            tg_id=123456789,
+            customer_name="Ali",
+            phone="+998901112233",
+            total_amount=300000,
+            status="new",
+        )
+        db.session.add(bot_order)
+        db.session.commit()
+        oid = bot_order.id
+
+    with client.session_transaction() as sess:
+        sess["logged_in"] = True
+
+    monkeypatch.setattr("telegram_poster._send_text", lambda *a, **k: True)
+
+    resp = client.post(
+        "/api/bot-order-status",
+        json={"order_id": oid, "status": "confirmed"},
+    )
+    assert resp.status_code == 200
+    assert resp.get_json()["success"] is True
+
+    with app.app_context():
+        updated = db.session.get(BotOrder, oid)
+        assert updated.status == "confirmed"
+
+

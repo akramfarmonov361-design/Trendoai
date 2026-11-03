@@ -74,6 +74,80 @@ class PublicImprovementTests(unittest.TestCase):
         self.assertEqual([response.status_code for response in responses[:3]], [303, 303, 303])
         self.assertEqual(responses[3].status_code, 429)
 
+    def test_set_language_blocks_open_redirect_and_strips_stale_lang_query(self):
+        # Tashqi domenga Open Redirect bo'lmasligi kerak
+        evil_resp = self.client.get(
+            '/set-lang/ru',
+            headers={'Referer': 'https://evil.example.com/phish'},
+        )
+        self.assertEqual(evil_resp.status_code, 302)
+        self.assertEqual(evil_resp.headers['Location'], '/')
+
+        # O'z hostidagi ?lang=uz parametri olib tashlanishi kerak
+        same_host_resp = self.client.get(
+            '/set-lang/en',
+            headers={'Referer': 'http://localhost/portfolio?category=web&lang=uz'},
+        )
+        self.assertEqual(same_host_resp.status_code, 302)
+        self.assertEqual(same_host_resp.headers['Location'], '/portfolio?category=web')
+        self.assertIn('no-store', same_host_resp.headers.get('Cache-Control', ''))
+
+    def test_language_switching_updates_page_and_disables_public_cache(self):
+        self.client.get('/set-lang/ru')
+        resp = self.client.get('/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('private, no-cache', resp.headers.get('Cache-Control', ''))
+        self.assertIn('Cookie', resp.headers.get('Vary', ''))
+        self.assertIn('Услуги'.encode('utf-8'), resp.data)
+
+    def test_resolve_portfolio_image_supports_site_and_feed_modes(self):
+        from services.seed_portfolio import resolve_portfolio_image
+
+        site_img = resolve_portfolio_image(title='JonGiyoh.uz E-commerce', for_feed=False)
+        feed_img = resolve_portfolio_image(
+            title='JonGiyoh.uz E-commerce',
+            for_feed=True,
+            site_url='https://trendoai.uz',
+        )
+        self.assertEqual(site_img, '/static/img/portfolio/jongiyoh.webp')
+        self.assertEqual(feed_img, 'https://trendoai.uz/static/img/portfolio/jongiyoh.jpg?v=2026_sep')
+
+    def test_portfolio_detail_json_ld_is_valid_json_with_uzs_numeric_price(self):
+        import json
+        import re
+        from models.portfolio import Portfolio
+
+        with trendo_app.app.app_context():
+            trendo_app.db.create_all()
+            item = Portfolio.query.filter_by(slug='test-jsonld-project').first()
+            if not item:
+                item = Portfolio(
+                    title='Test "AI" Loyiha',
+                    slug='test-jsonld-project',
+                    category='ai',
+                    description='Loyiha "maxsus" tavsifi',
+                    price='8,500,000 UZS',
+                    image_url='/static/img/portfolio/instadubuz.webp',
+                    is_published=True,
+                )
+                trendo_app.db.session.add(item)
+                trendo_app.db.session.commit()
+
+        resp = self.client.get('/portfolio/project/test-jsonld-project')
+        self.assertEqual(resp.status_code, 200)
+        html = resp.data.decode('utf-8')
+        blocks = re.findall(
+            r'<script type="application/ld\+json">\s*(\{.*?\})\s*</script>',
+            html,
+            flags=re.DOTALL,
+        )
+        self.assertGreaterEqual(len(blocks), 3)
+        parsed = [json.loads(b) for b in blocks]
+        product_schema = next(p for p in parsed if p.get('@type') == 'Product')
+        self.assertEqual(product_schema['offers']['price'], '8500000')
+        self.assertEqual(product_schema['offers']['priceCurrency'], 'UZS')
+        self.assertTrue(product_schema['image'].startswith('http'))
+
 
 if __name__ == '__main__':
     unittest.main()

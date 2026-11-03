@@ -29,9 +29,9 @@
         "@type": "WebPage",
         "@id": "{% if post.slug %}{{ config.SITE_URL }}/blog/{{ post.slug }}{% else %}{{ config.SITE_URL }}/post/{{ post.id }}{% endif %}"
     },
-    "headline": "{{ post.title }}",
-    "description": "{{ post.content | striptags | truncate(200) | replace('"', '\\"') | replace('\n', ' ') }}",
-    "image": "{{ full_image_url }}",
+    "headline": {{ post.title | tojson }},
+    "description": {{ (post.content | striptags | truncate(200) | replace('\n', ' ')) | tojson }},
+    "image": {{ full_image_url | tojson }},
     "datePublished": "{{ post.created_at.isoformat() if post.created_at else '' }}",
     {% if post.updated_at %}"dateModified": "{{ post.updated_at.isoformat() }}",{% endif %}
     "author": {
@@ -75,7 +75,7 @@
         {
             "@type": "ListItem",
             "position": 3,
-            "name": "{{ post.title }}",
+            "name": {{ post.title | tojson }},
             "item": "{% if post.slug %}{{ config.SITE_URL }}/blog/{{ post.slug }}{% else %}{{ config.SITE_URL }}/post/{{ post.id }}{% endif %}"
         }
     ]

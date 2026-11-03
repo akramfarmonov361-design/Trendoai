@@ -86,7 +86,7 @@ PROJECTS_DATA = [
         'technologies': 'Python, Flask, Football-Data API, Telegram Bot API, Redis',
         'price': '5,000,000 UZS',
         'client_name': 'Sport Media & Fan Klublar',
-        'image_url': '/static/img/portfolio/trendoai-uz.webp',
+        'image_url': '/static/img/portfolio/futbol-xabar.webp',
         'description': 'Dunyodagi eng sara futbol ligalari yangiliklari va o\'yinlar natijalarini real vaqtda avtomatik nashr qiluvchi sport portali.',
         'problem': 'Futbol o\'yinlari natijalari, transferlar va yangiliklarni sayt va kanallarga doimiy ravishda inson omili orqali qo\'lda yozib borish sekin va qimmat edi.',
         'solution': 'Dunyo bo\'yicha 50+ ligalarni jonli kuzatib, gollar va natijalarni avtomatik tarzda tahliliy maqola qilib sayt va Telegramga chiqaruvchi bot va portal qurildi.',
@@ -142,7 +142,7 @@ PROJECTS_DATA = [
         'technologies': 'React, TailwindCSS, Vercel, Node.js, Telegram Bot',
         'price': '8,000,000 UZS',
         'client_name': 'JonGiyoh Brand & Shifobaxsh Giyohlar',
-        'image_url': '/static/img/portfolio/jongiyoh.png',
+        'image_url': '/static/img/portfolio/jongiyoh.webp',
         'description': 'O\'zbekistondagi tabiiy giyohlar, damlamalar va shifobaxsh mahsulotlarni onlayn xarid qilish uchun qulay e-commerce platformasi.',
         'problem': 'Shifobaxsh giyohlar va tabiiy mahsulotlar xaridorlari uchun aniq qo\'llanma, qabul qilish me\'yorlari va ishonchli onlayn yetkazib berish tizimi yo\'q edi.',
         'solution': 'Har bir giyohning xususiyatlari, xalq tabobati tavsiyalari, savat va bir tugmada buyurtma qilish imkoniyatiga ega minimalist dizaynli veb-do\'kon yaratildi.',
@@ -198,7 +198,7 @@ PROJECTS_DATA = [
         'technologies': 'React, Vite, Gemini Pro, TailwindCSS, Express.js',
         'price': '9,500,000 UZS',
         'client_name': 'SaaS Loyihalar va Korxona Rahbarlari',
-        'image_url': '/static/img/portfolio/trendo-mascot-corporate-ai.jpg',
+        'image_url': '/static/img/portfolio/trendo-mascot-corporate-ai.webp',
         'description': 'O\'zbek tilida biznes tahlili, marketing rejalari, moliyaviy hisobotlar va mijozlar bilan muloqotni avtomatlashtiruvchi universal korporativ AI platformasi.',
         'problem': 'O\'zbek tilidagi biznes terminologiyasini to\'g\'ri tushunadigan va lokal bozor talablariga mos javob beradigan aqlli AI tizimlari yetishmas edi.',
         'solution': 'O\'zbekiston qonunchiligi, soliq tizimi va marketing tajribasiga moslashtirilgan aqlli maslahatchi va hujjat generatsiya qiluvchi tizim ishlab chiqildi.',
@@ -226,7 +226,7 @@ PROJECTS_DATA = [
         'technologies': 'Python, Aiogram 3, PostgreSQL, Gemini AI, Webhook',
         'price': '7,500,000 UZS',
         'client_name': 'Shifo Nur Ko\'p Tarmoqli Klinikasi',
-        'image_url': '/static/img/portfolio/trendo-shifo-nur-clinic-ai.jpg',
+        'image_url': '/static/img/portfolio/trendo-shifo-nur-clinic-ai.webp',
         'description': 'Klinika bemorlari uchun shifokorlar jadvali, xizmat narxlari va onlayn navbatga yozilishni boshqaruvchi tibbiy sun\'iy intellekt boti.',
         'problem': 'Klinika registratsiyasida navbatlar ko\'p bo\'lib, bemorlar telefon qilib shifokorlar qabul vaqtini bilish uchun uzoq kutishga majbur bo\'lar edi.',
         'solution': 'Bemorlarning shikoyatlari bo\'yicha to\'g\'ri mutaxassisni tavsiya qiluvchi, navbatga yozuvchi va SMS eslatma yuboruvchi aqlli bot joriy etildi.',
@@ -249,8 +249,68 @@ PROJECTS_DATA = [
     }
 ]
 
-def seed_desktop_portfolios():
+PORTFOLIO_IMAGE_RULES = (
+    (('insta', 'dub', 'video', 'dublyaj'), 'instadubuz'),
+    (('bolajon', 'english', 'bola'), 'bolajon-ai-english'),
+    (('botfactory', 'chatbot factory', 'factory'), 'botfactory'),
+    (('ism', 'ismlar'), 'ismlar-manosi-ai'),
+    (('luxe', 'kiyim', 'brend'), 'luxe-core'),
+    (('optom', 'optombazar'), 'optombazar'),
+    (('restoran', 'voice ai delivery', 'ovqat', 'fastfood'), 'restoran'),
+    (('mijoz', 'finder', 'lid', 'topar'), 'mijoz-topar'),
+    (('text', 'ovoz', 'speech', 'diktor'), 'text-ovoz'),
+    (('nova', 'novatech'), 'novatech'),
+    (('real', 'smart', 'rieltor'), 'real-smart-ai'),
+    (('paket', 'qadoq', 'assistent'), 'paketshop-assistent'),
+    (('texno', 'elektronika'), 'texnomarket'),
+    (('speak', 'trendospeak'), 'trendospeak'),
+    (('uzum', 'yetkazib'), 'uzum-tezkor'),
+    (('vibe', 'kodlash', 'kurs'), 'vibecoding'),
+    (('viral', 'reels', 'tiktok'), 'viral-video'),
+    (('jongiyoh', 'giyoh'), 'jongiyoh'),
+    (('futbol',), 'futbol-xabar'),
+    (('shifo', 'klinika'), 'trendo-shifo-nur-clinic-ai'),
+    (('sado',), 'trendo-mascot-corporate-ai'),
+)
+
+
+def resolve_portfolio_image(title=None, image_url=None, category=None, for_feed=False, site_url=""):
+    """Portfolio yoki xizmat uchun rasm manzilini aniqlaydi (sayt uchun WebP, Meta feed uchun JPG)."""
+    ext = "jpg" if for_feed else "webp"
+    suffix = "?v=2026_sep" if for_feed else ""
+    prefix = site_url.rstrip("/") if for_feed and site_url else ""
+
+    if image_url and str(image_url).strip():
+        img = str(image_url).strip()
+        if not for_feed:
+            return img
+        if not any(img.endswith(x) for x in ('og-image.jpg', 'hero-social.png', '.svg')):
+            if not img.startswith('http'):
+                img = img.replace('.webp', '.jpg').replace('.png', '.jpg')
+                path = img if img.startswith('/') else '/' + img
+                return f"{prefix}{path}{suffix}"
+            return img
+
+    t_lower = (title or '').lower()
+    cat_lower = (category or '').lower()
+
+    for keywords, slug_base in PORTFOLIO_IMAGE_RULES:
+        if any(w in t_lower for w in keywords):
+            return f"{prefix}/static/img/portfolio/{slug_base}.{ext}{suffix}"
+
+    if for_feed:
+        if cat_lower == 'bot' or 'bot' in t_lower:
+            return f"{prefix}/static/img/portfolio/botfactory.{ext}{suffix}"
+        if cat_lower == 'ai' or 'ai' in t_lower:
+            return f"{prefix}/static/img/portfolio/instadubuz.{ext}{suffix}"
+
+    return f"{prefix}/static/img/portfolio/trendoai-uz.{ext}{suffix}"
+
+
+def seed_desktop_portfolios(return_counts=False):
     """Desktopdagi loyihalarni bazaga kiritish va rasmlarini yangilash"""
+    created_count = 0
+    updated_count = 0
     try:
         existing = {p.title: p for p in Portfolio.query.all()}
         for data in PROJECTS_DATA:
@@ -275,12 +335,38 @@ def seed_desktop_portfolios():
                 db.session.commit()
                 p.slug = p.generate_slug()
                 db.session.commit()
+                created_count += 1
                 logger.info(f"[seed] Portfolio qo'shildi: {p.title}")
             else:
-                # Update image_url if exists
                 p = existing[data['title']]
-                p.image_url = data['image_url']
+                is_custom_upload = bool(
+                    p.image_url
+                    and (
+                        p.image_url.startswith('/static/uploads/')
+                        or p.image_url.startswith('http://')
+                        or p.image_url.startswith('https://')
+                    )
+                )
+                if not is_custom_upload:
+                    p.image_url = data['image_url']
+                if not p.client_name:
+                    p.client_name = data.get('client_name')
+                if not p.problem:
+                    p.problem = data.get('problem')
+                if not p.solution:
+                    p.solution = data.get('solution')
+                if not p.result:
+                    p.result = data.get('result')
+                if not p.features:
+                    p.features = data.get('features')
+                if not p.slug:
+                    p.slug = p.generate_slug()
                 db.session.commit()
+                updated_count += 1
     except Exception as e:
         db.session.rollback()
         logger.info(f"[seed] Xatolik: {e}")
+        if return_counts:
+            raise
+    if return_counts:
+        return created_count, updated_count

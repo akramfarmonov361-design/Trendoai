@@ -19,11 +19,11 @@
 {
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": "{{ service.title }}",
-    "description": "{{ service.meta_desc or service.description }}",
+    "name": {{ service.title | tojson }},
+    "description": {{ (service.meta_desc or service.description or '') | tojson }},
     "url": "{{ config.SITE_URL }}/services/{{ service.slug }}",
     "image": "{{ service.image_url if service.image_url and service.image_url.startswith('http') else config.SITE_URL ~ '/static/img/og-image.jpg' }}",
-    "serviceType": "{{ service.title }}",
+    "serviceType": {{ service.title | tojson }},
     "areaServed": {
         "@type": "Country",
         "name": "Uzbekistan"
@@ -60,7 +60,7 @@
         {
             "@type": "ListItem",
             "position": 3,
-            "name": "{{ service.title }}",
+            "name": {{ service.title | tojson }},
             "item": "{{ config.SITE_URL }}/services/{{ service.slug }}"
         }
     ]

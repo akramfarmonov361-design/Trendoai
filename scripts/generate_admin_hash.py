@@ -7,7 +7,10 @@ Chiqqan qiymatni Render'da ADMIN_PASSWORD_HASH sifatida qo'ying va
 ochiq ADMIN_PASSWORD o'zgaruvchisini o'chiring.
 """
 import getpass
+import os
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.logger import setup_logger
 logger = setup_logger("generate_admin_hash")
 
@@ -18,11 +21,11 @@ from werkzeug.security import generate_password_hash
 def main():
     password = getpass.getpass("Yangi admin paroli: ")
     if len(password) < 12:
-        logger.info("Xato: parol kamida 12 ta belgidan iborat bo'lsin.", file=sys.stderr)
+        logger.error("Xato: parol kamida 12 ta belgidan iborat bo'lsin.")
         return 1
 
     if password != getpass.getpass("Parolni takrorlang: "):
-        logger.info("Xato: parollar mos kelmadi.", file=sys.stderr)
+        logger.error("Xato: parollar mos kelmadi.")
         return 1
 
     logger.info("\nADMIN_PASSWORD_HASH=" + generate_password_hash(password))

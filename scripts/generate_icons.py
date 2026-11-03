@@ -6,13 +6,16 @@ orqa fonda trend chizig'i, oq "T" harfi.
 Ishlatish: venv\\Scripts\\python.exe scripts\\generate_icons.py
 """
 import os
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
 from utils.logger import setup_logger
 logger = setup_logger("generate_icons")
 
 
 from PIL import Image, ImageDraw, ImageFont
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC = os.path.join(ROOT, "static")
 
 SIZE = 512

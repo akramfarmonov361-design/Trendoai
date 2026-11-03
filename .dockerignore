@@ -22,5 +22,10 @@ coverage.xml
 .idea/
 .vscode/
 blog.db
+*.db
 *.sqlite3
 .env
+node_modules/
+instance/
+logs/
+video/

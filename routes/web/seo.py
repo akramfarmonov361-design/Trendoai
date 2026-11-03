@@ -236,57 +236,14 @@ def api_catalog_xml():
 
 def _resolve_feed_image(image_url, title, category, item_id, site_url):
     """Har bir xizmat yoki keys uchun saytdagi aniq rasmni, bo'lmasa mavzuli sifatli rasmni olish"""
-    if image_url and str(image_url).strip():
-        img = str(image_url).strip()
-        if not any(img.endswith(x) for x in ('og-image.jpg', 'hero-social.png', '.svg')):
-            if not img.startswith('http'):
-                # WebP o'rniga Meta uchun JPG
-                img = img.replace('.webp', '.jpg')
-                return f"{site_url}{img if img.startswith('/') else '/' + img}?v=2026_sep"
-            return img
-
-    t_lower = (title or '').lower()
-    cat_lower = (category or '').lower()
-
-    if any(w in t_lower for w in ['insta', 'dub', 'video', 'dublyaj']):
-        return f"{site_url}/static/img/portfolio/instadubuz.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['bolajon', 'english', 'bola']):
-        return f"{site_url}/static/img/portfolio/bolajon-ai-english.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['botfactory', 'chatbot factory', 'factory']):
-        return f"{site_url}/static/img/portfolio/botfactory.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['ism', 'ismlar']):
-        return f"{site_url}/static/img/portfolio/ismlar-manosi-ai.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['luxe', 'kiyim', 'brend']):
-        return f"{site_url}/static/img/portfolio/luxe-core.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['optom', 'optombazar']):
-        return f"{site_url}/static/img/portfolio/optombazar.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['restoran', 'voice ai delivery', 'ovqat', 'fastfood']):
-        return f"{site_url}/static/img/portfolio/restoran.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['mijoz', 'finder', 'lid', 'topar']):
-        return f"{site_url}/static/img/portfolio/mijoz-topar.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['text', 'ovoz', 'speech', 'diktor']):
-        return f"{site_url}/static/img/portfolio/text-ovoz.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['nova', 'novatech']):
-        return f"{site_url}/static/img/portfolio/novatech.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['real', 'smart', 'rieltor']):
-        return f"{site_url}/static/img/portfolio/real-smart-ai.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['paket', 'qadoq', 'assistent']):
-        return f"{site_url}/static/img/portfolio/paketshop-assistent.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['texno', 'elektronika']):
-        return f"{site_url}/static/img/portfolio/texnomarket.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['speak', 'trendospeak']):
-        return f"{site_url}/static/img/portfolio/trendospeak.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['uzum', 'yetkazib']):
-        return f"{site_url}/static/img/portfolio/uzum-tezkor.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['vibe', 'kodlash', 'kurs']):
-        return f"{site_url}/static/img/portfolio/vibecoding.jpg?v=2026_sep"
-    elif any(w in t_lower for w in ['viral', 'reels', 'tiktok']):
-        return f"{site_url}/static/img/portfolio/viral-video.jpg?v=2026_sep"
-    elif cat_lower == 'bot' or 'bot' in t_lower:
-        return f"{site_url}/static/img/portfolio/botfactory.jpg?v=2026_sep"
-    elif cat_lower == 'ai' or 'ai' in t_lower:
-        return f"{site_url}/static/img/portfolio/instadubuz.jpg?v=2026_sep"
-    return f"{site_url}/static/img/portfolio/trendoai-uz.jpg?v=2026_sep"
+    from services.seed_portfolio import resolve_portfolio_image
+    return resolve_portfolio_image(
+        title=title,
+        image_url=image_url,
+        category=category,
+        for_feed=True,
+        site_url=site_url,
+    )
 
 def _resolve_feed_video(p, site_url):
     """Loyihaning haqiqiy MP4 video havolasini qaytaradi, bo'lmasa bo'sh satr.

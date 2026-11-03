@@ -1,6 +1,7 @@
+import os
 import sys
-sys.path.append(".")
-# Load env explicitly if needed, but it should be loaded in app.py
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 load_dotenv()
 from utils.logger import setup_logger

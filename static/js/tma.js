@@ -91,10 +91,14 @@
             btn.innerText = "Yuborilmoqda...";
 
             try {
+                const tgUser = tg?.initDataUnsafe?.user;
+                const tgIdNote = tgUser?.id ? ` [TG ID: ${tgUser.id}]` : '';
+                const detailNote = `${service} (${price})${comment ? ' | Izoh: ' + comment : ''}${tgIdNote}`;
                 const payload = {
                     name: name || "Telegram Mini App Mijoz",
                     contact: contact,
-                    source: `Mini App (${service} - ${price}) ${comment ? '| Izoh: ' + comment : ''}`
+                    source: `Mini App: ${service}`.slice(0, 50),
+                    note: detailNote
                 };
 
                 const res = await fetch('/api/lead', {

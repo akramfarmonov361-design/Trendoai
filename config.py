@@ -245,9 +245,10 @@ CSP_BASELINE_POLICY = (
     "form-action 'self' https://www.facebook.com; upgrade-insecure-requests"
 )
 
-# Yangi siyosat avval kuzatuv rejimida ishlaydi. Konsolda buzilish
-# ko'rinmasa, CSP_ENFORCE=true qo'yib majburiy rejimga o'tkaziladi.
-CSP_ENFORCE = (os.getenv("CSP_ENFORCE", "false") or "").strip().lower() in ("1", "true", "yes", "on")
+# Barcha shablonlar inline skript/style'lardan tozalangani uchun qat'iy CSP
+# standart holatda yoqilgan. Zarurat tug'ilganda CSP_ENFORCE=false bilan
+# report-only kuzatuv rejimiga qaytarish mumkin.
+CSP_ENFORCE = (os.getenv("CSP_ENFORCE", "true") or "").strip().lower() in ("1", "true", "yes", "on")
 
 # ========== PAGINATION ==========
 POSTS_PER_PAGE = 10

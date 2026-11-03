@@ -1,5 +1,7 @@
 import os
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.logger import setup_logger
 logger = setup_logger("test_api")
 
@@ -32,7 +34,7 @@ try:
             if count >= 15:
                 break
 except Exception as exc:
-    logger.error("Failed to list models:", type(exc).__name__, str(exc))
+    logger.error(f"Failed to list models: {type(exc).__name__}: {exc}")
 
 logger.info("\n=== Testing generate_content ===")
 for model_name in ["gemini-2.5-flash", "gemini-2.5-flash-lite"]:

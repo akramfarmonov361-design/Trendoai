@@ -106,9 +106,16 @@ def submit_lead():
         return jsonify({'status': 'error', 'message': "Iltimos, aloqa ma'lumotini kiriting."}), 400
 
     name = (data.get('name') or "Noma'lum").strip()
-    source = (data.get('source') or 'Sayt Orqali').strip()
-    if len(contact) > 100 or len(name) > 100 or len(source) > 50:
+    raw_source = (data.get('source') or 'Sayt Orqali').strip()
+    note = (data.get('note') or data.get('comment') or '').strip()
+    if len(contact) > 100 or len(name) > 100 or len(raw_source) > 500 or len(note) > 1000:
         return jsonify({'status': 'error', 'message': "Yuborilgan ma'lumot juda uzun."}), 400
+
+    if len(raw_source) > 50:
+        note = f"{raw_source}" + (f" | {note}" if note else "")
+        source = "Telegram Mini App" if "mini app" in raw_source.lower() else raw_source[:50]
+    else:
+        source = raw_source
 
     # Takroriy kontakt bazani ham, adminning Telegramini ham spam qilmasligi uchun
     # yangi yozuv ochilmaydi, lekin mijozga xato ko'rsatilmaydi.
@@ -116,12 +123,19 @@ def submit_lead():
         return jsonify({'status': 'success', 'message': "Ma'lumot allaqachon qabul qilingan!"})
 
     try:
-        new_lead = Lead(name=name, contact=contact, source=source)
+        new_lead = Lead(name=name, contact=contact, source=source, admin_note=note or None)
         db.session.add(new_lead)
         db.session.commit()
 
         from telegram_poster import send_admin_alert
-        msg = f"🎯 <b>YANGI MIJOZ (LEAD)!</b>\n\n👤 <b>Ismi:</b> {new_lead.name}\n📞 <b>Aloqa:</b> {new_lead.contact}\n📍 <b>Manba:</b> {new_lead.source}"
+        note_line = f"\n📝 <b>Tafsilot:</b> {note}" if note else ""
+        msg = (
+            f"🎯 <b>YANGI MIJOZ (LEAD)!</b>\n\n"
+            f"👤 <b>Ismi:</b> {new_lead.name}\n"
+            f"📞 <b>Aloqa:</b> {new_lead.contact}\n"
+            f"📍 <b>Manba:</b> {new_lead.source}"
+            f"{note_line}"
+        )
         send_admin_alert(msg)
 
         return jsonify({'status': 'success', 'message': "Ma'lumot muvaffaqiyatli qabul qilindi!"})
@@ -199,8 +213,7 @@ def update_bot_order_status():
             order.status = status
             db.session.commit()
 
-            from telegram_poster import bot
-            if bot and order.tg_id:
+            if order.tg_id:
                 status_text = {
                     'confirmed': "✅ Qabul qilindi",
                     'preparing': "👨‍🍳 Tayyorlanmoqda",
@@ -211,7 +224,12 @@ def update_bot_order_status():
 
                 msg = f"📋 Buyurtma {order.order_number} yangilandi!\n📦 Status: *{status_text}*"
                 try:
-                    bot.send_message(order.tg_id, msg, parse_mode='Markdown')
+                    from bot_service import bot
+                    if bot:
+                        bot.send_message(order.tg_id, msg, parse_mode='Markdown')
+                    else:
+                        from telegram_poster import _send_text
+                        _send_text(order.tg_id, msg, parse_mode='Markdown', chat_label='customer')
                 except Exception as e:
                     logger.error(f"Failed to send status update to customer: {e}")
 

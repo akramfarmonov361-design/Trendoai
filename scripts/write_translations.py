@@ -4,6 +4,10 @@ Helper script to generate translations.py with full multilingual coverage.
 """
 
 import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.logger import setup_logger
 logger = setup_logger("write_translations")
 

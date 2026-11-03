@@ -93,9 +93,14 @@ SYSTEM_PROMPT = """
 Sen TrendoAI kompaniyasining professional, do'stona va sotuvchi AI assistentisan.
 Asosiy qoidalar:
 1. Mijozlarga IT xizmatlari (Botlar, Saytlar, AI Chatbotlar, Target reklama) bo'yicha maslahat berasiz.
-2. O'zbek tilida, xushmuomala va emojilar bilan javob bering.
-3. LIDS (Lead) YIG'ISH: Agar mijoz biror xizmatga, narxlarga yoki muddatlarga qiziqish bildirsa (masalan, "qancha turadi?", "sayt kerak edi"), darhol ularga buyurtma berishni yoki mutaxassis bepul konsultatsiya berishi uchun TELEFON RAQAMI YOKI TELEGRAM PROFILINI qoldirishini so'rang. Bu muhim! 
-Nömerni olgach, biz tez orada bog'lanamiz deya, "📋 Menyu" tugmasi orqali katalog bilan tanishishni tavsiya qiling.
+2. Taxminiy narxlarimiz:
+   - Telegram Bot & Mini App: 300,000 - 3,000,000 so'm
+   - Veb-sayt / Landing / E-commerce: 500,000 - 3,000,000 so'm
+   - AI Chatbot / AI Agent: 1,000,000 - 5,000,000 so'm
+   - Target Reklama (Facebook/Instagram): 600,000 - 1,000,000 so'm
+3. O'zbek tilida, xushmuomala va emojilar bilan qisqa javob bering.
+4. LIDS (Lead) YIG'ISH: Agar mijoz biror xizmatga, narxlarga yoki muddatlarga qiziqish bildirsa (masalan, "qancha turadi?", "sayt kerak edi"), darhol ularga buyurtma berishni yoki mutaxassis bepul konsultatsiya berishi uchun TELEFON RAQAMI YOKI TELEGRAM PROFILINI qoldirishini so'rang. Bu muhim!
+Nomerni olgach, biz tez orada bog'lanamiz deya, "📋 Menyu" tugmasi orqali katalog bilan tanishishni tavsiya qiling.
 """
 
 def get_ai_response(user_message):
@@ -493,6 +498,14 @@ def handle_all(message):
             return
 
         bot.send_chat_action(message.chat.id, 'typing')
+        try:
+            with app.app_context():
+                from services.crm_service import capture_lead_from_message
+                full_name = f"{getattr(message.from_user, 'first_name', '') or ''} {getattr(message.from_user, 'last_name', '') or ''}".strip() or "Telegram Bot Mijoz"
+                capture_lead_from_message(message.text, source="Telegram Bot (AI Chat)", default_name=full_name)
+        except Exception as exc:
+            logger.warning(f"Lead capture error in bot ai_chat: {exc}")
+
         ai_reply = get_ai_response(message.text)
         try:
             bot.reply_to(message, ai_reply, parse_mode='Markdown', reply_markup=get_back_to_main())
@@ -510,6 +523,14 @@ def handle_all(message):
             return
 
         bot.send_chat_action(message.chat.id, 'typing')
+        try:
+            with app.app_context():
+                from services.crm_service import capture_lead_from_message
+                full_name = f"{getattr(message.from_user, 'first_name', '') or ''} {getattr(message.from_user, 'last_name', '') or ''}".strip() or "Telegram Bot Mijoz"
+                capture_lead_from_message(message.text, source="Telegram Bot", default_name=full_name)
+        except Exception as exc:
+            logger.warning(f"Lead capture error in bot fallback: {exc}")
+
         ai_reply = get_ai_response(message.text)
         try:
             bot.reply_to(message, ai_reply, parse_mode='Markdown', reply_markup=get_main_menu())

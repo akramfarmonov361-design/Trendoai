@@ -1,7 +1,12 @@
 
+import base64
+import os
+import sys
+
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec
-import base64
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.logger import setup_logger
 logger = setup_logger("generate_vapid")
 

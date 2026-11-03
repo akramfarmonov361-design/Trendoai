@@ -197,8 +197,27 @@ def submit_order():
 @web_bp.route('/set-lang/<lang_code>')
 def set_language(lang_code):
     """Foydalanuvchi tilini o'zgartirish (uz, ru, en)"""
-    from flask import session
+    from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+    from flask import make_response, session
+
     if lang_code in ('uz', 'ru', 'en'):
         session['lang'] = lang_code
-    referer = request.referrer or url_for('web.index')
-    return redirect(referer)
+
+    fallback = url_for('web.index')
+    referer = (request.referrer or '').strip()
+    target = fallback
+
+    if referer:
+        parsed = urlsplit(referer)
+        # Open Redirect himoyasi: faqat shu host yoki nisbiy yo'lga ruxsat beriladi
+        if (not parsed.scheme or parsed.scheme in ('http', 'https')) and (
+            not parsed.netloc or parsed.netloc == request.host
+        ):
+            path = parsed.path or '/'
+            # Eski ?lang=... parametrini olib tashlaymiz, toki yangi session['lang'] ustun bo'lsin
+            filtered_qs = [(k, v) for k, v in parse_qsl(parsed.query, keep_blank_values=True) if k != 'lang']
+            target = urlunsplit(('', '', path, urlencode(filtered_qs), parsed.fragment))
+
+    resp = make_response(redirect(target))
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return resp
