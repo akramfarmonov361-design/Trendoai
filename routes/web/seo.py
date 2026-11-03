@@ -20,6 +20,10 @@ from utils.logger import setup_logger
 
 logger = setup_logger("seo")
 
+@web_bp.route('/favicon.ico')
+def favicon_ico():
+    return send_from_directory(current_app.static_folder, 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 @web_bp.route('/robots.txt')
 def robots_txt():
     lines = [
