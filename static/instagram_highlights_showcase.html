@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrendoAI — Instagram Highlights To'plami</title>
+    <link rel="icon" type="image/png" href="/static/img/logo-icon.png">
+    <style>
+        :root {
+            --bg: #07090e;
+            --card-bg: #0f172a;
+            --primary: #6366f1;
+            --accent: #f472b6;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header {
+            text-align: center;
+            max-width: 700px;
+            margin-bottom: 50px;
+        }
+        .header h1 {
+            font-size: 2.4rem;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 50%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        .phone-mockup {
+            background: #111827;
+            border: 2px solid #1f2937;
+            border-radius: 40px;
+            padding: 24px 16px;
+            box-shadow: 0 25px 60px -15px rgba(99, 102, 241, 0.25);
+            max-width: 480px;
+            width: 100%;
+            margin-bottom: 50px;
+        }
+        .phone-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .phone-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            padding: 2px;
+        }
+        .phone-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #000;
+        }
+        .phone-meta h4 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+        .phone-meta span {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .stories-bar {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
+        }
+        .story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .story-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            padding: 2px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .story-circle:hover {
+            transform: scale(1.08);
+        }
+        .story-circle img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #000;
+            object-fit: cover;
+        }
+        .story-label {
+            font-size: 0.72rem;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 1100px;
+            width: 100%;
+        }
+        .highlight-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .highlight-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 16px 36px rgba(0,0,0,0.4);
+        }
+        .preview-circle {
+            width: 170px;
+            height: 170px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 3px solid rgba(255,255,255,0.1);
+        }
+        .preview-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .card-info h3 {
+            font-size: 1.3rem;
+            margin-bottom: 6px;
+        }
+        .card-info p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .instructions {
+            max-width: 800px;
+            background: rgba(99, 102, 241, 0.07);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 50px;
+            width: 100%;
+        }
+        .instructions h3 {
+            margin-bottom: 12px;
+            color: var(--accent);
+        }
+        .instructions ol {
+            padding-left: 20px;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>TrendoAI Instagram Highlights</h1>
+        <p>Saytingiz uslubi (Indigo & Neon Accent) bilan to'liq uyg'unlashtirilgan 5 ta asosiy bo'lim muqovalari.</p>
+    </div>
+
+    <!-- Phone Live Preview -->
+    <div class="phone-mockup">
+        <div class="phone-header">
+            <div class="phone-avatar">
+                <img src="/static/img/logo-icon.png" alt="TrendoAI">
+            </div>
+            <div class="phone-meta">
+                <h4>trendoai_uz</h4>
+                <span>TrendoAI | Sun'iy Intellekt va IT</span>
+            </div>
+        </div>
+        <div class="stories-bar">
+            <div class="story-item">
+                <div class="story-circle">
+                    <img src="/static/img/instagram_highlights/xizmatlar.png" alt="Xizmatlar">
+                </div>
+                <span class="story-label">Xizmatlar</span>
+            </div>
+            <div class="story-item">
+                <div class="story-circle">
+                    <img src="/static/img/instagram_highlights/keyslar.png" alt="Keyslar">
+                </div>
+                <span class="story-label">Keyslar</span>
+            </div>
+            <div class="story-item">
+                <div class="story-circle">
+                    <img src="/static/img/instagram_highlights/narxlar.png" alt="Narxlar">
+                </div>
+                <span class="story-label">Narxlar</span>
+            </div>
+            <div class="story-item">
+                <div class="story-circle">
+                    <img src="/static/img/instagram_highlights/fikrlar.png" alt="Fikrlar">
+                </div>
+                <span class="story-label">Fikrlar</span>
+            </div>
+            <div class="story-item">
+                <div class="story-circle">
+                    <img src="/static/img/instagram_highlights/ai_maslahat.png" alt="AI Tips">
+                </div>
+                <span class="story-label">AI Maslahat</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid of download cards -->
+    <div class="grid">
+        
+        <div class="highlight-card">
+            <div class="preview-circle">
+                <img src="/static/img/instagram_highlights/xizmatlar.png" alt="XIZMATLAR">
+            </div>
+            <div class="card-info">
+                <h3>XIZMATLAR</h3>
+                <p>IT & AI YECHIMLAR</p>
+                <div class="btn-group">
+                    <a href="/static/img/instagram_highlights/xizmatlar.png" download="xizmatlar.png" class="btn btn-primary">
+                        📥 PNG (1080x1080)
+                    </a>
+                    <a href="/static/img/instagram_highlights/xizmatlar.svg" download="xizmatlar.svg" class="btn btn-secondary">
+                        Vector SVG
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="highlight-card">
+            <div class="preview-circle">
+                <img src="/static/img/instagram_highlights/keyslar.png" alt="KEYSLAR">
+            </div>
+            <div class="card-info">
+                <h3>KEYSLAR</h3>
+                <p>PORTFOLIO & NATIJALAR</p>
+                <div class="btn-group">
+                    <a href="/static/img/instagram_highlights/keyslar.png" download="keyslar.png" class="btn btn-primary">
+                        📥 PNG (1080x1080)
+                    </a>
+                    <a href="/static/img/instagram_highlights/keyslar.svg" download="keyslar.svg" class="btn btn-secondary">
+                        Vector SVG
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="highlight-card">
+            <div class="preview-circle">
+                <img src="/static/img/instagram_highlights/narxlar.png" alt="NARXLAR">
+            </div>
+            <div class="card-info">
+                <h3>NARXLAR</h3>
+                <p>SHAFFOF TARIFLAR</p>
+                <div class="btn-group">
+                    <a href="/static/img/instagram_highlights/narxlar.png" download="narxlar.png" class="btn btn-primary">
+                        📥 PNG (1080x1080)
+                    </a>
+                    <a href="/static/img/instagram_highlights/narxlar.svg" download="narxlar.svg" class="btn btn-secondary">
+                        Vector SVG
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="highlight-card">
+            <div class="preview-circle">
+                <img src="/static/img/instagram_highlights/fikrlar.png" alt="FIKRLAR">
+            </div>
+            <div class="card-info">
+                <h3>FIKRLAR</h3>
+                <p>MIJOZLAR SHARHLARI</p>
+                <div class="btn-group">
+                    <a href="/static/img/instagram_highlights/fikrlar.png" download="fikrlar.png" class="btn btn-primary">
+                        📥 PNG (1080x1080)
+                    </a>
+                    <a href="/static/img/instagram_highlights/fikrlar.svg" download="fikrlar.svg" class="btn btn-secondary">
+                        Vector SVG
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="highlight-card">
+            <div class="preview-circle">
+                <img src="/static/img/instagram_highlights/ai_maslahat.png" alt="AI MASLAHAT">
+            </div>
+            <div class="card-info">
+                <h3>AI MASLAHAT</h3>
+                <p>FOYDALI BIZNES TIPS</p>
+                <div class="btn-group">
+                    <a href="/static/img/instagram_highlights/ai_maslahat.png" download="ai_maslahat.png" class="btn btn-primary">
+                        📥 PNG (1080x1080)
+                    </a>
+                    <a href="/static/img/instagram_highlights/ai_maslahat.svg" download="ai_maslahat.svg" class="btn btn-secondary">
+                        Vector SVG
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Instruction box -->
+    <div class="instructions">
+        <h3>📲 Instagram profilga o'rnatish yo'riqnomasi:</h3>
+        <ol>
+            <li>Tepadagi har bir bo'lim uchun <strong>PNG (1080x1080)</strong> tugmasini bosib rasmlarni yuklab oling.</li>
+            <li>Instagram ilovasida profilingizga kiring va <strong>Story</strong> bo'limiga tegishli mavzudagi rasmlar yoki ma'lumotlarni qo'ying.</li>
+            <li>Story'ni <strong>"Highlight"</strong> (Aktualnie) ga qo'shing.</li>
+            <li>Highlight nomini kiriting va <strong>"Edit Cover"</strong> (Muqovani tahrirlash) tugmasini bosing.</li>
+            <li>Yuklab olingan mos rasmni tanlang va saqlang!</li>
+        </ol>
+    </div>
+</body>
+</html>
