@@ -6,10 +6,17 @@ from datetime import datetime
 import time
 from flask import Blueprint
 from config import TELEGRAM_BOT_TOKEN, GEMINI_API_KEY, GEMINI_MODEL, SITE_URL, TELEGRAM_ADMIN_ID
-from app import app, db, TelegramUser, Order, MenuItem, MenuCategory, BotOrder
+from extensions import db
+from models import TelegramUser, Order, MenuItem, MenuCategory, BotOrder
 from services.ai_service import generate_text
 from utils.logger import setup_logger
 logger = setup_logger("bot_service")
+
+
+def _get_app():
+    """Sirkulyar importni oldini olish uchun lazy app getter."""
+    from app import app
+    return app
 
 
 # Create bot instance safely
@@ -155,7 +162,7 @@ def send_welcome(message):
     
     # Save user to DB
     try:
-        with app.app_context():
+        with _get_app().app_context():
             user = TelegramUser.query.filter_by(tg_id=user_id).first()
             if not user:
                 user = TelegramUser(
@@ -196,7 +203,7 @@ def send_welcome(message):
 
 def _send_categories(chat_id, edit_message_id=None):
     """📋 Menyu — kategoriyalar ro'yxati."""
-    with app.app_context():
+    with _get_app().app_context():
         cats = MenuCategory.query.filter_by(is_active=True).order_by(MenuCategory.order_index).all()
         markup = telebot.types.InlineKeyboardMarkup(row_width=1)
         for cat in cats:
@@ -230,7 +237,7 @@ def _send_orders(chat_id, tg_user_id, edit_message_id=None):
         'completed': '🟢 Tugallangan',
         'cancelled': '🔴 Bekor qilindi',
     }
-    with app.app_context():
+    with _get_app().app_context():
         orders = BotOrder.query.filter_by(tg_id=tg_user_id).order_by(BotOrder.created_at.desc()).limit(5).all()
 
     if not orders:
@@ -322,7 +329,7 @@ def nav_clicked(call):
 @bot.callback_query_handler(func=lambda call: call.data.startswith('cat_')) if bot else lambda f: f
 def category_clicked(call):
     cat_id = int(call.data.split('_')[1])
-    with app.app_context():
+    with _get_app().app_context():
         cat = MenuCategory.query.get(cat_id)
         items = MenuItem.query.filter_by(category=cat.name, is_available=True).order_by(MenuItem.order_index).all()
 
@@ -350,7 +357,7 @@ def category_clicked(call):
 @bot.callback_query_handler(func=lambda call: call.data.startswith('item_')) if bot else lambda f: f
 def item_clicked(call):
     item_id = int(call.data.split('_')[1])
-    with app.app_context():
+    with _get_app().app_context():
         item = MenuItem.query.get(item_id)
         if not item:
             bot.answer_callback_query(call.id, "Mahsulot topilmadi.")
@@ -378,7 +385,7 @@ def direct_order(call):
     user_id = call.from_user.id
     user_state = get_user_state(user_id)
     
-    with app.app_context():
+    with _get_app().app_context():
         item = MenuItem.query.get(item_id)
         if not item:
             bot.answer_callback_query(call.id, "Xatolik.")
@@ -449,7 +456,7 @@ def handle_all(message):
         order_num = f"TRD-{datetime.now().strftime('%y%m%d%H%M%S')}"
         items_list = [{'id': selected['id'], 'name': selected['name'], 'price': selected['price'], 'qty': 1}]
         
-        with app.app_context():
+        with _get_app().app_context():
             new_order = BotOrder(
                 order_number=order_num,
                 tg_id=user_id,
@@ -499,7 +506,7 @@ def handle_all(message):
 
         bot.send_chat_action(message.chat.id, 'typing')
         try:
-            with app.app_context():
+            with _get_app().app_context():
                 from services.crm_service import capture_lead_from_message
                 full_name = f"{getattr(message.from_user, 'first_name', '') or ''} {getattr(message.from_user, 'last_name', '') or ''}".strip() or "Telegram Bot Mijoz"
                 capture_lead_from_message(message.text, source="Telegram Bot (AI Chat)", default_name=full_name)
@@ -524,7 +531,7 @@ def handle_all(message):
 
         bot.send_chat_action(message.chat.id, 'typing')
         try:
-            with app.app_context():
+            with _get_app().app_context():
                 from services.crm_service import capture_lead_from_message
                 full_name = f"{getattr(message.from_user, 'first_name', '') or ''} {getattr(message.from_user, 'last_name', '') or ''}".strip() or "Telegram Bot Mijoz"
                 capture_lead_from_message(message.text, source="Telegram Bot", default_name=full_name)

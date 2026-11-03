@@ -62,13 +62,13 @@ def admin_portfolio_new():
 
         if portfolio.is_published:
             try:
-                from telegram_poster import send_portfolio_to_channel
+                from services.telegram_poster import send_portfolio_to_channel
                 send_portfolio_to_channel(portfolio)
             except Exception as e:
                 logger.error(f"[admin] Telegram yuborishda xato: {e}", exc_info=True)
 
             try:
-                from seo_indexer import ping_search_engines
+                from services.seo_indexer import ping_search_engines
                 site_url = current_app.config.get('SITE_URL') or 'https://trendoai.uz'
                 item_url = f"{site_url}/portfolio/project/{portfolio.slug}" if portfolio.slug else f"{site_url}/portfolio"
                 ping_search_engines(item_url)
@@ -85,7 +85,7 @@ def admin_portfolio_new():
 @login_required
 def admin_portfolio_edit(portfolio_id):
     """Portfolio tahrirlash"""
-    portfolio = Portfolio.query.get_or_404(portfolio_id)
+    portfolio = db.get_or_404(Portfolio, portfolio_id)
 
     if request.method == 'POST':
         uploaded_image = _save_uploaded_image(request.files.get('image_file'), folder='portfolio')
@@ -137,7 +137,7 @@ def admin_portfolio_edit(portfolio_id):
 def admin_portfolio_delete(portfolio_id):
     """Portfolio o'chirish"""
     try:
-        portfolio = Portfolio.query.get_or_404(portfolio_id)
+        portfolio = db.get_or_404(Portfolio, portfolio_id)
         title = portfolio.title
         db.session.delete(portfolio)
         db.session.commit()
@@ -161,9 +161,9 @@ def admin_portfolio_delete(portfolio_id):
 @login_required
 def admin_portfolio_send_telegram(portfolio_id):
     """Portfolioni Telegram kanalga yuborish"""
-    portfolio = Portfolio.query.get_or_404(portfolio_id)
+    portfolio = db.get_or_404(Portfolio, portfolio_id)
     try:
-        from telegram_poster import send_portfolio_to_channel
+        from services.telegram_poster import send_portfolio_to_channel
         if send_portfolio_to_channel(portfolio):
             flash(f'"{portfolio.title}" Telegram kanalga yuborildi!', 'success')
         else:

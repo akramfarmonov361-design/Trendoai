@@ -43,7 +43,7 @@ def admin_orders():
 @login_required
 def admin_update_order_status(order_id):
     """Buyurtma statusini yangilash"""
-    order = Order.query.get_or_404(order_id)
+    order = db.get_or_404(Order, order_id)
     new_status = request.form.get('status')
 
     if new_status in ['new', 'contacted', 'completed', 'cancelled']:
@@ -58,7 +58,7 @@ def admin_update_order_status(order_id):
 @login_required
 def admin_delete_order(order_id):
     """Buyurtmani o'chirish"""
-    order = Order.query.get_or_404(order_id)
+    order = db.get_or_404(Order, order_id)
     db.session.delete(order)
     db.session.commit()
     flash(f'Buyurtma #{order_id} o\'chirildi!', 'success')
@@ -131,5 +131,5 @@ def admin_kanban():
 @login_required
 def admin_invoice(order_id):
     """Buyurtma bo'yicha professional hisob-faktura (Invoice & Contract) sahifasi"""
-    order = Order.query.get_or_404(order_id)
+    order = db.get_or_404(Order, order_id)
     return render_template('admin/invoice.html', order=order, now=datetime.now())

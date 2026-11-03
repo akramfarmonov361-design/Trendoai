@@ -44,7 +44,7 @@ def admin_new_post():
         image_prompt = request.form.get('image_prompt', '').strip()
         if not image_prompt:
             try:
-                from image_fetcher import build_image_prompt
+                from services.image_fetcher import build_image_prompt
                 image_prompt = build_image_prompt(topic=topic, title=title, category=category)
             except Exception:
                 image_prompt = ''
@@ -72,7 +72,7 @@ def admin_new_post():
         if is_published:
             try:
                 post_url = url_for('web.post_by_slug', slug=new_p.slug, _external=True)
-                from telegram_poster import send_photo_to_channel, send_to_telegram_channel
+                from services.telegram_poster import send_photo_to_channel, send_to_telegram_channel
                 from services.push_service import notify_all_subscribers
 
                 tg_message = f"""📝 *Yangi Maqola!*
@@ -109,7 +109,7 @@ def admin_new_post():
 @login_required
 def admin_edit_post(post_id):
     """Postni tahrirlash"""
-    p = Post.query.get_or_404(post_id)
+    p = db.get_or_404(Post, post_id)
 
     if request.method == 'POST':
         p.title = request.form.get('title')
@@ -135,7 +135,7 @@ def admin_edit_post(post_id):
 def admin_delete_post(post_id):
     """Postni o'chirish"""
     try:
-        p = Post.query.get_or_404(post_id)
+        p = db.get_or_404(Post, post_id)
         post_title = p.title
         db.session.delete(p)
         db.session.commit()

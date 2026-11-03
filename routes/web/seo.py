@@ -15,7 +15,7 @@ from models.service import Service
 from routes.web._blueprint import web_bp
 from routes.web.services_routes import SERVICES_DATA
 from config import SITE_DESCRIPTION, SITE_NAME, SITE_URL
-from seo_indexer import INDEXNOW_KEY
+from services.seo_indexer import INDEXNOW_KEY
 from utils.logger import setup_logger
 
 logger = setup_logger("seo")

@@ -162,7 +162,7 @@ def cron_debug_generate():
 
         result['steps'].append(f'✅ AI generatsiya muvaffaqiyatli: {post_data.get("title", "?")}')
 
-        from image_fetcher import get_image_for_topic, build_image_prompt
+        from services.image_fetcher import get_image_for_topic, build_image_prompt
         existing_urls = [
             row[0] for row in db.session.query(Post.image_url)
             .filter(Post.image_url.isnot(None), Post.image_url.contains('images.unsplash.com')).all()

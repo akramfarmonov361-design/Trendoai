@@ -19,6 +19,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from services.ai_service import generate_post_for_seo, get_last_ai_error
 from config import CATEGORIES, SITE_URL, TIMEZONE
+from extensions import db
 
 # 80/20 QOIDASI BO'YICHA 2026-YILNING ENG ZAMONAVIY VA TALABGIR MAVZULARI
 TOPICS = [
@@ -109,7 +110,7 @@ def _post_published_recently(window_hours=_DUPLICATE_WINDOW_HOURS):
     ``server_default=now()`` bilan to'ladi, shuning uchun uni ilova soati bilan
     solishtirish mintaqa farqi bo'lganda noto'g'ri natija berardi.
     """
-    from app import Post, db
+    from models import Post
 
     last_created = _strip_tz(db.session.query(db.func.max(Post.created_at)).scalar())
     if not isinstance(last_created, datetime):
@@ -137,9 +138,14 @@ def generate_and_publish_post(topic=None, category=None, force=False):
     logger.info(f"{'=' * 60}")
     sys.stdout.flush()
 
-    from app import Post, app, db
+    from models import Post
+    from extensions import db
 
-    with app.app_context():
+    def _get_app():
+        from app import app
+        return app
+
+    with _get_app().app_context():
         # Avtomatik chaqiruvlarda kuniga bitta post. Tekshiruvning o'zi yiqilsa
         # generatsiya davom etadi — post ikkilangandan ko'ra chiqmay qolgani yomonroq.
         if not force and topic is None:
@@ -174,7 +180,7 @@ def generate_and_publish_post(topic=None, category=None, force=False):
             post_data = generate_post_for_seo(selected_topic)
 
             if post_data:
-                from image_fetcher import get_image_for_topic, build_image_prompt
+                from services.image_fetcher import get_image_for_topic, build_image_prompt
 
                 existing_unsplash_urls = [
                     row[0] for row in db.session.query(Post.image_url)
@@ -221,7 +227,7 @@ def generate_and_publish_post(topic=None, category=None, force=False):
 
                 logger.info(f"[scheduler] Yangi post '{new_post.title}' bazaga saqlandi.")
 
-                from telegram_poster import send_photo_to_channel, send_to_telegram_channel
+                from services.telegram_poster import send_photo_to_channel, send_to_telegram_channel
 
                 def escape_md(text):
                     if not text:
@@ -257,7 +263,7 @@ def generate_and_publish_post(topic=None, category=None, force=False):
                     logger.info("[scheduler] Telegram yuborishda muammo yuz berdi")
 
                 try:
-                    from app import notify_all_subscribers
+                    from services.push_service import notify_all_subscribers
 
                     logger.info("[scheduler] Push xabar yuborilmoqda...")
                     push_count = notify_all_subscribers(
@@ -270,7 +276,7 @@ def generate_and_publish_post(topic=None, category=None, force=False):
                     logger.warning(f"[scheduler] Push yuborishda xato: {push_err}", exc_info=True)
 
                 try:
-                    from seo_indexer import ping_search_engines
+                    from services.seo_indexer import ping_search_engines
                     ping_search_engines([post_url, f"{SITE_URL}/sitemap.xml", f"{SITE_URL}/blog"])
                     logger.info("[scheduler] Google & IndexNow tezkor indekslashga ping yuborildi!")
                 except Exception as seo_err:
@@ -287,7 +293,7 @@ def generate_and_publish_post(topic=None, category=None, force=False):
             )
             logger.error(error_msg)
             try:
-                from telegram_poster import send_admin_alert
+                from services.telegram_poster import send_admin_alert
 
                 send_admin_alert(error_msg)
             except Exception:
@@ -303,7 +309,7 @@ def generate_and_publish_post(topic=None, category=None, force=False):
             traceback.print_exc()
             sys.stdout.flush()
             try:
-                from telegram_poster import send_admin_alert
+                from services.telegram_poster import send_admin_alert
 
                 send_admin_alert(error_msg)
             except Exception:

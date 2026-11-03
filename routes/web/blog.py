@@ -62,7 +62,7 @@ def blog():
 @web_bp.route('/post/<int:post_id>')
 def post(post_id):
     """Legacy ID orqali post sahifasi - slug ga 301 doimiy redirect"""
-    p = Post.query.get_or_404(post_id)
+    p = db.get_or_404(Post, post_id)
     if p.slug and not p.slug.startswith('json'):
         return redirect(url_for('web.post_by_slug', slug=p.slug), code=301)
     return redirect(url_for('web.blog'), code=301)

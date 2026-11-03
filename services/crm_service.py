@@ -6,7 +6,7 @@ import re
 from datetime import datetime, timedelta
 from extensions import db
 from models.interaction import Lead
-from telegram_poster import send_admin_alert
+from services.telegram_poster import send_admin_alert
 from utils.logger import setup_logger
 logger = setup_logger("crm_service")
 

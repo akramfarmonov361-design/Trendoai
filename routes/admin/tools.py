@@ -39,7 +39,7 @@ def admin_menu():
 
         elif action == 'delete_item':
             item_id = request.form.get('item_id')
-            item = MenuItem.query.get(item_id)
+            item = db.session.get(MenuItem, item_id)
             if item:
                 db.session.delete(item)
                 db.session.commit()
@@ -58,7 +58,7 @@ def admin_menu():
 @login_required
 def admin_seo_ping_all():
     """Admin panel orqali barcha sahifalarni IndexNow va Google Search Console ga ping berish"""
-    from seo_indexer import ping_search_engines
+    from services.seo_indexer import ping_search_engines
     site_url = current_app.config.get('SITE_URL') or SITE_URL
 
     urls = [site_url, f"{site_url}/portfolio", f"{site_url}/services", f"{site_url}/about"]
@@ -158,7 +158,7 @@ def seed_menu():
 def seed_blog():
     """SEO maqolalarni bazaga qo'shish (Faqat POST)"""
     try:
-        from app import Post  # or from models import Post
+        from models import Post
         articles = [
             {
                 'title': "Telegram Bot Nima va U Biznesingizga Qanday Foyda Keltiradi?",

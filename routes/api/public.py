@@ -74,7 +74,7 @@ def api_posts():
 @api_bp.route('/api/posts/<int:post_id>')
 def api_post(post_id):
     """Bitta post API"""
-    p = Post.query.get_or_404(post_id)
+    p = db.get_or_404(Post, post_id)
     return jsonify(p.to_dict())
 
 
@@ -127,7 +127,7 @@ def submit_lead():
         db.session.add(new_lead)
         db.session.commit()
 
-        from telegram_poster import send_admin_alert
+        from services.telegram_poster import send_admin_alert
         note_line = f"\n📝 <b>Tafsilot:</b> {note}" if note else ""
         msg = (
             f"🎯 <b>YANGI MIJOZ (LEAD)!</b>\n\n"
@@ -228,7 +228,7 @@ def update_bot_order_status():
                     if bot:
                         bot.send_message(order.tg_id, msg, parse_mode='Markdown')
                     else:
-                        from telegram_poster import _send_text
+                        from services.telegram_poster import _send_text
                         _send_text(order.tg_id, msg, parse_mode='Markdown', chat_label='customer')
                 except Exception as e:
                     logger.error(f"Failed to send status update to customer: {e}")
@@ -374,7 +374,7 @@ def facebook_lead_webhook():
     try:
         from config import FB_CONVERSIONS_API_TOKEN
         import requests
-        from telegram_poster import send_admin_alert
+        from services.telegram_poster import send_admin_alert
 
         entries = data.get('entry', [])
         for entry in entries:

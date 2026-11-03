@@ -1,4 +1,6 @@
-from app import app, db, MenuCategory, MenuItem
+from app import app
+from extensions import db
+from models import MenuCategory, MenuItem
 from utils.logger import setup_logger
 logger = setup_logger("init_demo_db")
 

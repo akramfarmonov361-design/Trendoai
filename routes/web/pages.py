@@ -153,7 +153,7 @@ def submit_order():
         return redirect(request.referrer or url_for('web.order_page'), code=303)
 
     try:
-        from telegram_poster import send_to_admin
+        from services.telegram_poster import send_to_admin
         budget_text = budget if budget else "Ko'rsatilmagan"
         message_text = message if message else "Yo'q"
         time_text = datetime.now().strftime('%d.%m.%Y %H:%M')

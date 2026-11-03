@@ -107,7 +107,7 @@ def admin_service_new():
 @login_required
 def admin_service_edit(service_id):
     """Xizmatni tahrirlash"""
-    service = Service.query.get_or_404(service_id)
+    service = db.get_or_404(Service, service_id)
 
     if request.method == 'POST':
         try:
@@ -145,7 +145,7 @@ def admin_service_edit(service_id):
 @login_required
 def admin_service_delete(service_id):
     """Xizmatni o'chirish"""
-    service = Service.query.get_or_404(service_id)
+    service = db.get_or_404(Service, service_id)
     db.session.delete(service)
     db.session.commit()
 
