@@ -50,17 +50,23 @@ CACHE_DEFAULT_TIMEOUT = int(os.getenv("CACHE_DEFAULT_TIMEOUT", 60))
 
 # ========== AI SOZLAMALARI ==========
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY2") or os.getenv("GEMINI_API_KEY3")
-_DEFAULT_MODEL = "gemini-3.7-flash"
+_DEFAULT_MODEL = "gemini-3.8-flash"
 _DEFAULT_MODEL_BACKUP = "gemini-3.5-flash-lite"
-_DEFAULT_LIVE_MODEL = "gemini-2.0-flash-exp"
+_DEFAULT_LIVE_MODEL = "gemini-3.8-live"
 
-# Models that Google has retired or invalid model names.
+# Models that Google has retired (shut down) according to ai.google.dev/gemini-api/docs/deprecations.
 # If someone has one of these in their .env / Render env vars, silently fall back
-# to the safe default instead of letting calls 404 from Gemini.
+# to the safe active default instead of letting calls 404 from Gemini.
 _DEPRECATED_MODELS = {
-    "gemini-3.8-live",  # invalid; live API uses gemini-2.0-flash-exp
-    "gemini-3.1-flash-live-preview",  # preview retired
-    "gemini-3.1-flash-lite-preview",  # preview retired
+    "gemini-2.0-flash",  # shut down June 1, 2026
+    "gemini-2.0-flash-001",  # shut down June 1, 2026
+    "gemini-2.0-flash-exp",  # shut down
+    "gemini-2.0-flash-lite",  # shut down June 1, 2026
+    "gemini-2.0-flash-lite-001",  # shut down June 1, 2026
+    "gemini-2.0-flash-live-001",  # shut down Dec 9, 2025 -> gemini-3.8-live
+    "gemini-live-2.5-flash-preview",  # shut down Dec 9, 2025 -> gemini-3.8-live
+    "gemini-3.1-flash-lite-preview",  # shut down May 25, 2026 -> gemini-3.5-flash-lite
+    "gemini-3-pro-preview",  # shut down March 9, 2026
     "gemini-pro",  # legacy v1
     "gemini-1.5-flash",  # retired
     "gemini-1.5-pro",  # retired

@@ -163,48 +163,62 @@ async def _generate_live_audio_reply(audio_bytes, mime_type, system_prompt):
     live_audio, live_mime_type = convert_audio_for_live_api(audio_bytes, mime_type)
     config = new_types.LiveConnectConfig(
         response_modalities=[new_types.Modality.AUDIO],
-        system_instruction=system_prompt,
+        system_instruction=new_types.Content(parts=[new_types.Part(text=system_prompt)]),
         speech_config=new_types.SpeechConfig(
             voice_config=new_types.VoiceConfig(
                 prebuilt_voice_config=new_types.PrebuiltVoiceConfig(voice_name='Zephyr')
             )
+        ),
+        input_audio_transcription=new_types.AudioTranscriptionConfig(),
+        output_audio_transcription=new_types.AudioTranscriptionConfig(),
+        realtime_input_config=new_types.RealtimeInputConfig(
+            automatic_activity_detection=new_types.AutomaticActivityDetection(disabled=True),
+            turn_coverage="TURN_INCLUDES_ONLY_ACTIVITY",
         ),
     )
 
     live_model_candidates = []
     for m in [
         GEMINI_LIVE_MODEL,
-        "gemini-2.0-flash-exp",
-        "gemini-2.0-flash",
-        "gemini-live-2.5-flash-preview",
+        "gemini-3.8-live",
+        "gemini-3.8-live-extended-thinking",
+        "gemini-3.1-flash-live-preview",
     ]:
         if m and m not in live_model_candidates:
             live_model_candidates.append(m)
 
     last_error = None
 
-    # 1. Asosiy urinish: Multimodal Live WebSocket seansi
+    # 1. Asosiy urinish: Multimodal Live WebSocket seansi (gemini-3.8-live)
     for index, key in enumerate(get_gemini_api_key_candidates(), start=1):
         for candidate_model in live_model_candidates:
             try:
-                client = new_genai.Client(api_key=key, http_options={"api_version": "v1beta"})
+                client = new_genai.Client(api_key=key)
                 audio_chunks = []
                 model_text_parts = []
                 output_transcript_parts = []
                 input_transcript_parts = []
 
-                model_target = candidate_model
-                if not model_target.startswith('models/'):
-                    model_target = f"models/{model_target}"
-
-                async with client.aio.live.connect(model=model_target, config=config) as session:
-                    blob = new_types.Blob(data=live_audio, mime_type=live_mime_type or 'audio/webm')
+                async with client.aio.live.connect(model=candidate_model, config=config) as session:
+                    effective_mime = live_mime_type or 'audio/pcm;rate=16000'
                     if hasattr(session, 'send_realtime_input'):
-                        await session.send_realtime_input(audio=blob)
-                        await session.send_realtime_input(audio_stream_end=True)
+                        try:
+                            await session.send_realtime_input(activity_start=new_types.ActivityStart())
+                            chunk_size = 32000
+                            for offset in range(0, max(len(live_audio), 1), chunk_size):
+                                piece = live_audio[offset:offset + chunk_size]
+                                await session.send_realtime_input(
+                                    audio=new_types.Blob(data=piece, mime_type=effective_mime)
+                                )
+                            await session.send_realtime_input(activity_end=new_types.ActivityEnd())
+                        except TypeError:
+                            blob = new_types.Blob(data=live_audio, mime_type=effective_mime)
+                            await session.send_realtime_input(audio=blob)
+                            await session.send_realtime_input(audio_stream_end=True)
                     elif hasattr(session, 'send'):
-                        await session.send(input={"data": live_audio, "mime_type": live_mime_type or 'audio/webm'}, end_of_turn=True)
+                        await session.send(input={"data": live_audio, "mime_type": effective_mime}, end_of_turn=True)
                     else:
+                        blob = new_types.Blob(data=live_audio, mime_type=effective_mime)
                         await session.send_client_content(
                             turns=new_types.Content(
                                 role='user',
@@ -241,6 +255,9 @@ async def _generate_live_audio_reply(audio_bytes, mime_type, system_prompt):
                                     if inline_data and getattr(inline_data, 'data', None):
                                         audio_chunks.append(inline_data.data)
 
+                            if getattr(server_content, 'turn_complete', False):
+                                break
+
                 response_text = ''.join(output_transcript_parts).strip() or ''.join(model_text_parts).strip()
                 audio_base64_result = audio_chunks_to_wav_base64(audio_chunks)
                 if response_text or audio_base64_result:
@@ -252,16 +269,16 @@ async def _generate_live_audio_reply(audio_bytes, mime_type, system_prompt):
                     }
             except Exception as exc:
                 last_error = exc
-                logger.warning(f"[voice] Live WebSocket failed on {candidate_model} (key #{index}): {type(exc).__name__}: {str(exc)[:120]}")
+                logger.warning(f"[voice] Live WebSocket failed on {candidate_model} (key #{index}): {type(exc).__name__}: {str(exc)[:140]}")
 
-    # 2. Zaxira: WebSocket ulanishi ishlamasa, Multimodal Audio generate_content orqali javob olish
+    # 2. Zaxira: WebSocket ulanishi ishlamasa, Multimodal Audio generate_content (Gemini 3.8/3.6/3.5) orqali javob olish
     for index, key in enumerate(get_gemini_api_key_candidates(), start=1):
-        for fallback_model in ["gemini-2.0-flash", "gemini-2.5-flash", "gemini-2.0-flash-exp"]:
+        for fallback_model in ["gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"]:
             try:
                 client = new_genai.Client(api_key=key)
                 part = new_types.Part.from_bytes(
-                    data=live_audio or audio_bytes,
-                    mime_type=live_mime_type or mime_type or 'audio/webm'
+                    data=audio_bytes,
+                    mime_type=(mime_type or 'audio/webm').split(';', 1)[0]
                 )
                 prompt_text = (
                     f"{system_prompt}\n\n"

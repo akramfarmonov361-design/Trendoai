@@ -47,7 +47,7 @@ def _candidate_models(only_text=True):
     chain = []
     candidates = [
         _preferred_model, GEMINI_MODEL, GEMINI_MODEL_BACKUP,
-        "gemini-3.7-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash", "gemini-2.5-pro"
+        "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite"
     ]
     for candidate in candidates:
         candidate = (candidate or "").strip()
