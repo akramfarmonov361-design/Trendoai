@@ -52,15 +52,15 @@ CACHE_DEFAULT_TIMEOUT = int(os.getenv("CACHE_DEFAULT_TIMEOUT", 60))
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY2") or os.getenv("GEMINI_API_KEY3")
 _DEFAULT_MODEL = "gemini-3.7-flash"
 _DEFAULT_MODEL_BACKUP = "gemini-3.5-flash-lite"
-_DEFAULT_LIVE_MODEL = "gemini-3.8-live"
+_DEFAULT_LIVE_MODEL = "gemini-2.0-flash-exp"
 
-# Models that Google has retired. If someone has one of these in their
-# .env / Render env vars, silently fall back to the safe default instead
-# of letting every /api/chat call 404 from Gemini.
-# Verified against `genai.list_models()` — entries here must actually be
-# missing or "no longer available" via the live Gemini API.
+# Models that Google has retired or invalid model names.
+# If someone has one of these in their .env / Render env vars, silently fall back
+# to the safe default instead of letting calls 404 from Gemini.
 _DEPRECATED_MODELS = {
-    "gemini-3.1-flash-lite-preview",  # preview retired; GA "gemini-3.1-flash-lite" still works
+    "gemini-3.8-live",  # invalid; live API uses gemini-2.0-flash-exp
+    "gemini-3.1-flash-live-preview",  # preview retired
+    "gemini-3.1-flash-lite-preview",  # preview retired
     "gemini-pro",  # legacy v1
     "gemini-1.5-flash",  # retired
     "gemini-1.5-pro",  # retired
@@ -79,7 +79,7 @@ def _resolve_model(env_name, default):
 
 GEMINI_MODEL = _resolve_model("GEMINI_MODEL", _DEFAULT_MODEL)
 GEMINI_MODEL_BACKUP = _resolve_model("GEMINI_MODEL_BACKUP", _DEFAULT_MODEL_BACKUP)
-GEMINI_LIVE_MODEL = (os.getenv("GEMINI_LIVE_MODEL") or _DEFAULT_LIVE_MODEL).strip()
+GEMINI_LIVE_MODEL = _resolve_model("GEMINI_LIVE_MODEL", _DEFAULT_LIVE_MODEL)
 AI_RETRY_ATTEMPTS = 3
 AI_RETRY_DELAY = 2
 

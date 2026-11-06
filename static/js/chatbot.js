@@ -359,6 +359,41 @@
             if (vadCheckInterval) clearInterval(vadCheckInterval);
         }
 
+        function playBrowserTTS(text, onEnded) {
+            if (!('speechSynthesis' in window) || !text) {
+                if (onEnded) onEnded();
+                return;
+            }
+            try {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.02;
+                utterance.pitch = 1.0;
+
+                const voices = window.speechSynthesis.getVoices() || [];
+                const matchedVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('uz')) ||
+                                     voices.find(v => v.lang && v.lang.toLowerCase().startsWith('ru')) ||
+                                     voices[0];
+                if (matchedVoice) utterance.voice = matchedVoice;
+
+                let finished = false;
+                const finishCallback = () => {
+                    if (!finished) {
+                        finished = true;
+                        if (onEnded) onEnded();
+                    }
+                };
+
+                utterance.onend = finishCallback;
+                utterance.onerror = finishCallback;
+                setTimeout(finishCallback, 15000);
+                window.speechSynthesis.speak(utterance);
+            } catch (e) {
+                console.log("TTS error:", e);
+                if (onEnded) onEnded();
+            }
+        }
+
         async function sendCallAudioChunk(audioBlob) {
             if (!isCallActive) return;
 
@@ -407,6 +442,17 @@
 
                         await currentAudioOutput.play().catch(e => {
                             console.log("Audio play error:", e);
+                            if (replyText && 'speechSynthesis' in window) {
+                                playBrowserTTS(replyText, () => {
+                                    if (isCallActive && !isCallMuted) startListeningCycle();
+                                });
+                            } else if (isCallActive && !isCallMuted) {
+                                startListeningCycle();
+                            }
+                        });
+                    } else if (replyText && 'speechSynthesis' in window && !data.error) {
+                        updateCallStatus('speaking', 'AI gapirmoqda...', true);
+                        playBrowserTTS(replyText, () => {
                             if (isCallActive && !isCallMuted) startListeningCycle();
                         });
                     } else {
@@ -444,6 +490,10 @@
             isCallActive = false;
             stopVAD();
             clearTimeout(silenceTimer);
+
+            if ('speechSynthesis' in window) {
+                try { window.speechSynthesis.cancel(); } catch(e){}
+            }
 
             if (currentAudioOutput) {
                 currentAudioOutput.pause();

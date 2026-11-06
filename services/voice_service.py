@@ -171,75 +171,119 @@ async def _generate_live_audio_reply(audio_bytes, mime_type, system_prompt):
         ),
     )
 
+    live_model_candidates = []
+    for m in [
+        GEMINI_LIVE_MODEL,
+        "gemini-2.0-flash-exp",
+        "gemini-2.0-flash",
+        "gemini-live-2.5-flash-preview",
+    ]:
+        if m and m not in live_model_candidates:
+            live_model_candidates.append(m)
+
     last_error = None
+
+    # 1. Asosiy urinish: Multimodal Live WebSocket seansi
     for index, key in enumerate(get_gemini_api_key_candidates(), start=1):
-        try:
-            client = new_genai.Client(api_key=key, http_options={"api_version": "v1beta"})
-            audio_chunks = []
-            model_text_parts = []
-            output_transcript_parts = []
-            input_transcript_parts = []
+        for candidate_model in live_model_candidates:
+            try:
+                client = new_genai.Client(api_key=key, http_options={"api_version": "v1beta"})
+                audio_chunks = []
+                model_text_parts = []
+                output_transcript_parts = []
+                input_transcript_parts = []
 
-            model_target = GEMINI_LIVE_MODEL
-            if not model_target.startswith('models/'):
-                model_target = f"models/{model_target}"
+                model_target = candidate_model
+                if not model_target.startswith('models/'):
+                    model_target = f"models/{model_target}"
 
-            async with client.aio.live.connect(model=model_target, config=config) as session:
-                blob = new_types.Blob(data=live_audio, mime_type=live_mime_type or 'audio/webm')
-                if hasattr(session, 'send_realtime_input'):
-                    await session.send_realtime_input(audio=blob)
-                    await session.send_realtime_input(audio_stream_end=True)
-                elif hasattr(session, 'send'):
-                    await session.send(input={"data": live_audio, "mime_type": live_mime_type or 'audio/webm'}, end_of_turn=True)
-                else:
-                    await session.send_client_content(
-                        turns=new_types.Content(
-                            role='user',
-                            parts=[new_types.Part(inline_data=blob)],
-                        ),
-                        turn_complete=True,
-                    )
+                async with client.aio.live.connect(model=model_target, config=config) as session:
+                    blob = new_types.Blob(data=live_audio, mime_type=live_mime_type or 'audio/webm')
+                    if hasattr(session, 'send_realtime_input'):
+                        await session.send_realtime_input(audio=blob)
+                        await session.send_realtime_input(audio_stream_end=True)
+                    elif hasattr(session, 'send'):
+                        await session.send(input={"data": live_audio, "mime_type": live_mime_type or 'audio/webm'}, end_of_turn=True)
+                    else:
+                        await session.send_client_content(
+                            turns=new_types.Content(
+                                role='user',
+                                parts=[new_types.Part(inline_data=blob)],
+                            ),
+                            turn_complete=True,
+                        )
 
-                async for response in session.receive():
-                    raw_data = getattr(response, 'data', None)
-                    if raw_data:
-                        audio_chunks.append(raw_data)
+                    async for response in session.receive():
+                        raw_data = getattr(response, 'data', None)
+                        if raw_data:
+                            audio_chunks.append(raw_data)
 
-                    raw_text = getattr(response, 'text', None)
-                    if raw_text:
-                        model_text_parts.append(raw_text)
+                        raw_text = getattr(response, 'text', None)
+                        if raw_text:
+                            model_text_parts.append(raw_text)
 
-                    server_content = getattr(response, 'server_content', None)
-                    if server_content is not None:
-                        input_transcription = getattr(server_content, 'input_transcription', None)
-                        if input_transcription and getattr(input_transcription, 'text', None):
-                            input_transcript_parts.append(input_transcription.text)
+                        server_content = getattr(response, 'server_content', None)
+                        if server_content is not None:
+                            input_transcription = getattr(server_content, 'input_transcription', None)
+                            if input_transcription and getattr(input_transcription, 'text', None):
+                                input_transcript_parts.append(input_transcription.text)
 
-                        output_transcription = getattr(server_content, 'output_transcription', None)
-                        if output_transcription and getattr(output_transcription, 'text', None):
-                            output_transcript_parts.append(output_transcription.text)
+                            output_transcription = getattr(server_content, 'output_transcription', None)
+                            if output_transcription and getattr(output_transcription, 'text', None):
+                                output_transcript_parts.append(output_transcription.text)
 
-                        model_turn = getattr(server_content, 'model_turn', None)
-                        if model_turn and model_turn.parts:
-                            for part in model_turn.parts:
-                                if getattr(part, 'text', None):
-                                    model_text_parts.append(part.text)
-                                inline_data = getattr(part, 'inline_data', None)
-                                if inline_data and getattr(inline_data, 'data', None):
-                                    audio_chunks.append(inline_data.data)
+                            model_turn = getattr(server_content, 'model_turn', None)
+                            if model_turn and model_turn.parts:
+                                for part in model_turn.parts:
+                                    if getattr(part, 'text', None):
+                                        model_text_parts.append(part.text)
+                                    inline_data = getattr(part, 'inline_data', None)
+                                    if inline_data and getattr(inline_data, 'data', None):
+                                        audio_chunks.append(inline_data.data)
 
-            response_text = ''.join(output_transcript_parts).strip() or ''.join(model_text_parts).strip()
-            audio_base64_result = audio_chunks_to_wav_base64(audio_chunks)
-            if response_text or audio_base64_result:
-                return {
-                    'text': response_text,
-                    'audio_base64': audio_base64_result,
-                    'input_transcription': ''.join(input_transcript_parts).strip(),
-                    'model': GEMINI_LIVE_MODEL,
-                }
-        except Exception as exc:
-            last_error = exc
-            logger.error(f"[voice] Gemini Live audio failed on key #{index}: {type(exc).__name__}: {str(exc)[:160]}")
+                response_text = ''.join(output_transcript_parts).strip() or ''.join(model_text_parts).strip()
+                audio_base64_result = audio_chunks_to_wav_base64(audio_chunks)
+                if response_text or audio_base64_result:
+                    return {
+                        'text': response_text,
+                        'audio_base64': audio_base64_result,
+                        'input_transcription': ''.join(input_transcript_parts).strip(),
+                        'model': candidate_model,
+                    }
+            except Exception as exc:
+                last_error = exc
+                logger.warning(f"[voice] Live WebSocket failed on {candidate_model} (key #{index}): {type(exc).__name__}: {str(exc)[:120]}")
+
+    # 2. Zaxira: WebSocket ulanishi ishlamasa, Multimodal Audio generate_content orqali javob olish
+    for index, key in enumerate(get_gemini_api_key_candidates(), start=1):
+        for fallback_model in ["gemini-2.0-flash", "gemini-2.5-flash", "gemini-2.0-flash-exp"]:
+            try:
+                client = new_genai.Client(api_key=key)
+                part = new_types.Part.from_bytes(
+                    data=live_audio or audio_bytes,
+                    mime_type=live_mime_type or mime_type or 'audio/webm'
+                )
+                prompt_text = (
+                    f"{system_prompt}\n\n"
+                    "Iltimos, foydalanuvchining yuqoridagi audio xabarini tushunib, "
+                    "unga o'zbek tilida qisqa, londa (1-2 ta jumla) va xushmuomala javob bering."
+                )
+                resp = client.models.generate_content(
+                    model=fallback_model,
+                    contents=[part, prompt_text],
+                )
+                text = (resp.text or '').strip()
+                if text:
+                    logger.info(f"[voice] Multimodal audio fallback muvaffaqiyatli ishladi (model={fallback_model}, key #{index})")
+                    return {
+                        'text': text,
+                        'audio_base64': None,
+                        'input_transcription': '',
+                        'model': fallback_model,
+                    }
+            except Exception as fb_exc:
+                last_error = fb_exc
+                logger.debug(f"[voice] Multimodal audio fallback failed on {fallback_model}: {fb_exc}")
 
     raise last_error if last_error else RuntimeError("Gemini Live API kaliti topilmadi")
 

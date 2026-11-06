@@ -70,5 +70,11 @@ class AudioChatTests(unittest.TestCase):
         self.assertEqual(data['model'], trendo_app.GEMINI_LIVE_MODEL)
         self.assertIn('Gemini Live uchun API project access yoqilmagan', data['response'])
 
+    def test_live_model_resolves_away_from_invalid_gemini_3_8_live(self):
+        from config import _resolve_model, _DEFAULT_LIVE_MODEL
+        with mock.patch.dict('os.environ', {'GEMINI_LIVE_MODEL': 'gemini-3.8-live'}):
+            resolved = _resolve_model('GEMINI_LIVE_MODEL', _DEFAULT_LIVE_MODEL)
+            self.assertEqual(resolved, 'gemini-2.0-flash-exp')
+
 if __name__ == '__main__':
     unittest.main()
