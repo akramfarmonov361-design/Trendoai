@@ -61,7 +61,7 @@
                 if (serviceName.includes('Bot')) svcSelect.value = 'telegram_bot';
                 else if (serviceName.includes('Sayt')) svcSelect.value = 'web_site';
                 else if (serviceName.includes('AI')) svcSelect.value = 'ai_chatbot';
-                else if (serviceName.includes('Target')) svcSelect.value = 'smm';
+                else if (serviceName.includes('Target')) svcSelect.value = 'target_ads';
             }
             orderForm.scrollIntoView({ behavior: 'smooth' });
         } else {

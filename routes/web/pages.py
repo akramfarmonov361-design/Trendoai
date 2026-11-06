@@ -9,9 +9,11 @@ logger = setup_logger("pages")
 
 from extensions import db
 from models.order import Order
+from models.portfolio import Portfolio
 from models.post import Post
 from routes.web._blueprint import web_bp
 from routes.web.services_routes import PUBLIC_SERVICE_PRICING
+from services.seed_portfolio import PROJECTS_DATA, resolve_portfolio_image
 from config import POSTS_PER_PAGE, SITE_URL
 
 ORDER_RATE_LIMIT = 3
@@ -28,7 +30,40 @@ def _client_ip():
 @web_bp.route('/')
 def index():
     """Bosh sahifa — xizmatlar sahifasi"""
-    return render_template('services.html', pricing=PUBLIC_SERVICE_PRICING)
+    featured_portfolio = []
+    try:
+        items = (
+            Portfolio.query.filter_by(is_published=True)
+            .order_by(Portfolio.is_featured.desc(), Portfolio.order_index.asc(), Portfolio.created_at.desc())
+            .limit(4)
+            .all()
+        )
+        for p in items:
+            featured_portfolio.append({
+                'title': p.title,
+                'slug': p.slug,
+                'category': p.category,
+                'description': p.description,
+                'image_url': resolve_portfolio_image(p.title, p.image_url, p.category),
+                'technologies': p.technologies or '',
+                'results': p.results or '',
+            })
+    except Exception:
+        featured_portfolio = []
+
+    if not featured_portfolio:
+        for p in PROJECTS_DATA[:4]:
+            featured_portfolio.append({
+                'title': p.get('title', ''),
+                'slug': '',
+                'category': p.get('category', 'web'),
+                'description': p.get('description', ''),
+                'image_url': resolve_portfolio_image(p.get('title', ''), p.get('image_url', ''), p.get('category', 'web')),
+                'technologies': p.get('technologies', ''),
+                'results': p.get('result', '') or p.get('results', ''),
+            })
+
+    return render_template('services.html', pricing=PUBLIC_SERVICE_PRICING, featured_portfolio=featured_portfolio)
 
 @web_bp.route('/search')
 def search():

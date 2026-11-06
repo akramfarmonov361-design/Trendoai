@@ -121,6 +121,25 @@
         <a class="hero-cta primary" href="{{ url_for('order_page') }}">{{ t('hero_btn_consult', 'Bepul konsultatsiya') }}</a>
         <a class="hero-cta secondary" href="{{ url_for('portfolio') }}">{{ t('hero_btn_portfolio', 'Ishlarimizni ko\'rish') }}</a>
     </div>
+
+    <div class="hero-stats-strip" aria-label="Asosiy ko'rsatkichlar">
+        <div class="hero-stat-item">
+            <strong class="hero-stat-num">36+</strong>
+            <span class="hero-stat-label">{{ t('stat_projects', 'Real loyihalar') }}</span>
+        </div>
+        <div class="hero-stat-item">
+            <strong class="hero-stat-num">3–10 kun</strong>
+            <span class="hero-stat-label">{{ t('stat_speed', 'Tezkor topshirish') }}</span>
+        </div>
+        <div class="hero-stat-item">
+            <strong class="hero-stat-num">24/7</strong>
+            <span class="hero-stat-label">{{ t('stat_ai', 'AI avtomatlashtirish') }}</span>
+        </div>
+        <div class="hero-stat-item">
+            <strong class="hero-stat-num">1 oy</strong>
+            <span class="hero-stat-label">{{ t('stat_warranty', 'Bepul kafolat') }}</span>
+        </div>
+    </div>
 </section>
 
 <!-- ========== HAQIQIY XIZMATLAR ========== -->
@@ -270,6 +289,52 @@
 
 </div>
 
+{% if featured_portfolio %}
+<!-- ========== FEATURED PORTFOLIO SHOWCASE ========== -->
+<section class="home-portfolio-section" aria-labelledby="home-portfolio-heading">
+    <div class="home-portfolio-header">
+        <div>
+            <span class="calc-pill">{{ t('home_port_pill', '🏆 Real Keys va Natijalar') }}</span>
+            <h2 id="home-portfolio-heading">{{ t('home_port_heading', 'So\'nggi Bajarilgan Loyihalar') }}</h2>
+            <p class="home-portfolio-lead">{{ t('home_port_lead', "O'zbekiston bizneslari uchun ishlab chiqilgan veb-platformalar, Telegram Mini App'lar va AI ekotizimlar.") }}</p>
+        </div>
+        <a href="{{ url_for('portfolio') }}" class="home-portfolio-all-btn">
+            {{ t('home_port_all_btn', 'Barcha loyihalarni ko\'rish') }} →
+        </a>
+    </div>
+
+    <div class="home-portfolio-grid">
+        {% for item in featured_portfolio %}
+        <article class="home-portfolio-card">
+            <a href="{{ url_for('portfolio_item', slug=item.slug) if item.slug else url_for('portfolio') }}" class="home-portfolio-img-wrap">
+                <img src="{{ item.image_url }}" alt="{{ item.title }}" width="480" height="270" loading="lazy" decoding="async">
+                <span class="home-portfolio-cat">
+                    {% if item.category == 'bot' %}Telegram Bot & TMA
+                    {% elif item.category == 'ai' %}AI Yechim
+                    {% elif item.category == 'mobile' %}Mobile App
+                    {% else %}Web Platforma{% endif %}
+                </span>
+            </a>
+            <div class="home-portfolio-body">
+                <h3>
+                    <a href="{{ url_for('portfolio_item', slug=item.slug) if item.slug else url_for('portfolio') }}">{{ item.title }}</a>
+                </h3>
+                <p>{{ item.description | truncate(110) }}</p>
+                <div class="home-portfolio-footer">
+                    {% if item.results %}
+                    <span class="home-portfolio-result">{{ item.results | truncate(34) }}</span>
+                    {% endif %}
+                    <a href="{{ url_for('portfolio_item', slug=item.slug) if item.slug else url_for('portfolio') }}" class="home-portfolio-link">
+                        {{ t('btn_details', 'Batafsil') }} →
+                    </a>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
 <!-- ========== INTERACTIVE PRICING CALCULATOR ========== -->
 <section class="calculator-section" id="kalkulyator" aria-labelledby="calc-heading">
     <div class="calc-wrapper">
@@ -285,22 +350,22 @@
                     <label class="field-title">{{ t('calc_step1', '1. Asosiy Yo\'nalishni Tanlang:') }}</label>
                     <div class="service-type-selector">
                         <label class="type-card active">
-                            <input type="radio" name="calc_base" value="Telegram Bot" data-price="400000" data-days="4" checked data-calc-input>
+                            <input type="radio" name="calc_base" value="Telegram Bot" data-price="300000" data-days="4" checked data-calc-input>
                             <span class="type-icon">🤖</span>
                             <span class="type-name">{{ t('srv_bot_title', 'Telegram Bot') }}</span>
-                            <span class="type-cost">400 000 so'mdan</span>
+                            <span class="type-cost">300 000 so'mdan</span>
                         </label>
                         <label class="type-card">
-                            <input type="radio" name="calc_base" value="Web Sayt" data-price="700000" data-days="6" data-calc-input>
+                            <input type="radio" name="calc_base" value="Web Sayt" data-price="500000" data-days="6" data-calc-input>
                             <span class="type-icon">🌐</span>
                             <span class="type-name">{{ t('srv_web_title', 'Web Sayt') }}</span>
-                            <span class="type-cost">700 000 so'mdan</span>
+                            <span class="type-cost">500 000 so'mdan</span>
                         </label>
                         <label class="type-card">
-                            <input type="radio" name="calc_base" value="AI Chatbot" data-price="1200000" data-days="7" data-calc-input>
+                            <input type="radio" name="calc_base" value="AI Chatbot" data-price="1000000" data-days="7" data-calc-input>
                             <span class="type-icon">🧠</span>
                             <span class="type-name">{{ t('srv_ai_title', 'AI Chatbot') }}</span>
-                            <span class="type-cost">1 200 000 so'mdan</span>
+                            <span class="type-cost">1 000 000 so'mdan</span>
                         </label>
                         <label class="type-card">
                             <input type="radio" name="calc_base" value="Target Reklama" data-price="600000" data-days="3" data-calc-input>
@@ -369,7 +434,7 @@
                     <div class="result-title" id="res-selected-title">Telegram Bot</div>
                     <div class="result-price-box">
                         <span class="res-price-label">{{ t('calc_res_total_label', 'Jami Taxminiy Qiymat:') }}</span>
-                        <div class="res-price-amount" id="res-total-cost">400 000 <small>so'm</small></div>
+                        <div class="res-price-amount" id="res-total-cost">300 000 <small>so'm</small></div>
                     </div>
                     <div class="result-meta">
                         <div class="meta-row">

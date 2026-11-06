@@ -14,8 +14,8 @@ qiling.{% endblock %}
 {% block content %}
 <section class="order-page">
     <div class="order-hero">
-        <h1>📝 Xizmatga Buyurtma</h1>
-        <p>Formani to'ldiring, biz siz bilan 24 soat ichida bog'lanamiz!</p>
+        <h1>{{ t('form_heading', '📝 Xizmatga Buyurtma') }}</h1>
+        <p>{{ t('form_lead', 'Formani to\'ldiring, biz siz bilan 24 soat ichida bog\'lanamiz!') }}</p>
     </div>
 
     <form class="order-form" action="{{ url_for('submit_order') }}" method="POST">
@@ -26,39 +26,51 @@ qiling.{% endblock %}
         </div>
         <div class="form-row">
             <div class="form-group">
-                <label for="name">👤 Ismingiz *</label>
+                <label for="name">{{ t('form_name_lbl', '👤 Ismingiz *') }}</label>
                 <input type="text" id="name" name="name" required placeholder="Masalan: Ali Valiyev">
             </div>
             <div class="form-group">
-                <label for="phone">📞 Telefon raqam *</label>
+                <label for="phone">{{ t('form_phone_lbl', '📞 Telefon raqam *') }}</label>
                 <input type="tel" id="phone" name="phone" required placeholder="+998 90 123 45 67">
             </div>
         </div>
 
         <div class="form-row">
-            <div class="form-group is-60">
-                <label for="service">🛠️ Xizmat turi (yoki nima kerakligi) *</label>
+            <div class="form-group">
+                <label for="service">{{ t('form_service_lbl', '🛠️ Xizmat turi *') }}</label>
                 <select id="service" name="service" required>
                     <option value="">Tanlang...</option>
-                    <option value="ai_content">🤖 AI Kontent Generatsiya</option>
-                    <option value="telegram_bot">📱 Telegram Bot</option>
-                    <option value="web_site">🌐 Web Sayt</option>
+                    <option value="telegram_bot">🤖 {{ t('srv_bot_title', 'Telegram Bot') }}</option>
+                    <option value="web_site">🌐 {{ t('srv_web_title', 'Veb-sayt') }}</option>
+                    <option value="ai_chatbot">🧠 {{ t('srv_ai_title', 'AI Chatbot') }}</option>
+                    <option value="target_ads">🎯 {{ t('srv_ads_title', 'Target Reklama') }}</option>
                     <option value="consulting">💡 IT Konsalting</option>
                     <option value="smm">📢 SMM Avtomatlashtirish</option>
-                    <option value="ai_chatbot">🤖 AI Chatbot</option>
-                    <option value="other">Boshqa</option>
+                    <option value="ai_content">✍️ AI Kontent Generatsiya</option>
+                    <option value="other">📌 Boshqa</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="budget">{{ t('form_budget_lbl', '💰 Byudjet') }}</label>
+                <select id="budget" name="budget">
+                    <option value="">Tanlang...</option>
+                    <option value="300k-800k">300,000 - 800,000 so'm</option>
+                    <option value="800k-1.5m">800,000 - 1,500,000 so'm</option>
+                    <option value="1.5m-3m">1,500,000 - 3,000,000 so'm</option>
+                    <option value="3m-5m">3,000,000 - 5,000,000 so'm</option>
+                    <option value="5m+">5,000,000+ so'm</option>
                 </select>
             </div>
         </div>
 
         <div class="form-group">
-            <label for="message">💬 Loyihangiz haqida</label>
+            <label for="message">{{ t('form_message_lbl', '💬 Loyihangiz haqida') }}</label>
             <textarea id="message" name="message" rows="5"
                 placeholder="Nima turdagi loyiha? Qanday funksiyalar kerak? Qachon tayyor bo'lishi kerak?"></textarea>
         </div>
 
         <button type="submit" class="submit-btn">
-            🚀 Ariza Yuborish
+            {{ t('form_submit_btn', '🚀 Ariza Yuborish') }}
         </button>
     </form>
 
