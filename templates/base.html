@@ -174,12 +174,10 @@
                     <span class="moon-icon" aria-hidden="true">🌙</span>
                     <span class="sun-icon" aria-hidden="true">☀️</span>
                 </button>
-                <!-- Language Switcher -->
-                <div class="lang-switcher is-52">
+                <!-- Language Switcher (Segmented Pill) -->
+                <div class="lang-switcher" role="group" aria-label="Tilni tanlash">
                     <a href="{{ url_for('web.set_language', lang_code='uz') }}" class="lang-link{% if current_lang == 'uz' %} lang-link-active{% endif %}" title="O'zbekcha">UZ</a>
-                    <span class="is-53">|</span>
                     <a href="{{ url_for('web.set_language', lang_code='ru') }}" class="lang-link{% if current_lang == 'ru' %} lang-link-active{% endif %}" title="Русский">RU</a>
-                    <span class="is-53">|</span>
                     <a href="{{ url_for('web.set_language', lang_code='en') }}" class="lang-link{% if current_lang == 'en' %} lang-link-active{% endif %}" title="English">EN</a>
                 </div>
                 <!-- Notification Toggle -->

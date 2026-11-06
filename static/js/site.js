@@ -261,3 +261,45 @@
     document.querySelectorAll('[data-tg-popup-close]').forEach(function (btn) {
         btn.addEventListener('click', closeTgPopup);
     });
+
+    // ========== SCROLL-REVEAL & CURSOR SPOTLIGHT ==========
+    (function initModernInteractions() {
+        const revealSelectors = [
+            '.home-portfolio-card',
+            '.process-step-card',
+            '.calc-card',
+            '.faq-item',
+            '.portfolio-card',
+            '.post-card'
+        ];
+        const elements = document.querySelectorAll(revealSelectors.join(','));
+        if ('IntersectionObserver' in window && elements.length > 0) {
+            const observer = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('reveal-visible');
+                        obs.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+            elements.forEach((el, idx) => {
+                el.classList.add('reveal-ready');
+                const delayIdx = (idx % 4) + 1;
+                el.classList.add('reveal-delay-' + delayIdx);
+                observer.observe(el);
+            });
+        }
+
+        // Cursor Spotlight tracking
+        const spotCards = document.querySelectorAll('.service-card-new, .home-portfolio-card, .process-step-card');
+        spotCards.forEach(card => {
+            card.addEventListener('mousemove', function (e) {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--spot-x', x + 'px');
+                card.style.setProperty('--spot-y', y + 'px');
+            }, { passive: true });
+        });
+    })();

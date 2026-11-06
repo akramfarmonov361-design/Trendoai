@@ -2746,16 +2746,70 @@ footer {
 }
 
 
-/* Til almashtirgich. Ilgari shartli style="" atributi edi; CSP style-src
-   uchun inline uslublar olib tashlanganda shartli klassga o'tkazildi. */
+/* Til almashtirgich — Segmented Glass Pill */
+.lang-switcher {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px;
+    gap: 2px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    backdrop-filter: blur(12px);
+}
+
+[data-theme="light"] .lang-switcher {
+    background: rgba(15, 23, 42, 0.05);
+}
+
 .lang-link {
     color: var(--text-muted);
     text-decoration: none;
-    padding: 2px 6px;
-    border-radius: 12px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    line-height: 1;
+    transition: all 0.25s ease;
+}
+
+.lang-link:hover {
+    color: var(--text-primary);
 }
 
 .lang-link-active {
-    color: var(--primary-light);
-    background: rgba(99, 102, 241, 0.2);
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    box-shadow: 0 2px 10px rgba(168, 85, 247, 0.4);
+}
+
+/* ========== SCROLL-REVEAL MICRO-ANIMATIONS ========== */
+.reveal-ready {
+    opacity: 0;
+    transform: translateY(22px);
+    filter: blur(5px);
+    transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+                filter 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform, filter;
+}
+
+.reveal-ready.reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.07s; }
+.reveal-delay-2 { transition-delay: 0.14s; }
+.reveal-delay-3 { transition-delay: 0.21s; }
+.reveal-delay-4 { transition-delay: 0.28s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal-ready {
+        opacity: 1;
+        transform: none;
+        filter: none;
+        transition: none;
+    }
 }
