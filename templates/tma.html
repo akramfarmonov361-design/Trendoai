@@ -100,9 +100,9 @@
             <div class="calc-card">
                 <label class="calc-label" for="calc-service">Asosiy xizmat turi:</label>
                 <select id="calc-service" class="select-input" data-calc-input>
-                    <option value="bot" data-price="400000" data-days="3">📱 Telegram Bot (Boshlang'ich - 400,000 so'm)</option>
-                    <option value="web" data-price="700000" data-days="5">🌐 Landing Page / Veb-sayt (700,000 so'm)</option>
-                    <option value="ai" data-price="1200000" data-days="7">🧠 AI Chatbot Yordamchi (1,200,000 so'm)</option>
+                    <option value="bot" data-price="300000" data-days="3">📱 Telegram Bot (Boshlang'ich - 300,000 so'm)</option>
+                    <option value="web" data-price="500000" data-days="5">🌐 Landing Page / Veb-sayt (500,000 so'm)</option>
+                    <option value="ai" data-price="1000000" data-days="7">🧠 AI Chatbot Yordamchi (1,000,000 so'm)</option>
                     <option value="target" data-price="600000" data-days="3">🎯 Target Reklama (600,000 so'm)</option>
                     <option value="complex" data-price="2500000" data-days="12">🚀 To'liq IT Kompleks Paket (2,500,000 so'm)</option>
                 </select>
@@ -133,7 +133,7 @@
 
                 <div class="calc-summary">
                     <div class="calc-total-label">Taxminiy Loyiha Qiymati:</div>
-                    <div class="calc-total-val" id="calc-total">400,000 so'm</div>
+                    <div class="calc-total-val" id="calc-total">300 000 so'm</div>
                     <div class="calc-time-val" id="calc-time">⏱ Tayyor bo'lish muddati: ~3 kun</div>
                 </div>
 
@@ -143,13 +143,31 @@
 
         <!-- TAB 3: AI CHAT -->
         <section id="tab-chat" class="tab-content">
-            <div class="calc-card is-82">
-                <div class="is-83">💬</div>
-                <h3>TrendoAI Aqlli Assistent</h3>
-                <p class="is-84">
-                    Savolingizni botimizga to'g'ridan-to'g'ri yozishingiz yoki veb-saytimiz orqali jonli muloqot qilishingiz mumkin.
-                </p>
-                <button class="service-btn" data-href="https://trendoai.uz">🌐 Saytda AI Chat ochish</button>
+            <div class="calc-card tma-chat-card">
+                <div class="tma-chat-header">
+                    <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="TrendoAI" class="tma-chat-avatar" width="36" height="36">
+                    <div>
+                        <h3 class="tma-chat-title">TrendoAI Assistent</h3>
+                        <span class="tma-chat-status">● Online • Gemini 3.8 AI</span>
+                    </div>
+                </div>
+
+                <div class="tma-chat-chips">
+                    <button type="button" class="tma-chip" data-tma-prompt="Telegram bot narxlari qancha va necha kunda tayyor bo'ladi?">🤖 Bot narxi</button>
+                    <button type="button" class="tma-chip" data-tma-prompt="Biznesim uchun qanday veb-sayt yoki AI chatbot tavsiya qilasiz?">🌐 Sayt va AI</button>
+                    <button type="button" class="tma-chip" data-tma-prompt="Mutaxassis bilan bepul konsultatsiya olmoqchiman">📞 Konsultatsiya</button>
+                </div>
+
+                <div class="tma-chat-messages" id="tma-chat-messages">
+                    <div class="tma-msg tma-msg-ai">
+                        Assalomu alaykum! 👋 Men TrendoAI sun'iy intellekt yordamchisiman. Sizga Telegram bot, veb-sayt yoki AI tizim bo'yicha hisob-kitob va maslahat beraman. Savolingizni yozing!
+                    </div>
+                </div>
+
+                <form class="tma-chat-input-row" id="tma-chat-form">
+                    <input type="text" id="tma-chat-input" class="text-input tma-chat-input" placeholder="Savolingizni yozing..." autocomplete="off">
+                    <button type="submit" id="tma-chat-send" class="tma-chat-send-btn" aria-label="Yuborish">➤</button>
+                </form>
             </div>
         </section>
 
@@ -166,6 +184,7 @@
                     <div>✈️ Telegram: @trendoai</div>
                     <div>🌐 Veb-sayt: trendoai.uz</div>
                 </div>
+                <button class="service-btn is-81" data-href="https://trendoai.uz">🌐 Veb-saytimizga o'tish</button>
             </div>
         </section>
     </main>

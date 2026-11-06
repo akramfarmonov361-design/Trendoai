@@ -11,8 +11,13 @@
             if (serviceSelect) {
                 const serviceMap = {
                     web: 'web_site',
+                    'veb-saytlar': 'web_site',
                     bot: 'telegram_bot',
+                    'telegram-botlar': 'telegram_bot',
                     ai: 'ai_chatbot',
+                    'ai-chatbotlar': 'ai_chatbot',
+                    target: 'target_ads',
+                    'target-reklama': 'target_ads',
                     mobile: 'other',
                 };
                 serviceSelect.value = serviceMap[serviceParam] || serviceParam;

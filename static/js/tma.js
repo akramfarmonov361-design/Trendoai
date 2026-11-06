@@ -177,3 +177,56 @@ if (submitBtn) submitBtn.addEventListener('click', submitOrder);
 document.querySelectorAll('[data-href]').forEach(function (btn) {
     btn.addEventListener('click', function () { window.location.href = btn.dataset.href; });
 });
+
+// ===== TMA AI Chat (Gemini 3.8) =====
+const tmaChatForm = document.getElementById('tma-chat-form');
+const tmaChatInput = document.getElementById('tma-chat-input');
+const tmaChatMessages = document.getElementById('tma-chat-messages');
+
+function appendTmaMessage(text, isUser) {
+    if (!tmaChatMessages) return null;
+    const div = document.createElement('div');
+    div.className = 'tma-msg ' + (isUser ? 'tma-msg-user' : 'tma-msg-ai');
+    div.textContent = text;
+    tmaChatMessages.appendChild(div);
+    tmaChatMessages.scrollTop = tmaChatMessages.scrollHeight;
+    return div;
+}
+
+async function sendTmaChatMessage(rawText) {
+    const text = (rawText || '').trim();
+    if (!text) return;
+    appendTmaMessage(text, true);
+    if (tmaChatInput) tmaChatInput.value = '';
+    const loadingEl = appendTmaMessage('AI yozmoqda...', false);
+
+    try {
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        if (loadingEl) {
+            loadingEl.textContent = data.response || data.error || 'Javob olishda xatolik yuz berdi.';
+        }
+    } catch (e) {
+        if (loadingEl) {
+            loadingEl.textContent = 'Aloqa xatosi. Iltimos, qaytadan urinib ko\'ring.';
+        }
+    }
+    if (tmaChatMessages) tmaChatMessages.scrollTop = tmaChatMessages.scrollHeight;
+}
+
+if (tmaChatForm) {
+    tmaChatForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        sendTmaChatMessage(tmaChatInput ? tmaChatInput.value : '');
+    });
+}
+
+document.querySelectorAll('[data-tma-prompt]').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+        sendTmaChatMessage(chip.getAttribute('data-tma-prompt'));
+    });
+});
