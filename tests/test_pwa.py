@@ -31,7 +31,8 @@ class PWATests(unittest.TestCase):
         response = self.client.get('/sw.js')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers['Content-Type'], 'application/javascript')
-        self.assertIn(b'trendoai-v8', response.data)
+        self.assertIn(b'trendoai-v9', response.data)
+        self.assertIn(b"'/static/favicon.png'", response.data)
         self.assertIn(b"event.request.method !== 'GET'", response.data)
         self.assertIn(b"url.pathname.startsWith('/api/')", response.data)
 

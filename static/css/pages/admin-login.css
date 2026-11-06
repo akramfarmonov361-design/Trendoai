@@ -27,18 +27,29 @@
             margin-bottom: 30px;
         }
 
-        .logo-icon {
+        .logo-icon,
+        .logo-img {
             font-size: 3rem;
+            width: 56px;
+            height: 56px;
+            object-fit: contain;
+            display: inline-block;
+            margin-bottom: 8px;
+            border-radius: 50%;
+            filter: drop-shadow(0 4px 14px rgba(168, 85, 247, 0.45));
         }
 
         .logo-text {
             font-size: 1.8rem;
-            font-weight: 700;
-            color: #333;
+            font-weight: 800;
+            color: #1e293b;
         }
 
         .logo-highlight {
-            color: #667eea;
+            background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         h2 {

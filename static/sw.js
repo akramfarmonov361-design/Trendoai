@@ -1,7 +1,7 @@
-const CACHE_NAME = 'trendoai-v8';
+const CACHE_NAME = 'trendoai-v9';
 const urlsToCache = [
     '/static/manifest.json',
-    '/static/favicon.svg',
+    '/static/favicon.png',
     '/static/favicon-32.png',
     '/static/img/logo-icon.png'
 ];
@@ -91,8 +91,8 @@ self.addEventListener('push', function (event) {
         const title = data.title || 'TrendoAI';
         const options = {
             body: data.body,
-            icon: '/static/favicon.svg',
-            badge: '/static/favicon.svg',
+            icon: '/static/favicon.png',
+            badge: '/static/favicon-32.png',
             vibrate: [100, 50, 100],
             data: {
                 url: data.url || '/'

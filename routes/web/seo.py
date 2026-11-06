@@ -183,7 +183,7 @@ def facebook_feed():
         SubElement(item, 'g:description').text = p.description
         link = f"{SITE_URL}/portfolio/project/{p.slug}" if p.slug else f"{SITE_URL}/portfolio"
         SubElement(item, 'g:link').text = link
-        SubElement(item, 'g:image_link').text = p.image_url or f"{SITE_URL}/static/logo.png"
+        SubElement(item, 'g:image_link').text = p.image_url or f"{SITE_URL}/static/img/logo.png"
         SubElement(item, 'g:brand').text = "TrendoAI"
         SubElement(item, 'g:condition').text = "new"
         SubElement(item, 'g:availability').text = "in stock"
@@ -213,7 +213,7 @@ def api_catalog_xml():
 
     for item in portfolios:
         category_name = cat_names.get(item.category, item.category)
-        image_url = item.image_url if item.image_url else f'{base_url}/static/favicon.svg'
+        image_url = item.image_url if item.image_url else f'{base_url}/static/img/logo.png'
         item_url = f'{base_url}/portfolio/project/{item.slug}' if item.slug else f'{base_url}/portfolio'
 
         xml_data += '  <item>\\n'

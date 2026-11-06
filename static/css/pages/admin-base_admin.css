@@ -55,17 +55,26 @@
             gap: 10px;
         }
 
-        .sidebar-logo .logo-icon {
+        .sidebar-logo .logo-icon,
+        .sidebar-logo .logo-img {
             font-size: 2rem;
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.45));
         }
 
         .sidebar-logo .logo-text {
             font-size: 1.4rem;
-            font-weight: 700;
+            font-weight: 800;
         }
 
         .sidebar-logo .logo-highlight {
-            color: var(--primary);
+            background: linear-gradient(135deg, #f9a8d4 0%, #f472b6 45%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .sidebar-nav a {

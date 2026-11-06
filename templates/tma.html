@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TrendoAI — Telegram Mini App</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='favicon.png') }}">
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,9 +18,9 @@
 
     <header class="header">
         <div class="logo-wrap">
-            <div class="logo-badge">T</div>
+            <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="TrendoAI" class="logo-badge" width="38" height="38" decoding="async">
             <div>
-                <div class="brand-title">TrendoAI</div>
+                <div class="brand-title">Trendo<span class="brand-highlight">AI</span></div>
                 <div class="brand-subtitle">IT & AI Agency</div>
             </div>
         </div>

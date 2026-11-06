@@ -236,20 +236,23 @@ header::before {
 .logo a {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     text-decoration: none;
 }
 
 .logo-img {
-    width: 55px;
-    height: 55px;
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    border-radius: 50%;
     object-fit: contain;
-    filter: drop-shadow(0 0 15px rgba(244, 114, 182, 0.4));
-    transition: transform 0.3s ease;
+    filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.45)) drop-shadow(0 0 18px rgba(244, 114, 182, 0.25));
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
 }
 
 .logo a:hover .logo-img {
-    transform: scale(1.1);
+    transform: scale(1.08) rotate(-3deg);
+    filter: drop-shadow(0 0 14px rgba(244, 114, 182, 0.65)) drop-shadow(0 0 24px rgba(99, 102, 241, 0.45));
 }
 
 @keyframes pulse {
@@ -265,16 +268,19 @@ header::before {
 }
 
 .logo-text {
-    font-size: 1.8rem;
+    font-size: 1.75rem;
     font-weight: 800;
-    background: var(--gradient-text);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    line-height: 1;
 }
 
 .logo-highlight {
-    color: var(--accent);
+    background: linear-gradient(135deg, #f9a8d4 0%, #f472b6 45%, #a855f7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 12px rgba(244, 114, 182, 0.35));
 }
 
 .tagline {
@@ -2223,8 +2229,16 @@ footer {
     margin-bottom: 12px;
 }
 
-.footer-brand .logo-icon {
+.footer-brand .logo-icon,
+.footer-brand .footer-logo-img {
     animation: none;
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+}
+
+.footer-brand .footer-logo-text {
+    font-size: 1.35rem;
 }
 
 .footer-content>p {
@@ -2342,6 +2356,11 @@ footer {
 
     .logo-icon {
         font-size: 1.3rem;
+    }
+
+    .logo-img {
+        width: 38px;
+        height: 38px;
     }
 
     .logo-text {
@@ -2653,8 +2672,13 @@ footer {
 
 /* Very Small Devices */
 @media (max-width: 400px) {
+    .logo-img {
+        width: 32px;
+        height: 32px;
+    }
+
     .logo-text {
-        font-size: 0.9rem;
+        font-size: 1.05rem;
     }
 
     header {

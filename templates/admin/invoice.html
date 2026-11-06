@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hisob-faktura #TRD-INV-{{ '%04d' % order.id }} — TrendoAI</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -23,7 +24,7 @@
         <!-- HEADER -->
         <header class="invoice-header">
             <div class="logo-section">
-                <div class="logo-box">T</div>
+                <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="TrendoAI" class="logo-box" width="44" height="44">
                 <div class="logo-text">
                     <h1>TrendoAI</h1>
                     <p>IT & Digital Marketing Agency</p>

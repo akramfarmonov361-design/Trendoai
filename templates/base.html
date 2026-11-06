@@ -96,7 +96,7 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32.png') }}">
     <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='favicon.png') }}">
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}"><link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='favicon-32.png') }}">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
 
     <!-- PWA -->
@@ -139,7 +139,7 @@
         <div class="header-content">
             <div class="logo">
                 <a href="{{ url_for('index') }}">
-                    <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="TrendoAI" class="logo-img" width="40" height="40" decoding="async" fetchpriority="high">
+                    <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="TrendoAI" class="logo-img" width="46" height="46" decoding="async" fetchpriority="high">
                     <span class="logo-text">Trendo<span class="logo-highlight">AI</span></span>
                 </a>
             </div>
@@ -228,8 +228,8 @@
     <footer>
         <div class="footer-content">
             <div class="footer-brand">
-                <span class="logo-icon">🔥</span>
-                <strong>TrendoAI</strong>
+                <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="TrendoAI" class="logo-img footer-logo-img" width="38" height="38" loading="lazy" decoding="async">
+                <strong class="logo-text footer-logo-text">Trendo<span class="logo-highlight">AI</span></strong>
             </div>
             <p>Telegram bot, web sayt va AI avtomatlashtirish yechimlari</p>
             <div class="footer-links">
