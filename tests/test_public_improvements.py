@@ -148,6 +148,14 @@ class PublicImprovementTests(unittest.TestCase):
         self.assertEqual(product_schema['offers']['priceCurrency'], 'UZS')
         self.assertTrue(product_schema['image'].startswith('http'))
 
+    def test_live_call_transcript_and_exit_offer_modal_present(self):
+        resp = self.client.get('/')
+        self.assertEqual(resp.status_code, 200)
+        html = resp.data.decode('utf-8')
+        self.assertIn('id="callLiveTranscript"', html)
+        self.assertIn('id="exitOfferModal"', html)
+        self.assertIn('id="exitOfferForm"', html)
+
 
 if __name__ == '__main__':
     unittest.main()

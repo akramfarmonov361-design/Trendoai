@@ -408,7 +408,7 @@ def direct_order(call):
         )
 
 # --- ORDER FLOW STATE HANDLER ---
-@bot.message_handler(content_types=['text', 'contact'], func=lambda message: True) if bot else lambda f: f
+@bot.message_handler(content_types=['text', 'contact', 'voice'], func=lambda message: True) if bot else lambda f: f
 def handle_all(message):
     user_id = message.from_user.id
     user_state = get_user_state(user_id)
@@ -421,6 +421,34 @@ def handle_all(message):
     user_state['last_time'] = now
     
     state = user_state['state']
+
+    # Telegram Voice Message AI handler (Gemini 3.8 Live / Flash)
+    if getattr(message, 'voice', None):
+        bot.send_chat_action(message.chat.id, 'typing')
+        try:
+            file_info = bot.get_file(message.voice.file_id)
+            voice_bytes = bot.download_file(file_info.file_path)
+            from services.voice_service import get_live_audio_reply, chat_audio_system_prompt
+            live_reply = get_live_audio_reply(
+                audio_bytes=voice_bytes,
+                mime_type=getattr(message.voice, 'mime_type', None) or 'audio/ogg',
+                system_prompt=chat_audio_system_prompt(),
+            )
+            reply_text = (live_reply.get('text') or '').strip() or "Ovozingizni eshitdim! Menyudan xizmat tanlashingiz yoki savolingizni yozishingiz mumkin."
+            transcript = (live_reply.get('input_transcription') or reply_text).strip()
+            with _get_app().app_context():
+                from services.crm_service import capture_lead_from_message
+                full_name = f"{getattr(message.from_user, 'first_name', '') or ''} {getattr(message.from_user, 'last_name', '') or ''}".strip() or "Telegram Ovozli Mijoz"
+                capture_lead_from_message(transcript, source="Telegram Bot (Voice AI)", default_name=full_name)
+            bot.reply_to(message, f"🎙️ {reply_text}", reply_markup=get_main_menu())
+        except Exception as voice_exc:
+            logger.warning(f"Telegram voice AI error: {voice_exc}")
+            bot.reply_to(
+                message,
+                "🎙️ Ovozli xabaringiz qabul qilindi! Iltimos, savolingizni matn ko'rinishida ham yozib yuboring yoki menyudan xizmat tanlang.",
+                reply_markup=get_main_menu(),
+            )
+        return
     
     if state == 'waiting_name':
         if not user_state.get('selected_item'):

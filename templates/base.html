@@ -317,6 +317,10 @@
                 <div class="voice-wave-bar"></div>
             </div>
 
+            <div class="call-live-transcript" id="callLiveTranscript" aria-live="polite">
+                <span class="call-transcript-hint">🎙️ Gapiring — Gemini 3.8 Live sizni tinglamoqda...</span>
+            </div>
+
             <div class="call-controls">
                 <button class="call-btn call-btn-mute" id="callMuteBtn" type="button" title="Mikrofonni o'chirish/yoqish">
                     🎤
@@ -339,6 +343,28 @@
             <button id="chatbotSend" type="button">{{ t('chat_send', 'Yuborish') }}</button>
         </div>
 
+    </div>
+
+    <!-- Exit-Intent / Tezkor Smeta & 10% Chegirma Modal -->
+    <div class="exit-offer-backdrop" id="exitOfferModal" role="dialog" aria-modal="true" aria-labelledby="exitOfferTitle" aria-hidden="true">
+        <div class="exit-offer-card">
+            <button type="button" class="exit-offer-close" id="exitOfferClose" aria-label="Yopish">✕</button>
+            <div class="exit-offer-badge">🎁 MAXSUS TAKLIF • -10% CHEGIRMA</div>
+            <h3 id="exitOfferTitle" class="exit-offer-title">Loyihangiz smetasini 15 daqiqada bepul oling!</h3>
+            <p class="exit-offer-desc">Kontakt qoldiring — AI arxitektorimiz loyihangiz narxi, muddati va <strong>1-buyurtma uchun 10% chegirma</strong> kuponini yuboradi.</p>
+            <form id="exitOfferForm" class="exit-offer-form">
+                <input type="text" id="exitOfferName" name="name" placeholder="Ismingiz" required autocomplete="name">
+                <input type="text" id="exitOfferContact" name="contact" placeholder="+998 90 123 45 67 yoki @telegram" required autocomplete="tel">
+                <select id="exitOfferService" name="service_type" aria-label="Xizmat turi">
+                    <option value="Telegram Bot & Mini App">🤖 Telegram Bot & Mini App</option>
+                    <option value="Veb-sayt / Internet Do'kon">🌐 Veb-sayt / Internet Do'kon</option>
+                    <option value="AI Chatbot & Ovozli AI">🧠 AI Chatbot & Ovozli AI</option>
+                    <option value="Target Reklama">🎯 Target Reklama (Instagram/FB)</option>
+                </select>
+                <button type="submit" class="exit-offer-submit" id="exitOfferSubmit">🚀 Smeta va 10% chegirmani olish</button>
+                <div class="exit-offer-status" id="exitOfferStatus" role="status" aria-live="polite"></div>
+            </form>
+        </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/site.js') }}" defer></script>

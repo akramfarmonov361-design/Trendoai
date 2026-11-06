@@ -303,3 +303,86 @@
             }, { passive: true });
         });
     })();
+
+    // ========== EXIT-INTENT & TIMED 10% OFFER MODAL ==========
+    (function initExitOfferModal() {
+        const modal = document.getElementById('exitOfferModal');
+        const closeBtn = document.getElementById('exitOfferClose');
+        const form = document.getElementById('exitOfferForm');
+        const statusEl = document.getElementById('exitOfferStatus');
+        const submitBtn = document.getElementById('exitOfferSubmit');
+        if (!modal || !form) return;
+
+        const STORAGE_KEY = 'trendo_exit_offer_v1';
+        let readyForExit = false;
+        setTimeout(() => { readyForExit = true; }, 8000);
+
+        function openOfferModal() {
+            if (sessionStorage.getItem(STORAGE_KEY) || localStorage.getItem(STORAGE_KEY + '_submitted')) return;
+            sessionStorage.setItem(STORAGE_KEY, '1');
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeOfferModal() {
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        if (closeBtn) closeBtn.addEventListener('click', closeOfferModal);
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) closeOfferModal();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && modal.classList.contains('active')) closeOfferModal();
+        });
+
+        document.addEventListener('mouseleave', function (e) {
+            if (readyForExit && e.clientY <= 10) {
+                openOfferModal();
+            }
+        });
+
+        // Mobile / fallback timer (55 soniyadan so'ng 1 marta)
+        setTimeout(() => {
+            if (!document.querySelector('.chatbot-window.active')) {
+                openOfferModal();
+            }
+        }, 55000);
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const name = (document.getElementById('exitOfferName')?.value || '').trim();
+            const contact = (document.getElementById('exitOfferContact')?.value || '').trim();
+            const service = (document.getElementById('exitOfferService')?.value || 'AI & IT Yechim').trim();
+            if (!contact) return;
+
+            if (submitBtn) submitBtn.disabled = true;
+            if (statusEl) statusEl.textContent = 'Yuborilmoqda...';
+
+            try {
+                const res = await fetch('/api/lead', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: name || 'Maxsus Taklif Mijozi',
+                        contact: contact,
+                        service_type: service,
+                        details: '🎁 Exit-Intent 10% Chegirma va Bepul Smeta kuponi'
+                    })
+                });
+                if (res.ok) {
+                    localStorage.setItem(STORAGE_KEY + '_submitted', '1');
+                    if (statusEl) statusEl.textContent = '✅ Qabul qilindi! 15 daqiqa ichida siz bilan bog\'lanamiz.';
+                    form.reset();
+                    setTimeout(closeOfferModal, 2200);
+                } else {
+                    if (statusEl) statusEl.textContent = '⚠️ Xatolik yuz berdi, qayta urinib ko\'ring.';
+                    if (submitBtn) submitBtn.disabled = false;
+                }
+            } catch (err) {
+                if (statusEl) statusEl.textContent = '⚠️ Tarmoq xatoligi, qayta urinib ko\'ring.';
+                if (submitBtn) submitBtn.disabled = false;
+            }
+        });
+    })();

@@ -223,6 +223,31 @@
         let callAudioChunks = [];
         let silenceTimer = null;
         let currentAudioOutput = null;
+        const callLiveTranscript = document.getElementById('callLiveTranscript');
+
+        function renderCallTranscript(userText, aiText) {
+            if (!callLiveTranscript) return;
+            callLiveTranscript.innerHTML = '';
+            if (userText) {
+                const uDiv = document.createElement('div');
+                uDiv.className = 'call-transcript-user';
+                uDiv.textContent = '👤 Siz: ' + userText;
+                callLiveTranscript.appendChild(uDiv);
+            }
+            if (aiText) {
+                const aDiv = document.createElement('div');
+                aDiv.className = 'call-transcript-ai';
+                aDiv.textContent = '🤖 AI: ' + aiText;
+                callLiveTranscript.appendChild(aDiv);
+            }
+            if (!userText && !aiText) {
+                const hint = document.createElement('span');
+                hint.className = 'call-transcript-hint';
+                hint.textContent = '🎙️ Gapiring — Gemini 3.8 Live sizni tinglamoqda...';
+                callLiveTranscript.appendChild(hint);
+            }
+            callLiveTranscript.scrollTop = callLiveTranscript.scrollHeight;
+        }
 
         function updateCallStatus(status, text, isSpeaking = false) {
             if (callStatusText) callStatusText.textContent = text;
@@ -249,6 +274,7 @@
                 }
 
                 updateCallStatus('connecting', 'Ulanmoqda...');
+                renderCallTranscript('', '');
 
                 callStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 updateCallStatus('listening', 'Sizni eshitmoqdamiz...');
@@ -415,7 +441,16 @@
                     const data = await response.json();
                     if (!isCallActive) return;
 
+                    const userTranscript = (data.input_transcription || '').trim();
                     const replyText = data.response || data.reply || '';
+                    renderCallTranscript(userTranscript, replyText);
+
+                    if (userTranscript) {
+                        const userDiv = document.createElement('div');
+                        userDiv.className = 'chat-message user';
+                        userDiv.textContent = '🎤 ' + userTranscript;
+                        chatbotMessages.appendChild(userDiv);
+                    }
                     if (replyText) {
                         const botDiv = document.createElement('div');
                         botDiv.className = 'chat-message bot';
